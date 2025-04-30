@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+
+
+
+    <color name="colorPrimary">#3f9453</color>
+    <color name="colorPrimaryDark">#2E7D32</color>
+    <color name="buttonTextColor">#FFFFFF</color>
+    <color name="textColorPrimary">#DE000000</color>
+    <color name="textColorSecondary">#8A000000</color>
+    <color name="myButtonColor">#D9D9D9</color> <!-- Example: Green color -->
+    <color name="myButtonTextColor">#FFFFFF</color>
+    <color name="colorPrimaryDarker">#00642C</color>
+
+        <color name="textPrimary">#212121</color>
+        <color name="textSecondary">#757575</color>
+        <color name="lightGrayBackground">#F0F0F0</color>
+        <color name="white">#FFFFFF</color>
+        <color name="starColor">#FFC107</color> <!-- Example Yellow/Gold -->
+
+</resources>
