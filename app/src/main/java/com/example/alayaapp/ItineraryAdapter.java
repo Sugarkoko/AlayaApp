@@ -1,15 +1,17 @@
 package com.example.alayaapp;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
+// Removed unused Context import
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+// Removed unused ImageView, TextView imports
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.alayaapp.databinding.ListItemItineraryBinding; // Import Item Binding
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
@@ -37,56 +39,79 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
     @NonNull
     @Override
     public ItineraryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_itinerary, parent, false);
-        return new ItineraryViewHolder(view);
+        // Inflate using ViewBinding
+        ListItemItineraryBinding binding = ListItemItineraryBinding.inflate(
+                LayoutInflater.from(parent.getContext()), parent, false);
+        return new ItineraryViewHolder(binding); // Pass binding to ViewHolder
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint("ClickableViewAccessibility") // Keep suppression for setOnTouchListener lambda
     @Override
     public void onBindViewHolder(@NonNull ItineraryViewHolder holder, int position) {
         ItineraryItem item = itineraryList.get(position);
-        holder.tvTime.setText(timeFormat.format(item.getTime().getTime()));
-        holder.tvActivity.setText(item.getActivity());
-        holder.tvRating.setText(item.getRating());
+        // Bind data using holder's binding object
+        holder.binding.tvItemTime.setText(timeFormat.format(item.getTime().getTime()));
+        holder.binding.tvItemActivity.setText(item.getActivity());
+        holder.binding.tvItemRating.setText(item.getRating());
 
-        // Show/hide drag handle based on edit mode
-        holder.ivDragHandle.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+        // Show/hide drag handle based on edit mode using binding
+        holder.binding.ivDragHandle.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
 
         // Start drag on touching the handle *only* in edit mode
         if (isEditMode) {
-            holder.ivDragHandle.setOnTouchListener((v, event) -> {
+            holder.binding.ivDragHandle.setOnTouchListener((v, event) -> {
+                // Check if the specific event is ACTION_DOWN
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    dragStartListener.onStartDrag(holder);
+                    // Check listener isn't null before calling
+                    if (dragStartListener != null) {
+                        dragStartListener.onStartDrag(holder);
+                    }
                 }
-                return false; // Let the touch event propagate if needed
+                // Return false: Let touch event propagate further if needed by system/parent views
+                // Return true: Consume the touch event here (usually not needed for simple drag handle)
+                return false;
             });
         } else {
-            holder.ivDragHandle.setOnTouchListener(null); // Remove listener when not editing
+            // Important: Remove the listener when not in edit mode to prevent accidental drags
+            // and potential memory leaks if the listener holds references.
+            holder.binding.ivDragHandle.setOnTouchListener(null);
         }
     }
 
+
     @Override
     public int getItemCount() {
-        return itineraryList.size();
+        // Check if list is null before returning size
+        return itineraryList != null ? itineraryList.size() : 0;
     }
 
     @Override
     public long getItemId(int position) {
-        // Return a unique and stable ID for the item
-        return itineraryList.get(position).getId();
+        // Add bounds checking
+        if (itineraryList != null && position >= 0 && position < itineraryList.size()) {
+            return itineraryList.get(position).getId();
+        }
+        // Return a default value or handle error appropriately if out of bounds
+        return RecyclerView.NO_ID; // Standard practice for invalid ID
     }
 
     public void setEditMode(boolean editMode) {
         boolean needsUpdate = isEditMode != editMode; // Check if mode actually changed
         isEditMode = editMode;
         if (needsUpdate) {
-            // Use notifyItemRangeChanged instead of notifyDataSetChanged()
+            // Use notifyItemRangeChanged for better performance than notifyDataSetChanged()
             // This rebinds existing views without fully recreating them.
             notifyItemRangeChanged(0, getItemCount());
         }
     }
+
     // Method called by ItemTouchHelper when an item is moved
     public boolean onItemMove(int fromPosition, int toPosition) {
+        // Add bounds checking for safety
+        if (fromPosition < 0 || fromPosition >= getItemCount() || toPosition < 0 || toPosition >= getItemCount()) {
+            return false;
+        }
+
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(itineraryList, i, i + 1);
@@ -96,55 +121,64 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
                 Collections.swap(itineraryList, i, i - 1);
             }
         }
+        // Notify adapter about the move for animation
         notifyItemMoved(fromPosition, toPosition);
+
         // IMPORTANT: Recalculate times after moving
-        recalculateTimes();
+        recalculateTimes(); // Call the recalculate method
         return true;
     }
 
-    // Method to update times based on order
+    // Method to update times based on order - ensure list isn't empty
     public void recalculateTimes() {
-        if (itineraryList.isEmpty()) return;
+        if (itineraryList == null || itineraryList.isEmpty()) return;
 
-        Calendar currentTime = (Calendar) itineraryList.get(0).getTime().clone(); // Start with first item's time or a fixed start time
-        // Or set a fixed start time:
-        // Calendar currentTime = Calendar.getInstance();
-        // currentTime.set(Calendar.HOUR_OF_DAY, 9);
-        // currentTime.set(Calendar.MINUTE, 0);
-        // currentTime.set(Calendar.SECOND, 0);
-        // itineraryList.get(0).setTime(currentTime); // Set first item's time
+        // Ensure the first item has a valid time to start from
+        if (itineraryList.get(0).getTime() == null) {
+            // Handle error: Maybe set a default start time or log an issue
+            // For now, let's set a default if null
+            Calendar defaultStart = Calendar.getInstance();
+            defaultStart.set(Calendar.HOUR_OF_DAY, 9); defaultStart.set(Calendar.MINUTE, 0); defaultStart.set(Calendar.SECOND, 0);
+            itineraryList.get(0).setTime(defaultStart);
+        }
+
+        Calendar currentTime = (Calendar) itineraryList.get(0).getTime().clone(); // Start with first item's time
 
         for (int i = 0; i < itineraryList.size(); i++) {
             ItineraryItem currentItem = itineraryList.get(i);
-            // Clone calendar to avoid modifying previous item's time reference
+
+            // Clone calendar to avoid modifying previous item's time reference unintentionally
             Calendar itemTime = (Calendar) currentTime.clone();
-            currentItem.setTime(itemTime);
+            currentItem.setTime(itemTime); // Set the calculated time
 
-            // Notify change for this specific item to update view
-            notifyItemChanged(i, "payload_time_update"); // Use payload to avoid full rebind if possible
+            // Notify change for this specific item to update its view *efficiently*
+            // Using a payload helps avoid full rebind if only time changed
+            notifyItemChanged(i, "payload_time_update");
 
-            // Increment time for the *next* item (e.g., add 1 hour)
-            currentTime.add(Calendar.HOUR_OF_DAY, 1); // Adjust interval as needed
+            // Increment time for the *next* item (e.g., add 1 hour - adjust as needed)
+            // Make sure to handle potential nulls if times could be invalid
+            if (currentTime != null) {
+                currentTime.add(Calendar.HOUR_OF_DAY, 1);
+            } else {
+                // Handle error - what should happen if current time becomes null?
+                break; // Stop recalculating if time becomes invalid
+            }
         }
-        // No need to call notifyDataSetChanged() if using notifyItemChanged()
     }
+
 
     public List<ItineraryItem> getCurrentList() {
         return itineraryList;
     }
 
-
-    // ViewHolder Class
+    // ViewHolder Class uses ViewBinding
     static class ItineraryViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivDragHandle;
-        TextView tvTime, tvActivity, tvRating;
+        // Hold the binding object instead of individual views
+        private final ListItemItineraryBinding binding;
 
-        ItineraryViewHolder(@NonNull View itemView) {
-            super(itemView);
-            ivDragHandle = itemView.findViewById(R.id.iv_drag_handle);
-            tvTime = itemView.findViewById(R.id.tv_item_time);
-            tvActivity = itemView.findViewById(R.id.tv_item_activity);
-            tvRating = itemView.findViewById(R.id.tv_item_rating);
+        ItineraryViewHolder(@NonNull ListItemItineraryBinding binding) {
+            super(binding.getRoot()); // Pass the root view to the superclass
+            this.binding = binding;   // Store the binding
         }
     }
 }
