@@ -57,7 +57,7 @@
                 android:background="@drawable/bg_rounded_light_gray"
                 android:drawableStart="@drawable/location"
                 android:drawablePadding="12dp"
-                android:gravity="center_vertical"
+                android:gravity="center"
                 android:padding="14dp"
                 android:text="Baguio City"
                 android:textColor="@color/textPrimary"
