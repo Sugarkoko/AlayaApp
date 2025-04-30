@@ -28,7 +28,6 @@
             android:paddingBottom="24dp"
             android:descendantFocusability="blocksDescendants">
 
-            <!-- Itineraries Title -->
             <TextView
                 android:id="@+id/tv_itineraries_title"
                 android:layout_width="wrap_content"
@@ -38,44 +37,40 @@
                 android:textSize="34sp"
                 android:textStyle="bold" />
 
-            <!-- Current Location Title -->
             <TextView
                 android:id="@+id/tv_current_location_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
-                android:text="Current Location"
+                android:text="Current Location:"
                 android:textColor="@color/textPrimary"
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
-            <!-- Location Display Box -->
             <TextView
                 android:id="@+id/tv_location_city"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
+                android:layout_marginTop="8dp"
                 android:background="@drawable/bg_rounded_light_gray"
                 android:drawableStart="@drawable/location"
                 android:drawablePadding="12dp"
-                android:gravity="center"
+                android:gravity="center_vertical|start"
                 android:padding="14dp"
-                android:text="Baguio City"
+                tools:text="Baguio City"
                 android:textColor="@color/textPrimary"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground" /> <!-- Added ripple -->
+                android:focusable="true"
+                android:foreground="?android:attr/selectableItemBackground" />
 
-
-            <!-- Suggested Itinerary Title Area -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
-                android:layout_marginTop="32dp">
+                android:layout_marginTop="24dp">
 
                 <TextView
                     android:id="@+id/tv_suggested_title"
@@ -87,7 +82,6 @@
                     android:textSize="20sp"
                     android:textStyle="bold"/>
 
-                <!-- Edit Icon (Initially Visible) -->
                 <ImageView
                     android:id="@+id/iv_edit_itinerary"
                     android:layout_width="24dp"
@@ -101,7 +95,6 @@
                     android:focusable="true"
                     android:visibility="visible"/>
 
-                <!-- Save Changes Text (Initially Hidden) -->
                 <TextView
                     android:id="@+id/tv_save_changes"
                     android:layout_width="wrap_content"
@@ -116,11 +109,10 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:visibility="gone"
-                    tools:visibility="visible"/> <!-- Added tools:visibility for preview -->
+                    tools:visibility="visible"/>
 
             </LinearLayout>
 
-            <!-- Suggested Itinerary RecyclerView -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_suggested_itinerary"
                 android:layout_width="match_parent"
@@ -133,9 +125,9 @@
                 android:orientation="vertical"
                 tools:listitem="@layout/list_item_itinerary"
                 tools:itemCount="5"
+                android:minHeight="150dp"
                 android:nestedScrollingEnabled="false"/>
 
-            <!-- Recommended Other Title -->
             <TextView
                 android:id="@+id/tv_recommended_title"
                 android:layout_width="wrap_content"
@@ -146,7 +138,6 @@
                 android:textSize="20sp"
                 android:textStyle="bold"/>
 
-            <!-- Recommended Other Itineraries GridLayout -->
             <GridLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -154,176 +145,171 @@
                 android:columnCount="2"
                 android:useDefaultMargins="true">
 
-
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_recommended_1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_columnWeight="1"
-                android:layout_gravity="fill_vertical"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="3dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground"
-                app:cardBackgroundColor="@color/lightGrayBackground">
-                <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="12dp">
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Arca's Yard Cafe"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="14sp"
-                        android:textStyle="bold"
-                        android:layout_marginBottom="4dp"/>
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_vertical"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="3dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/lightGrayBackground">
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical">
-                        <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(1K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Arca's Yard Cafe"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="4dp"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(1K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                        </LinearLayout>
                     </LinearLayout>
-                </LinearLayout>
-            </androidx.cardview.widget.CardView>
+                </androidx.cardview.widget.CardView>
 
-
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_recommended_2"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_columnWeight="1"
-            android:layout_gravity="fill_vertical"
-            app:cardCornerRadius="12dp"
-            app:cardElevation="3dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:foreground="?android:attr/selectableItemBackground"
-            app:cardBackgroundColor="@color/lightGrayBackground">
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:padding="12dp">
-                <TextView
-                    android:layout_width="match_parent"
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_recommended_2"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="Wright Park Riding Center"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:layout_marginBottom="4dp"/>
-                <LinearLayout
-                    android:layout_width="match_parent"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_vertical"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="3dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/lightGrayBackground">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Wright Park Riding Center"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="4dp"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.3" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(4K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_recommended_3"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:gravity="center_vertical">
-                    <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.3" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                    <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(4K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                </LinearLayout>
-            </LinearLayout>
-        </androidx.cardview.widget.CardView>
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_vertical"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="3dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/lightGrayBackground">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Baguio Orchidarium"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="4dp"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.5" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(2K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_recommended_4"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_columnWeight="1"
+                    android:layout_gravity="fill_vertical"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="3dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?android:attr/selectableItemBackground"
+                    app:cardBackgroundColor="@color/lightGrayBackground">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="12dp">
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Camp John Hay Picnic Area"
+                            android:textColor="@color/textPrimary"
+                            android:textSize="14sp"
+                            android:textStyle="bold"
+                            android:layout_marginBottom="4dp"/>
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="horizontal"
+                            android:gravity="center_vertical">
+                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(5K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/card_recommended_3"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_columnWeight="1"
-        android:layout_gravity="fill_vertical"
-        app:cardCornerRadius="12dp"
-        app:cardElevation="3dp"
-        android:clickable="true"
-        android:focusable="true"
-        android:foreground="?android:attr/selectableItemBackground"
-        app:cardBackgroundColor="@color/lightGrayBackground">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="12dp">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="Baguio Orchidarium"
-                android:textColor="@color/textPrimary"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:layout_marginBottom="4dp"/>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical">
-                <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.5" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(2K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-            </LinearLayout>
+            </GridLayout>
+
         </LinearLayout>
-    </androidx.cardview.widget.CardView>
-
-
-    <androidx.cardview.widget.CardView
-        android:id="@+id/card_recommended_4"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_columnWeight="1"
-    android:layout_gravity="fill_vertical"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="3dp"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground"
-    app:cardBackgroundColor="@color/lightGrayBackground">
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Camp John Hay Picnic Area"
-            android:textColor="@color/textPrimary"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:layout_marginBottom="4dp"/>
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
-            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(5K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-        </LinearLayout>
-    </LinearLayout>
-</androidx.cardview.widget.CardView>
-
-    </GridLayout>
-
-    </LinearLayout>
     </ScrollView>
 
-    <!-- Bottom Navigation -->
-<com.google.android.material.bottomnavigation.BottomNavigationView
-android:id="@+id/bottom_navigation"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:background="?android:attr/windowBackground"
-app:elevation="8dp"
-app:layout_constraintBottom_toBottomOf="parent"
-app:layout_constraintStart_toStartOf="parent"
-app:layout_constraintEnd_toEndOf="parent"
-app:menu="@menu/bottom_nav_menu"
-app:itemIconTint="@color/bottom_nav_color_selector"
-app:itemTextColor="@color/bottom_nav_color_selector"
-app:labelVisibilityMode="labeled" />
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:labelVisibilityMode="labeled" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

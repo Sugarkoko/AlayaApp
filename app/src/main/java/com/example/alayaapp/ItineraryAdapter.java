@@ -1,16 +1,15 @@
 package com.example.alayaapp;
 
 import android.annotation.SuppressLint;
-// Removed unused Context import
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-// Removed unused ImageView, TextView imports
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.alayaapp.databinding.ListItemItineraryBinding; // Import Item Binding
+import com.example.alayaapp.databinding.ListItemItineraryBinding;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -23,92 +22,95 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
     private List<ItineraryItem> itineraryList;
     private boolean isEditMode = false;
     private final OnStartDragListener dragStartListener;
+    private final OnItemClickListener itemClickListener; // Added click listener
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
 
-    // Interface to signal drag start to the Activity/Fragment
+    // Interface for drag start
     public interface OnStartDragListener {
         void onStartDrag(RecyclerView.ViewHolder viewHolder);
     }
 
-    public ItineraryAdapter(List<ItineraryItem> itineraryList, OnStartDragListener dragStartListener) {
+    // Interface for item click
+    public interface OnItemClickListener {
+        void onItemClick(int position);
+    }
+
+    // Updated Constructor
+    public ItineraryAdapter(List<ItineraryItem> itineraryList,
+                            OnStartDragListener dragStartListener,
+                            OnItemClickListener itemClickListener) { // Added click listener
         this.itineraryList = itineraryList;
         this.dragStartListener = dragStartListener;
-        setHasStableIds(true); // Important for drag/drop performance/correctness
+        this.itemClickListener = itemClickListener; // Store click listener
+        setHasStableIds(true);
     }
 
     @NonNull
     @Override
     public ItineraryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        // Inflate using ViewBinding
         ListItemItineraryBinding binding = ListItemItineraryBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
-        return new ItineraryViewHolder(binding); // Pass binding to ViewHolder
+        return new ItineraryViewHolder(binding, itemClickListener); // Pass click listener to ViewHolder
     }
 
-    @SuppressLint("ClickableViewAccessibility") // Keep suppression for setOnTouchListener lambda
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull ItineraryViewHolder holder, int position) {
         ItineraryItem item = itineraryList.get(position);
-        // Bind data using holder's binding object
-        holder.binding.tvItemTime.setText(timeFormat.format(item.getTime().getTime()));
-        holder.binding.tvItemActivity.setText(item.getActivity());
-        holder.binding.tvItemRating.setText(item.getRating());
 
-        // Show/hide drag handle based on edit mode using binding
+        // Check for null before accessing item properties
+        if (item == null) return;
+
+        // Bind data using holder's binding object
+        if (item.getTime() != null) {
+            holder.binding.tvItemTime.setText(timeFormat.format(item.getTime().getTime()));
+        } else {
+            holder.binding.tvItemTime.setText("N/A"); // Handle null time
+        }
+        holder.binding.tvItemActivity.setText(item.getActivity() != null ? item.getActivity() : "Unknown Activity");
+        holder.binding.tvItemRating.setText(item.getRating() != null ? item.getRating() : "-");
+
         holder.binding.ivDragHandle.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
 
-        // Start drag on touching the handle *only* in edit mode
         if (isEditMode) {
             holder.binding.ivDragHandle.setOnTouchListener((v, event) -> {
-                // Check if the specific event is ACTION_DOWN
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    // Check listener isn't null before calling
                     if (dragStartListener != null) {
                         dragStartListener.onStartDrag(holder);
                     }
                 }
-                // Return false: Let touch event propagate further if needed by system/parent views
-                // Return true: Consume the touch event here (usually not needed for simple drag handle)
                 return false;
             });
         } else {
-            // Important: Remove the listener when not in edit mode to prevent accidental drags
-            // and potential memory leaks if the listener holds references.
             holder.binding.ivDragHandle.setOnTouchListener(null);
         }
+        // Click listener is set in ViewHolder constructor now
     }
 
 
     @Override
     public int getItemCount() {
-        // Check if list is null before returning size
         return itineraryList != null ? itineraryList.size() : 0;
     }
 
     @Override
     public long getItemId(int position) {
-        // Add bounds checking
-        if (itineraryList != null && position >= 0 && position < itineraryList.size()) {
+        if (itineraryList != null && position >= 0 && position < itineraryList.size() && itineraryList.get(position) != null) {
             return itineraryList.get(position).getId();
         }
-        // Return a default value or handle error appropriately if out of bounds
-        return RecyclerView.NO_ID; // Standard practice for invalid ID
+        return RecyclerView.NO_ID;
     }
 
     public void setEditMode(boolean editMode) {
-        boolean needsUpdate = isEditMode != editMode; // Check if mode actually changed
+        boolean needsUpdate = isEditMode != editMode;
         isEditMode = editMode;
         if (needsUpdate) {
-            // Use notifyItemRangeChanged for better performance than notifyDataSetChanged()
-            // This rebinds existing views without fully recreating them.
             notifyItemRangeChanged(0, getItemCount());
         }
     }
 
-    // Method called by ItemTouchHelper when an item is moved
     public boolean onItemMove(int fromPosition, int toPosition) {
-        // Add bounds checking for safety
-        if (fromPosition < 0 || fromPosition >= getItemCount() || toPosition < 0 || toPosition >= getItemCount()) {
+        if (itineraryList == null || fromPosition < 0 || fromPosition >= itineraryList.size() || toPosition < 0 || toPosition >= itineraryList.size()) {
             return false;
         }
 
@@ -121,64 +123,84 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
                 Collections.swap(itineraryList, i, i - 1);
             }
         }
-        // Notify adapter about the move for animation
         notifyItemMoved(fromPosition, toPosition);
-
-        // IMPORTANT: Recalculate times after moving
-        recalculateTimes(); // Call the recalculate method
+        recalculateTimes();
         return true;
     }
 
-    // Method to update times based on order - ensure list isn't empty
     public void recalculateTimes() {
         if (itineraryList == null || itineraryList.isEmpty()) return;
 
-        // Ensure the first item has a valid time to start from
-        if (itineraryList.get(0).getTime() == null) {
-            // Handle error: Maybe set a default start time or log an issue
-            // For now, let's set a default if null
-            Calendar defaultStart = Calendar.getInstance();
-            defaultStart.set(Calendar.HOUR_OF_DAY, 9); defaultStart.set(Calendar.MINUTE, 0); defaultStart.set(Calendar.SECOND, 0);
-            itineraryList.get(0).setTime(defaultStart);
+        // Find the first item with a non-null time to start calculation
+        Calendar firstTime = null;
+        int firstTimeIndex = -1;
+        for(int i = 0; i < itineraryList.size(); i++) {
+            if(itineraryList.get(i) != null && itineraryList.get(i).getTime() != null) {
+                firstTime = (Calendar) itineraryList.get(i).getTime().clone();
+                firstTimeIndex = i;
+                break;
+            }
         }
 
-        Calendar currentTime = (Calendar) itineraryList.get(0).getTime().clone(); // Start with first item's time
-
-        for (int i = 0; i < itineraryList.size(); i++) {
-            ItineraryItem currentItem = itineraryList.get(i);
-
-            // Clone calendar to avoid modifying previous item's time reference unintentionally
-            Calendar itemTime = (Calendar) currentTime.clone();
-            currentItem.setTime(itemTime); // Set the calculated time
-
-            // Notify change for this specific item to update its view *efficiently*
-            // Using a payload helps avoid full rebind if only time changed
-            notifyItemChanged(i, "payload_time_update");
-
-            // Increment time for the *next* item (e.g., add 1 hour - adjust as needed)
-            // Make sure to handle potential nulls if times could be invalid
-            if (currentTime != null) {
-                currentTime.add(Calendar.HOUR_OF_DAY, 1);
+        // If no item has a time, set a default start for the first item
+        if (firstTime == null) {
+            if (itineraryList.get(0) != null) {
+                firstTime = Calendar.getInstance();
+                firstTime.set(Calendar.HOUR_OF_DAY, 9); firstTime.set(Calendar.MINUTE, 0); firstTime.set(Calendar.SECOND, 0);
+                itineraryList.get(0).setTime((Calendar)firstTime.clone());
+                firstTimeIndex = 0;
+                notifyItemChanged(0, "payload_time_update"); // Update the first item view
             } else {
-                // Handle error - what should happen if current time becomes null?
-                break; // Stop recalculating if time becomes invalid
+                return; // Cannot proceed if first item is null
+            }
+        }
+
+
+        Calendar currentTime = (Calendar) firstTime.clone();
+
+        // Calculate times for items *after* the first one with a time
+        for (int i = firstTimeIndex + 1; i < itineraryList.size(); i++) {
+            ItineraryItem currentItem = itineraryList.get(i);
+            if (currentItem != null) {
+                currentTime.add(Calendar.HOUR_OF_DAY, 1); // Add 1 hour (adjust as needed)
+                currentItem.setTime((Calendar) currentTime.clone());
+                notifyItemChanged(i, "payload_time_update");
+            }
+        }
+
+        // Calculate times for items *before* the first one with a time (if any)
+        currentTime = (Calendar) firstTime.clone(); // Reset to the known start time
+        for (int i = firstTimeIndex - 1; i >= 0; i--) {
+            ItineraryItem currentItem = itineraryList.get(i);
+            if (currentItem != null) {
+                currentTime.add(Calendar.HOUR_OF_DAY, -1); // Subtract 1 hour
+                currentItem.setTime((Calendar) currentTime.clone());
+                notifyItemChanged(i, "payload_time_update");
             }
         }
     }
-
 
     public List<ItineraryItem> getCurrentList() {
         return itineraryList;
     }
 
-    // ViewHolder Class uses ViewBinding
+    // ViewHolder Class
     static class ItineraryViewHolder extends RecyclerView.ViewHolder {
-        // Hold the binding object instead of individual views
         private final ListItemItineraryBinding binding;
 
-        ItineraryViewHolder(@NonNull ListItemItineraryBinding binding) {
-            super(binding.getRoot()); // Pass the root view to the superclass
-            this.binding = binding;   // Store the binding
+        // Updated constructor to accept click listener
+        ItineraryViewHolder(@NonNull ListItemItineraryBinding binding, OnItemClickListener listener) {
+            super(binding.getRoot());
+            this.binding = binding;
+
+            // Set click listener on the entire item view
+            itemView.setOnClickListener(v -> {
+                int position = getAdapterPosition();
+                // Ensure position is valid and listener exists
+                if (position != RecyclerView.NO_POSITION && listener != null) {
+                    listener.onItemClick(position);
+                }
+            });
         }
     }
 }

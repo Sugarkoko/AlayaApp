@@ -1,37 +1,51 @@
 package com.example.alayaapp;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar; // Or use java.time for API 26+
+import java.util.Calendar;
+import java.util.Locale;
 
 public class ItineraryItem {
-    private long id; // For stable IDs in adapter
-    private Calendar time; // Store time properly
+    private long id;
+    private Calendar time;
     private String activity;
     private String rating;
-    // Add other relevant fields if needed
+    private String bestTimeToVisit;
+    private double latitude;
+    private double longitude;
 
-    // Constructor, getters, setters
-
-    public ItineraryItem(long id, Calendar time, String activity, String rating) {
+    public ItineraryItem(long id, Calendar time, String activity, String rating,
+                         String bestTimeToVisit, double latitude, double longitude) {
         this.id = id;
         this.time = time;
         this.activity = activity;
         this.rating = rating;
+        this.bestTimeToVisit = bestTimeToVisit;
+        this.latitude = latitude;
+        this.longitude = longitude;
     }
 
-    // Getters
+    public ItineraryItem() {}
+
     public long getId() { return id; }
     public Calendar getTime() { return time; }
     public String getActivity() { return activity; }
     public String getRating() { return rating; }
+    public String getBestTimeToVisit() { return bestTimeToVisit; }
+    public double getLatitude() { return latitude; }
+    public double getLongitude() { return longitude; }
 
-    // Setters (especially for time)
+    public void setId(long id) { this.id = id; }
     public void setTime(Calendar time) { this.time = time; }
+    public void setActivity(String activity) { this.activity = activity; }
+    public void setRating(String rating) { this.rating = rating; }
+    public void setBestTimeToVisit(String bestTimeToVisit) { this.bestTimeToVisit = bestTimeToVisit; }
+    public void setLatitude(double latitude) { this.latitude = latitude; }
+    public void setLongitude(double longitude) { this.longitude = longitude; }
 
-    // You might want a helper to format the time string for display
+
     public String getFormattedTime() {
-        // Example using SimpleDateFormat (add import java.text.SimpleDateFormat)
-        SimpleDateFormat sdf = new SimpleDateFormat("h:mm a"); // e.g., 9:00 AM
+        if (time == null) return "N/A";
+        SimpleDateFormat sdf = new SimpleDateFormat("h:mm a", Locale.getDefault());
         return sdf.format(time.getTime());
     }
 }
