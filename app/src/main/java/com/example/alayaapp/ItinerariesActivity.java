@@ -2,8 +2,7 @@ package com.example.alayaapp;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.LinearLayoutManager; // Removed ItemTouchHelper import
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
@@ -25,20 +24,20 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
-import java.util.Arrays; // Added for Arrays.asList
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class ItinerariesActivity extends AppCompatActivity
-        implements ItineraryAdapter.OnStartDragListener, ItineraryAdapter.OnItemClickListener {
+        implements ItineraryAdapter.OnItemClickListener { // Removed OnStartDragListener
 
     private ActivityItinerariesBinding binding;
     private ItineraryAdapter itineraryAdapter;
-    private ItemTouchHelper itemTouchHelper;
-    private ItineraryItemTouchHelperCallback touchHelperCallback;
+    // Removed ItemTouchHelper and Callback variables
 
     private List<ItineraryItem> suggestedList = new ArrayList<>();
     private boolean isEditMode = false;
@@ -51,9 +50,10 @@ public class ItinerariesActivity extends AppCompatActivity
 
     private Gson gson = new Gson();
     private Map<String, List<ItineraryItem>> sampleItineraryData;
+    private Map<String, List<ItineraryItem>> locationChoicesData;
     private String currentLocation;
-    private final String[] availableLocations = {"Baguio City", "Cubao", "BGC"}; // Define locations
-    private int selectedLocationIndex = -1; // For dialog selection tracking
+    private final String[] availableLocations = {"Baguio City", "Cubao", "BGC"};
+    private int selectedLocationIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,21 +62,19 @@ public class ItinerariesActivity extends AppCompatActivity
         setContentView(binding.getRoot());
 
         createSampleData();
+        createLocationChoicesData();
         loadCurrentLocation();
         loadOrGenerateItineraryForLocation(currentLocation, false);
-        setupRecyclerView();
+        setupRecyclerView(); // No longer sets up ItemTouchHelper
         setupBottomNavListener();
         setupClickListeners();
     }
 
     private void setupRecyclerView() {
-        itineraryAdapter = new ItineraryAdapter(suggestedList, this, this);
+        itineraryAdapter = new ItineraryAdapter(suggestedList, this); // Removed drag listener
         binding.rvSuggestedItinerary.setLayoutManager(new LinearLayoutManager(this));
         binding.rvSuggestedItinerary.setAdapter(itineraryAdapter);
-
-        touchHelperCallback = new ItineraryItemTouchHelperCallback(itineraryAdapter);
-        itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(binding.rvSuggestedItinerary);
+        // ItemTouchHelper setup removed
     }
 
     private void setupClickListeners() {
@@ -107,7 +105,13 @@ public class ItinerariesActivity extends AppCompatActivity
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Select Location");
 
-        int currentSelectionIndex = Arrays.asList(availableLocations).indexOf(currentLocation);
+        int currentSelectionIndex = -1;
+        for (int i = 0; i < availableLocations.length; i++) {
+            if (availableLocations[i].equalsIgnoreCase(currentLocation)) {
+                currentSelectionIndex = i;
+                break;
+            }
+        }
         if (currentSelectionIndex == -1) currentSelectionIndex = 0;
         selectedLocationIndex = currentSelectionIndex;
 
@@ -127,7 +131,6 @@ public class ItinerariesActivity extends AppCompatActivity
             }
         });
         builder.setNegativeButton("Cancel", null);
-
         builder.show();
     }
 
@@ -140,16 +143,17 @@ public class ItinerariesActivity extends AppCompatActivity
             suggestedList.addAll(loadedList);
             Log.d("ItineraryActivity", "Loaded saved itinerary for: " + location);
         } else {
-            List<ItineraryItem> sampleItems = null;
-            for (Map.Entry<String, List<ItineraryItem>> entry : sampleItineraryData.entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(location)) {
-                    sampleItems = entry.getValue();
-                    break;
-                }
-            }
+            List<ItineraryItem> sampleItems = findSampleData(location);
 
             if (sampleItems != null) {
-                suggestedList.addAll(sampleItems);
+                List<ItineraryItem> itemsToUse = new ArrayList<>();
+                for(ItineraryItem item : sampleItems) { // Deep copy might be safer depending on future use
+                    itemsToUse.add(new ItineraryItem(item.getId(), item.getTime() != null ? (Calendar)item.getTime().clone() : null,
+                            item.getActivity(), item.getRating(), item.getBestTimeToVisit(),
+                            item.getLatitude(), item.getLongitude()));
+                }
+                suggestedList.addAll(itemsToUse);
+
                 Log.d("ItineraryActivity", "No saved data, generated sample itinerary for: " + location);
                 if (itineraryAdapter != null) {
                     itineraryAdapter.recalculateTimes();
@@ -166,18 +170,21 @@ public class ItinerariesActivity extends AppCompatActivity
 
         if (itineraryAdapter != null) {
             itineraryAdapter.notifyDataSetChanged();
+        } else {
+            setupRecyclerView();
         }
+
 
         if (isLocationChange || generatedNew) {
             binding.rvSuggestedItinerary.setVisibility(suggestedList.isEmpty() ? View.GONE : View.VISIBLE);
             if (isEditMode) {
                 forceExitEditMode();
             }
-            if (generatedNew && !isLocationChange) { // Only toast if generating on initial load
+            if (generatedNew && !isLocationChange) {
                 Toast.makeText(this, "Loaded sample itinerary for " + location, Toast.LENGTH_SHORT).show();
             } else if (isLocationChange && generatedNew) {
                 Toast.makeText(this, "Generated sample itinerary for " + location, Toast.LENGTH_SHORT).show();
-            } else if (isLocationChange && !generatedNew && loadedList != null) {
+            } else if (isLocationChange && !generatedNew && loadedList != null && !loadedList.isEmpty()) {
                 Toast.makeText(this, "Loaded previously saved itinerary for " + location, Toast.LENGTH_SHORT).show();
             }
         }
@@ -185,22 +192,30 @@ public class ItinerariesActivity extends AppCompatActivity
     }
 
 
+    private List<ItineraryItem> findSampleData(String location) {
+        for (Map.Entry<String, List<ItineraryItem>> entry : sampleItineraryData.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(location)) {
+                return entry.getValue();
+            }
+        }
+        return null;
+    }
+
+
     private void clearSavedItinerary() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit().remove(KEY_SUGGESTED_ITINERARY).apply();
-        Log.d("ItineraryActivity", "Cleared saved itinerary from SharedPreferences.");
+        String key = KEY_SUGGESTED_ITINERARY + "_" + currentLocation;
+        prefs.edit().remove(key).apply();
+        Log.d("ItineraryActivity", "Cleared saved itinerary from SharedPreferences for " + currentLocation);
     }
+
 
     private List<ItineraryItem> loadItineraryFromPrefs() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String json = prefs.getString(KEY_SUGGESTED_ITINERARY + "_" + currentLocation, null); // Use location specific key
+        String key = KEY_SUGGESTED_ITINERARY + "_" + currentLocation;
+        String json = prefs.getString(key, null);
         if (TextUtils.isEmpty(json)) {
-            json = prefs.getString(KEY_SUGGESTED_ITINERARY, null); // Fallback to generic key for migration
-            if(!TextUtils.isEmpty(json)) { // If fallback found, remove generic key after loading
-                prefs.edit().remove(KEY_SUGGESTED_ITINERARY).apply();
-            } else {
-                return null;
-            }
+            return null;
         }
 
         try {
@@ -208,6 +223,7 @@ public class ItinerariesActivity extends AppCompatActivity
             return gson.fromJson(json, listType);
         } catch (Exception e) {
             Log.e("ItineraryActivity", "Error parsing itinerary JSON from SharedPreferences", e);
+            prefs.edit().remove(key).apply();
             return null;
         }
     }
@@ -219,8 +235,7 @@ public class ItinerariesActivity extends AppCompatActivity
         SharedPreferences.Editor editor = prefs.edit();
         try {
             String json = gson.toJson(listToSave);
-            editor.putString(KEY_SUGGESTED_ITINERARY + "_" + currentLocation, json); // Use location specific key
-            editor.remove(KEY_SUGGESTED_ITINERARY); // Clean up old generic key if it exists
+            editor.putString(KEY_SUGGESTED_ITINERARY + "_" + currentLocation, json);
             editor.apply();
             Log.d("ItineraryActivity", "Saved itinerary to SharedPreferences for " + currentLocation);
         } catch (Exception e) {
@@ -262,6 +277,21 @@ public class ItinerariesActivity extends AppCompatActivity
         sampleItineraryData.put("Bonifacio Global City", bgcList);
     }
 
+    private void createLocationChoicesData() {
+        locationChoicesData = new HashMap<>();
+        long choiceIdCounter = -1;
+
+        List<ItineraryItem> baguioChoices = new ArrayList<>();
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Session Road", "4.2", "Anytime", 16.4128, 120.5978));
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Good Shepherd Convent", "4.6", "Daytime (Shopping)", 16.4278, 120.6183));
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Tam-awan Village", "4.1", "Daytime", 16.4293, 120.5803));
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Wright Park", "4.0", "Daytime", 16.4155, 120.6139));
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "The Mansion", "4.2", "Daytime (Outside View)", 16.4146, 120.6149));
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Laperal White House", "3.9", "Daytime (Spooky!)", 16.4108, 120.6077));
+        locationChoicesData.put("Baguio City", baguioChoices);
+
+    }
+
     private void enterEditMode() {
         if (suggestedList.isEmpty()) {
             Toast.makeText(this, "Itinerary is empty.", Toast.LENGTH_SHORT).show();
@@ -271,8 +301,7 @@ public class ItinerariesActivity extends AppCompatActivity
         binding.ivEditItinerary.setVisibility(View.GONE);
         binding.tvSaveChanges.setVisibility(View.VISIBLE);
         if (itineraryAdapter != null) itineraryAdapter.setEditMode(true);
-        if (touchHelperCallback != null) touchHelperCallback.setEditMode(true);
-        Toast.makeText(this, "Edit mode enabled.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Edit mode enabled. Click item to replace.", Toast.LENGTH_SHORT).show();
     }
 
     private void exitEditModeAndSave() {
@@ -287,29 +316,82 @@ public class ItinerariesActivity extends AppCompatActivity
         binding.ivEditItinerary.setVisibility(View.VISIBLE);
         binding.tvSaveChanges.setVisibility(View.GONE);
         if (itineraryAdapter != null) itineraryAdapter.setEditMode(false);
-        if (touchHelperCallback != null) touchHelperCallback.setEditMode(false);
-    }
-
-    @Override
-    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        if (itemTouchHelper != null && isEditMode) {
-            itemTouchHelper.startDrag(viewHolder);
-        }
     }
 
     @Override
     public void onItemClick(int position) {
+        if (position < 0 || position >= suggestedList.size()) return;
+
         if (isEditMode) {
-            Toast.makeText(this, "Exit edit mode to view details", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (position >= 0 && position < suggestedList.size()) {
+            if (currentLocation.equalsIgnoreCase("Baguio City")) {
+                showReplaceItemDialog(position);
+            } else {
+                Toast.makeText(this, "Item replacement only available for Baguio City in this prototype.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
             ItineraryItem clickedItem = suggestedList.get(position);
             if (clickedItem != null) {
                 showItemOverviewDialog(clickedItem);
             }
         }
     }
+
+    private void showReplaceItemDialog(final int positionToReplace) {
+        List<ItineraryItem> choices = locationChoicesData.get("Baguio City");
+        if (choices == null || choices.isEmpty()) {
+            Toast.makeText(this, "No replacement choices available.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        List<ItineraryItem> filteredChoices = new ArrayList<>();
+        List<String> currentActivities = suggestedList.stream()
+                .map(ItineraryItem::getActivity)
+                .filter(java.util.Objects::nonNull)
+                .collect(Collectors.toList());
+
+        for (ItineraryItem choice : choices) {
+            if (!currentActivities.contains(choice.getActivity())) {
+                filteredChoices.add(choice);
+            }
+        }
+
+        if (filteredChoices.isEmpty()) {
+            Toast.makeText(this, "All available choices are already in the itinerary.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final CharSequence[] choiceNames = new CharSequence[filteredChoices.size()];
+        for (int i = 0; i < filteredChoices.size(); i++) {
+            choiceNames[i] = filteredChoices.get(i).getActivity();
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Replace with:");
+        builder.setItems(choiceNames, (dialog, which) -> {
+            ItineraryItem chosenItemData = filteredChoices.get(which);
+            ItineraryItem originalItem = suggestedList.get(positionToReplace);
+
+            if (originalItem != null && chosenItemData != null) {
+                ItineraryItem newItem = new ItineraryItem(
+                        originalItem.getId(),
+                        originalItem.getTime(),
+                        chosenItemData.getActivity(),
+                        chosenItemData.getRating(),
+                        chosenItemData.getBestTimeToVisit(),
+                        chosenItemData.getLatitude(),
+                        chosenItemData.getLongitude()
+                );
+
+                suggestedList.set(positionToReplace, newItem);
+                itineraryAdapter.notifyItemChanged(positionToReplace);
+                Log.d("ItineraryActivity", "Replaced item at position " + positionToReplace + " with " + newItem.getActivity());
+            }
+            dialog.dismiss();
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
 
     private void showItemOverviewDialog(ItineraryItem item) {
         if (item == null) return;

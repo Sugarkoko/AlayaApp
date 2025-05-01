@@ -3,6 +3,7 @@ package com.example.alayaapp;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Objects; // Added for equals/hashCode
 
 public class ItineraryItem {
     private long id;
@@ -42,10 +43,28 @@ public class ItineraryItem {
     public void setLatitude(double latitude) { this.latitude = latitude; }
     public void setLongitude(double longitude) { this.longitude = longitude; }
 
-
     public String getFormattedTime() {
         if (time == null) return "N/A";
         SimpleDateFormat sdf = new SimpleDateFormat("h:mm a", Locale.getDefault());
         return sdf.format(time.getTime());
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ItineraryItem that = (ItineraryItem) o;
+        return id == that.id &&
+                Double.compare(that.latitude, latitude) == 0 &&
+                Double.compare(that.longitude, longitude) == 0 &&
+                Objects.equals(time, that.time) &&
+                Objects.equals(activity, that.activity) &&
+                Objects.equals(rating, that.rating) &&
+                Objects.equals(bestTimeToVisit, that.bestTimeToVisit);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, time, activity, rating, bestTimeToVisit, latitude, longitude);
     }
 }
