@@ -1,92 +1,100 @@
 package com.example.alayaapp;
 
-import androidx.annotation.NonNull; // Import this
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent; // Import this
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.MenuItem; // Import this
-import android.widget.Button; // If you have other buttons
-import android.widget.TextView;
-import android.widget.Toast; // Import this
+import android.widget.Toast;
+// Removed unused imports like Button, TextView, MenuItem, NavigationBarView etc.
+// Keep NonNull import if used elsewhere, though not strictly needed for this code now
+// import androidx.annotation.NonNull;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView; // Import this
-import com.google.android.material.navigation.NavigationBarView; // Import this
+import com.example.alayaapp.databinding.ActivityHomeBinding; // Import ViewBinding class
 
 public class HomeActivity extends AppCompatActivity {
 
-    // Declare the BottomNavigationView
-    BottomNavigationView bottomNavigationView;
-
-    // Declare other views if needed (like the trip date button)
-    // Button btnTripDate;
+    private ActivityHomeBinding binding; // Declare binding variable
+    final int CURRENT_ITEM_ID = R.id.navigation_home; // Define constant for clarity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_home); // Your home layout file
+        // Inflate the layout using ViewBinding
+        binding = ActivityHomeBinding.inflate(getLayoutInflater());
+        // Set the content view from the binding's root
+        setContentView(binding.getRoot());
 
-        // --- Find Views ---
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
-        // btnTripDate = findViewById(R.id.btn_trip_date); // Example
+        // --- Find Views using binding ---
+        // Example: Accessing the trip date button
+        // binding.btnTripDate.setOnClickListener(...)
 
         // --- Set Initial State for Bottom Nav ---
-        // Set Home selected since we are in HomeActivity
-        bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+        binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
 
         // --- Set Listeners ---
-
-        // Example listener for another button (if you have one)
-        /*
-        btnTripDate.setOnClickListener(v -> {
+        // Example listener for trip date button
+        binding.btnTripDate.setOnClickListener(v -> {
             // Handle trip date click
-            Toast.makeText(HomeActivity.this, "Trip Date Clicked (No Action)", Toast.LENGTH_SHORT).show();
+            // TODO: Implement Date Picker Dialog or similar
+            Toast.makeText(HomeActivity.this, "Trip Date Clicked (Implement Date Picker)", Toast.LENGTH_SHORT).show();
         });
-        */
+
+        // Example Listener for location change
+        binding.tvLocationCity2.setOnClickListener(v -> {
+            // TODO: Implement Location Change Dialog/Screen
+            Toast.makeText(HomeActivity.this, "Change Location Clicked (Implement Feature)", Toast.LENGTH_SHORT).show();
+        });
+
 
         // ** --- Add the Bottom Navigation Item Selection Logic --- **
-        bottomNavigationView.setOnItemSelectedListener(item -> {
+        binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
-            if (itemId == R.id.navigation_home) {
+            if (itemId == CURRENT_ITEM_ID) {
                 // Already on Home screen, do nothing or maybe refresh data
                 return true; // Indicate item selection was handled
             } else if (itemId == R.id.navigation_itineraries) {
                 // Navigate to Itineraries Activity
-                startActivity(new Intent(getApplicationContext(), ItinerariesActivity.class));
-                // Optional: Add transition animation
-                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out); // Simple fade
-                finish(); // Close HomeActivity so back button doesn't return here
+                navigateTo(ItinerariesActivity.class, true); // Use helper method
                 return true;
             } else if (itemId == R.id.navigation_map) {
                 // TODO: Navigate to Map Activity (Create MapActivity first)
-                // startActivity(new Intent(getApplicationContext(), MapActivity.class));
-                // overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                // finish();
+                // navigateTo(MapActivity.class, true);
                 Toast.makeText(HomeActivity.this, "Map Clicked (No Activity)", Toast.LENGTH_SHORT).show();
-                // Return true even if not navigating yet to show selection change
+                // Return true even if not navigating yet to show selection change visually
                 return true;
             } else if (itemId == R.id.navigation_profile) {
                 // TODO: Navigate to Profile Activity (Create ProfileActivity first)
-                // startActivity(new Intent(getApplicationContext(), ProfileActivity.class));
-                // overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-                // finish();
+                // navigateTo(ProfileActivity.class, true);
                 Toast.makeText(HomeActivity.this, "Profile Clicked (No Activity)", Toast.LENGTH_SHORT).show();
-                // Return true even if not navigating yet to show selection change
+                // Return true even if not navigating yet to show selection change visually
                 return true;
             }
-
             return false; // Return false if the item ID is not handled
         });
     }
 
-    // Optional: Ensure the correct item is selected when resuming the activity
-    // This helps if you navigate away and come back via means other than the nav bar
+    // Helper method for navigation to avoid repetition
+    private void navigateTo(Class<?> destinationActivity, boolean slideRight) {
+        Intent intent = new Intent(getApplicationContext(), destinationActivity);
+        startActivity(intent);
+        if (slideRight) {
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+        } else {
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+        }
+        finish(); // Close current activity
+    }
+
+
+    // Optional: Re-select item onResume if needed, but usually not necessary
+    // if navigation always finishes the current activity.
     /*
     @Override
     protected void onResume() {
         super.onResume();
-        bottomNavigationView.setSelectedItemId(R.id.navigation_home);
+        if (binding != null) { // Check binding exists
+             binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
+        }
     }
     */
 }

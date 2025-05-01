@@ -1,180 +1,510 @@
 package com.example.alayaapp;
 
-import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.ItemTouchHelper; // Import
-import androidx.recyclerview.widget.LinearLayoutManager; // Import
-import androidx.recyclerview.widget.RecyclerView; // Import
+import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
-import android.view.MenuItem;
-import android.view.View; // Import
-import android.widget.ImageView;
-import android.widget.TextView; // Import
+import android.text.TextUtils;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.Toast;
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-import com.google.android.material.navigation.NavigationBarView;
+import com.example.alayaapp.databinding.ActivityItinerariesBinding;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
 
-import java.util.ArrayList; // Import
-import java.util.Calendar; // Import
-import java.util.List; // Import
+import java.lang.reflect.Type;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects; // Added Objects import
+import java.util.stream.Collectors;
 
-public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.OnStartDragListener { // Implement listener
+public class ItinerariesActivity extends AppCompatActivity
+        implements ItineraryAdapter.OnStartDragListener,
+        ItineraryAdapter.OnItemClickListener {
 
-    BottomNavigationView bottomNavigationView;
-    // ImageView ivEditItinerary; // We find both edit and save now
-    View ivEditItinerary; // Use View for easier toggling if needed
-    TextView tvSaveChanges;
-    RecyclerView rvSuggestedItinerary;
-    ItineraryAdapter itineraryAdapter;
-    ItemTouchHelper itemTouchHelper;
-    ItineraryItemTouchHelperCallback touchHelperCallback; // Keep reference to update edit mode
+    private ActivityItinerariesBinding binding;
+    private ItineraryAdapter itineraryAdapter;
+    private ItemTouchHelper itemTouchHelper;
+    private ItineraryItemTouchHelperCallback touchHelperCallback;
 
+    private List<ItineraryItem> suggestedList = new ArrayList<>();
+    private boolean isEditMode = false;
+    final int CURRENT_ITEM_ID = R.id.navigation_itineraries; // Correct ID for this activity
 
-    List<ItineraryItem> suggestedList = new ArrayList<>(); // Your data list
-    private boolean isEditMode = false; // State tracking
+    private static final String PREFS_NAME = "AlayaAppPrefs";
+    private static final String KEY_CURRENT_LOCATION = "currentLocation";
+    private static final String KEY_SUGGESTED_ITINERARY = "suggestedItineraryJson";
+    private static final String DEFAULT_LOCATION = "Baguio City";
 
-    final int CURRENT_ITEM_ID = R.id.navigation_itineraries;
+    private Gson gson = new Gson();
+    private Map<String, List<ItineraryItem>> sampleItineraryData;
+    private Map<String, List<ItineraryItem>> locationChoicesData;
+    private String currentLocation;
+    private final String[] availableLocations = {"Baguio City", "Cubao", "BGC"};
+    private int selectedLocationIndex = -1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_itineraries);
+        binding = ActivityItinerariesBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        // Find Views
-        ivEditItinerary = findViewById(R.id.iv_edit_itinerary);
-        tvSaveChanges = findViewById(R.id.tv_save_changes);
-        rvSuggestedItinerary = findViewById(R.id.rv_suggested_itinerary);
-        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        createSampleData();
+        createLocationChoicesData();
+        loadCurrentLocation();
+        loadOrGenerateItineraryForLocation(currentLocation, false); // Load initial data first
+        setupRecyclerView(); // Then setup recycler view
+        setupBottomNavListener(); // Then setup listeners
+        setupClickListeners();
 
-        // Setup RecyclerView
-        setupRecyclerView();
-
-        // Load Initial Data (Placeholder)
-        loadPlaceholderData();
-
-        // Setup Bottom Nav
-        bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
-        setupBottomNavListener();
-
-
-        // Setup Click Listeners for Edit/Save
-        ivEditItinerary.setOnClickListener(v -> enterEditMode());
-        tvSaveChanges.setOnClickListener(v -> exitEditModeAndSave());
-
+        // Set Bottom Nav selection after layout is complete
+        binding.bottomNavigation.post(() -> {
+            binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
+        });
     }
 
     private void setupRecyclerView() {
-        itineraryAdapter = new ItineraryAdapter(suggestedList, this); // Pass listener
-        rvSuggestedItinerary.setLayoutManager(new LinearLayoutManager(this));
-        rvSuggestedItinerary.setAdapter(itineraryAdapter);
+        itineraryAdapter = new ItineraryAdapter(suggestedList, this, this);
+        binding.rvSuggestedItinerary.setLayoutManager(new LinearLayoutManager(this));
+        binding.rvSuggestedItinerary.setAdapter(itineraryAdapter);
 
-        // Setup ItemTouchHelper
         touchHelperCallback = new ItineraryItemTouchHelperCallback(itineraryAdapter);
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(rvSuggestedItinerary);
+        itemTouchHelper.attachToRecyclerView(binding.rvSuggestedItinerary);
     }
 
-    private void loadPlaceholderData() {
-        // Create some dummy data with initial times
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, 9); cal.set(Calendar.MINUTE, 0);
-        suggestedList.add(new ItineraryItem(1, (Calendar)cal.clone(), "Breakfast at Café by the Ruins", "4.5"));
-        cal.add(Calendar.HOUR_OF_DAY, 1);
-        suggestedList.add(new ItineraryItem(2, (Calendar)cal.clone(), "Burnham Park", "4.5")); // Changed to Burnham
-        cal.add(Calendar.HOUR_OF_DAY, 2); // 12 PM
-        suggestedList.add(new ItineraryItem(3, (Calendar)cal.clone(), "Lunch at Choco-late de Batirol", "4.5"));
-        cal.add(Calendar.HOUR_OF_DAY, 2); // 2 PM
-        suggestedList.add(new ItineraryItem(4, (Calendar)cal.clone(), "Mines View Park", "4.5"));
-        cal.add(Calendar.HOUR_OF_DAY, 1); // 3 PM
-        suggestedList.add(new ItineraryItem(5, (Calendar)cal.clone(), "Baguio Cathedral", "4.5"));
-        cal.add(Calendar.HOUR_OF_DAY, 1); // 4 PM
-        suggestedList.add(new ItineraryItem(6, (Calendar)cal.clone(), "Lemon and Olives", "4.5"));
-        cal.add(Calendar.HOUR_OF_DAY, 1); // 5 PM
-        suggestedList.add(new ItineraryItem(7, (Calendar)cal.clone(), "Dinner at Café Yagam", "4.5"));
+    private void setupClickListeners() {
+        binding.ivEditItinerary.setOnClickListener(v -> enterEditMode());
+        binding.tvSaveChanges.setOnClickListener(v -> exitEditModeAndSave());
+        binding.tvLocationCity.setOnClickListener(v -> showChangeLocationDialog());
+        setupRecommendedClickListeners();
+    }
 
-        itineraryAdapter.notifyDataSetChanged();
+    private void loadCurrentLocation() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        currentLocation = prefs.getString(KEY_CURRENT_LOCATION, DEFAULT_LOCATION);
+        binding.tvLocationCity.setText(currentLocation);
+    }
+
+    private void saveCurrentLocation(String location) {
+        if (location == null || location.trim().isEmpty()) return;
+        currentLocation = location.trim();
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.putString(KEY_CURRENT_LOCATION, currentLocation);
+        editor.apply();
+        binding.tvLocationCity.setText(currentLocation);
+        Log.d("ItineraryActivity", "Saved current location: " + currentLocation);
+    }
+
+    private void showChangeLocationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Select Location");
+
+        // Find the index accurately, ignoring case
+        int currentSelectionIndex = -1;
+        for (int i = 0; i < availableLocations.length; i++) {
+            if (availableLocations[i].equalsIgnoreCase(currentLocation)) {
+                currentSelectionIndex = i;
+                break;
+            }
+        }
+        // Default to 0 if somehow not found (shouldn't happen with default value)
+        if (currentSelectionIndex == -1) currentSelectionIndex = 0;
+
+        // Use a temporary variable for selection within the dialog listener
+        final int[] tempSelectedIndex = {currentSelectionIndex};
+
+        builder.setSingleChoiceItems(availableLocations, currentSelectionIndex, (dialog, which) -> {
+            tempSelectedIndex[0] = which; // Update temporary index on click
+        });
+
+        builder.setPositiveButton("OK", (dialog, which) -> {
+            // Use the final selected index from the temporary variable
+            int finalSelectedIndex = tempSelectedIndex[0];
+            if (finalSelectedIndex != -1) {
+                String newLocation = availableLocations[finalSelectedIndex];
+                if (!newLocation.equalsIgnoreCase(currentLocation)) {
+                    saveCurrentLocation(newLocation);
+                    loadOrGenerateItineraryForLocation(currentLocation, true); // Trigger load/generate
+                } else {
+                    dialog.dismiss(); // Dismiss if location didn't change
+                }
+            }
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+    private void loadOrGenerateItineraryForLocation(String location, boolean isLocationChange) {
+        List<ItineraryItem> loadedList = loadItineraryFromPrefs();
+        suggestedList.clear();
+        boolean generatedNew = false;
+
+        if (loadedList != null && !loadedList.isEmpty()) {
+            suggestedList.addAll(loadedList);
+            Log.d("ItineraryActivity", "Loaded saved itinerary for: " + location);
+        } else {
+            List<ItineraryItem> sampleItems = findSampleData(location);
+
+            if (sampleItems != null) {
+                List<ItineraryItem> itemsToUse = new ArrayList<>();
+                for(ItineraryItem item : sampleItems) {
+                    itemsToUse.add(new ItineraryItem(item.getId(), item.getTime() != null ? (Calendar)item.getTime().clone() : null,
+                            item.getActivity(), item.getRating(), item.getBestTimeToVisit(),
+                            item.getLatitude(), item.getLongitude()));
+                }
+                suggestedList.addAll(itemsToUse);
+
+                Log.d("ItineraryActivity", "No saved data, generated sample itinerary for: " + location);
+                if (itineraryAdapter != null) {
+                    itineraryAdapter.recalculateTimes();
+                } else {
+                    Log.w("ItineraryActivity", "Adapter not ready during initial sample data time calculation");
+                }
+                saveItineraryToPrefs(suggestedList);
+                generatedNew = true;
+            } else {
+                Log.d("ItineraryActivity", "No saved or sample data found for: " + location);
+                clearSavedItinerary();
+            }
+        }
+
+        if (itineraryAdapter != null) {
+            itineraryAdapter.notifyDataSetChanged();
+        } else {
+            setupRecyclerView(); // Ensure adapter/recycler is setup if it wasn't
+        }
+
+
+        if (isLocationChange || generatedNew) {
+            binding.rvSuggestedItinerary.setVisibility(suggestedList.isEmpty() ? View.GONE : View.VISIBLE);
+            if (isEditMode) {
+                forceExitEditMode();
+            }
+            if (generatedNew && !isLocationChange) {
+                // Toast.makeText(this, "Loaded sample itinerary for " + location, Toast.LENGTH_SHORT).show();
+            } else if (isLocationChange && generatedNew) {
+                Toast.makeText(this, "Generated sample itinerary for " + location, Toast.LENGTH_SHORT).show();
+            } else if (isLocationChange && !generatedNew && loadedList != null && !loadedList.isEmpty()) {
+                Toast.makeText(this, "Loaded previously saved itinerary for " + location, Toast.LENGTH_SHORT).show();
+            }
+        }
+        binding.rvSuggestedItinerary.setVisibility(suggestedList.isEmpty() ? View.GONE : View.VISIBLE);
+    }
+
+
+    private List<ItineraryItem> findSampleData(String location) {
+        for (Map.Entry<String, List<ItineraryItem>> entry : sampleItineraryData.entrySet()) {
+            if (entry.getKey().equalsIgnoreCase(location)) {
+                // Return a deep copy to avoid modifying the original sample data map
+                List<ItineraryItem> originalList = entry.getValue();
+                List<ItineraryItem> copyList = new ArrayList<>(originalList.size());
+                for (ItineraryItem item : originalList) {
+                    copyList.add(new ItineraryItem(item.getId(),
+                            item.getTime() != null ? (Calendar) item.getTime().clone() : null,
+                            item.getActivity(), item.getRating(), item.getBestTimeToVisit(),
+                            item.getLatitude(), item.getLongitude()));
+                }
+                return copyList;
+            }
+        }
+        return null;
+    }
+
+
+    private void clearSavedItinerary() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String key = KEY_SUGGESTED_ITINERARY + "_" + currentLocation;
+        prefs.edit().remove(key).apply();
+        Log.d("ItineraryActivity", "Cleared saved itinerary from SharedPreferences for " + currentLocation);
+    }
+
+
+    private List<ItineraryItem> loadItineraryFromPrefs() {
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        String key = KEY_SUGGESTED_ITINERARY + "_" + currentLocation;
+        String json = prefs.getString(key, null);
+        if (TextUtils.isEmpty(json)) {
+            return null;
+        }
+
+        try {
+            Type listType = new TypeToken<ArrayList<ItineraryItem>>() {}.getType();
+            return gson.fromJson(json, listType);
+        } catch (Exception e) {
+            Log.e("ItineraryActivity", "Error parsing itinerary JSON from SharedPreferences", e);
+            prefs.edit().remove(key).apply();
+            return null;
+        }
+    }
+
+    private void saveItineraryToPrefs(List<ItineraryItem> listToSave) {
+        if (listToSave == null || currentLocation == null) return;
+
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        try {
+            String json = gson.toJson(listToSave);
+            editor.putString(KEY_SUGGESTED_ITINERARY + "_" + currentLocation, json);
+            editor.apply();
+            Log.d("ItineraryActivity", "Saved itinerary to SharedPreferences for " + currentLocation);
+        } catch (Exception e) {
+            Log.e("ItineraryActivity", "Error converting itinerary to JSON for SharedPreferences", e);
+            Toast.makeText(this, "Error saving changes", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void createSampleData() {
+        sampleItineraryData = new HashMap<>();
+        Calendar cal = Calendar.getInstance();
+        long idCounter = 1;
+
+        List<ItineraryItem> baguioList = new ArrayList<>();
+        cal.set(Calendar.HOUR_OF_DAY, 9); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
+        baguioList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Burnham Park", "4.4", "Morning/Afternoon", 16.4123, 120.5950));
+        baguioList.add(new ItineraryItem(idCounter++, null, "Baguio Cathedral", "4.5", "Anytime", 16.4137, 120.5987));
+        baguioList.add(new ItineraryItem(idCounter++, null, "Mines View Park", "4.3", "Morning (for view)", 16.4188, 120.6286));
+        baguioList.add(new ItineraryItem(idCounter++, null, "Camp John Hay", "4.7", "Daytime", 16.4000, 120.6167));
+        sampleItineraryData.put("Baguio City", baguioList);
+
+        List<ItineraryItem> cubaoList = new ArrayList<>();
+        idCounter = 101;
+        cal.set(Calendar.HOUR_OF_DAY, 10); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
+        cubaoList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Gateway Mall", "4.5", "Anytime", 14.6199, 121.0535));
+        cubaoList.add(new ItineraryItem(idCounter++, null, "Art in Island", "4.6", "Afternoon", 14.6214, 121.0553));
+        cubaoList.add(new ItineraryItem(idCounter++, null, "Araneta Coliseum", "4.4", "Event Dependent", 14.6208, 121.0545));
+        cubaoList.add(new ItineraryItem(idCounter++, null, "Farmers Market/Plaza", "4.3", "Morning (Market)", 14.6188, 121.0530));
+        sampleItineraryData.put("Cubao", cubaoList);
+
+        List<ItineraryItem> bgcList = new ArrayList<>();
+        idCounter = 201;
+        cal.set(Calendar.HOUR_OF_DAY, 11); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
+        bgcList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Bonifacio High Street", "4.6", "Afternoon/Evening", 14.5515, 121.0506));
+        bgcList.add(new ItineraryItem(idCounter++, null, "The Mind Museum", "4.5", "Daytime (check hours)", 14.5538, 121.0467));
+        bgcList.add(new ItineraryItem(idCounter++, null, "Venice Grand Canal Mall", "4.4", "Evening (lights)", 14.5368, 121.0534));
+        bgcList.add(new ItineraryItem(idCounter++, null, "Burgos Circle", "4.5", "Evening (Dining)", 14.5544, 121.0492));
+        sampleItineraryData.put("BGC", bgcList);
+        sampleItineraryData.put("Bonifacio Global City", bgcList);
+    }
+
+    private void createLocationChoicesData() {
+        locationChoicesData = new HashMap<>();
+        long choiceIdCounter = -1000; // Use distinct range for choice IDs
+
+        List<ItineraryItem> baguioChoices = new ArrayList<>();
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Session Road", "4.2", "Anytime", 16.4128, 120.5978));
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Good Shepherd Convent", "4.6", "Daytime (Shopping)", 16.4278, 120.6183));
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Tam-awan Village", "4.1", "Daytime", 16.4293, 120.5803));
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Wright Park", "4.0", "Daytime", 16.4155, 120.6139));
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "The Mansion", "4.2", "Daytime (Outside View)", 16.4146, 120.6149));
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Laperal White House", "3.9", "Daytime (Spooky!)", 16.4108, 120.6077));
+        baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Botanical Garden", "4.4", "Daytime", 16.4142, 120.6089)); // Example - Add other potential choices
+        locationChoicesData.put("Baguio City", baguioChoices);
+
+        // Add choices for Cubao and BGC later if needed
     }
 
     private void enterEditMode() {
-        isEditMode = true;
-        ivEditItinerary.setVisibility(View.GONE);
-        tvSaveChanges.setVisibility(View.VISIBLE);
-        itineraryAdapter.setEditMode(true);
-        if(touchHelperCallback != null) {
-            touchHelperCallback.setEditMode(true); // Enable dragging in callback
+        if (suggestedList.isEmpty()) {
+            Toast.makeText(this, "Itinerary is empty.", Toast.LENGTH_SHORT).show();
+            return;
         }
-        Toast.makeText(this, "Edit mode enabled. Drag handles to reorder.", Toast.LENGTH_SHORT).show();
-
+        isEditMode = true;
+        binding.ivEditItinerary.setVisibility(View.GONE);
+        binding.tvSaveChanges.setVisibility(View.VISIBLE);
+        if (itineraryAdapter != null) itineraryAdapter.setEditMode(true);
+        if (touchHelperCallback != null) touchHelperCallback.setEditMode(true);
+        Toast.makeText(this, "Edit mode enabled. Drag handles or click item to replace.", Toast.LENGTH_SHORT).show();
     }
 
     private void exitEditModeAndSave() {
-        isEditMode = false;
-        ivEditItinerary.setVisibility(View.VISIBLE);
-        tvSaveChanges.setVisibility(View.GONE);
-        itineraryAdapter.setEditMode(false);
-        if(touchHelperCallback != null) {
-            touchHelperCallback.setEditMode(false); // Disable dragging in callback
-        }
-
-        // ** TODO: Implement actual saving logic here! **
-        // For now, just get the potentially reordered list
+        forceExitEditMode();
         List<ItineraryItem> updatedList = itineraryAdapter.getCurrentList();
-        // In a real app, save 'updatedList' to database/sharedprefs/API
-
-        Toast.makeText(this, "Changes Saved (Placeholder)", Toast.LENGTH_SHORT).show();
-
-        // Optional: Refresh adapter completely if saving involves complex changes,
-        // but usually hiding handles is enough.
-        // itineraryAdapter.notifyDataSetChanged();
+        saveItineraryToPrefs(updatedList);
+        Toast.makeText(this, "Changes Saved", Toast.LENGTH_SHORT).show();
     }
 
+    private void forceExitEditMode() {
+        isEditMode = false;
+        binding.ivEditItinerary.setVisibility(View.VISIBLE);
+        binding.tvSaveChanges.setVisibility(View.GONE);
+        if (itineraryAdapter != null) itineraryAdapter.setEditMode(false);
+        if (touchHelperCallback != null) touchHelperCallback.setEditMode(false);
+    }
 
-    // --- Implementation of OnStartDragListener ---
     @Override
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        if (itemTouchHelper != null && isEditMode) { // Only drag in edit mode
+        if (itemTouchHelper != null && isEditMode) {
             itemTouchHelper.startDrag(viewHolder);
         }
     }
 
-    // --- Bottom Nav Logic ---
+    @Override
+    public void onItemClick(int position) {
+        if (position < 0 || position >= suggestedList.size()) return;
+
+        if (isEditMode) {
+            if (currentLocation.equalsIgnoreCase("Baguio City")) {
+                showReplaceItemDialog(position);
+            } else {
+                Toast.makeText(this, "Item replacement only available for Baguio City in this prototype.", Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            ItineraryItem clickedItem = suggestedList.get(position);
+            if (clickedItem != null) {
+                showItemOverviewDialog(clickedItem);
+            }
+        }
+    }
+
+    private void showReplaceItemDialog(final int positionToReplace) {
+        List<ItineraryItem> choices = locationChoicesData.get("Baguio City");
+        if (choices == null || choices.isEmpty()) {
+            Toast.makeText(this, "No replacement choices available.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final ItineraryItem itemBeingReplaced = suggestedList.get(positionToReplace);
+        if (itemBeingReplaced == null) return; // Should not happen, but safety check
+
+
+        // Filter choices: exclude items currently in OTHER slots, but allow the original item itself
+        List<ItineraryItem> filteredChoices = new ArrayList<>();
+        List<String> otherItemActivities = new ArrayList<>();
+        for (int i=0; i< suggestedList.size(); i++){
+            if (i != positionToReplace && suggestedList.get(i) != null && suggestedList.get(i).getActivity() != null) {
+                otherItemActivities.add(suggestedList.get(i).getActivity());
+            }
+        }
+
+        for (ItineraryItem choice : choices) {
+            if (choice != null && choice.getActivity() != null && !otherItemActivities.contains(choice.getActivity())) {
+                filteredChoices.add(choice);
+            }
+        }
+
+
+        if (filteredChoices.isEmpty()) {
+            Toast.makeText(this, "No other replacement choices available.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        final CharSequence[] choiceNames = new CharSequence[filteredChoices.size()];
+        for (int i = 0; i < filteredChoices.size(); i++) {
+            choiceNames[i] = filteredChoices.get(i).getActivity();
+        }
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Replace \"" + itemBeingReplaced.getActivity() + "\" with:");
+        builder.setItems(choiceNames, (dialog, which) -> {
+            ItineraryItem chosenItemData = filteredChoices.get(which);
+
+            // Create new item using chosen data but original ID and time
+            ItineraryItem newItem = new ItineraryItem(
+                    itemBeingReplaced.getId(),
+                    itemBeingReplaced.getTime(), // Keep original time!
+                    chosenItemData.getActivity(),
+                    chosenItemData.getRating(),
+                    chosenItemData.getBestTimeToVisit(),
+                    chosenItemData.getLatitude(),
+                    chosenItemData.getLongitude()
+            );
+
+            suggestedList.set(positionToReplace, newItem);
+            if (itineraryAdapter != null) {
+                itineraryAdapter.notifyItemChanged(positionToReplace);
+            }
+            Log.d("ItineraryActivity", "Replaced item at position " + positionToReplace + " with " + newItem.getActivity());
+
+            dialog.dismiss();
+        });
+        builder.setNegativeButton("Cancel", null);
+        builder.show();
+    }
+
+
+    private void showItemOverviewDialog(ItineraryItem item) {
+        if (item == null) return;
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(item.getActivity() != null ? item.getActivity() : "Details");
+        String message = "Rating: " + (item.getRating() != null ? item.getRating() : "N/A") + "\n" +
+                "Best time to visit: " + (item.getBestTimeToVisit() != null ? item.getBestTimeToVisit() : "Anytime");
+        builder.setMessage(message);
+        builder.setPositiveButton("Navigate", (dialog, which) -> startNavigation(item));
+        builder.setNegativeButton("Close", (dialog, which) -> dialog.dismiss());
+        builder.show();
+    }
+
+    private void startNavigation(ItineraryItem item) {
+        if (item == null) {
+            Toast.makeText(this, "Cannot navigate: Item data missing", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String uriString;
+        if (item.getLatitude() != 0 || item.getLongitude() != 0) {
+            uriString = String.format(Locale.US, "geo:0,0?q=%f,%f(%s)",
+                    item.getLatitude(), item.getLongitude(), Uri.encode(item.getActivity()));
+        } else if (!TextUtils.isEmpty(item.getActivity())){
+            uriString = "geo:0,0?q=" + Uri.encode(item.getActivity());
+        } else {
+            Toast.makeText(this, "Cannot navigate: Location name or coordinates missing", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        try {
+            Uri gmmIntentUri = Uri.parse(uriString);
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            if (mapIntent.resolveActivity(getPackageManager()) != null) {
+                startActivity(mapIntent);
+            } else {
+                Toast.makeText(this, "No map application found", Toast.LENGTH_LONG).show();
+            }
+        } catch (Exception e) {
+            Log.e("ItineraryActivity", "Error starting map intent: " + uriString, e);
+            Toast.makeText(this, "Could not launch map application", Toast.LENGTH_SHORT).show();
+        }
+    }
+
     private void setupBottomNavListener() {
-        bottomNavigationView.setOnItemSelectedListener(item -> {
+        binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
+            if (destinationItemId == CURRENT_ITEM_ID) return true;
+            Class<?> destinationActivity = null;
+            if (destinationItemId == R.id.navigation_home) destinationActivity = HomeActivity.class;
+            else if (destinationItemId == R.id.navigation_map) { Toast.makeText(this, "Map Clicked (No Activity)", Toast.LENGTH_SHORT).show(); return true; }
+            else if (destinationItemId == R.id.navigation_profile) { Toast.makeText(this, "Profile Clicked (No Activity)", Toast.LENGTH_SHORT).show(); return true; }
 
-            if (destinationItemId == CURRENT_ITEM_ID) {
-                return true;
-            }
-
-            Intent intent = null;
-            boolean slideRightToLeft = true;
-
-            if (destinationItemId == R.id.navigation_home) {
-                intent = new Intent(getApplicationContext(), HomeActivity.class);
-                slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
-            } else if (destinationItemId == R.id.navigation_map) {
-                Toast.makeText(ItinerariesActivity.this, "Map Clicked (No Activity)", Toast.LENGTH_SHORT).show();
-                return true;
-            } else if (destinationItemId == R.id.navigation_profile) {
-                Toast.makeText(ItinerariesActivity.this, "Profile Clicked (No Activity)", Toast.LENGTH_SHORT).show();
-                return true;
-            }
-
-            if (intent != null) {
-                startActivity(intent);
-                if (slideRightToLeft) {
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                } else {
-                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-                }
-                finish();
+            if (destinationActivity != null) {
+                boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
+                navigateTo(destinationActivity, slideRightToLeft);
                 return true;
             }
             return false;
         });
+    }
+
+    private void navigateTo(Class<?> destinationActivity, boolean slideRight) {
+        Intent intent = new Intent(getApplicationContext(), destinationActivity);
+        startActivity(intent);
+        if (slideRight) overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+        else overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+        finish();
     }
 
     private int getItemIndex(int itemId) {
@@ -185,4 +515,14 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         return -1;
     }
 
+    private void setupRecommendedClickListeners() {
+        binding.cardRecommended1.setOnClickListener(v -> handleRecommendedClick("Arca's Yard Cafe"));
+        binding.cardRecommended2.setOnClickListener(v -> handleRecommendedClick("Wright Park Riding Center"));
+        binding.cardRecommended3.setOnClickListener(v -> handleRecommendedClick("Baguio Orchidarium"));
+        binding.cardRecommended4.setOnClickListener(v -> handleRecommendedClick("Camp John Hay Picnic Area"));
+    }
+
+    private void handleRecommendedClick(String itemName) {
+        Toast.makeText(this, itemName + " clicked (Implement Action)", Toast.LENGTH_SHORT).show();
+    }
 }

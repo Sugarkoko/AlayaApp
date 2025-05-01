@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.alayaapp">
 
+
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -12,47 +14,51 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AlayaApp"
-        tools:targetApi="33">
-        <activity
-            android:name=".ItineraryAdapter"
-            android:exported="false" />
-        <activity
-            android:name=".ItineraryItem"
-            android:exported="false" />
-        <activity
-            android:name=".ItinerariesActivity"
-            android:exported="false" />
-        <activity
-            android:name=".OtpVerificationActivity"
-            android:exported="false" /> <!-- Adjusted targetApi to a more common recent value like 33 or 34, change if needed -->
-        <!-- Splash Activity is the ONLY LAUNCHER -->
+        tools:targetApi="34">
         <activity
             android:name=".SplashActivity"
             android:exported="true"
-            android:theme="@style/Theme.AlayaApp.SplashImitation"> <!-- Apply Splash Theme Here -->
+            android:theme="@style/Theme.AlayaApp.SplashImitation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Login Activity - Not exported, launched internally -->
+        </activity>
+
+        <!-- Login Activity - Not exported, launched internally -->
         <activity
             android:name=".LoginActivity"
-            android:exported="false" /> <!-- SignUp Activity - Not exported, launched internally -->
+            android:exported="false" />
+
+        <!-- SignUp Activity - Not exported, launched internally -->
         <activity
             android:name=".SignUpActivity"
-            android:exported="false" /> <!-- Home Activity - Not exported, launched internally -->
+            android:exported="false" />
+
+        <!-- OtpVerification Activity - Not exported, launched internally -->
+        <activity
+            android:name=".OtpVerificationActivity"
+            android:exported="false" />
+
+        <!-- Home Activity - Not exported, launched internally -->
         <activity
             android:name=".HomeActivity"
-            android:exported="false" /> <!-- MainActivity - REMOVED as LAUNCHER and set to not exported -->
-        <!-- If you plan to DELETE MainActivity.java later, you can remove this block entirely -->
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/> <!-- Optional: Prevent resize on keyboard show -->
+
+        <!-- Itineraries Activity - Not exported, launched internally -->
         <activity
-            android:name=".MainActivity"
-            android:exported="false" />
+            android:name=".ItinerariesActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustPan"/> <!-- Optional: Prevent resize on keyboard show -->
+
+
+        <!-- REMOVED MainActivity reference as it's being deleted -->
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
     </application>
 
 </manifest>
