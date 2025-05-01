@@ -2,7 +2,8 @@ package com.example.alayaapp;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager; // Removed ItemTouchHelper import
+import androidx.recyclerview.widget.ItemTouchHelper; // Restored
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
@@ -33,11 +34,13 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class ItinerariesActivity extends AppCompatActivity
-        implements ItineraryAdapter.OnItemClickListener { // Removed OnStartDragListener
+        implements ItineraryAdapter.OnStartDragListener, // Restored
+        ItineraryAdapter.OnItemClickListener {
 
     private ActivityItinerariesBinding binding;
     private ItineraryAdapter itineraryAdapter;
-    // Removed ItemTouchHelper and Callback variables
+    private ItemTouchHelper itemTouchHelper; // Restored
+    private ItineraryItemTouchHelperCallback touchHelperCallback; // Restored
 
     private List<ItineraryItem> suggestedList = new ArrayList<>();
     private boolean isEditMode = false;
@@ -65,16 +68,20 @@ public class ItinerariesActivity extends AppCompatActivity
         createLocationChoicesData();
         loadCurrentLocation();
         loadOrGenerateItineraryForLocation(currentLocation, false);
-        setupRecyclerView(); // No longer sets up ItemTouchHelper
+        setupRecyclerView(); // Sets up adapter AND touch helper now
         setupBottomNavListener();
         setupClickListeners();
     }
 
     private void setupRecyclerView() {
-        itineraryAdapter = new ItineraryAdapter(suggestedList, this); // Removed drag listener
+        itineraryAdapter = new ItineraryAdapter(suggestedList, this, this); // Added drag listener back
         binding.rvSuggestedItinerary.setLayoutManager(new LinearLayoutManager(this));
         binding.rvSuggestedItinerary.setAdapter(itineraryAdapter);
-        // ItemTouchHelper setup removed
+
+        // Re-initialize ItemTouchHelper
+        touchHelperCallback = new ItineraryItemTouchHelperCallback(itineraryAdapter);
+        itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
+        itemTouchHelper.attachToRecyclerView(binding.rvSuggestedItinerary);
     }
 
     private void setupClickListeners() {
@@ -147,7 +154,7 @@ public class ItinerariesActivity extends AppCompatActivity
 
             if (sampleItems != null) {
                 List<ItineraryItem> itemsToUse = new ArrayList<>();
-                for(ItineraryItem item : sampleItems) { // Deep copy might be safer depending on future use
+                for(ItineraryItem item : sampleItems) {
                     itemsToUse.add(new ItineraryItem(item.getId(), item.getTime() != null ? (Calendar)item.getTime().clone() : null,
                             item.getActivity(), item.getRating(), item.getBestTimeToVisit(),
                             item.getLatitude(), item.getLongitude()));
@@ -301,7 +308,8 @@ public class ItinerariesActivity extends AppCompatActivity
         binding.ivEditItinerary.setVisibility(View.GONE);
         binding.tvSaveChanges.setVisibility(View.VISIBLE);
         if (itineraryAdapter != null) itineraryAdapter.setEditMode(true);
-        Toast.makeText(this, "Edit mode enabled. Click item to replace.", Toast.LENGTH_SHORT).show();
+        if (touchHelperCallback != null) touchHelperCallback.setEditMode(true); // Enable dragging
+        Toast.makeText(this, "Edit mode enabled. Drag handles or click item to replace.", Toast.LENGTH_SHORT).show();
     }
 
     private void exitEditModeAndSave() {
@@ -316,6 +324,15 @@ public class ItinerariesActivity extends AppCompatActivity
         binding.ivEditItinerary.setVisibility(View.VISIBLE);
         binding.tvSaveChanges.setVisibility(View.GONE);
         if (itineraryAdapter != null) itineraryAdapter.setEditMode(false);
+        if (touchHelperCallback != null) touchHelperCallback.setEditMode(false); // Disable dragging
+    }
+
+    // Restored OnStartDragListener implementation
+    @Override
+    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
+        if (itemTouchHelper != null && isEditMode) { // Only drag if in edit mode
+            itemTouchHelper.startDrag(viewHolder);
+        }
     }
 
     @Override
@@ -323,12 +340,14 @@ public class ItinerariesActivity extends AppCompatActivity
         if (position < 0 || position >= suggestedList.size()) return;
 
         if (isEditMode) {
+            // Replacement logic remains the same
             if (currentLocation.equalsIgnoreCase("Baguio City")) {
                 showReplaceItemDialog(position);
             } else {
                 Toast.makeText(this, "Item replacement only available for Baguio City in this prototype.", Toast.LENGTH_SHORT).show();
             }
         } else {
+            // Overview logic remains the same
             ItineraryItem clickedItem = suggestedList.get(position);
             if (clickedItem != null) {
                 showItemOverviewDialog(clickedItem);
@@ -374,7 +393,7 @@ public class ItinerariesActivity extends AppCompatActivity
             if (originalItem != null && chosenItemData != null) {
                 ItineraryItem newItem = new ItineraryItem(
                         originalItem.getId(),
-                        originalItem.getTime(),
+                        originalItem.getTime(), // Keep original time!
                         chosenItemData.getActivity(),
                         chosenItemData.getRating(),
                         chosenItemData.getBestTimeToVisit(),
