@@ -3,6 +3,7 @@ package com.example.alayaapp;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View; // <-- Added for View.OnClickListener
 import android.widget.Toast;
 // Removed unused imports like Button, TextView, MenuItem, NavigationBarView etc.
 // Keep NonNull import if used elsewhere, though not strictly needed for this code now
@@ -23,29 +24,56 @@ public class HomeActivity extends AppCompatActivity {
         // Set the content view from the binding's root
         setContentView(binding.getRoot());
 
-        // --- Find Views using binding ---
-        // Example: Accessing the trip date button
-        // binding.btnTripDate.setOnClickListener(...)
-
         // --- Set Initial State for Bottom Nav ---
         binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
 
         // --- Set Listeners ---
+
+        // ** --- Add the Click Listener for the Burnham Park Card --- **
+        // Make sure you have a CardView with id "card_burnham_park" in your activity_home.xml
+        if (binding.cardBurnhamPark != null) { // Good practice to check if the view exists
+            binding.cardBurnhamPark.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // Create an Intent to start BurnhamDetailsActivity
+                    // Make sure you have created BurnhamDetailsActivity.java and its layout,
+                    // and declared it in AndroidManifest.xml
+                    Intent intent = new Intent(HomeActivity.this, BurnhamDetailsActivity.class);
+                    startActivity(intent); // Launch the activity
+
+                    // Optional: Add a transition animation if you like.
+                    // Note: The navigateTo helper method also applies transitions and finishes the current activity.
+                    // If you don't want to finish HomeActivity, use overridePendingTransition directly here.
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left); // Example animation
+                }
+            });
+        } else {
+            // Optional: Log an error or show a toast if the CardView is not found,
+            // which would indicate an issue with your layout XML file.
+            // Toast.makeText(this, "Burnham Park CardView not found in layout!", Toast.LENGTH_LONG).show();
+        }
+
+
         // Example listener for trip date button
-        binding.btnTripDate.setOnClickListener(v -> {
-            // Handle trip date click
-            // TODO: Implement Date Picker Dialog or similar
-            Toast.makeText(HomeActivity.this, "Trip Date Clicked (Implement Date Picker)", Toast.LENGTH_SHORT).show();
-        });
+        if (binding.btnTripDate != null) { // Check if this view exists in your layout
+            binding.btnTripDate.setOnClickListener(v -> {
+                // Handle trip date click
+                // TODO: Implement Date Picker Dialog or similar
+                Toast.makeText(HomeActivity.this, "Trip Date Clicked (Implement Date Picker)", Toast.LENGTH_SHORT).show();
+            });
+        }
+
 
         // Example Listener for location change
-        binding.tvLocationCity2.setOnClickListener(v -> {
-            // TODO: Implement Location Change Dialog/Screen
-            Toast.makeText(HomeActivity.this, "Change Location Clicked (Implement Feature)", Toast.LENGTH_SHORT).show();
-        });
+        if (binding.tvLocationCity2 != null) { // Check if this view exists in your layout
+            binding.tvLocationCity2.setOnClickListener(v -> {
+                // TODO: Implement Location Change Dialog/Screen
+                Toast.makeText(HomeActivity.this, "Change Location Clicked (Implement Feature)", Toast.LENGTH_SHORT).show();
+            });
+        }
 
 
-        // ** --- Add the Bottom Navigation Item Selection Logic --- **
+        // ** --- Bottom Navigation Item Selection Logic --- **
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
@@ -82,7 +110,10 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
         }
-        finish(); // Close current activity
+        // Only finish if not navigating to home, or if it's a distinct new instance of home
+        if (destinationActivity != HomeActivity.class) { // Avoid finishing if navigating to Home itself
+            finish(); // Close current activity
+        }
     }
 
 

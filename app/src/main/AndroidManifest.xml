@@ -52,8 +52,12 @@
             android:exported="false"
             android:windowSoftInputMode="adjustPan"/> <!-- Optional: Prevent resize on keyboard show -->
 
+        <activity android:name=".ResetPasswordActivity" />
 
         <!-- REMOVED MainActivity reference as it's being deleted -->
+        <activity
+            android:name=".BurnhamDetailsActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="preloaded_fonts"

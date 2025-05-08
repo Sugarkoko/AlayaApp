@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/dialog_background_gradient_rounded"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingStart="32dp"
+    android:paddingTop="32dp"
+    android:paddingEnd="32dp"
+    android:paddingBottom="32dp"
+    tools:context=".MainActivity"> <!-- Optional: Replace .MainActivity if needed -->
+
+    <!-- Title TextView -->
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="WELCOME TO ALAYA!"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Subtitle TextView (Corrected Version) -->
+    <TextView
+        android:id="@+id/tv_dialog_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:text="Click continue to proceed to your destination."
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="14sp" />  <!-- Clean closing tag -->
+
+    <!-- Continue Button -->
+    <Button
+        android:id="@+id/btn_dialog_continue"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="40dp"
+        android:background="@drawable/bg_button_white_rounded"
+        android:paddingStart="24dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="8dp"
+        android:text="Continue"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimaryDarker"
+        android:textSize="14sp"
+        app:backgroundTint="@null"
+        tools:ignore="DuplicateSpeakableTextCheck" />
+
+</LinearLayout>

@@ -7,94 +7,139 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-// Removed unused imports like EditText, TextView, Button
 import android.widget.Toast;
 
-import com.example.alayaapp.databinding.ActivityOtpVerificationBinding; // Import Activity Binding
-import com.example.alayaapp.databinding.DialogSuccessBinding; // Import Dialog Binding
+import com.example.alayaapp.databinding.ActivityOtpVerificationBinding;
+import com.example.alayaapp.databinding.DialogSuccessBinding; // For your existing success dialog
+import com.example.alayaapp.databinding.DialogNewOtpBinding; // *** IMPORT FOR THE NEW OTP RESENT DIALOG ***
 
 public class OtpVerificationActivity extends AppCompatActivity {
 
-    private ActivityOtpVerificationBinding binding; // Declare activity binding variable
+    private ActivityOtpVerificationBinding binding;
+    private AlertDialog otpResendDialogInstance; // To keep a reference to the resend dialog
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Inflate the layout using ViewBinding
         binding = ActivityOtpVerificationBinding.inflate(getLayoutInflater());
-        // Set the content view from the binding's root
         setContentView(binding.getRoot());
 
-        // --- Basic Focus Handling (Improve later if needed) ---
-        // TODO: Add TextWatchers for more robust OTP input handling (auto-focus next, combine OTP)
+        // Request focus on the first OTP box on activity start
+        binding.etOtp1.requestFocus();
+
+        // TODO: Consider adding TextWatchers for auto-focusing next OTP box
+        // and handling backspace for a smoother UX.
 
         binding.btnOtpSubmit.setOnClickListener(v -> {
-            // Get OTP using binding
             String otp = binding.etOtp1.getText().toString() +
                     binding.etOtp2.getText().toString() +
                     binding.etOtp3.getText().toString() +
                     binding.etOtp4.getText().toString();
 
-            // TODO: Add actual OTP validation logic here
             if (otp.length() != 4) {
                 Toast.makeText(this, "Please enter all 4 digits", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Placeholder: Assume OTP is correct for now
-            boolean isOtpCorrect = true; // Replace with real validation (e.g., "1234")
-            // boolean isOtpCorrect = otp.equals("1234"); // Example validation
+            boolean isOtpCorrect = true; // Replace with real validation (e.g., "1234".equals(otp))
 
             if (isOtpCorrect) {
-                showSuccessDialog();
+                showOtpSubmissionSuccessDialog(); // Renamed for clarity
             } else {
                 Toast.makeText(this, "Invalid OTP", Toast.LENGTH_SHORT).show();
-                // Optionally clear OTP fields or set error states
+                // Optionally clear OTP fields
+                clearOtpFields();
+                binding.etOtp1.requestFocus();
             }
         });
 
         binding.btnOtpCancel.setOnClickListener(v -> {
-            // Go back to the previous screen (likely Login)
             finish();
         });
 
         binding.tvResendOtp.setOnClickListener(v -> {
-            // TODO: Add logic to actually resend the OTP
-            Toast.makeText(this, "Resend OTP (Placeholder)", Toast.LENGTH_SHORT).show();
-            // Optionally disable the resend button for a cooldown period
+            // --- Replace with your actual logic to resend the OTP via API ---
+            boolean resendApiCallSuccess = true; // Placeholder for API call result
+            // --- ---
+
+            if (resendApiCallSuccess) {
+                showOtpResentConfirmationDialog();
+            } else {
+                Toast.makeText(this, "Failed to resend OTP. Please try again.", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
-    private void showSuccessDialog() {
+    // This dialog is for when the OTP is successfully SUBMITTED
+    private void showOtpSubmissionSuccessDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
-
-        // Inflate the dialog layout using its specific ViewBinding class
-        DialogSuccessBinding dialogBinding = DialogSuccessBinding.inflate(inflater);
-
-        // Set the inflated view (the root of the binding) to the dialog builder
-        builder.setView(dialogBinding.getRoot());
-
-        // Make dialog non-cancelable by touching outside or back press (optional)
-        // builder.setCancelable(false);
+        DialogSuccessBinding dialogSuccessBinding = DialogSuccessBinding.inflate(inflater);
+        builder.setView(dialogSuccessBinding.getRoot());
 
         final AlertDialog dialog = builder.create();
-
-        // Make the dialog background transparent (needs to be done after create())
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        // Access the button inside the dialog via the dialog's binding object
-        dialogBinding.btnDialogContinue.setOnClickListener(v -> {
+        dialogSuccessBinding.btnDialogContinue.setOnClickListener(v -> {
             dialog.dismiss();
-            // Navigate to Home Activity and clear the back stack
             Intent intent = new Intent(OtpVerificationActivity.this, HomeActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            finish(); // Finish OTP activity
+            finish();
+        });
+        dialog.show();
+    }
+
+    // *** NEW METHOD: This dialog is for confirming OTP has been RESENT ***
+    private void showOtpResentConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+
+        // Inflate the dialog layout using its specific ViewBinding class
+        DialogNewOtpBinding dialogNewOtpBinding = DialogNewOtpBinding.inflate(inflater);
+        builder.setView(dialogNewOtpBinding.getRoot());
+        builder.setCancelable(false); // User must click "Continue"
+
+        // Store the dialog instance so we can dismiss it in onDestroy
+        otpResendDialogInstance = builder.create();
+
+        if (otpResendDialogInstance.getWindow() != null) {
+            otpResendDialogInstance.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        dialogNewOtpBinding.btnDialogContinue.setOnClickListener(v -> {
+            if (otpResendDialogInstance != null) {
+                otpResendDialogInstance.dismiss();
+            }
+            refreshOtpScreen(); // Refresh the main OTP screen
         });
 
-        dialog.show();
+        otpResendDialogInstance.show();
+    }
+
+    private void clearOtpFields() {
+        binding.etOtp1.setText("");
+        binding.etOtp2.setText("");
+        binding.etOtp3.setText("");
+        binding.etOtp4.setText("");
+    }
+
+    private void refreshOtpScreen() {
+        clearOtpFields();
+        binding.etOtp1.requestFocus(); // Focus on the first OTP box
+        Toast.makeText(this, "Please enter the new OTP", Toast.LENGTH_SHORT).show();
+        // If you have a countdown timer for OTP, you might want to reset it here.
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Dismiss the dialog if it's showing to prevent window leaks
+        if (otpResendDialogInstance != null && otpResendDialogInstance.isShowing()) {
+            otpResendDialogInstance.dismiss();
+        }
+        // You might also want to dismiss the showOtpSubmissionSuccessDialog if you store its instance
     }
 }
