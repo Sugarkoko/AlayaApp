@@ -1,70 +1,37 @@
 package com.example.alayaapp;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
-import java.util.Objects; // Added for equals/hashCode
+import java.util.Calendar; // Or use java.time for API 26+
 
 public class ItineraryItem {
-    private long id;
-    private Calendar time;
+    private long id; // For stable IDs in adapter
+    private Calendar time; // Store time properly
     private String activity;
     private String rating;
-    private String bestTimeToVisit;
-    private double latitude;
-    private double longitude;
+    // Add other relevant fields if needed
 
-    public ItineraryItem(long id, Calendar time, String activity, String rating,
-                         String bestTimeToVisit, double latitude, double longitude) {
+    // Constructor, getters, setters
+
+    public ItineraryItem(long id, Calendar time, String activity, String rating) {
         this.id = id;
         this.time = time;
         this.activity = activity;
         this.rating = rating;
-        this.bestTimeToVisit = bestTimeToVisit;
-        this.latitude = latitude;
-        this.longitude = longitude;
     }
 
-    public ItineraryItem() {}
-
+    // Getters
     public long getId() { return id; }
     public Calendar getTime() { return time; }
     public String getActivity() { return activity; }
     public String getRating() { return rating; }
-    public String getBestTimeToVisit() { return bestTimeToVisit; }
-    public double getLatitude() { return latitude; }
-    public double getLongitude() { return longitude; }
 
-    public void setId(long id) { this.id = id; }
+    // Setters (especially for time)
     public void setTime(Calendar time) { this.time = time; }
-    public void setActivity(String activity) { this.activity = activity; }
-    public void setRating(String rating) { this.rating = rating; }
-    public void setBestTimeToVisit(String bestTimeToVisit) { this.bestTimeToVisit = bestTimeToVisit; }
-    public void setLatitude(double latitude) { this.latitude = latitude; }
-    public void setLongitude(double longitude) { this.longitude = longitude; }
 
+    // You might want a helper to format the time string for display
     public String getFormattedTime() {
-        if (time == null) return "N/A";
-        SimpleDateFormat sdf = new SimpleDateFormat("h:mm a", Locale.getDefault());
+        // Example using SimpleDateFormat (add import java.text.SimpleDateFormat)
+        SimpleDateFormat sdf = new SimpleDateFormat("h:mm a"); // e.g., 9:00 AM
         return sdf.format(time.getTime());
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        ItineraryItem that = (ItineraryItem) o;
-        return id == that.id &&
-                Double.compare(that.latitude, latitude) == 0 &&
-                Double.compare(that.longitude, longitude) == 0 &&
-                Objects.equals(time, that.time) &&
-                Objects.equals(activity, that.activity) &&
-                Objects.equals(rating, that.rating) &&
-                Objects.equals(bestTimeToVisit, that.bestTimeToVisit);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(id, time, activity, rating, bestTimeToVisit, latitude, longitude);
     }
 }

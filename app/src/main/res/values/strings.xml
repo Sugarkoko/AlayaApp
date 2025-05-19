@@ -23,5 +23,10 @@
     <string name="title_itineraries">Itineraries</string>
     <string name="title_map">Map</string>
     <string name="title_profile">Profile</string>
+    <string name="content_description_back_arrow">Back</string>
+    <string name="preview_transport_name_taxi">Taxi</string>
+    <string name="preview_transport_badge_best">Best!</string>
+    <string name="preview_transport_duration_5mins">5 mins</string>
+    <string name="preview_transport_price_30_50">₱30 - 50</string>
 
 </resources>

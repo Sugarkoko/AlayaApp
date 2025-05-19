@@ -2,8 +2,6 @@
 <resources>
     <color name="black">#FF000000</color>
 
-
-
     <color name="colorPrimary">#3f9453</color>
     <color name="colorPrimaryDark">#2E7D32</color>
     <color name="buttonTextColor">#FFFFFF</color>
@@ -13,10 +11,25 @@
     <color name="myButtonTextColor">#FFFFFF</color>
     <color name="colorPrimaryDarker">#00642C</color>
 
-        <color name="textPrimary">#212121</color>
-        <color name="textSecondary">#757575</color>
-        <color name="lightGrayBackground">#F0F0F0</color>
-        <color name="white">#FFFFFF</color>
-        <color name="starColor">#FFC107</color> <!-- Example Yellow/Gold -->
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#757575</color>
+    <color name="lightGrayBackground">#F0F0F0</color>
+    <color name="white">#FFFFFF</color>
+    <color name="starColor">#FFC107</color> <!-- Example Yellow/Gold -->
+
+    <!-- Added missing color definitions -->
+    <color name="your_primary_color">#3f9453</color>
+    <color name="your_variant">#2E7D32</color>
+
+
+
+    <color name="text_green_dark">#00695C</color> <!-- Darker green for text -->
+    <color name="text_secondary_dark">#424242</color>
+    <color name="badge_best_text">#00796B</color>
+    <color name="badge_fastest_text">#1E88E5</color>
+    <color name="light_grey_background">#F5F5F5</color>
+    <color name="light_teal_background">#E0F2F1</color>
+    <color name="light_blue_background">#E3F2FD</color>
+
 
 </resources>
