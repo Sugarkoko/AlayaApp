@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".TripHistoryActivity">
+
+    <ImageView
+        android:id="@+id/iv_back_arrow_trip_history"
+        android:layout_width="74dp"
+        android:layout_height="65dp"
+        android:contentDescription="Back"
+        android:padding="16dp"
+        android:src="@drawable/left_back_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/colorPrimary" />
+
+    <TextView
+        android:id="@+id/tv_trip_history_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trip History"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_back_arrow_trip_history" />
+
+    <TextView
+        android:id="@+id/tv_locations_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="Locations"
+        android:textSize="20sp"
+        android:textColor="@color/textPrimary"
+        android:layout_marginTop="4dp"
+        app:layout_constraintStart_toStartOf="@id/tv_trip_history_title"
+        app:layout_constraintTop_toBottomOf="@id/tv_trip_history_title"/>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_locations_subtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_trip_history"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- APRIL 2023 Section -->
+            <TextView
+                android:id="@+id/tv_april_2023_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="APRIL 2023"
+                android:textColor="@color/text_secondary_dark"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Baguio City Item -->
+            <RelativeLayout
+                android:id="@+id/item_baguio_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_location_history_item"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/iv_icon_baguio"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/location"
+                    app:tint="@color/black"
+                    android:contentDescription="Location"/>
+
+                <TextView
+                    android:id="@+id/tv_name_baguio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/iv_icon_baguio"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="12dp"
+                    android:text="Baguio City"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tv_view_baguio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="view"
+                    android:textColor="@color/text_secondary_dark"
+                    android:textSize="14sp"
+
+                    android:drawablePadding="4dp"
+                    app:drawableTint="@color/text_secondary_dark" />
+            </RelativeLayout>
+
+            <!-- Tagaytay City Item -->
+            <RelativeLayout
+                android:id="@+id/item_tagaytay_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_location_history_item"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+                <!-- Similar structure as Baguio City item -->
+                <ImageView android:id="@+id/iv_icon_tagaytay" android:src="@drawable/location" app:tint="@color/black" android:layout_width="24dp" android:layout_height="24dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:contentDescription="Location"/>
+                <TextView android:id="@+id/tv_name_tagaytay" android:text="Tagaytay City" android:layout_toEndOf="@id/iv_icon_tagaytay" android:layout_centerVertical="true" android:layout_marginStart="12dp" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/tv_view_tagaytay" android:text="view"  app:drawableTint="@color/text_secondary_dark" android:drawablePadding="4dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:textColor="@color/text_secondary_dark" android:textSize="14sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </RelativeLayout>
+
+            <!-- JUNE 2022 Section -->
+            <TextView
+                android:id="@+id/tv_june_2022_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="JUNE 2022"
+                android:textColor="@color/text_secondary_dark"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Manila City Item -->
+            <RelativeLayout
+                android:id="@+id/item_manila_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_location_history_item"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+                <!-- Similar structure -->
+                <ImageView android:id="@+id/iv_icon_manila" android:src="@drawable/location" app:tint="@color/black" android:layout_width="24dp" android:layout_height="24dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:contentDescription="Location"/>
+                <TextView android:id="@+id/tv_name_manila" android:text="Manila City" android:layout_toEndOf="@id/iv_icon_manila" android:layout_centerVertical="true" android:layout_marginStart="12dp" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/tv_view_manila" android:text="view"  app:drawableTint="@color/text_secondary_dark" android:drawablePadding="4dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:textColor="@color/text_secondary_dark" android:textSize="14sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </RelativeLayout>
+
+            <!-- Batangas City Item -->
+            <RelativeLayout
+                android:id="@+id/item_batangas_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_location_history_item"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+                <!-- Similar structure -->
+                <ImageView android:id="@+id/iv_icon_batangas" android:src="@drawable/location" app:tint="@color/black" android:layout_width="24dp" android:layout_height="24dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:contentDescription="Location"/>
+                <TextView android:id="@+id/tv_name_batangas" android:text="Batangas City" android:layout_toEndOf="@id/iv_icon_batangas" android:layout_centerVertical="true" android:layout_marginStart="12dp" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/tv_view_batangas" android:text="view"  app:drawableTint="@color/text_secondary_dark" android:drawablePadding="4dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:textColor="@color/text_secondary_dark" android:textSize="14sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_trip_history"
+        style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:elevation="8dp"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
