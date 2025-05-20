@@ -44,9 +44,7 @@ public class ProfileActivity extends AppCompatActivity {
             } else if (destinationItemId == R.id.navigation_itineraries) {
                 destinationActivityClass = ItinerariesActivity.class;
             } else if (destinationItemId == R.id.navigation_map) {
-                Toast.makeText(ProfileActivity.this, "Map Clicked (No Activity)", Toast.LENGTH_SHORT).show();
-                // destinationActivityClass = MapActivity.class; // If you have one
-                return true; // Return true to show selection change visually
+                destinationActivityClass = MapsActivity.class;
             }
 
             if (destinationActivityClass != null) {

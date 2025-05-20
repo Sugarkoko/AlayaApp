@@ -58,7 +58,7 @@ android:gravity="center_vertical">
     android:layout_width="24dp"
     android:layout_height="24dp"
     tools:src="@drawable/ic_taxi"
-    app:tint="@color/text_green_dark" />
+    app:tint="@color/colorPrimary" />
 
 <TextView
     android:id="@+id/tv_transport_duration"
