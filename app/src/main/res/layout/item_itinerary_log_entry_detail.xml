@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:id="@+id/tv_itinerary_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:text="9:00 AM"
+    tools:text="9:00 AM"
+    android:textColor="@color/black"
+    android:textSize="14sp"/>
+
+    <TextView
+        android:id="@+id/tv_itinerary_activity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/tv_itinerary_time"
+        android:layout_toStartOf="@+id/ll_rating_container_detail"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="Sample Activity Item"
+    tools:text="Breakfast at Café by the Ruins"
+    android:textColor="@color/textPrimary"
+    android:textSize="15sp"/>
+
+    <LinearLayout
+        android:id="@+id/ll_rating_container_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true">
+
+        <TextView
+            android:id="@+id/tv_itinerary_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="4.5"
+        tools:text="4.5"
+        android:textColor="@color/textPrimary"
+        android:textSize="14sp"/>
+        <ImageView
+            android:id="@+id/iv_itinerary_star"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/star"
+            android:layout_marginStart="3dp"
+            android:contentDescription="Rating Star"/>
+    </LinearLayout>
+</RelativeLayout>

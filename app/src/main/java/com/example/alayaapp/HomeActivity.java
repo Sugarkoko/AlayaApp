@@ -69,12 +69,11 @@ public class HomeActivity extends AppCompatActivity {
                 finish(); // Close HomeActivity
                 return true;
             } else if (itemId == R.id.navigation_map) {
-                Toast.makeText(HomeActivity.this, "Map Clicked (No Activity)", Toast.LENGTH_SHORT).show();
-                // If you had a MapActivity, you'd navigate similarly:
-                // Intent intent = new Intent(getApplicationContext(), MapActivity.class);
-                // startActivity(intent);
-                // overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                // finish();
+                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                startActivity(intent);
+                // Apply transition (ensure these anim files exist or use android.R.anim)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                finish(); // Close HomeActivity
                 return true; // Even if not navigating, return true to show selection
             } else if (itemId == R.id.navigation_profile) { // <<< --- THIS IS THE MODIFIED PART ---
                 Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);

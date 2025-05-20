@@ -155,10 +155,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             if (destinationItemId == R.id.navigation_home) {
                 destinationActivityClass = HomeActivity.class;
             } else if (destinationItemId == R.id.navigation_map) {
-                Toast.makeText(ItinerariesActivity.this, "Map Clicked (No Activity)", Toast.LENGTH_SHORT).show();
-                // If you had a MapActivity, you might do:
-                // destinationActivityClass = MapActivity.class;
-                return true; // Return true to show selection change visually
+                destinationActivityClass = MapsActivity.class;
             } else if (destinationItemId == R.id.navigation_profile) { // <<< --- THIS IS THE MODIFIED PART ---
                 destinationActivityClass = ProfileActivity.class; // Set the destination to ProfileActivity
             }
