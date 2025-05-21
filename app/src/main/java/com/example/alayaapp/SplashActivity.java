@@ -8,30 +8,38 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.example.alayaapp.databinding.ActivitySplashBinding; // Import ViewBinding class
+import com.example.alayaapp.databinding.ActivitySplashBinding;
+import com.google.firebase.auth.FirebaseAuth; // Firebase Import
+import com.google.firebase.auth.FirebaseUser; // Firebase Import
 
-// Use SuppressLint for Handler leak warning if not using lifecycle-aware components yet
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
 
-    private static final long SPLASH_DELAY = 2500; // 2.5 seconds
-    private ActivitySplashBinding binding; // Declare binding variable
+    private static final long SPLASH_DELAY = 2500;
+    private ActivitySplashBinding binding;
+    private FirebaseAuth mAuth; // Firebase Auth instance
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Inflate the layout using ViewBinding
         binding = ActivitySplashBinding.inflate(getLayoutInflater());
-        // Set the content view from the binding's root
         setContentView(binding.getRoot());
-        // Theme is set in Manifest now
 
-        // Handler to wait for SPLASH_DELAY milliseconds
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // Intent to start LoginActivity
-            Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            Intent intent;
+            if (currentUser != null) {
+                // User is signed in, potentially check email verification if you implement it
+                // For now, directly go to HomeActivity
+                intent = new Intent(SplashActivity.this, HomeActivity.class);
+            } else {
+                // No user is signed in, go to LoginActivity
+                intent = new Intent(SplashActivity.this, LoginActivity.class);
+            }
             startActivity(intent);
-            // Finish SplashActivity so user can't navigate back to it
             finish();
         }, SPLASH_DELAY);
     }
