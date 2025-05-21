@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "634657318925",
+    "project_id": "alayadatabase-22359",
+    "storage_bucket": "alayadatabase-22359.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634657318925:android:fceef01169359ac9160d44",
+        "android_client_info": {
+          "package_name": "com.example.alayaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG34ABq5LJk7aSyT4mRbH_7Uqg0KHs2-k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -103,25 +103,24 @@ AlayaApp
         </PersistentDeviceSelectionData>
         <PersistentDeviceSelectionData>
           <option name="api" value="34" />
-          <option name="brand" value="Lenovo" />
-          <option name="codename" value="TB370FU" />
-          <option name="formFactor" value="Tablet" />
-          <option name="id" value="TB370FU" />
-          <option name="labId" value="google" />
-          <option name="manufacturer" value="Lenovo" />
-          <option name="name" value="Tab P12" />
-          <option name="screenDensity" value="340" />
-          <option name="screenX" value="1840" />
-          <option name="screenY" value="2944" />
-        </PersistentDeviceSelectionData>
-        <PersistentDeviceSelectionData>
-          <option name="api" value="34" />
           <option name="brand" value="samsung" />
           <option name="codename" value="a15" />
           <option name="id" value="a15" />
           <option name="labId" value="google" />
           <option name="manufacturer" value="Samsung" />
           <option name="name" value="A15" />
+          <option name="screenDensity" value="450" />
+          <option name="screenX" value="1080" />
+          <option name="screenY" value="2340" />
+        </PersistentDeviceSelectionData>
+        <PersistentDeviceSelectionData>
+          <option name="api" value="34" />
+          <option name="brand" value="samsung" />
+          <option name="codename" value="a15x" />
+          <option name="id" value="a15x" />
+          <option name="labId" value="google" />
+          <option name="manufacturer" value="Samsung" />
+          <option name="name" value="A15 5G" />
           <option name="screenDensity" value="450" />
           <option name="screenX" value="1080" />
           <option name="screenY" value="2340" />
@@ -479,6 +478,18 @@ AlayaApp
           <option name="screenY" value="2244" />
         </PersistentDeviceSelectionData>
         <PersistentDeviceSelectionData>
+          <option name="api" value="35" />
+          <option name="brand" value="google" />
+          <option name="codename" value="komodo" />
+          <option name="id" value="komodo" />
+          <option name="labId" value="google" />
+          <option name="manufacturer" value="Google" />
+          <option name="name" value="Pixel 9 Pro XL" />
+          <option name="screenDensity" value="360" />
+          <option name="screenX" value="1008" />
+          <option name="screenY" value="2244" />
+        </PersistentDeviceSelectionData>
+        <PersistentDeviceSelectionData>
           <option name="api" value="33" />
           <option name="brand" value="google" />
           <option name="codename" value="lynx" />
@@ -737,7 +748,6 @@ AlayaApp
 # .idea\misc.xml
 
 ```xml
-<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="ProjectRootManager" version="2" languageLevel="JDK_21" default="true" project-jdk-name="jbr-21" project-jdk-type="JavaSDK">
@@ -802,12 +812,12 @@ AlayaApp
           <theme>@style/Theme.AlayaApp</theme>
         </config>
       </layout>
-      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_change_location.xml">
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_edit_text.xml">
         <config>
           <theme>@style/Theme.AlayaApp</theme>
         </config>
       </layout>
-      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_edit_text.xml">
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/list_item_itinerary.xml">
         <config>
           <theme>@style/Theme.AlayaApp</theme>
         </config>
@@ -818,13 +828,8 @@ AlayaApp
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="01420886-470c-47ac-81ec-ac261690f18c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_edit_text.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItinerariesActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItinerariesActivity.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItineraryAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItineraryAdapter.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItineraryItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItineraryItem.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_itineraries.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_itineraries.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project_summary.md" beforeDir="false" afterPath="$PROJECT_DIR$/project_summary.md" afterDir="false" />
+    <list default="true" id="01420886-470c-47ac-81ec-ac261690f18c" name="Changes" comment="updated codebase.md">
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ProfileActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ProfileActivity.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -834,16 +839,55 @@ AlayaApp
   <component name="ClangdSettings">
     <option name="formatViaClangd" value="false" />
   </component>
-  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=C:\Users\Fretz\.android\avd\Medium_Phone.avd)]" />
+  <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=C:\Users\Fretz\.android\avd\Pixel_8.avd)]" />
   <component name="ExternalProjectsData">
     <projectState path="$PROJECT_DIR$">
       <ProjectState />
     </projectState>
   </component>
+  <component name="ExternalProjectsManager">
+    <system id="GRADLE">
+      <state>
+        <task path="$PROJECT_DIR$/app">
+          <activation />
+        </task>
+        <projects_view>
+          <tree_state>
+            <expand>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="AlayaApp" type="f1a62948:ProjectNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="AlayaApp" type="f1a62948:ProjectNode" />
+                <item name="app" type="2d1252cf:ModuleNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="AlayaApp" type="f1a62948:ProjectNode" />
+                <item name="app" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+              </path>
+              <path>
+                <item name="" type="6a2764b6:ExternalProjectsStructure$RootNode" />
+                <item name="AlayaApp" type="f1a62948:ProjectNode" />
+                <item name="app" type="2d1252cf:ModuleNode" />
+                <item name="Tasks" type="e4a08cd1:TasksNode" />
+                <item name="other" type="c8890929:TasksNode$1" />
+              </path>
+            </expand>
+            <select />
+          </tree_state>
+        </projects_view>
+      </state>
+    </system>
+  </component>
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
         <option value="layoutResourceFile" />
+        <option value="Class" />
       </list>
     </option>
   </component>
@@ -873,11 +917,13 @@ AlayaApp
     "RunOnceActivity.cidr.known.project.marker": "true",
     "RunOnceActivity.git.unshallow": "true",
     "RunOnceActivity.readMode.enableVisualFormatting": "true",
+    "ScreenRecorder.SavePath": "C:\\Users\\Fretz\\Videos",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "itineraryfunction",
+    "git-widget-placeholder": "loginfunction",
     "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true"
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Fretz/Videos"
   }
 }]]></component>
   <component name="RunManager">
@@ -963,6 +1009,15 @@ AlayaApp
       <option name="presentableId" value="Default" />
       <updated>1746016877842</updated>
     </task>
+    <task id="LOCAL-00001" summary="updated codebase.md">
+      <option name="closed" value="true" />
+      <created>1747818895780</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1747818895780</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -988,17 +1043,21 @@ AlayaApp
       </map>
     </option>
   </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="updated codebase.md" />
+    <option name="LAST_COMMIT_MESSAGE" value="updated codebase.md" />
+  </component>
   <component name="play_dynamic_filters_status">
     <option name="appIdToCheckInfo">
       <map>
         <entry key="com.example.alayaapp">
           <value>
-            <CheckInfo lastCheckTimestamp="1746029452844" />
+            <CheckInfo lastCheckTimestamp="1747819475937" />
           </value>
         </entry>
         <entry key="com.example.alayaapp.test">
           <value>
-            <CheckInfo lastCheckTimestamp="1746029452880" />
+            <CheckInfo lastCheckTimestamp="1747819475879" />
           </value>
         </entry>
       </map>
@@ -1022,6 +1081,7 @@ This is a binary file of the type: Compressed Archive
 ```kts
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -1040,40 +1100,73 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false // Keep false for now, enable later with proper rules
+            isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
         }
     }
-
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
 
-    // Enable ViewBinding
-    viewBinding {
-        enable = true
+    buildFeatures {
+        viewBinding = true
     }
 }
 
 dependencies {
+    implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
+    implementation("com.google.firebase:firebase-analytics")
+    implementation("com.google.firebase:firebase-auth")
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-
-    // RecyclerView is used, ensure it's here (it's implicitly included via material/appcompat usually, but good to be explicit if needed)
-    // implementation("androidx.recyclerview:recyclerview:1.3.2") // Example version, adjust if necessary
-
-    // --- Add Gson dependency ---
-    implementation("com.google.code.gson:gson:2.10.1") // Use the latest version as needed
-
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.maps) // Assuming this is correctly defined in libs
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+    implementation("com.google.firebase:firebase-auth-ktx")
+    implementation("com.google.firebase:firebase-database")
+    implementation("de.hdodenhof:circleimageview:3.1.0") // Correct syntax for Kotlin DSL
+}
+```
+
+# app\google-services.json
+
+```json
+{
+  "project_info": {
+    "project_number": "634657318925",
+    "project_id": "alayadatabase-22359",
+    "storage_bucket": "alayadatabase-22359.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:634657318925:android:fceef01169359ac9160d44",
+        "android_client_info": {
+          "package_name": "com.example.alayaapp"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAG34ABq5LJk7aSyT4mRbH_7Uqg0KHs2-k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
 }
 ```
 
@@ -1142,9 +1235,8 @@ public class ExampleInstrumentedTest {
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.alayaapp">
 
-
-
     <application
+
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -1154,53 +1246,249 @@ public class ExampleInstrumentedTest {
         android:supportsRtl="true"
         android:theme="@style/Theme.AlayaApp"
         tools:targetApi="34">
+
+
+        <activity
+            android:name=".MapsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ItineraryLogDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TripHistoryActivity"
+            android:exported="false" />
         <activity
             android:name=".SplashActivity"
             android:exported="true"
             android:theme="@style/Theme.AlayaApp.SplashImitation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- Login Activity - Not exported, launched internally -->
+        </activity> <!-- Login Activity - Not exported, launched internally -->
         <activity
             android:name=".LoginActivity"
-            android:exported="false" />
-
-        <!-- SignUp Activity - Not exported, launched internally -->
+            android:exported="false" /> <!-- SignUp Activity - Not exported, launched internally -->
         <activity
             android:name=".SignUpActivity"
-            android:exported="false" />
-
-        <!-- OtpVerification Activity - Not exported, launched internally -->
+            android:exported="false" /> <!-- OtpVerification Activity - Not exported, launched internally -->
         <activity
             android:name=".OtpVerificationActivity"
-            android:exported="false" />
-
-        <!-- Home Activity - Not exported, launched internally -->
+            android:exported="false" /> <!-- Home Activity - Not exported, launched internally -->
         <activity
             android:name=".HomeActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan"/> <!-- Optional: Prevent resize on keyboard show -->
-
+            android:windowSoftInputMode="adjustPan" /> <!-- Optional: Prevent resize on keyboard show -->
         <!-- Itineraries Activity - Not exported, launched internally -->
         <activity
             android:name=".ItinerariesActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan"/> <!-- Optional: Prevent resize on keyboard show -->
-
-
-        <!-- REMOVED MainActivity reference as it's being deleted -->
+            android:windowSoftInputMode="adjustPan" /> <!-- Optional: Prevent resize on keyboard show -->
+        <activity android:name=".ResetPasswordActivity" /> <!-- REMOVED MainActivity reference as it's being deleted -->
+        <activity
+            android:name=".BurnhamDetailsActivity"
+            android:exported="false" />
 
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".TransportationModeActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="YOUR_GOOGLE_MAPS_API_KEY" />
+
+
+
+
+
+
 
     </application>
 
+
 </manifest>
+```
+
+# app\src\main\java\com\example\alayaapp\BurnhamDetailsActivity.java
+
+```java
+package com.example.alayaapp;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent; // Added for starting new activity
+import android.os.Bundle;
+// import android.view.View; // No longer needed if using lambdas with ViewBinding
+// import android.widget.ImageView; // No longer needed with ViewBinding
+
+import com.example.alayaapp.databinding.ActivityBurnhamDetailsBinding; // Import ViewBinding class
+
+public class BurnhamDetailsActivity extends AppCompatActivity {
+
+    private ActivityBurnhamDetailsBinding binding; // Declare binding variable
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        // Inflate the layout using ViewBinding
+        binding = ActivityBurnhamDetailsBinding.inflate(getLayoutInflater());
+        // Set the content view from the binding's root
+        setContentView(binding.getRoot());
+
+        // --- Set Click Listeners ---
+
+        // Back Arrow Click Listener
+        binding.ivBackArrow.setOnClickListener(v -> {
+            // Finish this activity to go back to the previous one in the stack
+            finish();
+        });
+
+        // "View in Mode of Transportation" Click Listener
+        binding.tvViewTransportation.setOnClickListener(v -> {
+            Intent intent = new Intent(BurnhamDetailsActivity.this, TransportationModeActivity.class);
+
+            // Optionally, pass data to TransportationModeActivity if needed.
+            // For example, if TransportationModeActivity needs to know which park it's for:
+            // intent.putExtra("PARK_NAME", "Burnham Park");
+            // intent.putExtra("PARK_LATITUDE", 16.4097); // Example Lat
+            // intent.putExtra("PARK_LONGITUDE", 120.5935); // Example Lng
+            // You would then retrieve these in TransportationModeActivity's onCreate using getIntent().getExtras()
+
+            startActivity(intent);
+
+            // Optional: Add a transition animation if you like
+            // overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+        });
+
+        // TODO: Add listeners for other interactive elements if any (e.g., "View in Maps")
+        // binding.tvViewInMaps.setOnClickListener(v -> { ... });
+
+        // TODO: Load dynamic data into your TextViews if not already hardcoded in XML
+        // e.g., binding.tvParkTitle.setText("Burnham Park");
+        // binding.tvRatingValue.setText("4.4");
+        // etc.
+    }
+}
+```
+
+# app\src\main\java\com\example\alayaapp\ChangePasswordActivity.java
+
+```java
+package com.example.alayaapp;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.Bundle;
+import android.text.method.PasswordTransformationMethod; // For password visibility
+import android.view.View;
+import android.widget.Toast;
+
+import com.example.alayaapp.databinding.ActivityChangePasswordBinding;
+import com.google.android.material.textfield.TextInputLayout;
+
+public class ChangePasswordActivity extends AppCompatActivity {
+
+    private ActivityChangePasswordBinding binding;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityChangePasswordBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        // Back arrow listener
+        binding.ivBackArrowChangePassword.setOnClickListener(v -> {
+            finish(); // Go back to the previous activity
+        });
+
+        // Submit button listener
+        binding.btnChangePasswordSubmit.setOnClickListener(v -> {
+            handleChangePassword();
+        });
+
+        // Optional: Setup password visibility toggle manually if needed for custom icons
+        // setupPasswordToggleListener(binding.tilNewPassword);
+        // setupPasswordToggleListener(binding.tilConfirmPassword);
+    }
+
+    private void handleChangePassword() {
+        String newPassword = binding.etNewPassword.getText().toString().trim();
+        String confirmPassword = binding.etConfirmPassword.getText().toString().trim();
+
+        // Basic Validation
+        if (newPassword.isEmpty()) {
+            binding.tilNewPassword.setError("New password cannot be empty");
+            return;
+        } else {
+            binding.tilNewPassword.setError(null); // Clear error
+        }
+
+        if (newPassword.length() < 6) { // Example: minimum length
+            binding.tilNewPassword.setError("Password must be at least 6 characters");
+            return;
+        } else {
+            binding.tilNewPassword.setError(null);
+        }
+
+        if (confirmPassword.isEmpty()) {
+            binding.tilConfirmPassword.setError("Please confirm your password");
+            return;
+        } else {
+            binding.tilConfirmPassword.setError(null);
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            binding.tilConfirmPassword.setError("Passwords do not match");
+            return;
+        } else {
+            binding.tilConfirmPassword.setError(null);
+        }
+
+        // --- TODO: Implement actual password change logic here ---
+        // This would typically involve:
+        // 1. Getting the current user's ID or token.
+        // 2. Making an API call to your backend server to update the password.
+        // 3. Handling success and error responses from the server.
+
+        Toast.makeText(this, "Password change request sent (Placeholder)", Toast.LENGTH_SHORT).show();
+        // Example: On success, you might navigate back or to a success screen
+        // finish();
+    }
+
+    // Optional: If you want to use custom drawables for password toggle and handle state
+    // private void setupPasswordToggleListener(final TextInputLayout textInputLayout) {
+    //    textInputLayout.setEndIconOnClickListener(v -> {
+    //        if (textInputLayout.getEditText().getTransformationMethod() == null) {
+    //            // If password visible, hide it
+    //            textInputLayout.getEditText().setTransformationMethod(PasswordTransformationMethod.getInstance());
+    //            textInputLayout.setEndIconDrawable(R.drawable.ic_visibility_on); // Set to "eye open"
+    //        } else {
+    //            // If password hidden, show it
+    //            textInputLayout.getEditText().setTransformationMethod(null);
+    //            textInputLayout.setEndIconDrawable(R.drawable.ic_visibility_off); // Set to "eye crossed"
+    //        }
+    //        // Move cursor to the end
+    //        textInputLayout.getEditText().setSelection(textInputLayout.getEditText().getText().length());
+    //    });
+    // }
+}
 ```
 
 # app\src\main\java\com\example\alayaapp\HomeActivity.java
@@ -1208,100 +1496,105 @@ public class ExampleInstrumentedTest {
 ```java
 package com.example.alayaapp;
 
+import androidx.annotation.NonNull; // Keep if used, though not strictly for this specific change
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+
 import android.content.Intent;
 import android.os.Bundle;
+// import android.view.MenuItem; // Unused in this version
+import android.view.View;
+// import android.widget.Button; // Unused
+// import android.widget.TextView; // Unused
 import android.widget.Toast;
-// Removed unused imports like Button, TextView, MenuItem, NavigationBarView etc.
-// Keep NonNull import if used elsewhere, though not strictly needed for this code now
-// import androidx.annotation.NonNull;
 
-import com.example.alayaapp.databinding.ActivityHomeBinding; // Import ViewBinding class
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+// import com.google.android.material.navigation.NavigationBarView; // Not directly used
 
 public class HomeActivity extends AppCompatActivity {
 
-    private ActivityHomeBinding binding; // Declare binding variable
-    final int CURRENT_ITEM_ID = R.id.navigation_home; // Define constant for clarity
+    // Declare the BottomNavigationView
+    BottomNavigationView bottomNavigationView;
+
+    // Declare the CardView for Burnham Park
+    CardView burnhamCard;
+
+    // Define the current item ID for HomeActivity
+    final int CURRENT_ITEM_ID = R.id.navigation_home; // Added for consistency if you add more logic
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Inflate the layout using ViewBinding
-        binding = ActivityHomeBinding.inflate(getLayoutInflater());
-        // Set the content view from the binding's root
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_home); // Your home layout file
 
-        // --- Find Views using binding ---
-        // Example: Accessing the trip date button
-        // binding.btnTripDate.setOnClickListener(...)
+        // --- Find Views ---
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+        burnhamCard = findViewById(R.id.card_burnham_park);
 
         // --- Set Initial State for Bottom Nav ---
-        binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
+        bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
 
         // --- Set Listeners ---
-        // Example listener for trip date button
-        binding.btnTripDate.setOnClickListener(v -> {
-            // Handle trip date click
-            // TODO: Implement Date Picker Dialog or similar
-            Toast.makeText(HomeActivity.this, "Trip Date Clicked (Implement Date Picker)", Toast.LENGTH_SHORT).show();
-        });
 
-        // Example Listener for location change
-        binding.tvLocationCity2.setOnClickListener(v -> {
-            // TODO: Implement Location Change Dialog/Screen
-            Toast.makeText(HomeActivity.this, "Change Location Clicked (Implement Feature)", Toast.LENGTH_SHORT).show();
-        });
+        // ** --- Add the Click Listener for the Burnham Park Card --- **
+        if (burnhamCard != null) { // Good practice to check if view was found
+            burnhamCard.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Intent intent = new Intent(HomeActivity.this, BurnhamDetailsActivity.class);
+                    startActivity(intent);
+                    // Optional: Add a transition animation if you like
+                    // Consider defining R.anim.slide_in_right and R.anim.slide_out_left
+                    // overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                }
+            });
+        }
 
 
-        // ** --- Add the Bottom Navigation Item Selection Logic --- **
-        binding.bottomNavigation.setOnItemSelectedListener(item -> {
+        // ** --- Updated Bottom Navigation Item Selection Logic --- **
+        bottomNavigationView.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
 
-            if (itemId == CURRENT_ITEM_ID) {
-                // Already on Home screen, do nothing or maybe refresh data
-                return true; // Indicate item selection was handled
+            if (itemId == CURRENT_ITEM_ID) { // If already on home
+                return true;
             } else if (itemId == R.id.navigation_itineraries) {
-                // Navigate to Itineraries Activity
-                navigateTo(ItinerariesActivity.class, true); // Use helper method
+                Intent intent = new Intent(getApplicationContext(), ItinerariesActivity.class);
+                startActivity(intent);
+                // Apply transition (ensure these anim files exist or use android.R.anim)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                finish(); // Close HomeActivity
                 return true;
             } else if (itemId == R.id.navigation_map) {
-                // TODO: Navigate to Map Activity (Create MapActivity first)
-                // navigateTo(MapActivity.class, true);
-                Toast.makeText(HomeActivity.this, "Map Clicked (No Activity)", Toast.LENGTH_SHORT).show();
-                // Return true even if not navigating yet to show selection change visually
-                return true;
-            } else if (itemId == R.id.navigation_profile) {
-                // TODO: Navigate to Profile Activity (Create ProfileActivity first)
-                // navigateTo(ProfileActivity.class, true);
-                Toast.makeText(HomeActivity.this, "Profile Clicked (No Activity)", Toast.LENGTH_SHORT).show();
-                // Return true even if not navigating yet to show selection change visually
+                Intent intent = new Intent(getApplicationContext(), MapsActivity.class);
+                startActivity(intent);
+                // Apply transition (ensure these anim files exist or use android.R.anim)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                finish(); // Close HomeActivity
+                return true; // Even if not navigating, return true to show selection
+            } else if (itemId == R.id.navigation_profile) { // <<< --- THIS IS THE MODIFIED PART ---
+                Intent intent = new Intent(getApplicationContext(), ProfileActivity.class);
+                startActivity(intent);
+                // Apply transition (ensure these anim files exist or use android.R.anim)
+                overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                finish(); // Close HomeActivity
                 return true;
             }
-            return false; // Return false if the item ID is not handled
+
+            return false; // Item not handled
         });
     }
 
-    // Helper method for navigation to avoid repetition
-    private void navigateTo(Class<?> destinationActivity, boolean slideRight) {
-        Intent intent = new Intent(getApplicationContext(), destinationActivity);
-        startActivity(intent);
-        if (slideRight) {
-            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-        } else {
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-        }
-        finish(); // Close current activity
-    }
-
-
-    // Optional: Re-select item onResume if needed, but usually not necessary
-    // if navigation always finishes the current activity.
+    // Optional onResume method (keep if you have it)
     /*
     @Override
     protected void onResume() {
         super.onResume();
-        if (binding != null) { // Check binding exists
-             binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
+        // This ensures the "Home" icon is selected if the user navigates back
+        // to HomeActivity using the system back button without HomeActivity having been finished.
+        // However, if you always finish() HomeActivity when navigating away, this might not be strictly necessary
+        // unless you have other ways to return to it.
+        if (bottomNavigationView != null) {
+            bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
         }
     }
     */
@@ -1313,383 +1606,186 @@ public class HomeActivity extends AppCompatActivity {
 ```java
 package com.example.alayaapp;
 
-import androidx.appcompat.app.AlertDialog;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.ItemTouchHelper;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.recyclerview.widget.ItemTouchHelper; // Import
+import androidx.recyclerview.widget.LinearLayoutManager; // Import
+import androidx.recyclerview.widget.RecyclerView; // Import
 
-import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.Uri;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.widget.EditText;
+import android.view.MenuItem;
+import android.view.View; // Import
+import android.widget.ImageView;
+import android.widget.TextView; // Import
 import android.widget.Toast;
 
-import com.example.alayaapp.databinding.ActivityItinerariesBinding;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationBarView;
 
-import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.Arrays; // Added for Arrays.asList
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.ArrayList; // Import
+import java.util.Calendar; // Import
+import java.util.List; // Import
 
-public class ItinerariesActivity extends AppCompatActivity
-        implements ItineraryAdapter.OnStartDragListener, ItineraryAdapter.OnItemClickListener {
+public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.OnStartDragListener { // Implement listener
 
-    private ActivityItinerariesBinding binding;
-    private ItineraryAdapter itineraryAdapter;
-    private ItemTouchHelper itemTouchHelper;
-    private ItineraryItemTouchHelperCallback touchHelperCallback;
+    BottomNavigationView bottomNavigationView;
+    // ImageView ivEditItinerary; // We find both edit and save now
+    View ivEditItinerary; // Use View for easier toggling if needed
+    TextView tvSaveChanges;
+    RecyclerView rvSuggestedItinerary;
+    ItineraryAdapter itineraryAdapter;
+    ItemTouchHelper itemTouchHelper;
+    ItineraryItemTouchHelperCallback touchHelperCallback; // Keep reference to update edit mode
 
-    private List<ItineraryItem> suggestedList = new ArrayList<>();
-    private boolean isEditMode = false;
+
+    List<ItineraryItem> suggestedList = new ArrayList<>(); // Your data list
+    private boolean isEditMode = false; // State tracking
+
     final int CURRENT_ITEM_ID = R.id.navigation_itineraries;
-
-    private static final String PREFS_NAME = "AlayaAppPrefs";
-    private static final String KEY_CURRENT_LOCATION = "currentLocation";
-    private static final String KEY_SUGGESTED_ITINERARY = "suggestedItineraryJson";
-    private static final String DEFAULT_LOCATION = "Baguio City";
-
-    private Gson gson = new Gson();
-    private Map<String, List<ItineraryItem>> sampleItineraryData;
-    private String currentLocation;
-    private final String[] availableLocations = {"Baguio City", "Cubao", "BGC"}; // Define locations
-    private int selectedLocationIndex = -1; // For dialog selection tracking
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityItinerariesBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
+        setContentView(R.layout.activity_itineraries);
 
-        createSampleData();
-        loadCurrentLocation();
-        loadOrGenerateItineraryForLocation(currentLocation, false);
+        // Find Views
+        ivEditItinerary = findViewById(R.id.iv_edit_itinerary);
+        tvSaveChanges = findViewById(R.id.tv_save_changes);
+        rvSuggestedItinerary = findViewById(R.id.rv_suggested_itinerary);
+        bottomNavigationView = findViewById(R.id.bottom_navigation);
+
+        // Setup RecyclerView
         setupRecyclerView();
+
+        // Load Initial Data (Placeholder)
+        loadPlaceholderData();
+
+        // Setup Bottom Nav
+        bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
         setupBottomNavListener();
-        setupClickListeners();
+
+
+        // Setup Click Listeners for Edit/Save
+        ivEditItinerary.setOnClickListener(v -> enterEditMode());
+        tvSaveChanges.setOnClickListener(v -> exitEditModeAndSave());
+
     }
 
     private void setupRecyclerView() {
-        itineraryAdapter = new ItineraryAdapter(suggestedList, this, this);
-        binding.rvSuggestedItinerary.setLayoutManager(new LinearLayoutManager(this));
-        binding.rvSuggestedItinerary.setAdapter(itineraryAdapter);
+        itineraryAdapter = new ItineraryAdapter(suggestedList, this); // Pass listener
+        rvSuggestedItinerary.setLayoutManager(new LinearLayoutManager(this));
+        rvSuggestedItinerary.setAdapter(itineraryAdapter);
 
+        // Setup ItemTouchHelper
         touchHelperCallback = new ItineraryItemTouchHelperCallback(itineraryAdapter);
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(binding.rvSuggestedItinerary);
+        itemTouchHelper.attachToRecyclerView(rvSuggestedItinerary);
     }
 
-    private void setupClickListeners() {
-        binding.ivEditItinerary.setOnClickListener(v -> enterEditMode());
-        binding.tvSaveChanges.setOnClickListener(v -> exitEditModeAndSave());
-        binding.tvLocationCity.setOnClickListener(v -> showChangeLocationDialog());
-        setupRecommendedClickListeners();
-    }
-
-    private void loadCurrentLocation() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        currentLocation = prefs.getString(KEY_CURRENT_LOCATION, DEFAULT_LOCATION);
-        binding.tvLocationCity.setText(currentLocation);
-    }
-
-    private void saveCurrentLocation(String location) {
-        if (location == null || location.trim().isEmpty()) return;
-        currentLocation = location.trim();
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.putString(KEY_CURRENT_LOCATION, currentLocation);
-        editor.apply();
-        binding.tvLocationCity.setText(currentLocation);
-        Log.d("ItineraryActivity", "Saved current location: " + currentLocation);
-    }
-
-    private void showChangeLocationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Select Location");
-
-        int currentSelectionIndex = Arrays.asList(availableLocations).indexOf(currentLocation);
-        if (currentSelectionIndex == -1) currentSelectionIndex = 0;
-        selectedLocationIndex = currentSelectionIndex;
-
-        builder.setSingleChoiceItems(availableLocations, currentSelectionIndex, (dialog, which) -> {
-            selectedLocationIndex = which;
-        });
-
-        builder.setPositiveButton("OK", (dialog, which) -> {
-            if (selectedLocationIndex != -1) {
-                String newLocation = availableLocations[selectedLocationIndex];
-                if (!newLocation.equalsIgnoreCase(currentLocation)) {
-                    saveCurrentLocation(newLocation);
-                    loadOrGenerateItineraryForLocation(currentLocation, true);
-                } else {
-                    dialog.dismiss();
-                }
-            }
-        });
-        builder.setNegativeButton("Cancel", null);
-
-        builder.show();
-    }
-
-    private void loadOrGenerateItineraryForLocation(String location, boolean isLocationChange) {
-        List<ItineraryItem> loadedList = loadItineraryFromPrefs();
-        suggestedList.clear();
-        boolean generatedNew = false;
-
-        if (loadedList != null && !loadedList.isEmpty()) {
-            suggestedList.addAll(loadedList);
-            Log.d("ItineraryActivity", "Loaded saved itinerary for: " + location);
-        } else {
-            List<ItineraryItem> sampleItems = null;
-            for (Map.Entry<String, List<ItineraryItem>> entry : sampleItineraryData.entrySet()) {
-                if (entry.getKey().equalsIgnoreCase(location)) {
-                    sampleItems = entry.getValue();
-                    break;
-                }
-            }
-
-            if (sampleItems != null) {
-                suggestedList.addAll(sampleItems);
-                Log.d("ItineraryActivity", "No saved data, generated sample itinerary for: " + location);
-                if (itineraryAdapter != null) {
-                    itineraryAdapter.recalculateTimes();
-                } else {
-                    Log.w("ItineraryActivity", "Adapter not ready during initial sample data time calculation");
-                }
-                saveItineraryToPrefs(suggestedList);
-                generatedNew = true;
-            } else {
-                Log.d("ItineraryActivity", "No saved or sample data found for: " + location);
-                clearSavedItinerary();
-            }
-        }
-
-        if (itineraryAdapter != null) {
-            itineraryAdapter.notifyDataSetChanged();
-        }
-
-        if (isLocationChange || generatedNew) {
-            binding.rvSuggestedItinerary.setVisibility(suggestedList.isEmpty() ? View.GONE : View.VISIBLE);
-            if (isEditMode) {
-                forceExitEditMode();
-            }
-            if (generatedNew && !isLocationChange) { // Only toast if generating on initial load
-                Toast.makeText(this, "Loaded sample itinerary for " + location, Toast.LENGTH_SHORT).show();
-            } else if (isLocationChange && generatedNew) {
-                Toast.makeText(this, "Generated sample itinerary for " + location, Toast.LENGTH_SHORT).show();
-            } else if (isLocationChange && !generatedNew && loadedList != null) {
-                Toast.makeText(this, "Loaded previously saved itinerary for " + location, Toast.LENGTH_SHORT).show();
-            }
-        }
-        binding.rvSuggestedItinerary.setVisibility(suggestedList.isEmpty() ? View.GONE : View.VISIBLE);
-    }
-
-
-    private void clearSavedItinerary() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        prefs.edit().remove(KEY_SUGGESTED_ITINERARY).apply();
-        Log.d("ItineraryActivity", "Cleared saved itinerary from SharedPreferences.");
-    }
-
-    private List<ItineraryItem> loadItineraryFromPrefs() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        String json = prefs.getString(KEY_SUGGESTED_ITINERARY + "_" + currentLocation, null); // Use location specific key
-        if (TextUtils.isEmpty(json)) {
-            json = prefs.getString(KEY_SUGGESTED_ITINERARY, null); // Fallback to generic key for migration
-            if(!TextUtils.isEmpty(json)) { // If fallback found, remove generic key after loading
-                prefs.edit().remove(KEY_SUGGESTED_ITINERARY).apply();
-            } else {
-                return null;
-            }
-        }
-
-        try {
-            Type listType = new TypeToken<ArrayList<ItineraryItem>>() {}.getType();
-            return gson.fromJson(json, listType);
-        } catch (Exception e) {
-            Log.e("ItineraryActivity", "Error parsing itinerary JSON from SharedPreferences", e);
-            return null;
-        }
-    }
-
-    private void saveItineraryToPrefs(List<ItineraryItem> listToSave) {
-        if (listToSave == null || currentLocation == null) return;
-
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        try {
-            String json = gson.toJson(listToSave);
-            editor.putString(KEY_SUGGESTED_ITINERARY + "_" + currentLocation, json); // Use location specific key
-            editor.remove(KEY_SUGGESTED_ITINERARY); // Clean up old generic key if it exists
-            editor.apply();
-            Log.d("ItineraryActivity", "Saved itinerary to SharedPreferences for " + currentLocation);
-        } catch (Exception e) {
-            Log.e("ItineraryActivity", "Error converting itinerary to JSON for SharedPreferences", e);
-            Toast.makeText(this, "Error saving changes", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private void createSampleData() {
-        sampleItineraryData = new HashMap<>();
+    private void loadPlaceholderData() {
+        // Create some dummy data with initial times
         Calendar cal = Calendar.getInstance();
-        long idCounter = 1;
+        cal.set(Calendar.HOUR_OF_DAY, 9); cal.set(Calendar.MINUTE, 0);
+        suggestedList.add(new ItineraryItem(1, (Calendar)cal.clone(), "Breakfast at Café by the Ruins", "4.5"));
+        cal.add(Calendar.HOUR_OF_DAY, 1);
+        suggestedList.add(new ItineraryItem(2, (Calendar)cal.clone(), "Burnham Park", "4.5")); // Changed to Burnham
+        cal.add(Calendar.HOUR_OF_DAY, 2); // 12 PM
+        suggestedList.add(new ItineraryItem(3, (Calendar)cal.clone(), "Lunch at Choco-late de Batirol", "4.5"));
+        cal.add(Calendar.HOUR_OF_DAY, 2); // 2 PM
+        suggestedList.add(new ItineraryItem(4, (Calendar)cal.clone(), "Mines View Park", "4.5"));
+        cal.add(Calendar.HOUR_OF_DAY, 1); // 3 PM
+        suggestedList.add(new ItineraryItem(5, (Calendar)cal.clone(), "Baguio Cathedral", "4.5"));
+        cal.add(Calendar.HOUR_OF_DAY, 1); // 4 PM
+        suggestedList.add(new ItineraryItem(6, (Calendar)cal.clone(), "Lemon and Olives", "4.5"));
+        cal.add(Calendar.HOUR_OF_DAY, 1); // 5 PM
+        suggestedList.add(new ItineraryItem(7, (Calendar)cal.clone(), "Dinner at Café Yagam", "4.5"));
 
-        List<ItineraryItem> baguioList = new ArrayList<>();
-        cal.set(Calendar.HOUR_OF_DAY, 9); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
-        baguioList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Burnham Park", "4.4", "Morning/Afternoon", 16.4123, 120.5950));
-        baguioList.add(new ItineraryItem(idCounter++, null, "Baguio Cathedral", "4.5", "Anytime", 16.4137, 120.5987));
-        baguioList.add(new ItineraryItem(idCounter++, null, "Mines View Park", "4.3", "Morning (for view)", 16.4188, 120.6286));
-        baguioList.add(new ItineraryItem(idCounter++, null, "Camp John Hay", "4.7", "Daytime", 16.4000, 120.6167));
-        sampleItineraryData.put("Baguio City", baguioList);
-
-        List<ItineraryItem> cubaoList = new ArrayList<>();
-        idCounter = 101;
-        cal.set(Calendar.HOUR_OF_DAY, 10); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
-        cubaoList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Gateway Mall", "4.5", "Anytime", 14.6199, 121.0535));
-        cubaoList.add(new ItineraryItem(idCounter++, null, "Art in Island", "4.6", "Afternoon", 14.6214, 121.0553));
-        cubaoList.add(new ItineraryItem(idCounter++, null, "Araneta Coliseum", "4.4", "Event Dependent", 14.6208, 121.0545));
-        cubaoList.add(new ItineraryItem(idCounter++, null, "Farmers Market/Plaza", "4.3", "Morning (Market)", 14.6188, 121.0530));
-        sampleItineraryData.put("Cubao", cubaoList);
-
-        List<ItineraryItem> bgcList = new ArrayList<>();
-        idCounter = 201;
-        cal.set(Calendar.HOUR_OF_DAY, 11); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0);
-        bgcList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Bonifacio High Street", "4.6", "Afternoon/Evening", 14.5515, 121.0506));
-        bgcList.add(new ItineraryItem(idCounter++, null, "The Mind Museum", "4.5", "Daytime (check hours)", 14.5538, 121.0467));
-        bgcList.add(new ItineraryItem(idCounter++, null, "Venice Grand Canal Mall", "4.4", "Evening (lights)", 14.5368, 121.0534));
-        bgcList.add(new ItineraryItem(idCounter++, null, "Burgos Circle", "4.5", "Evening (Dining)", 14.5544, 121.0492));
-        sampleItineraryData.put("BGC", bgcList);
-        sampleItineraryData.put("Bonifacio Global City", bgcList);
+        itineraryAdapter.notifyDataSetChanged();
     }
 
     private void enterEditMode() {
-        if (suggestedList.isEmpty()) {
-            Toast.makeText(this, "Itinerary is empty.", Toast.LENGTH_SHORT).show();
-            return;
-        }
         isEditMode = true;
-        binding.ivEditItinerary.setVisibility(View.GONE);
-        binding.tvSaveChanges.setVisibility(View.VISIBLE);
-        if (itineraryAdapter != null) itineraryAdapter.setEditMode(true);
-        if (touchHelperCallback != null) touchHelperCallback.setEditMode(true);
-        Toast.makeText(this, "Edit mode enabled.", Toast.LENGTH_SHORT).show();
+        ivEditItinerary.setVisibility(View.GONE);
+        tvSaveChanges.setVisibility(View.VISIBLE);
+        itineraryAdapter.setEditMode(true);
+        if(touchHelperCallback != null) {
+            touchHelperCallback.setEditMode(true); // Enable dragging in callback
+        }
+        Toast.makeText(this, "Edit mode enabled. Drag handles to reorder.", Toast.LENGTH_SHORT).show();
+
     }
 
     private void exitEditModeAndSave() {
-        forceExitEditMode();
-        List<ItineraryItem> updatedList = itineraryAdapter.getCurrentList();
-        saveItineraryToPrefs(updatedList);
-        Toast.makeText(this, "Changes Saved", Toast.LENGTH_SHORT).show();
-    }
-
-    private void forceExitEditMode() {
         isEditMode = false;
-        binding.ivEditItinerary.setVisibility(View.VISIBLE);
-        binding.tvSaveChanges.setVisibility(View.GONE);
-        if (itineraryAdapter != null) itineraryAdapter.setEditMode(false);
-        if (touchHelperCallback != null) touchHelperCallback.setEditMode(false);
+        ivEditItinerary.setVisibility(View.VISIBLE);
+        tvSaveChanges.setVisibility(View.GONE);
+        itineraryAdapter.setEditMode(false);
+        if(touchHelperCallback != null) {
+            touchHelperCallback.setEditMode(false); // Disable dragging in callback
+        }
+
+        // ** TODO: Implement actual saving logic here! **
+        // For now, just get the potentially reordered list
+        List<ItineraryItem> updatedList = itineraryAdapter.getCurrentList();
+        // In a real app, save 'updatedList' to database/sharedprefs/API
+
+        Toast.makeText(this, "Changes Saved (Placeholder)", Toast.LENGTH_SHORT).show();
+
+        // Optional: Refresh adapter completely if saving involves complex changes,
+        // but usually hiding handles is enough.
+        // itineraryAdapter.notifyDataSetChanged();
     }
 
+
+    // --- Implementation of OnStartDragListener ---
     @Override
     public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        if (itemTouchHelper != null && isEditMode) {
+        if (itemTouchHelper != null && isEditMode) { // Only drag in edit mode
             itemTouchHelper.startDrag(viewHolder);
         }
     }
 
-    @Override
-    public void onItemClick(int position) {
-        if (isEditMode) {
-            Toast.makeText(this, "Exit edit mode to view details", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        if (position >= 0 && position < suggestedList.size()) {
-            ItineraryItem clickedItem = suggestedList.get(position);
-            if (clickedItem != null) {
-                showItemOverviewDialog(clickedItem);
-            }
-        }
-    }
-
-    private void showItemOverviewDialog(ItineraryItem item) {
-        if (item == null) return;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(item.getActivity() != null ? item.getActivity() : "Details");
-        String message = "Rating: " + (item.getRating() != null ? item.getRating() : "N/A") + "\n" +
-                "Best time to visit: " + (item.getBestTimeToVisit() != null ? item.getBestTimeToVisit() : "Anytime");
-        builder.setMessage(message);
-        builder.setPositiveButton("Navigate", (dialog, which) -> startNavigation(item));
-        builder.setNegativeButton("Close", (dialog, which) -> dialog.dismiss());
-        builder.show();
-    }
-
-    private void startNavigation(ItineraryItem item) {
-        if (item == null) {
-            Toast.makeText(this, "Cannot navigate: Item data missing", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        String uriString;
-        if (item.getLatitude() != 0 || item.getLongitude() != 0) {
-            uriString = String.format(Locale.US, "geo:0,0?q=%f,%f(%s)",
-                    item.getLatitude(), item.getLongitude(), Uri.encode(item.getActivity()));
-        } else if (!TextUtils.isEmpty(item.getActivity())){
-            uriString = "geo:0,0?q=" + Uri.encode(item.getActivity());
-        } else {
-            Toast.makeText(this, "Cannot navigate: Location name or coordinates missing", Toast.LENGTH_SHORT).show();
-            return;
-        }
-        try {
-            Uri gmmIntentUri = Uri.parse(uriString);
-            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-            if (mapIntent.resolveActivity(getPackageManager()) != null) {
-                startActivity(mapIntent);
-            } else {
-                Toast.makeText(this, "No map application found", Toast.LENGTH_LONG).show();
-            }
-        } catch (Exception e) {
-            Log.e("ItineraryActivity", "Error starting map intent: " + uriString, e);
-            Toast.makeText(this, "Could not launch map application", Toast.LENGTH_SHORT).show();
-        }
-    }
-
+    // --- Bottom Nav Logic ---
     private void setupBottomNavListener() {
-        binding.bottomNavigation.setOnItemSelectedListener(item -> {
+        bottomNavigationView.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
-            if (destinationItemId == CURRENT_ITEM_ID) return true;
-            Class<?> destinationActivity = null;
-            if (destinationItemId == R.id.navigation_home) destinationActivity = HomeActivity.class;
-            else if (destinationItemId == R.id.navigation_map) { Toast.makeText(this, "Map Clicked (No Activity)", Toast.LENGTH_SHORT).show(); return true; }
-            else if (destinationItemId == R.id.navigation_profile) { Toast.makeText(this, "Profile Clicked (No Activity)", Toast.LENGTH_SHORT).show(); return true; }
 
-            if (destinationActivity != null) {
+            if (destinationItemId == CURRENT_ITEM_ID) { // CURRENT_ITEM_ID is R.id.navigation_itineraries
+                return true; // Already on Itineraries screen
+            }
+
+            Class<?> destinationActivityClass = null; // Use a class variable for clarity
+            // boolean slideRightToLeft = true; // We'll determine this based on index
+
+            if (destinationItemId == R.id.navigation_home) {
+                destinationActivityClass = HomeActivity.class;
+            } else if (destinationItemId == R.id.navigation_map) {
+                destinationActivityClass = MapsActivity.class;
+            } else if (destinationItemId == R.id.navigation_profile) { // <<< --- THIS IS THE MODIFIED PART ---
+                destinationActivityClass = ProfileActivity.class; // Set the destination to ProfileActivity
+            }
+            // No 'else if' for R.id.navigation_itineraries as it's handled by CURRENT_ITEM_ID check
+
+            if (destinationActivityClass != null) {
+                Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
+                startActivity(intent);
+
+                // Determine slide direction based on item index
                 boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
-                navigateTo(destinationActivity, slideRightToLeft);
+
+                if (slideRightToLeft) {
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                } else {
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                }
+                finish(); // Close ItinerariesActivity
                 return true;
             }
-            return false;
+            return false; // Item not handled
         });
     }
 
-    private void navigateTo(Class<?> destinationActivity, boolean slideRight) {
-        Intent intent = new Intent(getApplicationContext(), destinationActivity);
-        startActivity(intent);
-        if (slideRight) overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-        else overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-        finish();
-    }
 
     private int getItemIndex(int itemId) {
         if (itemId == R.id.navigation_home) return 0;
@@ -1699,16 +1795,6 @@ public class ItinerariesActivity extends AppCompatActivity
         return -1;
     }
 
-    private void setupRecommendedClickListeners() {
-        binding.cardRecommended1.setOnClickListener(v -> handleRecommendedClick("Arca's Yard Cafe"));
-        binding.cardRecommended2.setOnClickListener(v -> handleRecommendedClick("Wright Park Riding Center"));
-        binding.cardRecommended3.setOnClickListener(v -> handleRecommendedClick("Baguio Orchidarium"));
-        binding.cardRecommended4.setOnClickListener(v -> handleRecommendedClick("Camp John Hay Picnic Area"));
-    }
-
-    private void handleRecommendedClick(String itemName) {
-        Toast.makeText(this, itemName + " clicked (Implement Action)", Toast.LENGTH_SHORT).show();
-    }
 }
 ```
 
@@ -1718,16 +1804,15 @@ public class ItinerariesActivity extends AppCompatActivity
 package com.example.alayaapp;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-
+import android.widget.ImageView;
+import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.example.alayaapp.databinding.ListItemItineraryBinding;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Collections;
@@ -1739,98 +1824,72 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
     private List<ItineraryItem> itineraryList;
     private boolean isEditMode = false;
     private final OnStartDragListener dragStartListener;
-    private final OnItemClickListener itemClickListener; // Added click listener
     private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
 
-    // Interface for drag start
+    // Interface to signal drag start to the Activity/Fragment
     public interface OnStartDragListener {
         void onStartDrag(RecyclerView.ViewHolder viewHolder);
     }
 
-    // Interface for item click
-    public interface OnItemClickListener {
-        void onItemClick(int position);
-    }
-
-    // Updated Constructor
-    public ItineraryAdapter(List<ItineraryItem> itineraryList,
-                            OnStartDragListener dragStartListener,
-                            OnItemClickListener itemClickListener) { // Added click listener
+    public ItineraryAdapter(List<ItineraryItem> itineraryList, OnStartDragListener dragStartListener) {
         this.itineraryList = itineraryList;
         this.dragStartListener = dragStartListener;
-        this.itemClickListener = itemClickListener; // Store click listener
-        setHasStableIds(true);
+        setHasStableIds(true); // Important for drag/drop performance/correctness
     }
 
     @NonNull
     @Override
     public ItineraryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        ListItemItineraryBinding binding = ListItemItineraryBinding.inflate(
-                LayoutInflater.from(parent.getContext()), parent, false);
-        return new ItineraryViewHolder(binding, itemClickListener); // Pass click listener to ViewHolder
+        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_itinerary, parent, false);
+        return new ItineraryViewHolder(view);
     }
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public void onBindViewHolder(@NonNull ItineraryViewHolder holder, int position) {
         ItineraryItem item = itineraryList.get(position);
+        holder.tvTime.setText(timeFormat.format(item.getTime().getTime()));
+        holder.tvActivity.setText(item.getActivity());
+        holder.tvRating.setText(item.getRating());
 
-        // Check for null before accessing item properties
-        if (item == null) return;
+        // Show/hide drag handle based on edit mode
+        holder.ivDragHandle.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
 
-        // Bind data using holder's binding object
-        if (item.getTime() != null) {
-            holder.binding.tvItemTime.setText(timeFormat.format(item.getTime().getTime()));
-        } else {
-            holder.binding.tvItemTime.setText("N/A"); // Handle null time
-        }
-        holder.binding.tvItemActivity.setText(item.getActivity() != null ? item.getActivity() : "Unknown Activity");
-        holder.binding.tvItemRating.setText(item.getRating() != null ? item.getRating() : "-");
-
-        holder.binding.ivDragHandle.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
-
+        // Start drag on touching the handle *only* in edit mode
         if (isEditMode) {
-            holder.binding.ivDragHandle.setOnTouchListener((v, event) -> {
+            holder.ivDragHandle.setOnTouchListener((v, event) -> {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    if (dragStartListener != null) {
-                        dragStartListener.onStartDrag(holder);
-                    }
+                    dragStartListener.onStartDrag(holder);
                 }
-                return false;
+                return false; // Let the touch event propagate if needed
             });
         } else {
-            holder.binding.ivDragHandle.setOnTouchListener(null);
+            holder.ivDragHandle.setOnTouchListener(null); // Remove listener when not editing
         }
-        // Click listener is set in ViewHolder constructor now
     }
-
 
     @Override
     public int getItemCount() {
-        return itineraryList != null ? itineraryList.size() : 0;
+        return itineraryList.size();
     }
 
     @Override
     public long getItemId(int position) {
-        if (itineraryList != null && position >= 0 && position < itineraryList.size() && itineraryList.get(position) != null) {
-            return itineraryList.get(position).getId();
-        }
-        return RecyclerView.NO_ID;
+        // Return a unique and stable ID for the item
+        return itineraryList.get(position).getId();
     }
 
     public void setEditMode(boolean editMode) {
-        boolean needsUpdate = isEditMode != editMode;
+        boolean needsUpdate = isEditMode != editMode; // Check if mode actually changed
         isEditMode = editMode;
         if (needsUpdate) {
+            // Use notifyItemRangeChanged instead of notifyDataSetChanged()
+            // This rebinds existing views without fully recreating them.
             notifyItemRangeChanged(0, getItemCount());
         }
     }
-
+    // Method called by ItemTouchHelper when an item is moved
     public boolean onItemMove(int fromPosition, int toPosition) {
-        if (itineraryList == null || fromPosition < 0 || fromPosition >= itineraryList.size() || toPosition < 0 || toPosition >= itineraryList.size()) {
-            return false;
-        }
-
         if (fromPosition < toPosition) {
             for (int i = fromPosition; i < toPosition; i++) {
                 Collections.swap(itineraryList, i, i + 1);
@@ -1841,83 +1900,54 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
             }
         }
         notifyItemMoved(fromPosition, toPosition);
+        // IMPORTANT: Recalculate times after moving
         recalculateTimes();
         return true;
     }
 
+    // Method to update times based on order
     public void recalculateTimes() {
-        if (itineraryList == null || itineraryList.isEmpty()) return;
+        if (itineraryList.isEmpty()) return;
 
-        // Find the first item with a non-null time to start calculation
-        Calendar firstTime = null;
-        int firstTimeIndex = -1;
-        for(int i = 0; i < itineraryList.size(); i++) {
-            if(itineraryList.get(i) != null && itineraryList.get(i).getTime() != null) {
-                firstTime = (Calendar) itineraryList.get(i).getTime().clone();
-                firstTimeIndex = i;
-                break;
-            }
-        }
+        Calendar currentTime = (Calendar) itineraryList.get(0).getTime().clone(); // Start with first item's time or a fixed start time
+        // Or set a fixed start time:
+        // Calendar currentTime = Calendar.getInstance();
+        // currentTime.set(Calendar.HOUR_OF_DAY, 9);
+        // currentTime.set(Calendar.MINUTE, 0);
+        // currentTime.set(Calendar.SECOND, 0);
+        // itineraryList.get(0).setTime(currentTime); // Set first item's time
 
-        // If no item has a time, set a default start for the first item
-        if (firstTime == null) {
-            if (itineraryList.get(0) != null) {
-                firstTime = Calendar.getInstance();
-                firstTime.set(Calendar.HOUR_OF_DAY, 9); firstTime.set(Calendar.MINUTE, 0); firstTime.set(Calendar.SECOND, 0);
-                itineraryList.get(0).setTime((Calendar)firstTime.clone());
-                firstTimeIndex = 0;
-                notifyItemChanged(0, "payload_time_update"); // Update the first item view
-            } else {
-                return; // Cannot proceed if first item is null
-            }
-        }
-
-
-        Calendar currentTime = (Calendar) firstTime.clone();
-
-        // Calculate times for items *after* the first one with a time
-        for (int i = firstTimeIndex + 1; i < itineraryList.size(); i++) {
+        for (int i = 0; i < itineraryList.size(); i++) {
             ItineraryItem currentItem = itineraryList.get(i);
-            if (currentItem != null) {
-                currentTime.add(Calendar.HOUR_OF_DAY, 1); // Add 1 hour (adjust as needed)
-                currentItem.setTime((Calendar) currentTime.clone());
-                notifyItemChanged(i, "payload_time_update");
-            }
-        }
+            // Clone calendar to avoid modifying previous item's time reference
+            Calendar itemTime = (Calendar) currentTime.clone();
+            currentItem.setTime(itemTime);
 
-        // Calculate times for items *before* the first one with a time (if any)
-        currentTime = (Calendar) firstTime.clone(); // Reset to the known start time
-        for (int i = firstTimeIndex - 1; i >= 0; i--) {
-            ItineraryItem currentItem = itineraryList.get(i);
-            if (currentItem != null) {
-                currentTime.add(Calendar.HOUR_OF_DAY, -1); // Subtract 1 hour
-                currentItem.setTime((Calendar) currentTime.clone());
-                notifyItemChanged(i, "payload_time_update");
-            }
+            // Notify change for this specific item to update view
+            notifyItemChanged(i, "payload_time_update"); // Use payload to avoid full rebind if possible
+
+            // Increment time for the *next* item (e.g., add 1 hour)
+            currentTime.add(Calendar.HOUR_OF_DAY, 1); // Adjust interval as needed
         }
+        // No need to call notifyDataSetChanged() if using notifyItemChanged()
     }
 
     public List<ItineraryItem> getCurrentList() {
         return itineraryList;
     }
 
+
     // ViewHolder Class
     static class ItineraryViewHolder extends RecyclerView.ViewHolder {
-        private final ListItemItineraryBinding binding;
+        ImageView ivDragHandle;
+        TextView tvTime, tvActivity, tvRating;
 
-        // Updated constructor to accept click listener
-        ItineraryViewHolder(@NonNull ListItemItineraryBinding binding, OnItemClickListener listener) {
-            super(binding.getRoot());
-            this.binding = binding;
-
-            // Set click listener on the entire item view
-            itemView.setOnClickListener(v -> {
-                int position = getAdapterPosition();
-                // Ensure position is valid and listener exists
-                if (position != RecyclerView.NO_POSITION && listener != null) {
-                    listener.onItemClick(position);
-                }
-            });
+        ItineraryViewHolder(@NonNull View itemView) {
+            super(itemView);
+            ivDragHandle = itemView.findViewById(R.id.iv_drag_handle);
+            tvTime = itemView.findViewById(R.id.tv_item_time);
+            tvActivity = itemView.findViewById(R.id.tv_item_activity);
+            tvRating = itemView.findViewById(R.id.tv_item_rating);
         }
     }
 }
@@ -1929,51 +1959,37 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
 package com.example.alayaapp;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Locale;
+import java.util.Calendar; // Or use java.time for API 26+
 
 public class ItineraryItem {
-    private long id;
-    private Calendar time;
+    private long id; // For stable IDs in adapter
+    private Calendar time; // Store time properly
     private String activity;
     private String rating;
-    private String bestTimeToVisit;
-    private double latitude;
-    private double longitude;
+    // Add other relevant fields if needed
 
-    public ItineraryItem(long id, Calendar time, String activity, String rating,
-                         String bestTimeToVisit, double latitude, double longitude) {
+    // Constructor, getters, setters
+
+    public ItineraryItem(long id, Calendar time, String activity, String rating) {
         this.id = id;
         this.time = time;
         this.activity = activity;
         this.rating = rating;
-        this.bestTimeToVisit = bestTimeToVisit;
-        this.latitude = latitude;
-        this.longitude = longitude;
     }
 
-    public ItineraryItem() {}
-
+    // Getters
     public long getId() { return id; }
     public Calendar getTime() { return time; }
     public String getActivity() { return activity; }
     public String getRating() { return rating; }
-    public String getBestTimeToVisit() { return bestTimeToVisit; }
-    public double getLatitude() { return latitude; }
-    public double getLongitude() { return longitude; }
 
-    public void setId(long id) { this.id = id; }
+    // Setters (especially for time)
     public void setTime(Calendar time) { this.time = time; }
-    public void setActivity(String activity) { this.activity = activity; }
-    public void setRating(String rating) { this.rating = rating; }
-    public void setBestTimeToVisit(String bestTimeToVisit) { this.bestTimeToVisit = bestTimeToVisit; }
-    public void setLatitude(double latitude) { this.latitude = latitude; }
-    public void setLongitude(double longitude) { this.longitude = longitude; }
 
-
+    // You might want a helper to format the time string for display
     public String getFormattedTime() {
-        if (time == null) return "N/A";
-        SimpleDateFormat sdf = new SimpleDateFormat("h:mm a", Locale.getDefault());
+        // Example using SimpleDateFormat (add import java.text.SimpleDateFormat)
+        SimpleDateFormat sdf = new SimpleDateFormat("h:mm a"); // e.g., 9:00 AM
         return sdf.format(time.getTime());
     }
 }
@@ -2085,6 +2101,58 @@ public class ItineraryItemTouchHelperCallback extends ItemTouchHelper.Callback {
 }
 ```
 
+# app\src\main\java\com\example\alayaapp\ItineraryLogDetailActivity.java
+
+```java
+package com.example.alayaapp;
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import com.example.alayaapp.databinding.ActivityItineraryLogDetailBinding;
+// You'll need ItemItineraryLogEntryDetailBinding if you want to manipulate included items
+// import com.example.alayaapp.databinding.ItemItineraryLogEntryDetailBinding;
+
+public class ItineraryLogDetailActivity extends AppCompatActivity {
+
+    private ActivityItineraryLogDetailBinding binding;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityItineraryLogDetailBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        // Retrieve data passed from TripHistoryActivity (if any)
+        // String locationName = getIntent().getStringExtra("LOCATION_NAME");
+        // String locationId = getIntent().getStringExtra("LOCATION_ID");
+
+        // For now, the layout is static.
+        // If you passed locationName, you could set it:
+        // if (locationName != null) {
+        //    binding.tvLocationNameLogDetail.setText(locationName);
+        // }
+
+        binding.ivBackArrowLogDetail.setOnClickListener(v -> finish());
+
+        // TODO: Manually set the text for each included item if needed for exact UI preview,
+        //  otherwise the tools:text in item_itinerary_log_entry_detail.xml will show.
+        // Example for the first item in Day 1:
+        // ItemItineraryLogEntryDetailBinding itemD1_1_binding = binding.itemD11; // if you added tools:id
+        // if(itemD1_1_binding != null) { // Check because tools:id might not always generate direct binding field
+        //    itemD1_1_binding.tvItineraryTime.setText("9:00 AM");
+        //    itemD1_1_binding.tvItineraryActivity.setText("Breakfast at Café by the Ruins");
+        //    itemD1_1_binding.tvItineraryRating.setText("4.5");
+        // }
+        // Repeat for all other static items if you need to override their tools:text for this specific page's preview.
+        // It's often easier to rely on tools:text in the item layout itself for this static phase.
+
+        // Setup Bottom Nav (basic example)
+        binding.bottomNavigationLogDetail.setSelectedItemId(R.id.navigation_profile); // Example
+        // Add setOnItemSelectedListener if needed
+    }
+}
+```
+
 # app\src\main\java\com\example\alayaapp\LoginActivity.java
 
 ```java
@@ -2093,85 +2161,356 @@ package com.example.alayaapp;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
-// Removed unused imports like LinearLayout, TextView, TextInputLayout, TextInputEditText
-import com.example.alayaapp.databinding.ActivityLoginBinding; // Import ViewBinding class
+import com.example.alayaapp.databinding.ActivityLoginBinding;
+import com.google.firebase.auth.FirebaseAuth; // Firebase Import
+import com.google.firebase.auth.FirebaseUser; // Firebase Import
 
 public class LoginActivity extends AppCompatActivity {
 
-    private ActivityLoginBinding binding; // Declare binding variable
+    private ActivityLoginBinding binding;
+    private FirebaseAuth mAuth; // Firebase Auth instance
+    private static final String TAG = "LoginActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Inflate the layout using ViewBinding
         binding = ActivityLoginBinding.inflate(getLayoutInflater());
-        // Set the content view from the binding's root
         setContentView(binding.getRoot());
 
-        // Access views using binding
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+
         binding.loginButton.setOnClickListener(v -> {
-            // Get text using binding. No need for null checks on getText() before toString()
             String email = binding.emailEditText.getText().toString().trim();
             String password = binding.passwordEditText.getText().toString().trim();
 
-            // Basic validation example
             boolean valid = true;
             if (email.isEmpty()) {
-                binding.emailLayout.setError("Email required"); // Use binding to set error
+                binding.emailLayout.setError("Email required");
                 valid = false;
             } else {
-                binding.emailLayout.setError(null); // Clear error
+                binding.emailLayout.setError(null);
             }
 
             if (password.isEmpty()) {
-                binding.passwordLayout.setError("Password required"); // Use binding to set error
+                binding.passwordLayout.setError("Password required");
                 valid = false;
             } else {
-                binding.passwordLayout.setError(null); // Clear error
+                binding.passwordLayout.setError(null);
             }
 
             if (!valid) {
-                return; // Stop if validation fails
+                return;
             }
 
-            // --- Replace with your actual authentication ---
-            // Example: Call your authentication service/API here
-            boolean loginSuccess = true; // Placeholder - Set this based on auth result
-            // --- ---
+            // --- Firebase Sign In ---
+            binding.loginButton.setEnabled(false);
+            Toast.makeText(LoginActivity.this, "Logging in...", Toast.LENGTH_SHORT).show();
 
-            if (loginSuccess) {
-                // Optional Toast
-                // Toast.makeText(LoginActivity.this, "Login Successful (Placeholder)", Toast.LENGTH_SHORT).show();
+            mAuth.signInWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, task -> {
+                        binding.loginButton.setEnabled(true);
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "signInWithEmail:success");
+                            FirebaseUser user = mAuth.getCurrentUser();
+                            Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
 
-                // *** NAVIGATE TO OTP VERIFICATION INSTEAD OF HOME ***
-                Intent intent = new Intent(LoginActivity.this, OtpVerificationActivity.class);
-                // Optional: Pass user email/ID if needed for verification display/logic
-                // intent.putExtra("USER_EMAIL", email);
-                startActivity(intent);
-                finish(); // Close LoginActivity so back press on OTP doesn't return here
-            } else {
-                // TODO: Provide more specific error message based on auth failure
-                Toast.makeText(LoginActivity.this, "Login Failed (Placeholder)", Toast.LENGTH_SHORT).show();
-                binding.passwordLayout.setError("Incorrect email or password"); // Example error
-            }
+                            // Navigate to OtpVerificationActivity (as per your original flow)
+                            // You might want to check user.isEmailVerified() here in a real app
+                            // and if verified, go directly to HomeActivity.
+                            Intent intent = new Intent(LoginActivity.this, OtpVerificationActivity.class);
+                            startActivity(intent);
+                            finish();
+                        } else {
+                            Log.w(TAG, "signInWithEmail:failure", task.getException());
+                            Toast.makeText(LoginActivity.this, "Authentication failed: " +
+                                            (task.getException() != null ? task.getException().getMessage() : "Unknown error"),
+                                    Toast.LENGTH_LONG).show();
+                            binding.passwordLayout.setError("Incorrect email or password");
+                        }
+                    });
         });
 
-        // Navigate to Sign Up using binding
         binding.switchToSignupLayout.setOnClickListener(v -> {
             Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
             startActivity(intent);
-            // Don't finish LoginActivity here, user might want to come back from Signup
         });
 
-        // Alternative using just the link text (binding.linkSignUpText)
-        /*
-        binding.linkSignUpText.setOnClickListener(v -> {
-             Intent intent = new Intent(LoginActivity.this, SignUpActivity.class);
-             startActivity(intent);
+        binding.tvForgotPassword.setOnClickListener(v -> {
+            Intent intent = new Intent(LoginActivity.this, ResetPasswordActivity.class);
+            startActivity(intent);
         });
-        */
     }
+}
+```
+
+# app\src\main\java\com\example\alayaapp\MainActivity.java
+
+```java
+package com.example.alayaapp;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.view.View;
+import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
+import android.widget.Toast; // For showing simple messages
+
+import com.google.android.material.textfield.TextInputLayout;
+
+public class MainActivity extends AppCompatActivity {
+
+    private static final long SPLASH_DELAY = 2500; // 2.5 seconds
+
+
+    private enum AppState {
+        SPLASH, LOGIN, SIGNUP
+    }
+    private AppState currentState = AppState.SPLASH;
+
+
+    ConstraintLayout mainContainer;
+    ImageView splashLogo;
+    ConstraintLayout formContainer;
+    TextView formTitle;
+    TextInputLayout emailLayout;
+    TextInputLayout passwordLayout;
+    TextInputLayout confirmPasswordLayout;
+    Button actionButton;
+    LinearLayout switchLayout;
+    TextView switchPromptText;
+    TextView switchLinkText;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+
+        setTheme(R.style.Theme_AlayaApp_SplashImitation);
+
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+
+        mainContainer = findViewById(R.id.main_container);
+        splashLogo = findViewById(R.id.splash_logo);
+        formContainer = findViewById(R.id.form_container);
+        formTitle = findViewById(R.id.form_title);
+        emailLayout = findViewById(R.id.email_layout);
+        passwordLayout = findViewById(R.id.password_layout);
+        confirmPasswordLayout = findViewById(R.id.confirm_password_layout);
+        actionButton = findViewById(R.id.action_button);
+        switchLayout = findViewById(R.id.switch_layout);
+        switchPromptText = findViewById(R.id.switch_prompt_text);
+        switchLinkText = findViewById(R.id.switch_link_text);
+
+
+
+        showSplash();
+
+
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            showLogin();
+
+            setTheme(R.style.Theme_AlayaApp);
+
+            mainContainer.setBackgroundColor(getResources().getColor(R.color.white, getTheme()));
+            formContainer.setBackgroundColor(getResources().getColor(R.color.white, getTheme()));
+
+        }, SPLASH_DELAY);
+
+
+        switchLayout.setOnClickListener(v -> {
+            if (currentState == AppState.LOGIN) {
+                showSignUp();
+            } else if (currentState == AppState.SIGNUP) {
+                showLogin();
+            }
+        });
+
+
+        actionButton.setOnClickListener(v -> {
+            if (currentState == AppState.LOGIN) {
+                // TODO: Add actual login logic here
+                Toast.makeText(MainActivity.this, "Sign In Clicked (No logic)", Toast.LENGTH_SHORT).show();
+            } else if (currentState == AppState.SIGNUP) {
+                // TODO: Add actual sign up logic here (validate passwords match etc.)
+                Toast.makeText(MainActivity.this, "Sign Up Clicked (No logic)", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showSplash() {
+        currentState = AppState.SPLASH;
+        splashLogo.setVisibility(View.VISIBLE);
+        formContainer.setVisibility(View.GONE);
+
+        mainContainer.setBackgroundColor(getResources().getColor(R.color.colorPrimary, getTheme()));
+    }
+
+    private void showLogin() {
+        currentState = AppState.LOGIN;
+        splashLogo.setVisibility(View.GONE);
+        formContainer.setVisibility(View.VISIBLE);
+
+
+        formTitle.setText(R.string.login_title);
+        confirmPasswordLayout.setVisibility(View.GONE);
+        actionButton.setText(R.string.sign_in_button);
+        switchPromptText.setText(R.string.prompt_no_account);
+        switchLinkText.setText(R.string.link_sign_up);
+    }
+
+    private void showSignUp() {
+        currentState = AppState.SIGNUP;
+        splashLogo.setVisibility(View.GONE);
+        formContainer.setVisibility(View.VISIBLE);
+
+
+        formTitle.setText(R.string.signup_title);
+        confirmPasswordLayout.setVisibility(View.VISIBLE);
+        actionButton.setText(R.string.sign_up_button);
+        switchPromptText.setText(R.string.prompt_have_account);
+        switchLinkText.setText(R.string.link_sign_in);
+    }
+}
+```
+
+# app\src\main\java\com\example\alayaapp\MapsActivity.java
+
+```java
+package com.example.alayaapp;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log; // For logging potential issues
+import android.widget.Toast; // For user feedback or placeholders
+
+import androidx.activity.EdgeToEdge; // Keeping this as it was in your original
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
+import com.example.alayaapp.databinding.ActivityMapsBinding; // Import ViewBinding
+// Removed map-specific imports if not directly used for navigation setup
+// import com.google.android.gms.maps.OnMapReadyCallback;
+// import com.google.android.gms.maps.SupportMapFragment;
+// import com.google.android.gms.maps.GoogleMap;
+// etc.
+
+public class MapsActivity extends AppCompatActivity /* Remove "implements OnMapReadyCallback" if map logic is deferred */ {
+
+    private static final String TAG = "MapsActivity";
+    private ActivityMapsBinding binding; // Use ViewBinding
+
+    // Define the current item ID for MapsActivity
+    final int CURRENT_ITEM_ID = R.id.navigation_map;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this); // From your original code
+
+        // Inflate layout using ViewBinding
+        try {
+            binding = ActivityMapsBinding.inflate(getLayoutInflater());
+            setContentView(binding.getRoot());
+        } catch (Exception e) {
+            Log.e(TAG, "Error inflating layout: " + e.getMessage(), e);
+            Toast.makeText(this, "Error loading page.", Toast.LENGTH_LONG).show();
+            finish(); // Can't proceed if layout is broken
+            return;
+        }
+
+        // Apply Window Insets for EdgeToEdge
+        // Ensure your root view in activity_maps.xml has android:id="@+id/main_maps_root_container" or similar
+        // I'll assume binding.getRoot() is the correct view for applying insets here.
+        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            // Adjust padding for the root view. The bottom padding is set to 0
+            // to avoid double padding if BottomNavigationView handles its own insets
+            // or if it's outside this padded root.
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            return insets;
+        });
+
+        // --- Setup Bottom Navigation ---
+        setupBottomNavigation();
+    }
+
+    private void setupBottomNavigation() {
+        if (binding.bottomNavigationMapsPage == null) {
+            Log.e(TAG, "BottomNavigationView (bottom_navigation_maps_page) not found in layout!");
+            // Consider adding a fallback or ensuring the ID is correct in activity_maps.xml
+            return;
+        }
+
+        binding.bottomNavigationMapsPage.setSelectedItemId(CURRENT_ITEM_ID);
+
+        binding.bottomNavigationMapsPage.setOnItemSelectedListener(item -> {
+            int destinationItemId = item.getItemId();
+
+            if (destinationItemId == CURRENT_ITEM_ID) {
+                return true; // Already on the Maps screen
+            }
+
+            Class<?> destinationActivityClass = null;
+            // Determine if the current activity should be finished when navigating
+            boolean finishCurrent = true; // Usually true for main tab navigation
+
+            if (destinationItemId == R.id.navigation_home) {
+                destinationActivityClass = HomeActivity.class;
+            } else if (destinationItemId == R.id.navigation_itineraries) {
+                destinationActivityClass = ItinerariesActivity.class;
+            } else if (destinationItemId == R.id.navigation_profile) {
+                destinationActivityClass = ProfileActivity.class;
+            }
+            // No case for R.id.navigation_map as it's handled by CURRENT_ITEM_ID check
+
+            if (destinationActivityClass != null) {
+                Intent intent = new Intent(MapsActivity.this, destinationActivityClass);
+                // Clear previous activities in the stack if navigating to a main tab
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+
+                // Determine animation based on item index
+                boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
+                if (slideRightToLeft) {
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                } else {
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                }
+
+                if (finishCurrent) {
+                    finish(); // Close MapsActivity
+                }
+                return true;
+            }
+            return false; // Item ID not handled
+        });
+    }
+
+    // Helper to get the order/index of bottom navigation items
+    // This helps determine slide animation direction
+    private int getItemIndex(int itemId) {
+        if (itemId == R.id.navigation_home) return 0;
+        if (itemId == R.id.navigation_itineraries) return 1;
+        if (itemId == R.id.navigation_map) return 2;
+        if (itemId == R.id.navigation_profile) return 3;
+        return -1; // Should not happen if IDs are correct
+    }
+
+    // Removed map-specific methods like onMapReady, enableMyLocation, etc.
+    // Removed FusedLocationProviderClient and LatLng constants as they are map-specific.
+    // Removed BottomSheetBehavior related code.
+    // Removed FAB click listener if it's map-specific.
 }
 ```
 
@@ -2187,95 +2526,422 @@ import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-// Removed unused imports like EditText, TextView, Button
 import android.widget.Toast;
 
-import com.example.alayaapp.databinding.ActivityOtpVerificationBinding; // Import Activity Binding
-import com.example.alayaapp.databinding.DialogSuccessBinding; // Import Dialog Binding
+import com.example.alayaapp.databinding.ActivityOtpVerificationBinding;
+import com.example.alayaapp.databinding.DialogSuccessBinding; // For your existing success dialog
+import com.example.alayaapp.databinding.DialogNewOtpBinding; // *** IMPORT FOR THE NEW OTP RESENT DIALOG ***
 
 public class OtpVerificationActivity extends AppCompatActivity {
 
-    private ActivityOtpVerificationBinding binding; // Declare activity binding variable
+    private ActivityOtpVerificationBinding binding;
+    private AlertDialog otpResendDialogInstance; // To keep a reference to the resend dialog
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Inflate the layout using ViewBinding
         binding = ActivityOtpVerificationBinding.inflate(getLayoutInflater());
-        // Set the content view from the binding's root
         setContentView(binding.getRoot());
 
-        // --- Basic Focus Handling (Improve later if needed) ---
-        // TODO: Add TextWatchers for more robust OTP input handling (auto-focus next, combine OTP)
+        // Request focus on the first OTP box on activity start
+        binding.etOtp1.requestFocus();
+
+        // TODO: Consider adding TextWatchers for auto-focusing next OTP box
+        // and handling backspace for a smoother UX.
 
         binding.btnOtpSubmit.setOnClickListener(v -> {
-            // Get OTP using binding
             String otp = binding.etOtp1.getText().toString() +
                     binding.etOtp2.getText().toString() +
                     binding.etOtp3.getText().toString() +
                     binding.etOtp4.getText().toString();
 
-            // TODO: Add actual OTP validation logic here
             if (otp.length() != 4) {
                 Toast.makeText(this, "Please enter all 4 digits", Toast.LENGTH_SHORT).show();
                 return;
             }
 
-            // Placeholder: Assume OTP is correct for now
-            boolean isOtpCorrect = true; // Replace with real validation (e.g., "1234")
-            // boolean isOtpCorrect = otp.equals("1234"); // Example validation
+            boolean isOtpCorrect = true; // Replace with real validation (e.g., "1234".equals(otp))
 
             if (isOtpCorrect) {
-                showSuccessDialog();
+                showOtpSubmissionSuccessDialog(); // Renamed for clarity
             } else {
                 Toast.makeText(this, "Invalid OTP", Toast.LENGTH_SHORT).show();
-                // Optionally clear OTP fields or set error states
+                // Optionally clear OTP fields
+                clearOtpFields();
+                binding.etOtp1.requestFocus();
             }
         });
 
         binding.btnOtpCancel.setOnClickListener(v -> {
-            // Go back to the previous screen (likely Login)
             finish();
         });
 
         binding.tvResendOtp.setOnClickListener(v -> {
-            // TODO: Add logic to actually resend the OTP
-            Toast.makeText(this, "Resend OTP (Placeholder)", Toast.LENGTH_SHORT).show();
-            // Optionally disable the resend button for a cooldown period
+            // --- Replace with your actual logic to resend the OTP via API ---
+            boolean resendApiCallSuccess = true; // Placeholder for API call result
+            // --- ---
+
+            if (resendApiCallSuccess) {
+                showOtpResentConfirmationDialog();
+            } else {
+                Toast.makeText(this, "Failed to resend OTP. Please try again.", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
-    private void showSuccessDialog() {
+    // This dialog is for when the OTP is successfully SUBMITTED
+    private void showOtpSubmissionSuccessDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
-
-        // Inflate the dialog layout using its specific ViewBinding class
-        DialogSuccessBinding dialogBinding = DialogSuccessBinding.inflate(inflater);
-
-        // Set the inflated view (the root of the binding) to the dialog builder
-        builder.setView(dialogBinding.getRoot());
-
-        // Make dialog non-cancelable by touching outside or back press (optional)
-        // builder.setCancelable(false);
+        DialogSuccessBinding dialogSuccessBinding = DialogSuccessBinding.inflate(inflater);
+        builder.setView(dialogSuccessBinding.getRoot());
 
         final AlertDialog dialog = builder.create();
-
-        // Make the dialog background transparent (needs to be done after create())
         if (dialog.getWindow() != null) {
             dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
         }
 
-        // Access the button inside the dialog via the dialog's binding object
-        dialogBinding.btnDialogContinue.setOnClickListener(v -> {
+        dialogSuccessBinding.btnDialogContinue.setOnClickListener(v -> {
             dialog.dismiss();
-            // Navigate to Home Activity and clear the back stack
             Intent intent = new Intent(OtpVerificationActivity.this, HomeActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            finish(); // Finish OTP activity
+            finish();
+        });
+        dialog.show();
+    }
+
+    // *** NEW METHOD: This dialog is for confirming OTP has been RESENT ***
+    private void showOtpResentConfirmationDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+
+        // Inflate the dialog layout using its specific ViewBinding class
+        DialogNewOtpBinding dialogNewOtpBinding = DialogNewOtpBinding.inflate(inflater);
+        builder.setView(dialogNewOtpBinding.getRoot());
+        builder.setCancelable(false); // User must click "Continue"
+
+        // Store the dialog instance so we can dismiss it in onDestroy
+        otpResendDialogInstance = builder.create();
+
+        if (otpResendDialogInstance.getWindow() != null) {
+            otpResendDialogInstance.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+        }
+
+        dialogNewOtpBinding.btnDialogContinue.setOnClickListener(v -> {
+            if (otpResendDialogInstance != null) {
+                otpResendDialogInstance.dismiss();
+            }
+            refreshOtpScreen(); // Refresh the main OTP screen
         });
 
-        dialog.show();
+        otpResendDialogInstance.show();
+    }
+
+    private void clearOtpFields() {
+        binding.etOtp1.setText("");
+        binding.etOtp2.setText("");
+        binding.etOtp3.setText("");
+        binding.etOtp4.setText("");
+    }
+
+    private void refreshOtpScreen() {
+        clearOtpFields();
+        binding.etOtp1.requestFocus(); // Focus on the first OTP box
+        Toast.makeText(this, "Please enter the new OTP", Toast.LENGTH_SHORT).show();
+        // If you have a countdown timer for OTP, you might want to reset it here.
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Dismiss the dialog if it's showing to prevent window leaks
+        if (otpResendDialogInstance != null && otpResendDialogInstance.isShowing()) {
+            otpResendDialogInstance.dismiss();
+        }
+        // You might also want to dismiss the showOtpSubmissionSuccessDialog if you store its instance
+    }
+}
+```
+
+# app\src\main\java\com\example\alayaapp\ProfileActivity.java
+
+```java
+package com.example.alayaapp;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Toast;
+
+import com.example.alayaapp.databinding.ActivityProfileBinding;
+import com.google.firebase.auth.FirebaseAuth; // Import FirebaseAuth
+
+public class ProfileActivity extends AppCompatActivity {
+
+    private ActivityProfileBinding binding;
+    final int CURRENT_ITEM_ID = R.id.navigation_profile;
+
+    private FirebaseAuth mAuth; // Declare Firebase Auth instance
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityProfileBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+
+        // --- Set Initial State for Bottom Nav ---
+        binding.bottomNavigationProfilePage.setSelectedItemId(CURRENT_ITEM_ID);
+
+        // --- Setup Listeners ---
+        setupBottomNavListener();
+        setupActionListeners();
+
+        loadProfileData();
+    }
+
+    private void setupBottomNavListener() {
+        binding.bottomNavigationProfilePage.setOnItemSelectedListener(item -> {
+            int destinationItemId = item.getItemId();
+
+            if (destinationItemId == CURRENT_ITEM_ID) {
+                return true; // Already on Profile screen
+            }
+
+            Class<?> destinationActivityClass = null;
+            if (destinationItemId == R.id.navigation_home) {
+                destinationActivityClass = HomeActivity.class;
+            } else if (destinationItemId == R.id.navigation_itineraries) {
+                destinationActivityClass = ItinerariesActivity.class;
+            } else if (destinationItemId == R.id.navigation_map) {
+                destinationActivityClass = MapsActivity.class; // Assuming MapsActivity exists
+            }
+
+            if (destinationActivityClass != null) {
+                navigateTo(destinationActivityClass, destinationItemId, true);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void setupActionListeners() {
+        binding.ivLogout.setOnClickListener(v -> {
+            // --- Firebase Logout Logic ---
+            mAuth.signOut();
+            Toast.makeText(ProfileActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+
+            // Navigate to LoginActivity and clear the back stack
+            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish(); // Close ProfileActivity
+        });
+
+        binding.tvEditEmail.setOnClickListener(v -> {
+            Toast.makeText(this, "Edit Email Clicked (Placeholder)", Toast.LENGTH_SHORT).show();
+            // Intent intent = new Intent(ProfileActivity.this, EditEmailActivity.class);
+            // startActivity(intent);
+        });
+
+        binding.tvEditPhone.setOnClickListener(v -> {
+            Toast.makeText(this, "Edit Phone Clicked (Placeholder)", Toast.LENGTH_SHORT).show();
+            // Intent intent = new Intent(ProfileActivity.this, EditPhoneActivity.class);
+            // startActivity(intent);
+        });
+
+        binding.layoutChangePassword.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, ChangePasswordActivity.class);
+            startActivity(intent);
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+        });
+
+        binding.layoutHistory.setOnClickListener(v -> {
+            Intent intent = new Intent(ProfileActivity.this, TripHistoryActivity.class);
+            startActivity(intent);
+            // Optional: overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+        });
+    }
+
+    private void loadProfileData() {
+        // In a real app, fetch this from SharedPreferences, database, or API
+        // If user is logged in, you could fetch their email from mAuth.getCurrentUser().getEmail()
+        // and name from your Realtime Database
+        if (mAuth.getCurrentUser() != null) {
+            binding.tvProfileEmail.setText(mAuth.getCurrentUser().getEmail());
+            // You'd need to add a listener to Firebase Realtime Database to get the name here
+            // For now, keeping placeholders or hardcoded values for name and birthday.
+            binding.tvProfileNameHeader.setText("Alice Go"); // Placeholder
+            binding.tvProfileNameDetail.setText("Alice Go"); // Placeholder
+        } else {
+            // Handle case where user is somehow null (shouldn't happen if they reached profile)
+            binding.tvProfileNameHeader.setText("User");
+            binding.tvProfileNameDetail.setText("User");
+            binding.tvProfileEmail.setText("user@example.com");
+        }
+
+        binding.tvProfileBirthday.setText("January 1, 2000"); // Placeholder
+        binding.tvProfilePhone.setText("09215687102"); // Placeholder
+        if (binding.tvProfilePassword != null) {
+            binding.tvProfilePassword.setText("************");
+        }
+    }
+
+    private void navigateTo(Class<?> destinationActivityClass, int destinationItemId, boolean finishCurrent) {
+        Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
+        // Clear previous activities in the stack if navigating to a main tab
+        // This is important to prevent a deep back stack when switching main tabs
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        startActivity(intent);
+
+        boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
+
+        if (slideRightToLeft) {
+            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+        } else {
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+        }
+
+        if (finishCurrent) {
+            finish();
+        }
+    }
+
+    private int getItemIndex(int itemId) {
+        if (itemId == R.id.navigation_home) return 0;
+        if (itemId == R.id.navigation_itineraries) return 1;
+        if (itemId == R.id.navigation_map) return 2;
+        if (itemId == R.id.navigation_profile) return 3;
+        return -1;
+    }
+
+    /*
+    // Optional: Re-select current item if navigating back to ProfileActivity
+    // without it being finished. However, with FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP
+    // and finish() in navigateTo, this might not be strictly necessary.
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (binding != null && binding.bottomNavigationProfilePage != null) {
+            binding.bottomNavigationProfilePage.setSelectedItemId(CURRENT_ITEM_ID);
+        }
+    }
+    */
+}
+```
+
+# app\src\main\java\com\example\alayaapp\ResetPasswordActivity.java
+
+```java
+package com.example.alayaapp;
+
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
+import com.example.alayaapp.databinding.ActivityResetPasswordBinding;
+
+public class ResetPasswordActivity extends AppCompatActivity {
+
+    private ActivityResetPasswordBinding binding;
+    private AlertDialog successDialog;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityResetPasswordBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        binding.ivBackArrow.setOnClickListener(v -> {
+            finish();
+        });
+
+        binding.resetButton.setOnClickListener(v -> {
+            String email = binding.emailEditText.getText().toString().trim();
+            String newPassword = binding.passwordEditText.getText().toString().trim();
+            String confirmNewPassword = binding.confirmPasswordEditText.getText().toString().trim();
+
+            boolean valid = true;
+            if (email.isEmpty()) {
+                binding.emailLayout.setError("Email required");
+                valid = false;
+            } else {
+                binding.emailLayout.setError(null);
+            }
+
+            if (newPassword.isEmpty()) {
+                binding.passwordLayout.setError("New password required");
+                valid = false;
+            } else {
+                binding.passwordLayout.setError(null);
+            }
+
+            if (confirmNewPassword.isEmpty()) {
+                binding.confirmPasswordLayout.setError("Confirm new password");
+                valid = false;
+            } else {
+                binding.confirmPasswordLayout.setError(null);
+            }
+
+            if (!valid) {
+                return;
+            }
+
+            if (!newPassword.equals(confirmNewPassword)) {
+                binding.confirmPasswordLayout.setError("Passwords do not match");
+                binding.passwordLayout.setError("Passwords do not match");
+                return;
+            } else {
+                binding.confirmPasswordLayout.setError(null);
+                binding.passwordLayout.setError(null);
+            }
+
+            boolean resetSuccess = true; // Placeholder for actual reset logic
+
+            if (resetSuccess) {
+                showPasswordResetSuccessDialog();
+            } else {
+                Toast.makeText(ResetPasswordActivity.this, "Password reset failed (Placeholder)", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void showPasswordResetSuccessDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        // **** UPDATED XML FILENAME FOR INFLATION ****
+        View dialogView = inflater.inflate(R.layout.dialog_success_password_change, null);
+        builder.setView(dialogView);
+        // builder.setCancelable(false);
+
+        Button btnContinue = dialogView.findViewById(R.id.btn_dialog_continue);
+
+        successDialog = builder.create();
+
+        if (successDialog.getWindow() != null) {
+            successDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        btnContinue.setOnClickListener(v_dialog_button -> {
+            successDialog.dismiss();
+
+            Intent intent = new Intent(ResetPasswordActivity.this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            finish();
+        });
+
+        successDialog.show();
     }
 }
 ```
@@ -2285,97 +2951,158 @@ public class OtpVerificationActivity extends AppCompatActivity {
 ```java
 package com.example.alayaapp;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
-// Removed unused imports
-import com.example.alayaapp.databinding.ActivitySignUpBinding; // Import ViewBinding class
+
+import com.example.alayaapp.databinding.ActivitySignUpBinding;
+import com.example.alayaapp.databinding.ActivityWelcomePageBinding;
+import com.google.firebase.auth.FirebaseAuth; // Firebase Import
+import com.google.firebase.auth.FirebaseUser; // Firebase Import
+import com.google.firebase.database.DatabaseReference; // Firebase Import
+import com.google.firebase.database.FirebaseDatabase;  // Firebase Import
+import java.util.HashMap; // For user data
 
 public class SignUpActivity extends AppCompatActivity {
 
-    private ActivitySignUpBinding binding; // Declare binding variable
+    private ActivitySignUpBinding signUpFormBinding;
+    private ActivityWelcomePageBinding welcomeScreenBinding; // Assuming you still use this
+    private AlertDialog locationDialog;
+
+    private FirebaseAuth mAuth; // Firebase Auth instance
+    private DatabaseReference databaseReference; // Firebase Realtime Database reference
+    private static final String TAG = "SignUpActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Inflate the layout using ViewBinding
-        binding = ActivitySignUpBinding.inflate(getLayoutInflater());
-        // Set the content view from the binding's root
-        setContentView(binding.getRoot());
+        // Initialize Firebase Auth and Database
+        mAuth = FirebaseAuth.getInstance();
+        databaseReference = FirebaseDatabase.getInstance().getReference("users"); // "users" node
 
-        // Access views using binding
-        binding.signupButton.setOnClickListener(v -> {
-            // Get text using binding
-            String email = binding.emailEditText.getText().toString().trim();
-            String password = binding.passwordEditText.getText().toString().trim();
-            String confirmPassword = binding.confirmPasswordEditText.getText().toString().trim();
+        showSignUpForm(); // Initial call to display the form
+    }
 
-            // Basic validation example
+    private void showSignUpForm() {
+        signUpFormBinding = ActivitySignUpBinding.inflate(getLayoutInflater());
+        setContentView(signUpFormBinding.getRoot());
+
+        signUpFormBinding.signupButton.setOnClickListener(v -> {
+            String email = signUpFormBinding.emailEditText.getText().toString().trim();
+            String password = signUpFormBinding.passwordEditText.getText().toString().trim();
+            String confirmPassword = signUpFormBinding.confirmPasswordEditText.getText().toString().trim();
+            // If you add a name field in activity_sign_up.xml:
+            // String name = signUpFormBinding.nameEditText.getText().toString().trim();
+
+
             boolean valid = true;
             if (email.isEmpty()) {
-                binding.emailLayout.setError("Email required");
+                signUpFormBinding.emailLayout.setError("Email required");
                 valid = false;
             } else {
-                binding.emailLayout.setError(null);
+                signUpFormBinding.emailLayout.setError(null);
             }
-            // Add validation for password fields as well if desired
 
             if (password.isEmpty() || confirmPassword.isEmpty()) {
                 Toast.makeText(SignUpActivity.this, "Password fields cannot be empty", Toast.LENGTH_SHORT).show();
-                // Optionally set errors on password fields
-                if (password.isEmpty()) binding.passwordLayout.setError("Password required"); else binding.passwordLayout.setError(null);
-                if (confirmPassword.isEmpty()) binding.confirmPasswordLayout.setError("Confirmation required"); else binding.confirmPasswordLayout.setError(null);
+                if (password.isEmpty()) signUpFormBinding.passwordLayout.setError("Password required"); else signUpFormBinding.passwordLayout.setError(null);
+                if (confirmPassword.isEmpty()) signUpFormBinding.confirmPasswordLayout.setError("Confirmation required"); else signUpFormBinding.confirmPasswordLayout.setError(null);
                 valid = false;
             } else {
-                binding.passwordLayout.setError(null);
-                binding.confirmPasswordLayout.setError(null);
+                signUpFormBinding.passwordLayout.setError(null);
+                signUpFormBinding.confirmPasswordLayout.setError(null);
             }
 
-
-            if (!valid) return; // Exit if initial checks fail
+            if (!valid) return;
 
             if (!password.equals(confirmPassword)) {
-                binding.confirmPasswordLayout.setError("Passwords do not match");
-                // Optionally clear error on the first password field if it had one
-                // binding.passwordLayout.setError(null);
-                // Toast.makeText(SignUpActivity.this, "Passwords do not match", Toast.LENGTH_SHORT).show(); // Redundant with setError
-                return; // Stop if passwords don't match
+                signUpFormBinding.confirmPasswordLayout.setError("Passwords do not match");
+                return;
             } else {
-                binding.confirmPasswordLayout.setError(null); // Clear error if they match now
+                signUpFormBinding.confirmPasswordLayout.setError(null);
             }
 
-            // --- Replace with your actual registration logic ---
-            boolean signUpSuccess = true; // Placeholder
-            // --- ---
+            // --- Firebase Sign Up ---
+            signUpFormBinding.signupButton.setEnabled(false);
+            Toast.makeText(SignUpActivity.this, "Creating account...", Toast.LENGTH_SHORT).show();
 
-            if (signUpSuccess) {
-                // Toast.makeText(SignUpActivity.this, "Sign Up Successful (Placeholder)", Toast.LENGTH_SHORT).show();
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, task -> {
+                        signUpFormBinding.signupButton.setEnabled(true);
+                        if (task.isSuccessful()) {
+                            Log.d(TAG, "createUserWithEmail:success");
+                            FirebaseUser firebaseUser = mAuth.getCurrentUser();
 
-                // Decide flow: Go to Home or back to Login? Going to Home is common after signup.
-                Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
-                // Clear back stack
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-                startActivity(intent);
-                finish(); // Close SignUpActivity
-            } else {
-                Toast.makeText(SignUpActivity.this, "Sign Up Failed (Placeholder - Check Logs/API)", Toast.LENGTH_SHORT).show();
-                // Provide more specific feedback if possible, e.g., email already exists
-            }
+                            if (firebaseUser != null) {
+                                String userId = firebaseUser.getUid();
+                                // Store additional user information (e.g., email, name if you add it)
+                                HashMap<String, Object> userInfo = new HashMap<>();
+                                userInfo.put("email", email);
+                                // userInfo.put("name", name); // if you added a name field
+                                // userInfo.put("createdAt", System.currentTimeMillis()); // Example timestamp
+
+                                databaseReference.child(userId).setValue(userInfo)
+                                        .addOnSuccessListener(aVoid -> Log.d(TAG, "User info successfully written to DB for UID: " + userId))
+                                        .addOnFailureListener(e -> Log.w(TAG, "Error writing user info to DB for UID: " + userId, e));
+
+                                // Optional: Send email verification
+                                // firebaseUser.sendEmailVerification().addOnCompleteListener(...);
+                            }
+
+                            Toast.makeText(SignUpActivity.this, "Sign Up Successful!", Toast.LENGTH_SHORT).show();
+                            showWelcomeScreen(); // Proceed to welcome screen or location dialog
+                        } else {
+                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                            Toast.makeText(SignUpActivity.this, "Authentication failed: " +
+                                            (task.getException() != null ? task.getException().getMessage() : "Unknown error"),
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    });
         });
 
-        // Navigate back to Login using binding
-        binding.switchToLoginLayout.setOnClickListener(v -> {
-            // Simply finish this activity to go back to LoginActivity in the stack
+        signUpFormBinding.switchToLoginLayout.setOnClickListener(v -> {
+            finish(); // Go back to LoginActivity
+        });
+    }
+
+    private void showWelcomeScreen() {
+        // This part remains the same as your original logic
+        welcomeScreenBinding = ActivityWelcomePageBinding.inflate(getLayoutInflater());
+        setContentView(welcomeScreenBinding.getRoot());
+
+        welcomeScreenBinding.getStartedButton.setOnClickListener(v_welcome -> {
+            showLocationPermissionDialog();
+        });
+    }
+
+    private void showLocationPermissionDialog() {
+        // This part remains the same as your original logic
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_location_notification, null);
+        builder.setView(dialogView);
+
+        Button btnTurnOn = dialogView.findViewById(R.id.btn_turn_on);
+        locationDialog = builder.create();
+
+        if (locationDialog.getWindow() != null) {
+            locationDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+        }
+
+        btnTurnOn.setOnClickListener(v_dialog_button -> {
+            locationDialog.dismiss();
+            Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
             finish();
         });
-
-        // Alternative using link text
-        /*
-        binding.linkSignInText.setOnClickListener(v -> {
-            finish();
-        });
-        */
+        locationDialog.show();
     }
 }
 ```
@@ -2393,32 +3120,321 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 
-import com.example.alayaapp.databinding.ActivitySplashBinding; // Import ViewBinding class
+import com.example.alayaapp.databinding.ActivitySplashBinding;
+import com.google.firebase.auth.FirebaseAuth; // Firebase Import
+import com.google.firebase.auth.FirebaseUser; // Firebase Import
 
-// Use SuppressLint for Handler leak warning if not using lifecycle-aware components yet
 @SuppressLint("CustomSplashScreen")
 public class SplashActivity extends AppCompatActivity {
 
-    private static final long SPLASH_DELAY = 2500; // 2.5 seconds
-    private ActivitySplashBinding binding; // Declare binding variable
+    private static final long SPLASH_DELAY = 2500;
+    private ActivitySplashBinding binding;
+    private FirebaseAuth mAuth; // Firebase Auth instance
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Inflate the layout using ViewBinding
         binding = ActivitySplashBinding.inflate(getLayoutInflater());
-        // Set the content view from the binding's root
         setContentView(binding.getRoot());
-        // Theme is set in Manifest now
 
-        // Handler to wait for SPLASH_DELAY milliseconds
+        // Initialize Firebase Auth
+        mAuth = FirebaseAuth.getInstance();
+
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            // Intent to start LoginActivity
-            Intent intent = new Intent(SplashActivity.this, LoginActivity.class);
+            FirebaseUser currentUser = mAuth.getCurrentUser();
+            Intent intent;
+            if (currentUser != null) {
+                // User is signed in, potentially check email verification if you implement it
+                // For now, directly go to HomeActivity
+                intent = new Intent(SplashActivity.this, HomeActivity.class);
+            } else {
+                // No user is signed in, go to LoginActivity
+                intent = new Intent(SplashActivity.this, LoginActivity.class);
+            }
             startActivity(intent);
-            // Finish SplashActivity so user can't navigate back to it
             finish();
         }, SPLASH_DELAY);
+    }
+}
+```
+
+# app\src\main\java\com\example\alayaapp\TransportationModeActivity.java
+
+```java
+package com.example.alayaapp;
+
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.FragmentTransaction; // For map fragment
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.example.alayaapp.databinding.ActivityTransportationModeBinding;
+import com.example.alayaapp.databinding.ItemTransportOptionBinding; // Binding for included layout
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
+// Add PolylineOptions if you plan to draw routes
+// import com.google.android.gms.maps.model.PolylineOptions;
+
+
+public class TransportationModeActivity extends AppCompatActivity implements OnMapReadyCallback {
+
+    private ActivityTransportationModeBinding binding;
+    private GoogleMap mMap;
+
+    // Define constants for clarity (example coordinates)
+    private final LatLng HOTEL_VENIZ_COORDS = new LatLng(16.4122, 120.5966); // Example
+    private final LatLng BURNHAM_PARK_COORDS = new LatLng(16.4097, 120.5935); // Example
+
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityTransportationModeBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        // Handle Back Arrow Click
+
+
+        // Setup data for transportation options (Placeholder)
+        setupTransportationOptions();
+
+        // Setup Map Fragment
+        setupMapFragment();
+
+        // Setup Bottom Navigation
+        // Decide which item should be selected. If this page is reached from "Map", select Map.
+        // If it's a detail page, maybe none, or keep the previous activity's selection.
+        // For now, let's assume we keep Home selected if no other logic dictates.
+        binding.bottomNavigationTransportPage.setSelectedItemId(R.id.navigation_home);
+        setupBottomNavListener();
+    }
+
+    private void setupTransportationOptions() {
+        // This logic populates each unique binding instance
+        populateTransportOption(binding.transportTaxi, "Taxi", "Best!", R.drawable.ic_taxi, "5 mins", "₱30 - 50", R.drawable.bg_best_badge, R.color.badge_best_text);
+        populateTransportOption(binding.transportBus, "Bus", "Fastest!", R.drawable.ic_bus, "4 mins", "₱15 - 20", R.drawable.bg_fastest_badge, R.color.badge_fastest_text);
+        populateTransportOption(binding.transportBike, "Bike", null, R.drawable.ic_bike, "4 mins", "FREE", 0, 0);
+        populateTransportOption(binding.transportMotorcycle, "Motorcycle", null, R.drawable.ic_motorcycle, "4 mins", "FREE", 0, 0);
+        populateTransportOption(binding.transportWalk, "Walk", null, R.drawable.ic_walk, "10 mins", "FREE", 0, 0);
+
+        binding.transportTaxi.getRoot().setOnClickListener(v -> showRouteOnMap("taxi"));
+        binding.transportBus.getRoot().setOnClickListener(v -> showRouteOnMap("bus"));
+        // ... etc.
+    }
+
+
+    private void populateTransportOption(ItemTransportOptionBinding itemBinding, String name, String badgeText, int iconRes, String duration, String price, int badgeBgRes, int badgeTextColorRes) {
+        itemBinding.tvTransportName.setText(name);
+        itemBinding.ivTransportIcon.setImageResource(iconRes);
+        itemBinding.tvTransportDuration.setText(duration);
+        itemBinding.tvTransportPrice.setText(price);
+
+        if (badgeText != null) {
+            itemBinding.tvTransportBadge.setText(badgeText);
+            itemBinding.tvTransportBadge.setBackgroundResource(badgeBgRes);
+            itemBinding.tvTransportBadge.setTextColor(getResources().getColor(badgeTextColorRes, getTheme()));
+            itemBinding.tvTransportBadge.setVisibility(View.VISIBLE);
+        } else {
+            itemBinding.tvTransportBadge.setVisibility(View.GONE);
+        }
+    }
+
+
+    private void setupMapFragment() {
+        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.map_fragment_container_transport); // Check if already added
+        if (mapFragment == null) {
+            mapFragment = SupportMapFragment.newInstance();
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.replace(R.id.map_fragment_container_transport, mapFragment).commit();
+        }
+        mapFragment.getMapAsync(this);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        if (mMap == null) {
+            Toast.makeText(this, "Error - Map not available", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Add markers for start and end points (example)
+        mMap.addMarker(new MarkerOptions().position(HOTEL_VENIZ_COORDS).title("Hotel Veniz"));
+        mMap.addMarker(new MarkerOptions().position(BURNHAM_PARK_COORDS).title("Burnham Park"));
+
+        // Move camera to show both markers or a default route overview
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(BURNHAM_PARK_COORDS, 15f)); // Zoom to destination
+
+        // TODO: Initially, you might show a default route (e.g., walking)
+        // showRouteOnMap("walk"); // Or your default
+    }
+
+    private void showRouteOnMap(String mode) {
+        if (mMap == null) return;
+        mMap.clear(); // Clear previous routes/markers if any
+
+        // Re-add markers
+        mMap.addMarker(new MarkerOptions().position(HOTEL_VENIZ_COORDS).title("Hotel Veniz"));
+        mMap.addMarker(new MarkerOptions().position(BURNHAM_PARK_COORDS).title("Burnham Park"));
+
+
+        Toast.makeText(this, "Showing route for: " + mode, Toast.LENGTH_SHORT).show();
+        // TODO: Implement actual route drawing using Google Directions API
+        // For now, just center the map or draw a straight line as placeholder
+        // Example: mMap.addPolyline(new PolylineOptions().add(HOTEL_VENIZ_COORDS, BURNHAM_PARK_COORDS));
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(BURNHAM_PARK_COORDS, 15f));
+    }
+
+
+    private void setupBottomNavListener() {
+        binding.bottomNavigationTransportPage.setOnItemSelectedListener(item -> {
+            int destinationItemId = item.getItemId();
+
+            // if (destinationItemId == CURRENT_NAV_ITEM_ID) { // If this page had a "current" item
+            //     return true;
+            // }
+
+            Class<?> destinationActivityClass = null;
+            if (destinationItemId == R.id.navigation_home) {
+                destinationActivityClass = HomeActivity.class;
+            } else if (destinationItemId == R.id.navigation_itineraries) {
+                destinationActivityClass = ItinerariesActivity.class;
+            } else if (destinationItemId == R.id.navigation_map) {
+                Toast.makeText(this, "Map (TBD - Already on a map related screen)", Toast.LENGTH_SHORT).show();
+                // Potentially navigate to a main MapActivity if this is a sub-page
+                // destinationActivityClass = MapActivity.class;
+                return true; // Prevent re-navigation for now
+            } else if (destinationItemId == R.id.navigation_profile) {
+                destinationActivityClass = ProfileActivity.class;
+            }
+
+            if (destinationActivityClass != null) {
+                navigateTo(destinationActivityClass, destinationItemId);
+                return true;
+            }
+            return false;
+        });
+    }
+
+    private void navigateTo(Class<?> destinationActivityClass, int destinationItemId) {
+        Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
+        // Clear previous activities if navigating to a main tab like Home
+        if (destinationActivityClass == HomeActivity.class ) { // || destinationActivityClass == ItinerariesActivity.class etc.
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        }
+        startActivity(intent);
+
+        // Basic fade animation for now, or implement indexed sliding
+        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
+
+        finish(); // Close this activity
+    }
+}
+```
+
+# app\src\main\java\com\example\alayaapp\TripHistoryActivity.java
+
+```java
+package com.example.alayaapp;
+
+import androidx.appcompat.app.AppCompatActivity;
+import android.content.Intent;
+import android.os.Bundle;
+// Removed Toast import as it's not used in this minimal version
+
+import com.example.alayaapp.databinding.ActivityTripHistoryBinding;
+
+public class TripHistoryActivity extends AppCompatActivity {
+
+    private ActivityTripHistoryBinding binding;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        binding = ActivityTripHistoryBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
+        // --- Back Arrow Click Listener ---
+        if (binding.ivBackArrowTripHistory != null) {
+            binding.ivBackArrowTripHistory.setOnClickListener(v -> {
+                finish(); // Go back to the previous activity
+            });
+        }
+
+        // --- Click Listener for the "Baguio City" Item (Using your provided snippet) ---
+        // This assumes your RelativeLayout for Baguio City in activity_trip_history.xml
+        // has the android:id="@+id/item_baguio_city"
+        if (binding.itemBaguioCity != null) {
+            binding.itemBaguioCity.setOnClickListener(v -> {
+                Intent intent = new Intent(TripHistoryActivity.this, ItineraryLogDetailActivity.class);
+                intent.putExtra("LOCATION_NAME", "Baguio City");
+                // intent.putExtra("LOCATION_ID", "placeholder_baguio_id"); // Commented out as per your snippet
+                startActivity(intent);
+                // Optional transition removed as per your snippet
+            });
+        }
+        // You would do similarly for other hardcoded items if you add their listeners:
+        // if (binding.itemTagaytayCity != null) {
+        //     binding.itemTagaytayCity.setOnClickListener(v -> {
+        //         Intent intent = new Intent(TripHistoryActivity.this, ItineraryLogDetailActivity.class);
+        //         intent.putExtra("LOCATION_NAME", "Tagaytay City");
+        //         startActivity(intent);
+        //     });
+        // }
+
+
+        // --- Basic Bottom Navigation Setup ---
+        // Set an initial selected item if relevant (e.g., Profile, if this is part of that flow)
+        binding.bottomNavigationTripHistory.setSelectedItemId(R.id.navigation_profile);
+
+        binding.bottomNavigationTripHistory.setOnItemSelectedListener(item -> {
+            int itemId = item.getItemId();
+
+            // Example: Navigate to Home
+            if (itemId == R.id.navigation_home) {
+                Intent intent = new Intent(this, HomeActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                startActivity(intent);
+                finish(); // Close this activity when going to a main tab
+                return true;
+            }
+
+            // If the item clicked is the one already selected for this page's context, do nothing.
+            if (itemId == binding.bottomNavigationTripHistory.getSelectedItemId()) {
+                return true;
+            }
+
+            // Add other main navigation points as needed
+            // Example for navigating to ProfileActivity itself (if this screen is a sub-page of profile)
+            /*
+            else if (itemId == R.id.navigation_profile) {
+                // If already on ProfileActivity or a direct child considered "Profile",
+                // you might not want to navigate again or just ensure it's selected.
+                // If TripHistoryActivity IS NOT ProfileActivity:
+                if (!(this.getClass().getSimpleName().equals(ProfileActivity.class.getSimpleName()))) {
+                     Intent intent = new Intent(this, ProfileActivity.class);
+                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+                     startActivity(intent);
+                     finish(); // Close this sub-page
+                     return true;
+                }
+                return true; // Already on Profile context
+            }
+            */
+            // Add cases for R.id.navigation_itineraries and R.id.navigation_map if needed
+
+            return false; // Item not handled by this minimal setup
+        });
     }
 }
 ```
@@ -2488,9 +3504,31 @@ public class SplashActivity extends AppCompatActivity {
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
 <selector xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:state_checked="true" android:color="@color/colorPrimary" /> <!-- Green -->
-    <item android:color="@color/textSecondary" /> <!-- Gray -->
+    <item android:state_checked="true" android:color="@color/colorPrimary" />
+    <item android:color="@color/textSecondary" />
 </selector>
+```
+
+# app\src\main\res\drawable\bg_best_badge.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#E0F2F1" /> <!-- Light teal/green background -->
+    <corners android:radius="6dp" />
+</shape>
+```
+
+# app\src\main\res\drawable\bg_bottom_sheet_maps.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@android:color/white" />
+    <corners android:topLeftRadius="20dp" android:topRightRadius="20dp" />
+</shape>
 ```
 
 # app\src\main\res\drawable\bg_button_filled_green.xml
@@ -2539,6 +3577,28 @@ public class SplashActivity extends AppCompatActivity {
 </shape>
 ```
 
+# app\src\main\res\drawable\bg_fastest_badge.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#E3F2FD" /> <!-- Light blue background -->
+    <corners android:radius="6dp" />
+</shape>
+```
+
+# app\src\main\res\drawable\bg_location_history_item.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#F5F5F5"/> <!-- Light grey -->
+    <corners android:radius="8dp"/>
+</shape>
+```
+
 # app\src\main\res\drawable\bg_otp_box.xml
 
 ```xml
@@ -2578,6 +3638,17 @@ public class SplashActivity extends AppCompatActivity {
 </shape>
 ```
 
+# app\src\main\res\drawable\bg_transport_card.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="#F5F5F5" /> <!-- Light grey background, or use @color/your_light_grey -->
+    <corners android:radius="12dp" />
+</shape>
+```
+
 # app\src\main\res\drawable\botanical.png
 
 This is a binary file of the type: Image
@@ -2594,6 +3665,41 @@ This is a binary file of the type: Image
 
 This is a binary file of the type: Image
 
+# app\src\main\res\drawable\circle_gradient_background.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="oval"> <!-- CHANGE to oval to make it a circle -->
+    <gradient
+        android:angle="270"
+        android:startColor="#26925C"
+        android:endColor="#2E7D32"
+        android:type="linear" />
+    <!-- No corners needed for oval, it's inherently round -->
+</shape>
+```
+
+# app\src\main\res\drawable\dialog_background_gradient_rounded.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+
+    <!-- Copied from your original gradient file -->
+    <gradient
+        android:angle="270"
+        android:startColor="#26925C"
+        android:endColor="#2E7D32"
+        android:type="linear" />
+
+    <!-- ADDED corners SPECIFICALLY for the dialog -->
+    <corners android:radius="16dp" />  <!-- Adjust "16dp" as needed -->
+
+</shape>
+```
+
 # app\src\main\res\drawable\edit.xml
 
 ```xml
@@ -2605,11 +3711,49 @@ This is a binary file of the type: Image
 
 ```
 
+# app\src\main\res\drawable\gradient_background.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:angle="0"
+        android:startColor="#26925C"
+        android:endColor="#2E7D32"
+        android:type="linear" />
+</shape>
+```
+
 # app\src\main\res\drawable\home.png
 
 This is a binary file of the type: Image
 
+# app\src\main\res\drawable\ic_arrow_upward_circle.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_bike.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_bus.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_calendar_today.png
+
+This is a binary file of the type: Image
+
 # app\src\main\res\drawable\ic_drag_handle.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_email.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_history.png
 
 This is a binary file of the type: Image
 
@@ -2828,7 +3972,47 @@ This is a binary file of the type: Image
 
 This is a binary file of the type: Image
 
+# app\src\main\res\drawable\ic_logout.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_motorcycle.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_phone.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_profile_placeholder.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_profile.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_taxi.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_visibility_on.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\ic_walk.png
+
+This is a binary file of the type: Image
+
 # app\src\main\res\drawable\iteneraries.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\left_back_button.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\location_picture.png
 
 This is a binary file of the type: Image
 
@@ -2852,13 +4036,85 @@ This is a binary file of the type: Image
 
 This is a binary file of the type: Image
 
+# app\src\main\res\drawable\profile_header_background.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <solid android:color="@color/colorPrimary" /> <!-- Define this color in colors.xml -->
+    <corners
+        android:bottomLeftRadius="200dp"
+        android:bottomRightRadius="200dp" />
+</shape>
+```
+
 # app\src\main\res\drawable\profile.png
 
 This is a binary file of the type: Image
 
+# app\src\main\res\drawable\right_proceed_button.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\drawable\rounded_button_white.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:right="2dp" android:bottom="2dp">
+        <shape android:shape="rectangle">
+            <solid android:color="#40FFFFFF"/>
+            <corners android:radius="10dp"/>
+        </shape>
+    </item>
+
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@android:color/white"/>
+            <stroke
+                android:width="2dp"
+                android:color="#80000000"/>
+            <corners android:radius="10dp"/>
+            <padding
+                android:left="16dp"
+                android:top="10dp"
+                android:right="16dp"
+                android:bottom="10dp"/>
+        </shape>
+    </item>
+
+</layer-list>
+
+```
+
 # app\src\main\res\drawable\star.png
 
 This is a binary file of the type: Image
+
+# app\src\main\res\drawable\undraw_map_cuix.png
+
+This is a binary file of the type: Image
+
+# app\src\main\res\font\poppins_bold_regular.ttf
+
+This is a binary file of the type: Binary
+
+# app\src\main\res\font\poppins_bold.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="700"
+        android:font="@font/poppins_bold_regular" />
+</font-family>
+
+
+
+```
 
 # app\src\main\res\font\roboto_bold.xml
 
@@ -2873,6 +4129,41 @@ This is a binary file of the type: Image
 
 ```
 
+# app\src\main\res\font\roboto_condensed_light_italic_regular.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+    <font
+        android:fontStyle="italic"
+        android:fontWeight="300"
+        android:font="@font/roboto_condensed_light_italic" />
+</font-family>
+```
+
+# app\src\main\res\font\roboto_condensed_light_italic.ttf
+
+This is a binary file of the type: Binary
+
+# app\src\main\res\font\roboto_medium_regular.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<font-family xmlns:android="http://schemas.android.com/apk/res/android">
+    <font
+        android:fontStyle="normal"
+        android:fontWeight="500"
+        android:font="@font/roboto_medium" />
+</font-family>
+
+
+
+```
+
+# app\src\main\res\font\roboto_medium.ttf
+
+This is a binary file of the type: Binary
+
 # app\src\main\res\font\roboto_thin.xml
 
 ```xml
@@ -2884,6 +4175,415 @@ This is a binary file of the type: Image
         app:fontProviderCerts="@array/com_google_android_gms_fonts_certs">
 </font-family>
 
+```
+
+# app\src\main\res\layout\activity_burnham_details.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white">
+
+
+    <ImageView
+        android:id="@+id/iv_back_arrow"
+        android:layout_width="78dp"
+        android:layout_height="85dp"
+        android:layout_marginTop="8dp"
+        android:contentDescription="Back"
+        android:padding="16dp"
+        android:src="@drawable/left_back_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ScrollView
+        android:id="@+id/scrollView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/iv_back_arrow"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="16dp">
+
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cv_park_image_container"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardCornerRadius="15dp"
+                app:cardElevation="0dp">
+
+                <ImageView
+                    android:id="@+id/iv_park_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/burnham"
+                    android:contentDescription="Burnham Park Image" />
+
+            </androidx.cardview.widget.CardView>
+
+
+            <TextView
+                android:id="@+id/tv_park_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Burnham Park"
+                android:textColor="@android:color/black"
+                android:textSize="30sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp" />
+
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:layout_marginTop="8dp">
+
+                <TextView
+                    android:id="@+id/tv_rating_label"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Rating: "
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="16sp"/>
+
+                <TextView
+                    android:id="@+id/tv_rating_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="4.4"
+                    android:textColor="@android:color/black"
+                    android:textSize="16sp"
+                    android:textStyle="bold"/>
+
+                <ImageView
+                    android:id="@+id/iv_rating_star"
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_marginStart="4dp"
+                    android:src="@drawable/star"/>
+
+                <TextView
+                    android:id="@+id/tv_review_count"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="(31K)"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="16sp"
+                    android:layout_marginStart="4dp"/>
+            </LinearLayout>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginTop="16dp"/>
+
+
+            <TextView
+                android:id="@+id/tv_about_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="About"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_about_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Famous park for biking and riding a boat."
+                android:textColor="@android:color/darker_gray"
+                android:textSize="16sp"
+                android:layout_marginTop="4dp"/>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginTop="16dp"/>
+
+
+            <TextView
+                android:id="@+id/tv_open_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Open"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_open_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Open 24 hours."
+                android:textColor="@android:color/darker_gray"
+                android:textSize="16sp"
+                android:layout_marginTop="4dp"/>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginTop="16dp"/>
+
+
+            <TextView
+                android:id="@+id/tv_best_time_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Best Time to Visit"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_best_time_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="8:00 AM to 12:00 PM"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="16sp"
+                android:layout_marginTop="4dp"/>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginTop="16dp"/>
+
+
+            <TextView
+                android:id="@+id/tv_entrance_fee_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Entrance Fee"
+                android:textColor="@android:color/black"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"/>
+
+            <TextView
+                android:id="@+id/tv_entrance_fee_description"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Free"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="16sp"
+                android:layout_marginTop="4dp"/>
+
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@android:color/darker_gray"
+                android:layout_marginTop="16dp"/>
+
+
+            <TextView
+                android:id="@+id/tv_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View in Maps"
+                android:textColor="#4CAF50"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:drawableEnd="@drawable/right_proceed_button"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical"
+                android:layout_marginTop="16dp"/>
+
+
+            <TextView
+                android:id="@+id/tv_view_transportation"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="View in Mode of Transportation"
+                android:textColor="#4CAF50"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:drawableEnd="@drawable/right_proceed_button"
+                android:drawablePadding="8dp"
+                android:gravity="center_vertical"
+                android:layout_marginTop="12dp"/>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:labelVisibilityMode="labeled" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+# app\src\main\res\layout\activity_change_password.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".ChangePasswordActivity">
+
+    <ImageView
+        android:id="@+id/iv_back_arrow_change_password"
+        android:layout_width="70dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="4dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="Back"
+        android:focusable="true"
+        android:padding="8dp"
+        android:src="@drawable/left_back_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/colorPrimary" />
+
+    <ImageView
+        android:id="@+id/iv_app_logo_change_password"
+        android:layout_width="237dp"
+        android:layout_height="158dp"
+        android:layout_marginTop="32dp"
+        android:contentDescription="App Logo"
+        android:src="@drawable/logo_black_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.481"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_back_arrow_change_password" />
+
+    <TextView
+        android:id="@+id/tv_change_password_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Change your Password"
+        android:textColor="@color/textPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_app_logo_change_password" />
+
+    <!-- New Password Field -->
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/til_new_password"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="32dp"
+        android:hint="New Password"
+        app:boxStrokeColor="@color/colorPrimary"
+        app:hintTextColor="@color/colorPrimary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tv_change_password_title"
+        app:passwordToggleEnabled="true"
+
+    app:passwordToggleTint="@color/lightGrayBackground"> <!-- Or your desired tint -->
+
+    <com.google.android.material.textfield.TextInputEditText
+        android:id="@+id/et_new_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="textPassword"
+        android:maxLines="1" />
+</com.google.android.material.textfield.TextInputLayout>
+
+    <!-- Confirm New Password Field -->
+<com.google.android.material.textfield.TextInputLayout
+android:id="@+id/til_confirm_password"
+style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:layout_marginStart="32dp"
+android:layout_marginTop="16dp"
+android:layout_marginEnd="32dp"
+android:hint="Confirm Password"
+app:boxStrokeColor="@color/colorPrimary"
+app:hintTextColor="@color/colorPrimary"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:layout_constraintTop_toBottomOf="@id/til_new_password"
+app:passwordToggleEnabled="true"
+
+    app:passwordToggleTint="@color/lightGrayBackground"> <!-- Or your desired tint -->
+
+<com.google.android.material.textfield.TextInputEditText
+android:id="@+id/et_confirm_password"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:inputType="textPassword"
+android:maxLines="1"
+android:imeOptions="actionDone"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_change_password_submit"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="32dp"
+        android:backgroundTint="@color/colorPrimary"
+        android:paddingVertical="14dp"
+        android:text="Change"
+        android:textAllCaps="false"
+        android:textColor="@color/white"
+        android:textSize="16sp"
+        app:cornerRadius="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/til_confirm_password"
+        app:layout_constraintVertical_bias="0.3" /> <!-- Adjust bias to position button -->
+
+</androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
 # app\src\main\res\layout\activity_home.xml
@@ -3010,6 +4710,7 @@ This is a binary file of the type: Image
 
             <!-- Item 1: Burnham Park -->
             <androidx.cardview.widget.CardView
+                android:id="@+id/card_burnham_park"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
@@ -3739,18 +5440,201 @@ This is a binary file of the type: Image
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
-# app\src\main\res\layout\activity_login.xml
+# app\src\main\res\layout\activity_itinerary_log_detail.xml
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="24dp"
     android:background="@color/white"
+    tools:context=".ItineraryLogDetailActivity">
+
+    <ImageView
+        android:id="@+id/iv_back_arrow_log_detail"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:focusable="true"
+        android:layout_width="74dp"
+        android:layout_height="65dp"
+        android:contentDescription="Back"
+        android:padding="16dp"
+        android:src="@drawable/left_back_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/colorPrimary" />
+
+
+    <ScrollView
+        android:id="@+id/sv_log_detail_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintTop_toBottomOf="@id/iv_back_arrow_log_detail"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_log_detail"
+        android:fillViewport="true"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="24dp"
+            android:paddingEnd="24dp"
+            android:paddingTop="16dp"
+            android:paddingBottom="24dp">
+
+            <TextView
+                android:id="@+id/tv_location_header_log_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Location"
+                android:textColor="@color/textPrimary"
+                android:textSize="24sp"
+                android:textStyle="bold"/>
+
+            <TextView
+                android:id="@+id/tv_date_range_log_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="April 23, 2023 - April 30, 2023"
+                android:textColor="@color/text_secondary_dark"
+                android:textSize="14sp"
+                android:layout_marginTop="4dp"/>
+
+            <LinearLayout
+                android:id="@+id/ll_location_name_container_log_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:background="@drawable/bg_rounded_light_gray"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:layout_marginTop="12dp">
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/location"
+                    app:tint="@color/textPrimary"/>
+                <TextView
+                    android:id="@+id/tv_location_name_log_detail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Baguio City"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    android:layout_marginStart="12dp"/>
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/tv_itinerary_log_header_log_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Itinerary Log"
+                android:textColor="@color/textPrimary"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"/>
+
+            <!-- Day 1 Section -->
+            <TextView
+                android:id="@+id/tv_day1_header_log_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Day 1"
+                android:textColor="@color/textPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:id="@+id/ll_day1_items_log_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_rounded_light_gray"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
+
+                <!-- Static items for Day 1 - For UI only -->
+                <include layout="@layout/item_itinerary_log_entry_detail" tools:id="@+id/item_d1_1" />
+                <include layout="@layout/item_itinerary_log_entry_detail" tools:id="@+id/item_d1_2" />
+                <include layout="@layout/item_itinerary_log_entry_detail" tools:id="@+id/item_d1_3" />
+                <include layout="@layout/item_itinerary_log_entry_detail" tools:id="@+id/item_d1_4" />
+                <include layout="@layout/item_itinerary_log_entry_detail" tools:id="@+id/item_d1_5" />
+                <include layout="@layout/item_itinerary_log_entry_detail" tools:id="@+id/item_d1_6" />
+                <include layout="@layout/item_itinerary_log_entry_detail" tools:id="@+id/item_d1_7" />
+            </LinearLayout>
+
+            <!-- Day 2 Section -->
+            <TextView
+                android:id="@+id/tv_day2_header_log_detail"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Day 2"
+                android:textColor="@color/textPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginTop="24dp"
+                android:layout_marginBottom="8dp"/>
+
+            <LinearLayout
+                android:id="@+id/ll_day2_items_log_detail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="@drawable/bg_rounded_light_gray"
+                android:paddingTop="4dp"
+                android:paddingBottom="4dp">
+
+                <!-- Static items for Day 2 - For UI only -->
+                <include layout="@layout/item_itinerary_log_entry_detail" tools:id="@+id/item_d2_1" />
+                <include layout="@layout/item_itinerary_log_entry_detail" tools:id="@+id/item_d2_2" />
+                <include layout="@layout/item_itinerary_log_entry_detail" tools:id="@+id/item_d2_3" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_log_detail"
+        style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:elevation="8dp"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+# app\src\main\res\layout\activity_login.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:padding="24dp"
     tools:context=".LoginActivity">
 
     <!-- Re-using IDs is fine as they are in different layout files -->
@@ -3817,19 +5701,36 @@ This is a binary file of the type: Image
 
     <!-- Confirm Password is NOT needed here -->
 
+    <!-- Or app:layout_constraintStart_toStartOf="parent" or center -->
+
+
     <Button
         android:id="@+id/login_button"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
+        android:layout_marginTop="56dp"
         android:backgroundTint="@color/colorPrimary"
         android:paddingTop="12dp"
         android:paddingBottom="12dp"
         android:text="@string/sign_in_button"
         android:textColor="@color/buttonTextColor"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/password_layout" />
+
+    <TextView
+        android:id="@+id/tv_forgot_password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Forgot Password?"
+        android:textColor="@color/colorPrimary"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/password_layout" />
 
     <LinearLayout
         android:id="@+id/switch_to_signup_layout"
@@ -3841,13 +5742,14 @@ This is a binary file of the type: Image
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/login_button">
 
+
         <TextView
             android:id="@+id/prompt_no_account_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="4dp"
             android:text="@string/prompt_no_account"
-            android:textColor="@color/textColorSecondary"/>
+            android:textColor="@color/textColorSecondary" />
 
         <TextView
             android:id="@+id/link_sign_up_text"
@@ -3859,6 +5761,390 @@ This is a binary file of the type: Image
     </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+# app\src\main\res\layout\activity_main.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".MainActivity">
+
+
+    <ImageView
+        android:id="@+id/splash_logo"
+        android:layout_width="300dp"
+        android:layout_height="300dp"
+        android:src="@drawable/logo_white_text"
+
+        android:contentDescription="@string/app_logo_description"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:visibility="visible"/>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/form_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="24dp"
+        android:visibility="gone"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="31dp"
+        tools:visibility="visible">
+
+        <ImageView
+            android:id="@+id/form_logo"
+            android:layout_width="251dp"
+            android:layout_height="150dp"
+            android:layout_marginTop="84dp"
+            android:contentDescription="@string/app_logo_description"
+
+            android:src="@drawable/logo_black_text"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/form_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/form_logo"
+            tools:text="Login/Signup Title" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/email_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:hint="@string/email_hint"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/form_title">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/email_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/password_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="@string/password_hint"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/email_layout"
+            app:passwordToggleEnabled="true">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/password_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/confirm_password_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:hint="@string/confirm_password_hint"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/password_layout"
+            app:passwordToggleEnabled="true"
+            tools:visibility="visible">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/confirm_password_edit_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="textPassword" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Button
+            android:id="@+id/action_button"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp"
+            android:textColor="@color/buttonTextColor"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/confirm_password_layout"
+            tools:text="Sign In / Sign Up" />
+
+        <LinearLayout
+            android:id="@+id/switch_layout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:orientation="horizontal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/action_button">
+
+            <TextView
+                android:id="@+id/switch_prompt_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="4dp"
+                android:textColor="@color/textColorSecondary"
+                tools:text="Don't have an account?" />
+
+            <TextView
+                android:id="@+id/switch_link_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorPrimary"
+                android:textStyle="bold"
+                tools:text="Sign Up" />
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+# app\src\main\res\layout\activity_maps.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_maps_coordinator_layout"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MapsActivity">
+
+    <!-- Main content area that the BottomSheet will slide over -->
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_map_content_area"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        <!-- This behavior helps coordinate with AppBars and BottomSheets -->
+
+        <!-- Top Panel for Title and Current Direction -->
+        <androidx.cardview.widget.CardView
+            android:id="@+id/card_map_top_panel"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:cardElevation="4dp"
+            app:cardPreventCornerOverlap="false"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingStart="24dp"
+                android:paddingEnd="24dp"
+                android:paddingTop="24dp"
+                android:paddingBottom="16dp">
+
+                <TextView
+                    android:id="@+id/tv_maps_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Maps"
+                    android:textColor="@color/colorPrimary"
+                    android:textSize="32sp"
+                    android:textStyle="bold" />
+
+                <LinearLayout
+                    android:id="@+id/ll_current_direction"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginTop="16dp"
+                    android:gravity="center_vertical">
+
+                    <ImageView
+                        android:id="@+id/iv_direction_icon"
+                        android:layout_width="30dp"
+                        android:layout_height="30dp"
+                        android:src="@drawable/ic_arrow_upward_circle"
+                        app:tint="@color/text_grey_dark"
+                        android:contentDescription="Current Direction"/>
+
+                    <TextView
+                        android:id="@+id/tv_direction_text"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:layout_marginStart="12dp"
+                        android:text="Head southeast on Session Rd toward F. Calderon St"
+                        android:textColor="@color/text_grey_dark"
+                        android:textSize="15sp" />
+                </LinearLayout>
+            </LinearLayout>
+        </androidx.cardview.widget.CardView>
+
+
+        <FrameLayout
+            android:id="@+id/map_fragment_container"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toBottomOf="@id/card_map_top_panel"
+            app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_my_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:src="@drawable/map"
+            app:tint="@color/green_brand_primary"
+            app:backgroundTint="@color/white"
+            app:layout_constraintBottom_toTopOf="@+id/bottom_sheet_maps_info_anchor"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:elevation="6dp"
+        android:contentDescription="My Location"/>
+
+
+        <View
+            android:id="@+id/bottom_sheet_maps_info_anchor"
+            android:layout_width="1dp"
+            android:layout_height="100dp"
+        app:layout_constraintStart_toStartOf="parent"
+            tools:ignore="MissingConstraints" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+
+    <LinearLayout
+        android:id="@+id/bottom_sheet_maps_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@drawable/bg_bottom_sheet_maps"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="8dp"
+    android:paddingBottom="16dp"
+    android:elevation="4dp"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+    app:behavior_hideable="false"
+    app:behavior_peekHeight="100dp">
+    <View
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/bg_rounded_light_gray"
+    android:layout_marginBottom="12dp"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <ImageView
+            android:id="@+id/iv_transport_mode_icon_bottom"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:src="@drawable/ic_taxi"
+            app:tint="@color/text_black_primary"
+            android:contentDescription="Transport Mode" />
+
+        <TextView
+            android:id="@+id/tv_route_duration_distance_bottom"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="57 min · 23 km"
+            android:textColor="@color/text_grey_dark"
+            android:textSize="16sp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical"
+            android:gravity="end"
+            android:layout_marginStart="8dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="1st location"
+                android:textColor="@color/text_grey_medium"
+                android:textSize="12sp"/>
+            <TextView
+                android:id="@+id/tv_next_destination_bottom"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Baguio Cathedral"
+                android:textColor="@color/text_black_primary"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+        </LinearLayout>
+    </LinearLayout>
+
+
+    <TextView
+        android:id="@+id/tv_expanded_route_details"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="More route details will appear here when the sheet is expanded further. This could include next turns, alternative routes, etc."
+        android:layout_marginTop="16dp"
+        android:textColor="@color/text_grey_dark"
+        android:visibility="gone"
+    tools:visibility="visible"/>
+
+</LinearLayout>
+
+
+<com.google.android.material.bottomnavigation.BottomNavigationView
+android:id="@+id/bottom_navigation_maps_page"
+style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:layout_gravity="bottom"
+    android:background="?android:attr/windowBackground"
+    app:elevation="8dp"
+    app:itemIconTint="@color/bottom_nav_color_selector"
+    app:itemTextColor="@color/bottom_nav_color_selector"
+    app:labelVisibilityMode="labeled"
+    app:menu="@menu/bottom_nav_menu" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 ```
 
 # app\src\main\res\layout\activity_otp_verification.xml
@@ -4057,6 +6343,510 @@ This is a binary file of the type: Image
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
+# app\src\main\res\layout\activity_profile.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".ProfileActivity">
+
+  <!-- Header Section -->
+    <View
+        android:id="@+id/viewHeaderBackground"
+        android:layout_width="468dp"
+        android:layout_height="249dp"
+        android:background="@drawable/profile_header_background"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+  <TextView
+      android:id="@+id/tvProfileNameHeader"
+      android:layout_width="wrap_content"
+      android:layout_height="wrap_content"
+      android:layout_marginTop="32dp"
+      android:text="Alice Go"
+      android:textColor="@android:color/white"
+      android:textSize="28sp"
+      android:textStyle="bold"
+      app:layout_constraintEnd_toEndOf="parent"
+      app:layout_constraintStart_toStartOf="parent"
+      app:layout_constraintTop_toTopOf="@id/viewHeaderBackground" />
+
+  <!-- Profile Image Container -->
+  <FrameLayout
+      android:id="@+id/flProfileImageContainer"
+      android:layout_width="200dp"
+  android:layout_height="200dp"
+  android:elevation="8dp"
+  app:layout_constraintStart_toStartOf="parent"
+  app:layout_constraintEnd_toEndOf="parent"
+  app:layout_constraintTop_toBottomOf="@id/tvProfileNameHeader"
+  android:layout_marginTop="50dp"
+  >
+
+
+  <ImageView
+      android:id="@+id/ivProfileBackground"
+      android:layout_width="match_parent"
+      android:layout_height="match_parent"
+      android:src="@drawable/circle_gradient_background"
+      android:scaleType="fitXY"/>
+
+  <!-- White Border -->
+
+      <ImageView
+          android:id="@+id/ivProfileBorder"
+          android:layout_width="match_parent"
+          android:layout_height="match_parent" />
+
+      <ImageView
+      android:id="@+id/ivProfileIcon"
+      android:layout_width="100dp"
+  android:layout_height="100dp"
+  android:layout_gravity="center"
+  android:scaleType="fitCenter"
+  android:src="@drawable/ic_profile_placeholder" />
+
+</FrameLayout>
+
+    <!-- Bottom Navigation -->
+
+    <ScrollView
+        android:id="@+id/scrollViewProfile"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="-80dp"
+        android:clipToPadding="false"
+        android:paddingTop="90dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_profile_page"
+
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/flProfileImageContainer"
+        app:layout_constraintVertical_bias="1.0">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingStart="16dp"
+            android:paddingTop="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="16dp">
+
+
+            <RelativeLayout
+                android:id="@+id/layoutName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp">
+
+                <ImageView
+                    android:id="@+id/iconName"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_profile"
+                    app:tint="@color/colorPrimaryDarker" />
+
+                <TextView
+                    android:id="@+id/tvProfileNameDetail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/iconName"
+                    android:text="Alice Go"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <ImageView
+                    android:id="@+id/ivLogout"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:src="@drawable/ic_logout"
+                    app:tint="@color/colorPrimaryDarker" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorPrimaryDarker" />
+            <!-- Birthday Row -->
+            <RelativeLayout
+                android:id="@+id/layoutBirthday"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp">
+
+                <ImageView
+                    android:id="@+id/iconBirthday"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_calendar_today"
+                    app:tint="@color/colorPrimaryDarker" />
+
+                <TextView
+                    android:id="@+id/tvProfileBirthday"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/iconBirthday"
+                    android:text="January 1, 2000"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="16sp" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorPrimaryDarker" />
+            <!-- Email Row -->
+            <RelativeLayout
+                android:id="@+id/layoutEmail"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp">
+
+                <ImageView
+                    android:id="@+id/iconEmail"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_email"
+                    app:tint="@color/colorPrimaryDarker" />
+
+                <TextView
+                    android:id="@+id/tvProfileEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/iconEmail"
+                    android:text="alicego@gmail.com"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvEditEmail"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp"
+                    android:text="edit"
+                    android:textColor="@color/colorPrimaryDarker"
+                    android:textSize="14sp" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorPrimaryDarker" />
+            <!-- Phone Row -->
+            <RelativeLayout
+                android:id="@+id/layoutPhone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp">
+
+                <ImageView
+                    android:id="@+id/iconPhone"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_phone"
+                    app:tint="@color/colorPrimaryDarker" />
+
+                <TextView
+                    android:id="@+id/tvProfilePhone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/iconPhone"
+                    android:text="09215687102"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="16sp" />
+
+                <TextView
+                    android:id="@+id/tvEditPhone"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:padding="4dp"
+                    android:text="edit"
+                    android:textColor="@color/colorPrimaryDarker"
+                    android:textSize="14sp" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorPrimaryDarker" />
+            <!-- Password Row -->
+            <RelativeLayout
+                android:id="@+id/layoutPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingVertical="12dp">
+
+                <ImageView
+                    android:id="@+id/iconPassword"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_visibility_on"
+                    app:tint="@color/colorPrimaryDarker" />
+
+                <TextView
+                    android:id="@+id/tvProfilePassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/iconPassword"
+                    android:text="************"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="16sp" />
+
+                <LinearLayout
+                    android:id="@+id/layoutChangePassword"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:orientation="horizontal"
+                    android:padding="4dp">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_gravity="center_vertical"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/ic_visibility_on"
+                        app:tint="@color/colorPrimaryDarker" />
+
+                    <TextView
+                        android:id="@+id/tvChangePassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="change"
+                        android:textColor="@color/colorPrimary"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorPrimaryDarker" />
+            <!-- History Row -->
+            <RelativeLayout
+                android:id="@+id/layoutHistory"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true"
+                android:paddingVertical="12dp">
+
+                <ImageView
+                    android:id="@+id/iconHistory"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:src="@drawable/ic_history"
+                    app:tint="@color/colorPrimaryDarker" />
+
+                <TextView
+                    android:id="@+id/tvProfileHistory"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_toEndOf="@id/iconHistory"
+                    android:text="Location and Itinerary History"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="16sp" />
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="@color/colorPrimaryDarker" />
+
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+android:id="@+id/bottom_navigation_profile_page"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:background="?android:attr/windowBackground"
+app:elevation="8dp"
+app:itemIconTint="@color/bottom_nav_color_selector"
+app:itemTextColor="@color/bottom_nav_color_selector"
+app:labelVisibilityMode="labeled"
+app:layout_constraintBottom_toBottomOf="parent"
+app:layout_constraintEnd_toEndOf="parent"
+app:layout_constraintStart_toStartOf="parent"
+app:menu="@menu/bottom_nav_menu" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+# app\src\main\res\layout\activity_reset_password.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="24dp"
+    android:background="@color/white"
+    tools:context=".ResetPasswordActivity"> <!-- Changed context to ResetPasswordActivity -->
+
+    <ImageView
+        android:id="@+id/iv_back_arrow"
+        android:layout_width="52dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="4dp"
+        android:contentDescription="Back"
+        android:padding="8dp"
+        android:src="@drawable/left_back_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <ImageView
+        android:id="@+id/form_logo"
+        android:layout_width="251dp"
+        android:layout_height="150dp"
+        android:layout_marginTop="60dp"
+        android:contentDescription="@string/app_logo_description"
+        android:src="@drawable/logo_black_text"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+    <!-- Consider app:layout_constraintTop_toBottomOf="@id/iv_back_arrow" if logo should be below arrow -->
+
+    <TextView
+        android:id="@+id/form_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="Reset your Password"
+        android:textColor="@color/textColorPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/form_logo" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/email_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:hint="@string/email_hint"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/form_title">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/email_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textEmailAddress" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/password_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="New Password"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/email_layout"
+        app:passwordToggleEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/confirm_password_layout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:hint="@string/confirm_password_hint"
+        android:visibility="visible"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/password_layout"
+        app:passwordToggleEnabled="true">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/confirm_password_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="textPassword" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <Button
+        android:id="@+id/reset_button"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="24dp"
+    android:backgroundTint="@color/colorPrimary"
+    android:paddingTop="12dp"
+    android:paddingBottom="12dp"
+    android:text="Reset Password" 
+    android:textColor="@color/buttonTextColor"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/confirm_password_layout"  android:layout_width="0dp"/>
+
+   
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
+
 # app\src\main\res\layout\activity_sign_up.xml
 
 ```xml
@@ -4225,6 +7015,481 @@ This is a binary file of the type: Image
 </androidx.constraintlayout.widget.ConstraintLayout>
 ```
 
+# app\src\main\res\layout\activity_transportation_mode.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/white"
+    tools:context=".TransportationModeActivity">
+
+
+
+
+    <ScrollView
+        android:id="@+id/sv_transport_content"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toTopOf="@id/map_fragment_container_transport"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent">
+
+    </ScrollView>
+
+    <!-- Map Fragment Container -->
+    <!-- The actual map fragment will be added programmatically -->
+
+
+    <!-- Bottom Navigation -->
+
+    <FrameLayout
+        android:id="@+id/map_fragment_container_transport"
+        android:layout_width="377dp"
+        android:layout_height="195dp"
+        android:layout_marginBottom="60dp"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_transport_page"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHeight_percent="0.4"
+        app:layout_constraintHorizontal_bias="0.47"
+        app:layout_constraintStart_toStartOf="parent" />
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_transport_page"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:elevation="8dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:labelVisibilityMode="labeled" />
+
+    <TextView
+        android:id="@+id/tv_transportation_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Transportation"
+        android:textColor="@color/colorPrimary"
+        android:textSize="32sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.136"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <LinearLayout
+        android:layout_width="418dp"
+        android:layout_height="422dp"
+        android:layout_marginTop="32dp"
+        android:orientation="vertical"
+        android:padding="24dp"
+        app:layout_constraintTop_toBottomOf="@+id/tv_transportation_title"
+        tools:layout_editor_absoluteX="0dp">
+
+        <!-- Using GridLayout for options for easier alignment -->
+        <TextView
+            android:id="@+id/tv_transportation_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Ways to Travel from Hotel Veniz to Burnham Park"
+            android:textColor="@color/text_secondary_dark"
+            android:textSize="16sp" />
+
+        <GridLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:alignmentMode="alignMargins"
+            android:columnCount="2"
+            android:rowCount="3"
+            android:useDefaultMargins="true"> <!-- Try adding this -->
+
+
+            <!-- Taxi Card -->
+            <include
+                android:id="@+id/transport_taxi"
+                layout="@layout/item_transport_option"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal" />
+
+
+            <!-- Bus Card -->
+            <include
+                android:id="@+id/transport_bus"
+                layout="@layout/item_transport_option"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal" />
+
+            <!-- Bike Card -->
+            <include
+                android:id="@+id/transport_bike"
+                layout="@layout/item_transport_option"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal" />
+
+            <!-- Motorcycle Card -->
+            <include
+                android:id="@+id/transport_motorcycle"
+                layout="@layout/item_transport_option"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnWeight="1"
+                android:layout_gravity="fill_horizontal" />
+
+            <!-- Walk Card -->
+            <include
+                android:id="@+id/transport_walk"
+                layout="@layout/item_transport_option"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_columnSpan="2"
+                android:layout_gravity="fill_horizontal" />
+        </GridLayout>
+    </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+# app\src\main\res\layout\activity_trip_history.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".TripHistoryActivity">
+
+    <ImageView
+        android:id="@+id/iv_back_arrow_trip_history"
+        android:layout_width="74dp"
+        android:layout_height="65dp"
+        android:contentDescription="Back"
+        android:padding="16dp"
+        android:src="@drawable/left_back_button"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/colorPrimary" />
+
+    <TextView
+        android:id="@+id/tv_trip_history_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Trip History"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        android:textColor="@color/colorPrimary"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_back_arrow_trip_history" />
+
+    <TextView
+        android:id="@+id/tv_locations_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        android:text="Locations"
+        android:textSize="20sp"
+        android:textColor="@color/textPrimary"
+        android:layout_marginTop="4dp"
+        app:layout_constraintStart_toStartOf="@id/tv_trip_history_title"
+        app:layout_constraintTop_toBottomOf="@id/tv_trip_history_title"/>
+
+    <ScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="16dp"
+        app:layout_constraintTop_toBottomOf="@id/tv_locations_subtitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_trip_history"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- APRIL 2023 Section -->
+            <TextView
+                android:id="@+id/tv_april_2023_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="APRIL 2023"
+                android:textColor="@color/text_secondary_dark"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Baguio City Item -->
+            <RelativeLayout
+                android:id="@+id/item_baguio_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_location_history_item"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+
+                <ImageView
+                    android:id="@+id/iv_icon_baguio"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_alignParentStart="true"
+                    android:layout_centerVertical="true"
+                    android:src="@drawable/location"
+                    app:tint="@color/black"
+                    android:contentDescription="Location"/>
+
+                <TextView
+                    android:id="@+id/tv_name_baguio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_toEndOf="@id/iv_icon_baguio"
+                    android:layout_centerVertical="true"
+                    android:layout_marginStart="12dp"
+                    android:text="Baguio City"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="18sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:id="@+id/tv_view_baguio"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="view"
+                    android:textColor="@color/text_secondary_dark"
+                    android:textSize="14sp"
+
+                    android:drawablePadding="4dp"
+                    app:drawableTint="@color/text_secondary_dark" />
+            </RelativeLayout>
+
+            <!-- Tagaytay City Item -->
+            <RelativeLayout
+                android:id="@+id/item_tagaytay_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_location_history_item"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+                <!-- Similar structure as Baguio City item -->
+                <ImageView android:id="@+id/iv_icon_tagaytay" android:src="@drawable/location" app:tint="@color/black" android:layout_width="24dp" android:layout_height="24dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:contentDescription="Location"/>
+                <TextView android:id="@+id/tv_name_tagaytay" android:text="Tagaytay City" android:layout_toEndOf="@id/iv_icon_tagaytay" android:layout_centerVertical="true" android:layout_marginStart="12dp" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/tv_view_tagaytay" android:text="view"  app:drawableTint="@color/text_secondary_dark" android:drawablePadding="4dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:textColor="@color/text_secondary_dark" android:textSize="14sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </RelativeLayout>
+
+            <!-- JUNE 2022 Section -->
+            <TextView
+                android:id="@+id/tv_june_2022_header"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="JUNE 2022"
+                android:textColor="@color/text_secondary_dark"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:textAllCaps="true"
+                android:layout_marginTop="16dp"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Manila City Item -->
+            <RelativeLayout
+                android:id="@+id/item_manila_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_location_history_item"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+                <!-- Similar structure -->
+                <ImageView android:id="@+id/iv_icon_manila" android:src="@drawable/location" app:tint="@color/black" android:layout_width="24dp" android:layout_height="24dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:contentDescription="Location"/>
+                <TextView android:id="@+id/tv_name_manila" android:text="Manila City" android:layout_toEndOf="@id/iv_icon_manila" android:layout_centerVertical="true" android:layout_marginStart="12dp" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/tv_view_manila" android:text="view"  app:drawableTint="@color/text_secondary_dark" android:drawablePadding="4dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:textColor="@color/text_secondary_dark" android:textSize="14sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </RelativeLayout>
+
+            <!-- Batangas City Item -->
+            <RelativeLayout
+                android:id="@+id/item_batangas_city"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_location_history_item"
+                android:padding="16dp"
+                android:layout_marginBottom="8dp"
+                android:clickable="true"
+                android:focusable="true">
+                <!-- Similar structure -->
+                <ImageView android:id="@+id/iv_icon_batangas" android:src="@drawable/location" app:tint="@color/black" android:layout_width="24dp" android:layout_height="24dp" android:layout_alignParentStart="true" android:layout_centerVertical="true" android:contentDescription="Location"/>
+                <TextView android:id="@+id/tv_name_batangas" android:text="Batangas City" android:layout_toEndOf="@id/iv_icon_batangas" android:layout_centerVertical="true" android:layout_marginStart="12dp" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+                <TextView android:id="@+id/tv_view_batangas" android:text="view"  app:drawableTint="@color/text_secondary_dark" android:drawablePadding="4dp" android:layout_alignParentEnd="true" android:layout_centerVertical="true" android:textColor="@color/text_secondary_dark" android:textSize="14sp" android:layout_width="wrap_content" android:layout_height="wrap_content"/>
+            </RelativeLayout>
+
+        </LinearLayout>
+    </ScrollView>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_trip_history"
+        style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:elevation="8dp"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+```
+
+# app\src\main\res\layout\activity_welcome_page.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/gradient_background"
+    android:padding="24dp">
+
+    <ImageView
+        android:id="@+id/splash_image"
+        android:layout_width="387dp"
+        android:layout_height="421dp"
+        android:scaleType="fitCenter"
+        android:src="@drawable/undraw_map_cuix"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.666"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/title_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:fontFamily="@font/poppins_bold"
+        android:lineSpacingExtra="6dp"
+        android:text="Welcome to\nALAYA"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="32sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/splash_image" />
+
+    <TextView
+        android:id="@+id/subtitle_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:fontFamily="@font/roboto_condensed_light_italic"
+        android:text="Your journey, our guidance"
+        android:textAlignment="center"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/title_text" />
+
+    <Button
+        android:id="@+id/get_started_button"
+        android:layout_width="298dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="32dp"
+        android:background="@drawable/rounded_button_white"
+        android:fontFamily="@font/roboto_medium"
+        android:gravity="center"
+        android:paddingLeft="32dp"
+        android:paddingTop="12dp"
+        android:paddingRight="32dp"
+        android:paddingBottom="12dp"
+        android:text="Get Started"
+        android:textColor="#09510D"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/subtitle_text" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>
+
+```
+
+# app\src\main\res\layout\dialog_changes_saved.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="32dp"
+    android:gravity="center"
+    android:background="@drawable/dialog_background_gradient_rounded">
+    <!-- All content below remains unchanged -->
+    <TextView
+        android:id="@+id/tv_dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Your changes have been saved successfully."
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:layout_marginBottom="24dp"
+        android:gravity="center" /> />
+
+    <Button
+        android:id="@+id/btn_dialog_continue"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:background="@drawable/bg_button_white_rounded"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:text="Continue"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimaryDarker"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:backgroundTint="@null" />
+
+</LinearLayout>
+```
+
 # app\src\main\res\layout\dialog_edit_text.xml
 
 ```xml
@@ -4241,6 +7506,165 @@ This is a binary file of the type: Image
         android:layout_height="wrap_content"
         android:inputType="textCapWords"
         android:hint="Enter location" />
+
+</LinearLayout>
+```
+
+# app\src\main\res\layout\dialog_location_notification.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:minWidth="300dp"
+    android:background="@drawable/dialog_background_gradient_rounded"
+    android:gravity="start|center_horizontal"
+    android:orientation="vertical"
+    android:paddingStart="24dp"
+    android:paddingTop="24dp"
+    android:paddingEnd="24dp"
+    android:paddingBottom="24dp"
+    tools:context=".SignUpActivity"> <!-- Changed tools:context to SignUpActivity or your relevant activity -->
+
+    <!-- Title TextView -->
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:text="For a better experience, your device will need to use Location Accuracy"
+        android:textAlignment="viewStart"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Subtitle TextView -->
+    <TextView
+        android:id="@+id/tv_dialog_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="The following setting should be on:"
+        android:textAlignment="viewStart"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+    <!-- Device Location Item -->
+    <TextView
+        android:id="@+id/tv_device_location"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:drawableStart="@drawable/location_picture"
+        android:drawablePadding="12dp"
+        android:gravity="center_vertical"
+        android:text="Device Location"
+        android:textColor="@color/white"
+        android:textSize="14sp" />
+
+    <!-- Turn On Button -->
+    <Button
+        android:id="@+id/btn_turn_on"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:minHeight="40dp"
+        android:background="@drawable/bg_button_white_rounded"
+        android:paddingStart="32dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="32dp"
+        android:paddingBottom="8dp"
+        android:text="Turn on"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimaryDarker"
+        android:textSize="14sp"
+        app:backgroundTint="@null" />
+
+</LinearLayout>
+```
+
+# app\src\main\res\layout\dialog_new_otp.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="32dp"
+    android:gravity="center"
+    android:background="@drawable/dialog_background_gradient_rounded">
+
+    <TextView
+        android:id="@+id/tv_dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="A new OTP was sent to your email. Please check your inbox."
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:layout_marginBottom="24dp"
+        android:gravity="center" />
+
+    <Button
+        android:id="@+id/btn_dialog_continue"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:background="@drawable/bg_button_white_rounded"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:text="Continue"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimaryDarker"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:backgroundTint="@null" />
+</LinearLayout>
+```
+
+# app\src\main\res\layout\dialog_success_password_change.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="32dp"
+    android:gravity="center"
+    android:background="@drawable/dialog_background_gradient_rounded">
+
+    <TextView
+        android:id="@+id/tv_dialog_message"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="You’ve successfully changed your password."
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:layout_marginBottom="24dp"
+        android:gravity="center" />
+
+    <Button
+        android:id="@+id/btn_dialog_continue"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="36dp"
+        android:background="@drawable/bg_button_white_rounded"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:text="Continue"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimaryDarker"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:backgroundTint="@null" />
 
 </LinearLayout>
 ```
@@ -4286,12 +7710,230 @@ This is a binary file of the type: Image
 </LinearLayout>
 ```
 
+# app\src\main\res\layout\dialog_welcome_alaya.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center"
+    android:background="@drawable/dialog_background_gradient_rounded"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:paddingStart="32dp"
+    android:paddingTop="32dp"
+    android:paddingEnd="32dp"
+    android:paddingBottom="32dp"
+    tools:context=".MainActivity"> <!-- Optional: Replace .MainActivity if needed -->
+
+    <!-- Title TextView -->
+    <TextView
+        android:id="@+id/tv_dialog_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:text="WELCOME TO ALAYA!"
+        android:textAlignment="center"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <!-- Subtitle TextView (Corrected Version) -->
+    <TextView
+        android:id="@+id/tv_dialog_subtitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp"
+        android:text="Click continue to proceed to your destination."
+        android:textAlignment="center"
+        android:textColor="@color/white"
+        android:textSize="14sp" />  <!-- Clean closing tag -->
+
+    <!-- Continue Button -->
+    <Button
+        android:id="@+id/btn_dialog_continue"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="40dp"
+        android:background="@drawable/bg_button_white_rounded"
+        android:paddingStart="24dp"
+        android:paddingTop="8dp"
+        android:paddingEnd="24dp"
+        android:paddingBottom="8dp"
+        android:text="Continue"
+        android:textAllCaps="false"
+        android:textColor="@color/colorPrimaryDarker"
+        android:textSize="14sp"
+        app:backgroundTint="@null"
+        tools:ignore="DuplicateSpeakableTextCheck" />
+
+</LinearLayout>
+```
+
+# app\src\main\res\layout\item_itinerary_log_entry_detail.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingStart="16dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="10dp"
+    android:paddingBottom="10dp">
+
+    <TextView
+        android:id="@+id/tv_itinerary_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:text="9:00 AM"
+    tools:text="9:00 AM"
+    android:textColor="@color/black"
+    android:textSize="14sp"/>
+
+    <TextView
+        android:id="@+id/tv_itinerary_activity"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_toEndOf="@id/tv_itinerary_time"
+        android:layout_toStartOf="@+id/ll_rating_container_detail"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"
+        android:layout_marginEnd="8dp"
+        android:text="Sample Activity Item"
+    tools:text="Breakfast at Café by the Ruins"
+    android:textColor="@color/textPrimary"
+    android:textSize="15sp"/>
+
+    <LinearLayout
+        android:id="@+id/ll_rating_container_detail"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true">
+
+        <TextView
+            android:id="@+id/tv_itinerary_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="4.5"
+        tools:text="4.5"
+        android:textColor="@color/textPrimary"
+        android:textSize="14sp"/>
+        <ImageView
+            android:id="@+id/iv_itinerary_star"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:src="@drawable/star"
+            android:layout_marginStart="3dp"
+            android:contentDescription="Rating Star"/>
+    </LinearLayout>
+</RelativeLayout>
+```
+
+# app\src\main\res\layout\item_transport_option.xml
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="12dp"
+    android:background="@drawable/bg_transport_card"
+    android:layout_gravity="fill_horizontal"
+    android:clickable="true"
+    android:focusable="true"
+    tools:layout_width="150dp">
+
+<RelativeLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content">
+
+<TextView
+    android:id="@+id/tv_transport_name"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentStart="true"
+    android:layout_centerVertical="true"
+    tools:text="Taxi"
+    android:textColor="@color/text_secondary_dark"
+    android:textSize="16sp"
+    android:textStyle="bold" />
+
+<TextView
+    android:id="@+id/tv_transport_badge"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_alignParentEnd="true"
+    android:layout_centerVertical="true"
+    android:paddingStart="6dp"
+    android:paddingEnd="6dp"
+    android:paddingTop="2dp"
+    android:paddingBottom="2dp"
+    tools:text="Best!"
+    tools:background="@drawable/bg_best_badge"
+    tools:textColor="@color/badge_best_text"
+    android:textSize="10sp"
+    android:textStyle="bold"
+    android:visibility="gone"
+    tools:visibility="visible"/> <!-- Badge is initially gone -->
+</RelativeLayout>
+
+<LinearLayout
+android:layout_width="match_parent"
+android:layout_height="wrap_content"
+android:orientation="horizontal"
+android:layout_marginTop="8dp"
+android:gravity="center_vertical">
+
+<ImageView
+    android:id="@+id/iv_transport_icon"
+    android:layout_width="24dp"
+    android:layout_height="24dp"
+    tools:src="@drawable/ic_taxi"
+    app:tint="@color/colorPrimary" />
+
+<TextView
+    android:id="@+id/tv_transport_duration"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginStart="8dp"
+    tools:text="5 mins"
+    android:textColor="@android:color/darker_gray"
+    android:textSize="14sp"/>
+
+<TextView
+    android:id="@+id/tv_transport_price"
+    android:layout_width="0dp"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:gravity="end"
+    tools:text="₱30 - 50"
+    android:textColor="@android:color/darker_gray"
+    android:textSize="14sp"
+    android:textStyle="bold"/>
+</LinearLayout>
+    </LinearLayout>
+```
+
 # app\src\main\res\layout\list_item_itinerary.xml
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -4299,22 +7941,22 @@ This is a binary file of the type: Image
     android:paddingTop="10dp"
     android:paddingBottom="10dp"
     android:paddingStart="8dp"
-    android:paddingEnd="8dp"
+    android:paddingEnd="16dp"
     android:minHeight="?android:attr/listPreferredItemHeightSmall"
     android:background="?attr/selectableItemBackground"
     tools:ignore="MissingConstraints">
 
     <ImageView
         android:id="@+id/iv_drag_handle"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:paddingStart="4dp"
-        android:paddingEnd="8dp"
+        android:layout_width="24dp"
+        android:layout_height="24dp"
+        android:layout_gravity="center_vertical"
+        android:paddingStart="0dp"
+        android:paddingEnd="0dp"
         android:scaleType="centerInside"
         android:src="@drawable/ic_drag_handle"
         app:tint="@color/textSecondary"
         android:visibility="gone"
-        app:layout_constraintDimensionRatio="1:1"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -4471,8 +8113,6 @@ This is a binary file of the type: Image
 <resources>
     <color name="black">#FF000000</color>
 
-
-
     <color name="colorPrimary">#3f9453</color>
     <color name="colorPrimaryDark">#2E7D32</color>
     <color name="buttonTextColor">#FFFFFF</color>
@@ -4482,13 +8122,35 @@ This is a binary file of the type: Image
     <color name="myButtonTextColor">#FFFFFF</color>
     <color name="colorPrimaryDarker">#00642C</color>
 
-        <color name="textPrimary">#212121</color>
-        <color name="textSecondary">#757575</color>
-        <color name="lightGrayBackground">#F0F0F0</color>
-        <color name="white">#FFFFFF</color>
-        <color name="starColor">#FFC107</color> <!-- Example Yellow/Gold -->
+    <color name="textPrimary">#212121</color>
+    <color name="textSecondary">#757575</color>
+    <color name="lightGrayBackground">#F0F0F0</color>
+    <color name="white">#FFFFFF</color>
+    <color name="starColor">#FFC107</color> <!-- Example Yellow/Gold -->
+
+    <!-- Added missing color definitions -->
+    <color name="your_primary_color">#3f9453</color>
+    <color name="your_variant">#2E7D32</color>
+
+    <color name="green_brand_primary">#4F7942</color>
+
+
+    <color name="text_secondary_dark">#424242</color>
+    <color name="badge_best_text">#00796B</color>
+    <color name="badge_fastest_text">#1E88E5</color>
+    <color name="light_grey_background">#F5F5F5</color>
+    <color name="light_teal_background">#E0F2F1</color>
+    <color name="light_blue_background">#E3F2FD</color>
+
+    <color name="text_black_primary">#212121</color>
+    <color name="text_grey_dark">#424242</color>
+    <color name="text_grey_medium">#757575</color>
+   =
+    <color name="map_route_blue">#4285F4</color> <!-- Example for route polyline -->
+
 
 </resources>
+
 ```
 
 # app\src\main\res\values\font_certs.xml
@@ -4555,6 +8217,11 @@ This is a binary file of the type: Image
     <string name="title_itineraries">Itineraries</string>
     <string name="title_map">Map</string>
     <string name="title_profile">Profile</string>
+    <string name="content_description_back_arrow">Back</string>
+    <string name="preview_transport_name_taxi">Taxi</string>
+    <string name="preview_transport_badge_best">Best!</string>
+    <string name="preview_transport_duration_5mins">5 mins</string>
+    <string name="preview_transport_price_30_50">₱30 - 50</string>
 
 </resources>
 ```
@@ -4654,6 +8321,7 @@ public class ExampleUnitTest {
 // Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
     alias(libs.plugins.android.application) apply false
+    id("com.google.gms.google-services") version "4.4.1" apply false
 }
 ```
 
@@ -4687,7 +8355,7 @@ android.nonTransitiveRClass=true
 
 ```toml
 [versions]
-agp = "8.9.1"
+agp = "8.9.2"
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -4695,6 +8363,7 @@ appcompat = "1.6.1"
 material = "1.10.0"
 activity = "1.8.0"
 constraintlayout = "2.1.4"
+playServicesMaps = "19.2.0"
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -4704,6 +8373,7 @@ appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "a
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
+play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
@@ -5105,7 +8775,7 @@ AlayaApp
 # .idea\workspace.xml
 
 \`\`\`xml
-<?xml version="1.0" encoding="UTF-8"?> <project version="4"> <component name="AndroidLayouts"> <shared> <config /> </shared> <layouts> <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_itineraries.xml"> <config> <theme>@style/Theme.AlayaApp</theme> </config> </layout> <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_itinerary_adapter.xml"> <config> <theme>@style/Theme.AlayaApp</theme> </config> </layout> <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_change_location.xml"> <config> <theme>@style/Theme.AlayaApp</theme> </config> </layout> <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_edit_text.xml"> <config> <theme>@style/Theme.AlayaApp</theme> </config> </layout> </layouts> </component> <component name="AutoImportSettings"> <option name="autoReloadType" value="NONE" /> </component> <component name="ChangeListManager"> <list default="true" id="01420886-470c-47ac-81ec-ac261690f18c" name="Changes" comment=""> <change afterPath="$PROJECT_DIR$/app/src/main/res/layout/dialog_edit_text.xml" afterDir="false" /> <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItinerariesActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItinerariesActivity.java" afterDir="false" /> <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItineraryAdapter.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItineraryAdapter.java" afterDir="false" /> <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItineraryItem.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ItineraryItem.java" afterDir="false" /> <change beforePath="$PROJECT_DIR$/app/src/main/res/layout/activity_itineraries.xml" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/res/layout/activity_itineraries.xml" afterDir="false" /> <change beforePath="$PROJECT_DIR$/project_summary.md" beforeDir="false" afterPath="$PROJECT_DIR$/project_summary.md" afterDir="false" /> </list> <option name="SHOW_DIALOG" value="false" /> <option name="HIGHLIGHT_CONFLICTS" value="true" /> <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" /> <option name="LAST_RESOLUTION" value="IGNORE" /> </component> <component name="ClangdSettings"> <option name="formatViaClangd" value="false" /> </component> <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=C:\Users\Fretz\.android\avd\Medium_Phone.avd)]" /> <component name="ExternalProjectsData"> <projectState path="$PROJECT_DIR$"> <ProjectState /> </projectState> </component> <component name="FileTemplateManagerImpl"> <option name="RECENT_TEMPLATES"> <list> <option value="layoutResourceFile" /> </list> </option> </component> <component name="Git.Settings"> <option name="RECENT_BRANCH_BY_REPOSITORY"> <map> <entry key="$PROJECT_DIR$" value="FunctionTest" /> </map> </option> <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" /> </component> <component name="ProblemsViewState"> <option name="selectedTabId" value="CurrentFile" /> </component> <component name="ProjectColorInfo">{ &quot;associatedIndex&quot;: 3 }</component> <component name="ProjectId" id="2wRunvZDOSrTA8PqpTivsjYb5zE" /> <component name="ProjectViewState"> <option name="hideEmptyMiddlePackages" value="true" /> <option name="showLibraryContents" value="true" /> </component> <component name="PropertiesComponent"><![CDATA[{ "keyToString": { "Android App.app.executor": "Run", "RunOnceActivity.ShowReadmeOnStart": "true", "RunOnceActivity.cidr.known.project.marker": "true", "RunOnceActivity.git.unshallow": "true", "RunOnceActivity.readMode.enableVisualFormatting": "true", "cf.first.check.clang-format": "false", "cidr.known.project.marker": "true", "git-widget-placeholder": "itineraryfunction", "ignore.virus.scanning.warn.message": "true", "kotlin-language-version-configured": "true" } }]]></component> <component name="RunManager"> <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false"> <module name="AlayaApp.app" /> <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" /> <option name="DEPLOY" value="true" /> <option name="DEPLOY_APK_FROM_BUNDLE" value="false" /> <option name="DEPLOY_AS_INSTANT" value="false" /> <option name="ARTIFACT_NAME" value="" /> <option name="PM_INSTALL_OPTIONS" value="" /> <option name="ALL_USERS" value="false" /> <option name="ALWAYS_INSTALL_WITH_PM" value="false" /> <option name="ALLOW_ASSUME_VERIFIED" value="false" /> <option name="CLEAR_APP_STORAGE" value="false" /> <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" /> <option name="ACTIVITY_EXTRA_FLAGS" value="" /> <option name="MODE" value="default_activity" /> <option name="RESTORE_ENABLED" value="false" /> <option name="RESTORE_FILE" value="" /> <option name="RESTORE_FRESH_INSTALL_ONLY" value="false" /> <option name="CLEAR_LOGCAT" value="false" /> <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" /> <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" /> <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" /> <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" /> <option name="DEBUGGER_TYPE" value="Auto" /> <Auto> <option name="USE_JAVA_AWARE_DEBUGGER" value="false" /> <option name="SHOW_STATIC_VARS" value="true" /> <option name="WORKING_DIR" value="" /> <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" /> <option name="SHOW_OPTIMIZED_WARNING" value="true" /> <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" /> <option name="DEBUG_SANDBOX_SDK" value="false" /> </Auto> <Hybrid> <option name="USE_JAVA_AWARE_DEBUGGER" value="false" /> <option name="SHOW_STATIC_VARS" value="true" /> <option name="WORKING_DIR" value="" /> <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" /> <option name="SHOW_OPTIMIZED_WARNING" value="true" /> <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" /> <option name="DEBUG_SANDBOX_SDK" value="false" /> </Hybrid> <Java> <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" /> <option name="DEBUG_SANDBOX_SDK" value="false" /> </Java> <Native> <option name="USE_JAVA_AWARE_DEBUGGER" value="false" /> <option name="SHOW_STATIC_VARS" value="true" /> <option name="WORKING_DIR" value="" /> <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" /> <option name="SHOW_OPTIMIZED_WARNING" value="true" /> <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" /> <option name="DEBUG_SANDBOX_SDK" value="false" /> </Native> <Profilers> <option name="ADVANCED_PROFILING_ENABLED" value="false" /> <option name="STARTUP_PROFILING_ENABLED" value="false" /> <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" /> <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Java/Kotlin Method Sample (legacy)" /> <option name="STARTUP_NATIVE_MEMORY_PROFILING_ENABLED" value="false" /> <option name="NATIVE_MEMORY_SAMPLE_RATE_BYTES" value="2048" /> </Profilers> <option name="DEEP_LINK" value="" /> <option name="ACTIVITY" value="" /> <option name="ACTIVITY_CLASS" value="" /> <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" /> <option name="SKIP_ACTIVITY_VALIDATION" value="false" /> <method v="2"> <option name="Android.Gradle.BeforeRunTask" enabled="true" /> </method> </configuration> </component> <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" /> <component name="TaskManager"> <task active="true" id="Default" summary="Default task"> <changelist id="01420886-470c-47ac-81ec-ac261690f18c" name="Changes" comment="" /> <created>1746016877842</created> <option name="number" value="Default" /> <option name="presentableId" value="Default" /> <updated>1746016877842</updated> </task> <servers /> </component> <component name="Vcs.Log.Tabs.Properties"> <option name="TAB_STATES"> <map> <entry key="MAIN"> <value> <State> <option name="FILTERS"> <map> <entry key="branch"> <value> <list> <option value="HEAD" /> </list> </value> </entry> </map> </option> </State> </value> </entry> </map> </option> </component> <component name="play_dynamic_filters_status"> <option name="appIdToCheckInfo"> <map> <entry key="com.example.alayaapp"> <value> <CheckInfo lastCheckTimestamp="1746029452844" /> </value> </entry> <entry key="com.example.alayaapp.test"> <value> <CheckInfo lastCheckTimestamp="1746029452880" /> </value> </entry> </map> </option> </component> </project>
+<?xml version="1.0" encoding="UTF-8"?> <project version="4"> <component name="AndroidLayouts"> <shared> <config /> </shared> <layouts> <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_itineraries.xml"> <config> <theme>@style/Theme.AlayaApp</theme> </config> </layout> <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_itinerary_adapter.xml"> <config> <theme>@style/Theme.AlayaApp</theme> </config> </layout> <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_change_location.xml"> <config> <theme>@style/Theme.AlayaApp</theme> </config> </layout> <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/dialog_edit_text.xml"> <config> <theme>@style/Theme.AlayaApp</theme> </config> </layout> </layouts> </component> <component name="AutoImportSettings"> <option name="autoReloadType" value="NONE" /> </component> <component name="ChangeListManager"> <list default="true" id="01420886-470c-47ac-81ec-ac261690f18c" name="Changes" comment="" /> <option name="SHOW_DIALOG" value="false" /> <option name="HIGHLIGHT_CONFLICTS" value="true" /> <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" /> <option name="LAST_RESOLUTION" value="IGNORE" /> </component> <component name="ClangdSettings"> <option name="formatViaClangd" value="false" /> </component> <component name="ExecutionTargetManager" SELECTED_TARGET="device_and_snapshot_combo_box_target[DeviceId(pluginId=LocalEmulator, isTemplate=false, identifier=path=C:\Users\Fretz\.android\avd\Medium_Phone.avd)]" /> <component name="ExternalProjectsData"> <projectState path="$PROJECT_DIR$"> <ProjectState /> </projectState> </component> <component name="FileTemplateManagerImpl"> <option name="RECENT_TEMPLATES"> <list> <option value="layoutResourceFile" /> </list> </option> </component> <component name="Git.Settings"> <option name="RECENT_BRANCH_BY_REPOSITORY"> <map> <entry key="$PROJECT_DIR$" value="FunctionTest" /> </map> </option> <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" /> </component> <component name="ProblemsViewState"> <option name="selectedTabId" value="CurrentFile" /> </component> <component name="ProjectColorInfo">{ &quot;associatedIndex&quot;: 3 }</component> <component name="ProjectId" id="2wRunvZDOSrTA8PqpTivsjYb5zE" /> <component name="ProjectViewState"> <option name="hideEmptyMiddlePackages" value="true" /> <option name="showLibraryContents" value="true" /> </component> <component name="PropertiesComponent"><![CDATA[{ "keyToString": { "Android App.app.executor": "Run", "RunOnceActivity.ShowReadmeOnStart": "true", "RunOnceActivity.cidr.known.project.marker": "true", "RunOnceActivity.git.unshallow": "true", "RunOnceActivity.readMode.enableVisualFormatting": "true", "cf.first.check.clang-format": "false", "cidr.known.project.marker": "true", "git-widget-placeholder": "itineraryfunction", "ignore.virus.scanning.warn.message": "true", "kotlin-language-version-configured": "true" } }]]></component> <component name="RunManager"> <configuration name="app" type="AndroidRunConfigurationType" factoryName="Android App" activateToolWindowBeforeRun="false"> <module name="AlayaApp.app" /> <option name="ANDROID_RUN_CONFIGURATION_SCHEMA_VERSION" value="1" /> <option name="DEPLOY" value="true" /> <option name="DEPLOY_APK_FROM_BUNDLE" value="false" /> <option name="DEPLOY_AS_INSTANT" value="false" /> <option name="ARTIFACT_NAME" value="" /> <option name="PM_INSTALL_OPTIONS" value="" /> <option name="ALL_USERS" value="false" /> <option name="ALWAYS_INSTALL_WITH_PM" value="false" /> <option name="ALLOW_ASSUME_VERIFIED" value="false" /> <option name="CLEAR_APP_STORAGE" value="false" /> <option name="DYNAMIC_FEATURES_DISABLED_LIST" value="" /> <option name="ACTIVITY_EXTRA_FLAGS" value="" /> <option name="MODE" value="default_activity" /> <option name="RESTORE_ENABLED" value="false" /> <option name="RESTORE_FILE" value="" /> <option name="RESTORE_FRESH_INSTALL_ONLY" value="false" /> <option name="CLEAR_LOGCAT" value="false" /> <option name="SHOW_LOGCAT_AUTOMATICALLY" value="false" /> <option name="TARGET_SELECTION_MODE" value="DEVICE_AND_SNAPSHOT_COMBO_BOX" /> <option name="SELECTED_CLOUD_MATRIX_CONFIGURATION_ID" value="-1" /> <option name="SELECTED_CLOUD_MATRIX_PROJECT_ID" value="" /> <option name="DEBUGGER_TYPE" value="Auto" /> <Auto> <option name="USE_JAVA_AWARE_DEBUGGER" value="false" /> <option name="SHOW_STATIC_VARS" value="true" /> <option name="WORKING_DIR" value="" /> <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" /> <option name="SHOW_OPTIMIZED_WARNING" value="true" /> <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" /> <option name="DEBUG_SANDBOX_SDK" value="false" /> </Auto> <Hybrid> <option name="USE_JAVA_AWARE_DEBUGGER" value="false" /> <option name="SHOW_STATIC_VARS" value="true" /> <option name="WORKING_DIR" value="" /> <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" /> <option name="SHOW_OPTIMIZED_WARNING" value="true" /> <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" /> <option name="DEBUG_SANDBOX_SDK" value="false" /> </Hybrid> <Java> <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" /> <option name="DEBUG_SANDBOX_SDK" value="false" /> </Java> <Native> <option name="USE_JAVA_AWARE_DEBUGGER" value="false" /> <option name="SHOW_STATIC_VARS" value="true" /> <option name="WORKING_DIR" value="" /> <option name="TARGET_LOGGING_CHANNELS" value="lldb process:gdb-remote packets" /> <option name="SHOW_OPTIMIZED_WARNING" value="true" /> <option name="ATTACH_ON_WAIT_FOR_DEBUGGER" value="false" /> <option name="DEBUG_SANDBOX_SDK" value="false" /> </Native> <Profilers> <option name="ADVANCED_PROFILING_ENABLED" value="false" /> <option name="STARTUP_PROFILING_ENABLED" value="false" /> <option name="STARTUP_CPU_PROFILING_ENABLED" value="false" /> <option name="STARTUP_CPU_PROFILING_CONFIGURATION_NAME" value="Java/Kotlin Method Sample (legacy)" /> <option name="STARTUP_NATIVE_MEMORY_PROFILING_ENABLED" value="false" /> <option name="NATIVE_MEMORY_SAMPLE_RATE_BYTES" value="2048" /> </Profilers> <option name="DEEP_LINK" value="" /> <option name="ACTIVITY" value="" /> <option name="ACTIVITY_CLASS" value="" /> <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" /> <option name="SKIP_ACTIVITY_VALIDATION" value="false" /> <method v="2"> <option name="Android.Gradle.BeforeRunTask" enabled="true" /> </method> </configuration> </component> <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" /> <component name="TaskManager"> <task active="true" id="Default" summary="Default task"> <changelist id="01420886-470c-47ac-81ec-ac261690f18c" name="Changes" comment="" /> <created>1746016877842</created> <option name="number" value="Default" /> <option name="presentableId" value="Default" /> <updated>1746016877842</updated> </task> <servers /> </component> <component name="Vcs.Log.Tabs.Properties"> <option name="TAB_STATES"> <map> <entry key="MAIN"> <value> <State> <option name="FILTERS"> <map> <entry key="branch"> <value> <list> <option value="HEAD" /> </list> </value> </entry> </map> </option> </State> </value> </entry> </map> </option> </component> <component name="play_dynamic_filters_status"> <option name="appIdToCheckInfo"> <map> <entry key="com.example.alayaapp"> <value> <CheckInfo lastCheckTimestamp="1746029452844" /> </value> </entry> <entry key="com.example.alayaapp.test"> <value> <CheckInfo lastCheckTimestamp="1746029452880" /> </value> </entry> </map> </option> </component> </project>
 \`\`\`
 
 # AlayaApp.zip
@@ -5151,25 +8821,25 @@ package com.example.alayaapp; import androidx.appcompat.app.AppCompatActivity; i
 # app\src\main\java\com\example\alayaapp\ItinerariesActivity.java
 
 \`\`\`java
-package com.example.alayaapp; import androidx.appcompat.app.AlertDialog; // Added for Dialogs import androidx.appcompat.app.AppCompatActivity; import androidx.recyclerview.widget.ItemTouchHelper; import androidx.recyclerview.widget.LinearLayoutManager; import androidx.recyclerview.widget.RecyclerView; import android.content.Context; import android.content.DialogInterface; // Added for Dialog buttons import android.content.Intent; import android.content.SharedPreferences; import android.net.Uri; // Added for Maps Intent import android.os.Bundle; import android.text.TextUtils; import android.util.Log; import android.view.LayoutInflater; // Added for Dialog inflation import android.view.View; import android.widget.EditText; // Added for Dialog EditText import android.widget.Toast; import com.example.alayaapp.databinding.ActivityItinerariesBinding; import com.google.gson.Gson; import com.google.gson.reflect.TypeToken; import java.lang.reflect.Type; import java.util.ArrayList; import java.util.Calendar; import java.util.HashMap; // Added for sample data map import java.util.List; import java.util.Locale; // <<< --- ADDED THIS IMPORT --- >>> import java.util.Map; // Added for sample data map // Implement the adapter's click listener interface public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.OnStartDragListener, ItineraryAdapter.OnItemClickListener { private ActivityItinerariesBinding binding; private ItineraryAdapter itineraryAdapter; private ItemTouchHelper itemTouchHelper; private ItineraryItemTouchHelperCallback touchHelperCallback; private List<ItineraryItem> suggestedList = new ArrayList<>(); private boolean isEditMode = false; final int CURRENT_ITEM_ID = R.id.navigation_itineraries; // SharedPreferences Constants private static final String PREFS_NAME = "AlayaAppPrefs"; private static final String KEY_CURRENT_LOCATION = "currentLocation"; // Key for saving location private static final String KEY_SUGGESTED_ITINERARY = "suggestedItineraryJson"; // Key for saving itinerary list private static final String DEFAULT_LOCATION = "Baguio City"; // Default location private Gson gson = new Gson(); private Map<String, List<ItineraryItem>> sampleItineraryData; // Map for sample data private String currentLocation; // Variable to hold the current location @Override protected void onCreate(Bundle savedInstanceState) { super.onCreate(savedInstanceState); binding = ActivityItinerariesBinding.inflate(getLayoutInflater()); setContentView(binding.getRoot()); createSampleData(); // Initialize sample data // Load current location preference loadCurrentLocation(); // Load itinerary data *for the current location* loadItineraryData(); // Setup RecyclerView (adapter now needs the click listener) setupRecyclerView(); // Setup Bottom Nav binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID); setupBottomNavListener(); // Setup Click Listeners binding.ivEditItinerary.setOnClickListener(v -> enterEditMode()); binding.tvSaveChanges.setOnClickListener(v -> exitEditModeAndSave()); binding.tvLocationCity.setOnClickListener(v -> showChangeLocationDialog()); // Changed listener target binding.btnGenerateItinerary.setOnClickListener(v -> generateItineraryForCurrentLocation()); // Added listener setupRecommendedClickListeners(); } private void setupRecyclerView() { // Pass 'this' as the OnItemClickListener because the Activity implements it itineraryAdapter = new ItineraryAdapter(suggestedList, this, this); binding.rvSuggestedItinerary.setLayoutManager(new LinearLayoutManager(this)); binding.rvSuggestedItinerary.setAdapter(itineraryAdapter); touchHelperCallback = new ItineraryItemTouchHelperCallback(itineraryAdapter); itemTouchHelper = new ItemTouchHelper(touchHelperCallback); itemTouchHelper.attachToRecyclerView(binding.rvSuggestedItinerary); } // --- Location Handling --- private void loadCurrentLocation() { SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); currentLocation = prefs.getString(KEY_CURRENT_LOCATION, DEFAULT_LOCATION); binding.tvLocationCity.setText(currentLocation); } private void saveCurrentLocation(String location) { if (location == null || location.trim().isEmpty()) return; currentLocation = location.trim(); // Update local variable SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); SharedPreferences.Editor editor = prefs.edit(); editor.putString(KEY_CURRENT_LOCATION, currentLocation); editor.apply(); binding.tvLocationCity.setText(currentLocation); // Update UI Log.d("ItineraryActivity", "Saved current location: " + currentLocation); } private void showChangeLocationDialog() { AlertDialog.Builder builder = new AlertDialog.Builder(this); builder.setTitle("Change Itinerary Location"); // Inflate a simple EditText layout for the dialog final View customLayout = LayoutInflater.from(this).inflate(R.layout.dialog_edit_text, null); builder.setView(customLayout); final EditText editTextLocation = customLayout.findViewById(R.id.et_dialog_input); editTextLocation.setHint("Enter City Name (e.g., Cubao)"); editTextLocation.setText(currentLocation); // Pre-fill with current location builder.setPositiveButton("OK", (dialog, which) -> { String newLocation = editTextLocation.getText().toString().trim(); // Use case-insensitive comparison for checking if location actually changed if (!TextUtils.isEmpty(newLocation) && !newLocation.equalsIgnoreCase(currentLocation)) { saveCurrentLocation(newLocation); // Save the potentially new case as well // Location changed, clear saved itinerary for the previous context clearSavedItinerary(); // Clear the current list in memory and update adapter suggestedList.clear(); if (itineraryAdapter != null) { // Check adapter exists before notifying itineraryAdapter.notifyDataSetChanged(); } Toast.makeText(this, "Location set to " + currentLocation + ". Generate a new itinerary.", Toast.LENGTH_LONG).show(); } else if (TextUtils.isEmpty(newLocation)) { Toast.makeText(this, "Location cannot be empty", Toast.LENGTH_SHORT).show(); } else { // Location text is the same (case-insensitive), do nothing or just dismiss dialog.dismiss(); } }); builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel()); builder.show(); } // --- Itinerary Data Handling (Loading, Saving, Generation) --- private void loadItineraryData() { List<ItineraryItem> loadedList = loadItineraryFromPrefs(); suggestedList.clear(); if (loadedList != null && !loadedList.isEmpty()) { suggestedList.addAll(loadedList); Log.d("ItineraryActivity", "Loaded saved itinerary for: " + currentLocation); } else { Log.d("ItineraryActivity", "No saved itinerary found for: " + currentLocation + ". Waiting for generation."); binding.rvSuggestedItinerary.setVisibility(View.VISIBLE); } if (itineraryAdapter != null) { itineraryAdapter.notifyDataSetChanged(); } } private void clearSavedItinerary() { SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); prefs.edit().remove(KEY_SUGGESTED_ITINERARY).apply(); Log.d("ItineraryActivity", "Cleared saved itinerary from SharedPreferences."); } private List<ItineraryItem> loadItineraryFromPrefs() { SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); String json = prefs.getString(KEY_SUGGESTED_ITINERARY, null); if (TextUtils.isEmpty(json)) { return null; } try { Type listType = new TypeToken<ArrayList<ItineraryItem>>() {}.getType(); return gson.fromJson(json, listType); } catch (Exception e) { Log.e("ItineraryActivity", "Error parsing itinerary JSON from SharedPreferences", e); return null; } } private void saveItineraryToPrefs(List<ItineraryItem> listToSave) { if (listToSave == null) return; SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); SharedPreferences.Editor editor = prefs.edit(); try { String json = gson.toJson(listToSave); editor.putString(KEY_SUGGESTED_ITINERARY, json); editor.apply(); Log.d("ItineraryActivity", "Saved itinerary to SharedPreferences for " + currentLocation); } catch (Exception e) { Log.e("ItineraryActivity", "Error converting itinerary to JSON for SharedPreferences", e); Toast.makeText(this, "Error saving changes", Toast.LENGTH_SHORT).show(); } } private void generateItineraryForCurrentLocation() { // Find sample data ignoring case List<ItineraryItem> generatedItems = null; for (Map.Entry<String, List<ItineraryItem>> entry : sampleItineraryData.entrySet()) { if (entry.getKey().equalsIgnoreCase(currentLocation)) { generatedItems = entry.getValue(); break; } } //List<ItineraryItem> generatedItems = sampleItineraryData.get(currentLocation); // Old case-sensitive way suggestedList.clear(); if (generatedItems != null) { suggestedList.addAll(generatedItems); Log.d("ItineraryActivity", "Generated sample itinerary for: " + currentLocation); if(itineraryAdapter != null) { itineraryAdapter.recalculateTimes(); itineraryAdapter.notifyDataSetChanged(); saveItineraryToPrefs(suggestedList); Toast.makeText(this, "Sample itinerary generated for " + currentLocation, Toast.LENGTH_SHORT).show(); } } else { Log.d("ItineraryActivity", "No sample data found for: " + currentLocation); if(itineraryAdapter != null) { itineraryAdapter.notifyDataSetChanged(); } clearSavedItinerary(); Toast.makeText(this, "No sample itinerary data available for " + currentLocation, Toast.LENGTH_SHORT).show(); } // Exit edit mode if active when generating a new list if (isEditMode) { // Call internal logic directly instead of simulating click isEditMode = false; binding.ivEditItinerary.setVisibility(View.VISIBLE); binding.tvSaveChanges.setVisibility(View.GONE); itineraryAdapter.setEditMode(false); if(touchHelperCallback != null) { touchHelperCallback.setEditMode(false); } // Don't save the old state when generating new, just exit visually } } // --- Sample Data Creation --- private void createSampleData() { sampleItineraryData = new HashMap<>(); Calendar cal = Calendar.getInstance(); long idCounter = 1; // --- Baguio City Data --- List<ItineraryItem> baguioList = new ArrayList<>(); cal.set(Calendar.HOUR_OF_DAY, 9); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0); baguioList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Burnham Park", "4.4", "Morning/Afternoon", 16.4123, 120.5950)); // Note: recalculateTimes will handle subsequent times baguioList.add(new ItineraryItem(idCounter++, null, "Baguio Cathedral", "4.5", "Anytime", 16.4137, 120.5987)); baguioList.add(new ItineraryItem(idCounter++, null, "Mines View Park", "4.3", "Morning (for view)", 16.4188, 120.6286)); baguioList.add(new ItineraryItem(idCounter++, null, "Camp John Hay", "4.7", "Daytime", 16.4000, 120.6167)); sampleItineraryData.put("Baguio City", baguioList); // --- Cubao Data --- List<ItineraryItem> cubaoList = new ArrayList<>(); idCounter = 101; cal.set(Calendar.HOUR_OF_DAY, 10); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0); cubaoList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Gateway Mall", "4.5", "Anytime", 14.6199, 121.0535)); cubaoList.add(new ItineraryItem(idCounter++, null, "Art in Island", "4.6", "Afternoon", 14.6214, 121.0553)); cubaoList.add(new ItineraryItem(idCounter++, null, "Araneta Coliseum", "4.4", "Event Dependent", 14.6208, 121.0545)); cubaoList.add(new ItineraryItem(idCounter++, null, "Farmers Market/Plaza", "4.3", "Morning (Market)", 14.6188, 121.0530)); sampleItineraryData.put("Cubao", cubaoList); // --- BGC Data --- List<ItineraryItem> bgcList = new ArrayList<>(); idCounter = 201; cal.set(Calendar.HOUR_OF_DAY, 11); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0); bgcList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Bonifacio High Street", "4.6", "Afternoon/Evening", 14.5515, 121.0506)); bgcList.add(new ItineraryItem(idCounter++, null, "The Mind Museum", "4.5", "Daytime (check hours)", 14.5538, 121.0467)); bgcList.add(new ItineraryItem(idCounter++, null, "Venice Grand Canal Mall", "4.4", "Evening (lights)", 14.5368, 121.0534)); bgcList.add(new ItineraryItem(idCounter++, null, "Burgos Circle", "4.5", "Evening (Dining)", 14.5544, 121.0492)); sampleItineraryData.put("BGC", bgcList); sampleItineraryData.put("Bonifacio Global City", bgcList); // Allow alternative name } // --- Edit Mode Handling --- private void enterEditMode() { if (suggestedList.isEmpty()) { Toast.makeText(this, "Generate an itinerary first.", Toast.LENGTH_SHORT).show(); return; } isEditMode = true; binding.ivEditItinerary.setVisibility(View.GONE); binding.tvSaveChanges.setVisibility(View.VISIBLE); itineraryAdapter.setEditMode(true); if(touchHelperCallback != null) { touchHelperCallback.setEditMode(true); } Toast.makeText(this, "Edit mode enabled. Drag handles to reorder.", Toast.LENGTH_SHORT).show(); } private void exitEditModeAndSave() { isEditMode = false; binding.ivEditItinerary.setVisibility(View.VISIBLE); binding.tvSaveChanges.setVisibility(View.GONE); itineraryAdapter.setEditMode(false); if(touchHelperCallback != null) { touchHelperCallback.setEditMode(false); } List<ItineraryItem> updatedList = itineraryAdapter.getCurrentList(); saveItineraryToPrefs(updatedList); Toast.makeText(this, "Changes Saved", Toast.LENGTH_SHORT).show(); } // --- Interface Implementations (Listeners) --- @Override // ItineraryAdapter.OnStartDragListener public void onStartDrag(RecyclerView.ViewHolder viewHolder) { if (itemTouchHelper != null && isEditMode) { itemTouchHelper.startDrag(viewHolder); } } @Override // ItineraryAdapter.OnItemClickListener public void onItemClick(int position) { if (isEditMode) { Toast.makeText(this, "Exit edit mode to view details", Toast.LENGTH_SHORT).show(); return; } if (position >= 0 && position < suggestedList.size()) { ItineraryItem clickedItem = suggestedList.get(position); if (clickedItem != null) { showItemOverviewDialog(clickedItem); } } } // --- Overview Dialog and Navigation --- private void showItemOverviewDialog(ItineraryItem item) { if (item == null) return; AlertDialog.Builder builder = new AlertDialog.Builder(this); builder.setTitle(item.getActivity() != null ? item.getActivity() : "Details"); String message = "Rating: " + (item.getRating() != null ? item.getRating() : "N/A") + "\n" + "Best time to visit: " + (item.getBestTimeToVisit() != null ? item.getBestTimeToVisit() : "Anytime"); builder.setMessage(message); builder.setPositiveButton("Navigate", (dialog, which) -> startNavigation(item)); builder.setNegativeButton("Close", (dialog, which) -> dialog.dismiss()); builder.show(); } private void startNavigation(ItineraryItem item) { if (item == null) { Toast.makeText(this, "Cannot navigate: Item data missing", Toast.LENGTH_SHORT).show(); return; } String uriString; if (item.getLatitude() != 0 || item.getLongitude() != 0) { // Check if coords are valid uriString = String.format(Locale.US, "geo:0,0?q=%f,%f(%s)", item.getLatitude(), item.getLongitude(), Uri.encode(item.getActivity())); } else if (!TextUtils.isEmpty(item.getActivity())){ // Check if activity name is valid uriString = "geo:0,0?q=" + Uri.encode(item.getActivity()); } else { Toast.makeText(this, "Cannot navigate: Location name or coordinates missing", Toast.LENGTH_SHORT).show(); return; } try { Uri gmmIntentUri = Uri.parse(uriString); Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri); if (mapIntent.resolveActivity(getPackageManager()) != null) { startActivity(mapIntent); } else { Toast.makeText(this, "No map application found to handle navigation", Toast.LENGTH_LONG).show(); } } catch (Exception e) { Log.e("ItineraryActivity", "Error starting map intent: " + uriString, e); Toast.makeText(this, "Could not launch map application", Toast.LENGTH_SHORT).show(); } } // --- Bottom Nav Logic (No Changes) --- private void setupBottomNavListener() { binding.bottomNavigation.setOnItemSelectedListener(item -> { int destinationItemId = item.getItemId(); if (destinationItemId == CURRENT_ITEM_ID) return true; Class<?> destinationActivity = null; if (destinationItemId == R.id.navigation_home) destinationActivity = HomeActivity.class; else if (destinationItemId == R.id.navigation_map) { Toast.makeText(this, "Map Clicked (No Activity)", Toast.LENGTH_SHORT).show(); return true; } else if (destinationItemId == R.id.navigation_profile) { Toast.makeText(this, "Profile Clicked (No Activity)", Toast.LENGTH_SHORT).show(); return true; } if (destinationActivity != null) { boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID); navigateTo(destinationActivity, slideRightToLeft); return true; } return false; }); } private void navigateTo(Class<?> destinationActivity, boolean slideRight) { Intent intent = new Intent(getApplicationContext(), destinationActivity); startActivity(intent); if (slideRight) overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left); else overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right); finish(); } private int getItemIndex(int itemId) { if (itemId == R.id.navigation_home) return 0; if (itemId == R.id.navigation_itineraries) return 1; if (itemId == R.id.navigation_map) return 2; if (itemId == R.id.navigation_profile) return 3; return -1; } // --- Recommended Click Handling (No Changes) --- private void setupRecommendedClickListeners() { binding.cardRecommended1.setOnClickListener(v -> handleRecommendedClick("Arca's Yard Cafe")); binding.cardRecommended2.setOnClickListener(v -> handleRecommendedClick("Wright Park Riding Center")); binding.cardRecommended3.setOnClickListener(v -> handleRecommendedClick("Baguio Orchidarium")); binding.cardRecommended4.setOnClickListener(v -> handleRecommendedClick("Camp John Hay Picnic Area")); } private void handleRecommendedClick(String itemName) { Toast.makeText(this, itemName + " clicked (Implement Action)", Toast.LENGTH_SHORT).show(); } }
+package com.example.alayaapp; import androidx.appcompat.app.AlertDialog; import androidx.appcompat.app.AppCompatActivity; import androidx.recyclerview.widget.ItemTouchHelper; // Restored import androidx.recyclerview.widget.LinearLayoutManager; import androidx.recyclerview.widget.RecyclerView; import android.content.Context; import android.content.DialogInterface; import android.content.Intent; import android.content.SharedPreferences; import android.net.Uri; import android.os.Bundle; import android.text.TextUtils; import android.util.Log; import android.view.LayoutInflater; import android.view.View; import android.widget.EditText; import android.widget.Toast; import com.example.alayaapp.databinding.ActivityItinerariesBinding; import com.google.gson.Gson; import com.google.gson.reflect.TypeToken; import java.lang.reflect.Type; import java.util.ArrayList; import java.util.Arrays; import java.util.Calendar; import java.util.HashMap; import java.util.List; import java.util.Locale; import java.util.Map; import java.util.stream.Collectors; public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.OnStartDragListener, // Restored ItineraryAdapter.OnItemClickListener { private ActivityItinerariesBinding binding; private ItineraryAdapter itineraryAdapter; private ItemTouchHelper itemTouchHelper; // Restored private ItineraryItemTouchHelperCallback touchHelperCallback; // Restored private List<ItineraryItem> suggestedList = new ArrayList<>(); private boolean isEditMode = false; final int CURRENT_ITEM_ID = R.id.navigation_itineraries; private static final String PREFS_NAME = "AlayaAppPrefs"; private static final String KEY_CURRENT_LOCATION = "currentLocation"; private static final String KEY_SUGGESTED_ITINERARY = "suggestedItineraryJson"; private static final String DEFAULT_LOCATION = "Baguio City"; private Gson gson = new Gson(); private Map<String, List<ItineraryItem>> sampleItineraryData; private Map<String, List<ItineraryItem>> locationChoicesData; private String currentLocation; private final String[] availableLocations = {"Baguio City", "Cubao", "BGC"}; private int selectedLocationIndex = -1; @Override protected void onCreate(Bundle savedInstanceState) { super.onCreate(savedInstanceState); binding = ActivityItinerariesBinding.inflate(getLayoutInflater()); setContentView(binding.getRoot()); createSampleData(); createLocationChoicesData(); loadCurrentLocation(); loadOrGenerateItineraryForLocation(currentLocation, false); setupRecyclerView(); // Sets up adapter AND touch helper now setupBottomNavListener(); setupClickListeners(); } private void setupRecyclerView() { itineraryAdapter = new ItineraryAdapter(suggestedList, this, this); // Added drag listener back binding.rvSuggestedItinerary.setLayoutManager(new LinearLayoutManager(this)); binding.rvSuggestedItinerary.setAdapter(itineraryAdapter); // Re-initialize ItemTouchHelper touchHelperCallback = new ItineraryItemTouchHelperCallback(itineraryAdapter); itemTouchHelper = new ItemTouchHelper(touchHelperCallback); itemTouchHelper.attachToRecyclerView(binding.rvSuggestedItinerary); } private void setupClickListeners() { binding.ivEditItinerary.setOnClickListener(v -> enterEditMode()); binding.tvSaveChanges.setOnClickListener(v -> exitEditModeAndSave()); binding.tvLocationCity.setOnClickListener(v -> showChangeLocationDialog()); setupRecommendedClickListeners(); } private void loadCurrentLocation() { SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); currentLocation = prefs.getString(KEY_CURRENT_LOCATION, DEFAULT_LOCATION); binding.tvLocationCity.setText(currentLocation); } private void saveCurrentLocation(String location) { if (location == null || location.trim().isEmpty()) return; currentLocation = location.trim(); SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); SharedPreferences.Editor editor = prefs.edit(); editor.putString(KEY_CURRENT_LOCATION, currentLocation); editor.apply(); binding.tvLocationCity.setText(currentLocation); Log.d("ItineraryActivity", "Saved current location: " + currentLocation); } private void showChangeLocationDialog() { AlertDialog.Builder builder = new AlertDialog.Builder(this); builder.setTitle("Select Location"); int currentSelectionIndex = -1; for (int i = 0; i < availableLocations.length; i++) { if (availableLocations[i].equalsIgnoreCase(currentLocation)) { currentSelectionIndex = i; break; } } if (currentSelectionIndex == -1) currentSelectionIndex = 0; selectedLocationIndex = currentSelectionIndex; builder.setSingleChoiceItems(availableLocations, currentSelectionIndex, (dialog, which) -> { selectedLocationIndex = which; }); builder.setPositiveButton("OK", (dialog, which) -> { if (selectedLocationIndex != -1) { String newLocation = availableLocations[selectedLocationIndex]; if (!newLocation.equalsIgnoreCase(currentLocation)) { saveCurrentLocation(newLocation); loadOrGenerateItineraryForLocation(currentLocation, true); } else { dialog.dismiss(); } } }); builder.setNegativeButton("Cancel", null); builder.show(); } private void loadOrGenerateItineraryForLocation(String location, boolean isLocationChange) { List<ItineraryItem> loadedList = loadItineraryFromPrefs(); suggestedList.clear(); boolean generatedNew = false; if (loadedList != null && !loadedList.isEmpty()) { suggestedList.addAll(loadedList); Log.d("ItineraryActivity", "Loaded saved itinerary for: " + location); } else { List<ItineraryItem> sampleItems = findSampleData(location); if (sampleItems != null) { List<ItineraryItem> itemsToUse = new ArrayList<>(); for(ItineraryItem item : sampleItems) { itemsToUse.add(new ItineraryItem(item.getId(), item.getTime() != null ? (Calendar)item.getTime().clone() : null, item.getActivity(), item.getRating(), item.getBestTimeToVisit(), item.getLatitude(), item.getLongitude())); } suggestedList.addAll(itemsToUse); Log.d("ItineraryActivity", "No saved data, generated sample itinerary for: " + location); if (itineraryAdapter != null) { itineraryAdapter.recalculateTimes(); } else { Log.w("ItineraryActivity", "Adapter not ready during initial sample data time calculation"); } saveItineraryToPrefs(suggestedList); generatedNew = true; } else { Log.d("ItineraryActivity", "No saved or sample data found for: " + location); clearSavedItinerary(); } } if (itineraryAdapter != null) { itineraryAdapter.notifyDataSetChanged(); } else { setupRecyclerView(); } if (isLocationChange || generatedNew) { binding.rvSuggestedItinerary.setVisibility(suggestedList.isEmpty() ? View.GONE : View.VISIBLE); if (isEditMode) { forceExitEditMode(); } if (generatedNew && !isLocationChange) { Toast.makeText(this, "Loaded sample itinerary for " + location, Toast.LENGTH_SHORT).show(); } else if (isLocationChange && generatedNew) { Toast.makeText(this, "Generated sample itinerary for " + location, Toast.LENGTH_SHORT).show(); } else if (isLocationChange && !generatedNew && loadedList != null && !loadedList.isEmpty()) { Toast.makeText(this, "Loaded previously saved itinerary for " + location, Toast.LENGTH_SHORT).show(); } } binding.rvSuggestedItinerary.setVisibility(suggestedList.isEmpty() ? View.GONE : View.VISIBLE); } private List<ItineraryItem> findSampleData(String location) { for (Map.Entry<String, List<ItineraryItem>> entry : sampleItineraryData.entrySet()) { if (entry.getKey().equalsIgnoreCase(location)) { return entry.getValue(); } } return null; } private void clearSavedItinerary() { SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); String key = KEY_SUGGESTED_ITINERARY + "_" + currentLocation; prefs.edit().remove(key).apply(); Log.d("ItineraryActivity", "Cleared saved itinerary from SharedPreferences for " + currentLocation); } private List<ItineraryItem> loadItineraryFromPrefs() { SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); String key = KEY_SUGGESTED_ITINERARY + "_" + currentLocation; String json = prefs.getString(key, null); if (TextUtils.isEmpty(json)) { return null; } try { Type listType = new TypeToken<ArrayList<ItineraryItem>>() {}.getType(); return gson.fromJson(json, listType); } catch (Exception e) { Log.e("ItineraryActivity", "Error parsing itinerary JSON from SharedPreferences", e); prefs.edit().remove(key).apply(); return null; } } private void saveItineraryToPrefs(List<ItineraryItem> listToSave) { if (listToSave == null || currentLocation == null) return; SharedPreferences prefs = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE); SharedPreferences.Editor editor = prefs.edit(); try { String json = gson.toJson(listToSave); editor.putString(KEY_SUGGESTED_ITINERARY + "_" + currentLocation, json); editor.apply(); Log.d("ItineraryActivity", "Saved itinerary to SharedPreferences for " + currentLocation); } catch (Exception e) { Log.e("ItineraryActivity", "Error converting itinerary to JSON for SharedPreferences", e); Toast.makeText(this, "Error saving changes", Toast.LENGTH_SHORT).show(); } } private void createSampleData() { sampleItineraryData = new HashMap<>(); Calendar cal = Calendar.getInstance(); long idCounter = 1; List<ItineraryItem> baguioList = new ArrayList<>(); cal.set(Calendar.HOUR_OF_DAY, 9); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0); baguioList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Burnham Park", "4.4", "Morning/Afternoon", 16.4123, 120.5950)); baguioList.add(new ItineraryItem(idCounter++, null, "Baguio Cathedral", "4.5", "Anytime", 16.4137, 120.5987)); baguioList.add(new ItineraryItem(idCounter++, null, "Mines View Park", "4.3", "Morning (for view)", 16.4188, 120.6286)); baguioList.add(new ItineraryItem(idCounter++, null, "Camp John Hay", "4.7", "Daytime", 16.4000, 120.6167)); sampleItineraryData.put("Baguio City", baguioList); List<ItineraryItem> cubaoList = new ArrayList<>(); idCounter = 101; cal.set(Calendar.HOUR_OF_DAY, 10); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0); cubaoList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Gateway Mall", "4.5", "Anytime", 14.6199, 121.0535)); cubaoList.add(new ItineraryItem(idCounter++, null, "Art in Island", "4.6", "Afternoon", 14.6214, 121.0553)); cubaoList.add(new ItineraryItem(idCounter++, null, "Araneta Coliseum", "4.4", "Event Dependent", 14.6208, 121.0545)); cubaoList.add(new ItineraryItem(idCounter++, null, "Farmers Market/Plaza", "4.3", "Morning (Market)", 14.6188, 121.0530)); sampleItineraryData.put("Cubao", cubaoList); List<ItineraryItem> bgcList = new ArrayList<>(); idCounter = 201; cal.set(Calendar.HOUR_OF_DAY, 11); cal.set(Calendar.MINUTE, 0); cal.set(Calendar.SECOND, 0); bgcList.add(new ItineraryItem(idCounter++, (Calendar)cal.clone(), "Bonifacio High Street", "4.6", "Afternoon/Evening", 14.5515, 121.0506)); bgcList.add(new ItineraryItem(idCounter++, null, "The Mind Museum", "4.5", "Daytime (check hours)", 14.5538, 121.0467)); bgcList.add(new ItineraryItem(idCounter++, null, "Venice Grand Canal Mall", "4.4", "Evening (lights)", 14.5368, 121.0534)); bgcList.add(new ItineraryItem(idCounter++, null, "Burgos Circle", "4.5", "Evening (Dining)", 14.5544, 121.0492)); sampleItineraryData.put("BGC", bgcList); sampleItineraryData.put("Bonifacio Global City", bgcList); } private void createLocationChoicesData() { locationChoicesData = new HashMap<>(); long choiceIdCounter = -1; List<ItineraryItem> baguioChoices = new ArrayList<>(); baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Session Road", "4.2", "Anytime", 16.4128, 120.5978)); baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Good Shepherd Convent", "4.6", "Daytime (Shopping)", 16.4278, 120.6183)); baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Tam-awan Village", "4.1", "Daytime", 16.4293, 120.5803)); baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Wright Park", "4.0", "Daytime", 16.4155, 120.6139)); baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "The Mansion", "4.2", "Daytime (Outside View)", 16.4146, 120.6149)); baguioChoices.add(new ItineraryItem(choiceIdCounter--, null, "Laperal White House", "3.9", "Daytime (Spooky!)", 16.4108, 120.6077)); locationChoicesData.put("Baguio City", baguioChoices); } private void enterEditMode() { if (suggestedList.isEmpty()) { Toast.makeText(this, "Itinerary is empty.", Toast.LENGTH_SHORT).show(); return; } isEditMode = true; binding.ivEditItinerary.setVisibility(View.GONE); binding.tvSaveChanges.setVisibility(View.VISIBLE); if (itineraryAdapter != null) itineraryAdapter.setEditMode(true); if (touchHelperCallback != null) touchHelperCallback.setEditMode(true); // Enable dragging Toast.makeText(this, "Edit mode enabled. Drag handles or click item to replace.", Toast.LENGTH_SHORT).show(); } private void exitEditModeAndSave() { forceExitEditMode(); List<ItineraryItem> updatedList = itineraryAdapter.getCurrentList(); saveItineraryToPrefs(updatedList); Toast.makeText(this, "Changes Saved", Toast.LENGTH_SHORT).show(); } private void forceExitEditMode() { isEditMode = false; binding.ivEditItinerary.setVisibility(View.VISIBLE); binding.tvSaveChanges.setVisibility(View.GONE); if (itineraryAdapter != null) itineraryAdapter.setEditMode(false); if (touchHelperCallback != null) touchHelperCallback.setEditMode(false); // Disable dragging } // Restored OnStartDragListener implementation @Override public void onStartDrag(RecyclerView.ViewHolder viewHolder) { if (itemTouchHelper != null && isEditMode) { // Only drag if in edit mode itemTouchHelper.startDrag(viewHolder); } } @Override public void onItemClick(int position) { if (position < 0 || position >= suggestedList.size()) return; if (isEditMode) { // Replacement logic remains the same if (currentLocation.equalsIgnoreCase("Baguio City")) { showReplaceItemDialog(position); } else { Toast.makeText(this, "Item replacement only available for Baguio City in this prototype.", Toast.LENGTH_SHORT).show(); } } else { // Overview logic remains the same ItineraryItem clickedItem = suggestedList.get(position); if (clickedItem != null) { showItemOverviewDialog(clickedItem); } } } private void showReplaceItemDialog(final int positionToReplace) { List<ItineraryItem> choices = locationChoicesData.get("Baguio City"); if (choices == null || choices.isEmpty()) { Toast.makeText(this, "No replacement choices available.", Toast.LENGTH_SHORT).show(); return; } List<ItineraryItem> filteredChoices = new ArrayList<>(); List<String> currentActivities = suggestedList.stream() .map(ItineraryItem::getActivity) .filter(java.util.Objects::nonNull) .collect(Collectors.toList()); for (ItineraryItem choice : choices) { if (!currentActivities.contains(choice.getActivity())) { filteredChoices.add(choice); } } if (filteredChoices.isEmpty()) { Toast.makeText(this, "All available choices are already in the itinerary.", Toast.LENGTH_SHORT).show(); return; } final CharSequence[] choiceNames = new CharSequence[filteredChoices.size()]; for (int i = 0; i < filteredChoices.size(); i++) { choiceNames[i] = filteredChoices.get(i).getActivity(); } AlertDialog.Builder builder = new AlertDialog.Builder(this); builder.setTitle("Replace with:"); builder.setItems(choiceNames, (dialog, which) -> { ItineraryItem chosenItemData = filteredChoices.get(which); ItineraryItem originalItem = suggestedList.get(positionToReplace); if (originalItem != null && chosenItemData != null) { ItineraryItem newItem = new ItineraryItem( originalItem.getId(), originalItem.getTime(), // Keep original time! chosenItemData.getActivity(), chosenItemData.getRating(), chosenItemData.getBestTimeToVisit(), chosenItemData.getLatitude(), chosenItemData.getLongitude() ); suggestedList.set(positionToReplace, newItem); itineraryAdapter.notifyItemChanged(positionToReplace); Log.d("ItineraryActivity", "Replaced item at position " + positionToReplace + " with " + newItem.getActivity()); } dialog.dismiss(); }); builder.setNegativeButton("Cancel", null); builder.show(); } private void showItemOverviewDialog(ItineraryItem item) { if (item == null) return; AlertDialog.Builder builder = new AlertDialog.Builder(this); builder.setTitle(item.getActivity() != null ? item.getActivity() : "Details"); String message = "Rating: " + (item.getRating() != null ? item.getRating() : "N/A") + "\n" + "Best time to visit: " + (item.getBestTimeToVisit() != null ? item.getBestTimeToVisit() : "Anytime"); builder.setMessage(message); builder.setPositiveButton("Navigate", (dialog, which) -> startNavigation(item)); builder.setNegativeButton("Close", (dialog, which) -> dialog.dismiss()); builder.show(); } private void startNavigation(ItineraryItem item) { if (item == null) { Toast.makeText(this, "Cannot navigate: Item data missing", Toast.LENGTH_SHORT).show(); return; } String uriString; if (item.getLatitude() != 0 || item.getLongitude() != 0) { uriString = String.format(Locale.US, "geo:0,0?q=%f,%f(%s)", item.getLatitude(), item.getLongitude(), Uri.encode(item.getActivity())); } else if (!TextUtils.isEmpty(item.getActivity())){ uriString = "geo:0,0?q=" + Uri.encode(item.getActivity()); } else { Toast.makeText(this, "Cannot navigate: Location name or coordinates missing", Toast.LENGTH_SHORT).show(); return; } try { Uri gmmIntentUri = Uri.parse(uriString); Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri); if (mapIntent.resolveActivity(getPackageManager()) != null) { startActivity(mapIntent); } else { Toast.makeText(this, "No map application found", Toast.LENGTH_LONG).show(); } } catch (Exception e) { Log.e("ItineraryActivity", "Error starting map intent: " + uriString, e); Toast.makeText(this, "Could not launch map application", Toast.LENGTH_SHORT).show(); } } private void setupBottomNavListener() { binding.bottomNavigation.setOnItemSelectedListener(item -> { int destinationItemId = item.getItemId(); if (destinationItemId == CURRENT_ITEM_ID) return true; Class<?> destinationActivity = null; if (destinationItemId == R.id.navigation_home) destinationActivity = HomeActivity.class; else if (destinationItemId == R.id.navigation_map) { Toast.makeText(this, "Map Clicked (No Activity)", Toast.LENGTH_SHORT).show(); return true; } else if (destinationItemId == R.id.navigation_profile) { Toast.makeText(this, "Profile Clicked (No Activity)", Toast.LENGTH_SHORT).show(); return true; } if (destinationActivity != null) { boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID); navigateTo(destinationActivity, slideRightToLeft); return true; } return false; }); } private void navigateTo(Class<?> destinationActivity, boolean slideRight) { Intent intent = new Intent(getApplicationContext(), destinationActivity); startActivity(intent); if (slideRight) overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left); else overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right); finish(); } private int getItemIndex(int itemId) { if (itemId == R.id.navigation_home) return 0; if (itemId == R.id.navigation_itineraries) return 1; if (itemId == R.id.navigation_map) return 2; if (itemId == R.id.navigation_profile) return 3; return -1; } private void setupRecommendedClickListeners() { binding.cardRecommended1.setOnClickListener(v -> handleRecommendedClick("Arca's Yard Cafe")); binding.cardRecommended2.setOnClickListener(v -> handleRecommendedClick("Wright Park Riding Center")); binding.cardRecommended3.setOnClickListener(v -> handleRecommendedClick("Baguio Orchidarium")); binding.cardRecommended4.setOnClickListener(v -> handleRecommendedClick("Camp John Hay Picnic Area")); } private void handleRecommendedClick(String itemName) { Toast.makeText(this, itemName + " clicked (Implement Action)", Toast.LENGTH_SHORT).show(); } }
 \`\`\`
 
 # app\src\main\java\com\example\alayaapp\ItineraryAdapter.java
 
 \`\`\`java
-package com.example.alayaapp; import android.annotation.SuppressLint; import android.view.LayoutInflater; import android.view.MotionEvent; import android.view.View; import android.view.ViewGroup; import androidx.annotation.NonNull; import androidx.recyclerview.widget.RecyclerView; import com.example.alayaapp.databinding.ListItemItineraryBinding; import java.text.SimpleDateFormat; import java.util.Calendar; import java.util.Collections; import java.util.List; import java.util.Locale; public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.ItineraryViewHolder> { private List<ItineraryItem> itineraryList; private boolean isEditMode = false; private final OnStartDragListener dragStartListener; private final OnItemClickListener itemClickListener; // Added click listener private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault()); // Interface for drag start public interface OnStartDragListener { void onStartDrag(RecyclerView.ViewHolder viewHolder); } // Interface for item click public interface OnItemClickListener { void onItemClick(int position); } // Updated Constructor public ItineraryAdapter(List<ItineraryItem> itineraryList, OnStartDragListener dragStartListener, OnItemClickListener itemClickListener) { // Added click listener this.itineraryList = itineraryList; this.dragStartListener = dragStartListener; this.itemClickListener = itemClickListener; // Store click listener setHasStableIds(true); } @NonNull @Override public ItineraryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) { ListItemItineraryBinding binding = ListItemItineraryBinding.inflate( LayoutInflater.from(parent.getContext()), parent, false); return new ItineraryViewHolder(binding, itemClickListener); // Pass click listener to ViewHolder } @SuppressLint("ClickableViewAccessibility") @Override public void onBindViewHolder(@NonNull ItineraryViewHolder holder, int position) { ItineraryItem item = itineraryList.get(position); // Check for null before accessing item properties if (item == null) return; // Bind data using holder's binding object if (item.getTime() != null) { holder.binding.tvItemTime.setText(timeFormat.format(item.getTime().getTime())); } else { holder.binding.tvItemTime.setText("N/A"); // Handle null time } holder.binding.tvItemActivity.setText(item.getActivity() != null ? item.getActivity() : "Unknown Activity"); holder.binding.tvItemRating.setText(item.getRating() != null ? item.getRating() : "-"); holder.binding.ivDragHandle.setVisibility(isEditMode ? View.VISIBLE : View.GONE); if (isEditMode) { holder.binding.ivDragHandle.setOnTouchListener((v, event) -> { if (event.getActionMasked() == MotionEvent.ACTION_DOWN) { if (dragStartListener != null) { dragStartListener.onStartDrag(holder); } } return false; }); } else { holder.binding.ivDragHandle.setOnTouchListener(null); } // Click listener is set in ViewHolder constructor now } @Override public int getItemCount() { return itineraryList != null ? itineraryList.size() : 0; } @Override public long getItemId(int position) { if (itineraryList != null && position >= 0 && position < itineraryList.size() && itineraryList.get(position) != null) { return itineraryList.get(position).getId(); } return RecyclerView.NO_ID; } public void setEditMode(boolean editMode) { boolean needsUpdate = isEditMode != editMode; isEditMode = editMode; if (needsUpdate) { notifyItemRangeChanged(0, getItemCount()); } } public boolean onItemMove(int fromPosition, int toPosition) { if (itineraryList == null || fromPosition < 0 || fromPosition >= itineraryList.size() || toPosition < 0 || toPosition >= itineraryList.size()) { return false; } if (fromPosition < toPosition) { for (int i = fromPosition; i < toPosition; i++) { Collections.swap(itineraryList, i, i + 1); } } else { for (int i = fromPosition; i > toPosition; i--) { Collections.swap(itineraryList, i, i - 1); } } notifyItemMoved(fromPosition, toPosition); recalculateTimes(); return true; } public void recalculateTimes() { if (itineraryList == null || itineraryList.isEmpty()) return; // Find the first item with a non-null time to start calculation Calendar firstTime = null; int firstTimeIndex = -1; for(int i = 0; i < itineraryList.size(); i++) { if(itineraryList.get(i) != null && itineraryList.get(i).getTime() != null) { firstTime = (Calendar) itineraryList.get(i).getTime().clone(); firstTimeIndex = i; break; } } // If no item has a time, set a default start for the first item if (firstTime == null) { if (itineraryList.get(0) != null) { firstTime = Calendar.getInstance(); firstTime.set(Calendar.HOUR_OF_DAY, 9); firstTime.set(Calendar.MINUTE, 0); firstTime.set(Calendar.SECOND, 0); itineraryList.get(0).setTime((Calendar)firstTime.clone()); firstTimeIndex = 0; notifyItemChanged(0, "payload_time_update"); // Update the first item view } else { return; // Cannot proceed if first item is null } } Calendar currentTime = (Calendar) firstTime.clone(); // Calculate times for items *after* the first one with a time for (int i = firstTimeIndex + 1; i < itineraryList.size(); i++) { ItineraryItem currentItem = itineraryList.get(i); if (currentItem != null) { currentTime.add(Calendar.HOUR_OF_DAY, 1); // Add 1 hour (adjust as needed) currentItem.setTime((Calendar) currentTime.clone()); notifyItemChanged(i, "payload_time_update"); } } // Calculate times for items *before* the first one with a time (if any) currentTime = (Calendar) firstTime.clone(); // Reset to the known start time for (int i = firstTimeIndex - 1; i >= 0; i--) { ItineraryItem currentItem = itineraryList.get(i); if (currentItem != null) { currentTime.add(Calendar.HOUR_OF_DAY, -1); // Subtract 1 hour currentItem.setTime((Calendar) currentTime.clone()); notifyItemChanged(i, "payload_time_update"); } } } public List<ItineraryItem> getCurrentList() { return itineraryList; } // ViewHolder Class static class ItineraryViewHolder extends RecyclerView.ViewHolder { private final ListItemItineraryBinding binding; // Updated constructor to accept click listener ItineraryViewHolder(@NonNull ListItemItineraryBinding binding, OnItemClickListener listener) { super(binding.getRoot()); this.binding = binding; // Set click listener on the entire item view itemView.setOnClickListener(v -> { int position = getAdapterPosition(); // Ensure position is valid and listener exists if (position != RecyclerView.NO_POSITION && listener != null) { listener.onItemClick(position); } }); } } }
+package com.example.alayaapp; import android.annotation.SuppressLint; import android.content.Context; import android.graphics.drawable.Drawable; import android.util.TypedValue; import android.view.LayoutInflater; import android.view.MotionEvent; import android.view.View; import android.view.ViewGroup; import androidx.annotation.NonNull; import androidx.core.content.ContextCompat; import androidx.recyclerview.widget.RecyclerView; import com.example.alayaapp.databinding.ListItemItineraryBinding; import java.text.SimpleDateFormat; import java.util.ArrayList; // Added for temporary list import java.util.Calendar; import java.util.Collections; import java.util.List; import java.util.Locale; public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.ItineraryViewHolder> { private List<ItineraryItem> itineraryList; private boolean isEditMode = false; private final OnStartDragListener dragStartListener; private final OnItemClickListener itemClickListener; private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault()); private Drawable selectableItemBackground; public interface OnStartDragListener { void onStartDrag(RecyclerView.ViewHolder viewHolder); } public interface OnItemClickListener { void onItemClick(int position); } public ItineraryAdapter(List<ItineraryItem> itineraryList, OnStartDragListener dragStartListener, OnItemClickListener itemClickListener) { this.itineraryList = itineraryList; this.dragStartListener = dragStartListener; this.itemClickListener = itemClickListener; setHasStableIds(true); } @NonNull @Override public ItineraryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) { if (selectableItemBackground == null) { TypedValue outValue = new TypedValue(); parent.getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true); selectableItemBackground = ContextCompat.getDrawable(parent.getContext(), outValue.resourceId); } ListItemItineraryBinding binding = ListItemItineraryBinding.inflate( LayoutInflater.from(parent.getContext()), parent, false); return new ItineraryViewHolder(binding); } @SuppressLint("ClickableViewAccessibility") @Override public void onBindViewHolder(@NonNull ItineraryViewHolder holder, int position) { ItineraryItem item = itineraryList.get(position); if (item == null) return; if (item.getTime() != null) { holder.binding.tvItemTime.setText(timeFormat.format(item.getTime().getTime())); } else { holder.binding.tvItemTime.setText("N/A"); } holder.binding.tvItemActivity.setText(item.getActivity() != null ? item.getActivity() : "Unknown Activity"); holder.binding.tvItemRating.setText(item.getRating() != null ? item.getRating() : "-"); holder.binding.ivDragHandle.setVisibility(isEditMode ? View.VISIBLE : View.GONE); holder.binding.ivDragHandle.setOnTouchListener(null); holder.itemView.setOnClickListener(null); holder.itemView.setBackground(null); final int currentPosition = holder.getAdapterPosition(); if (isEditMode) { holder.binding.ivDragHandle.setOnTouchListener((v, event) -> { if (event.getActionMasked() == MotionEvent.ACTION_DOWN) { if (dragStartListener != null) { dragStartListener.onStartDrag(holder); return true; } } return false; }); holder.itemView.setOnClickListener(v -> { if (itemClickListener != null && currentPosition != RecyclerView.NO_POSITION) { itemClickListener.onItemClick(currentPosition); } }); holder.itemView.setBackground(null); } else { holder.itemView.setOnClickListener(v -> { if (itemClickListener != null && currentPosition != RecyclerView.NO_POSITION) { itemClickListener.onItemClick(currentPosition); } }); holder.itemView.setBackground(selectableItemBackground); } } @Override public int getItemCount() { return itineraryList != null ? itineraryList.size() : 0; } @Override public long getItemId(int position) { if (itineraryList != null && position >= 0 && position < itineraryList.size() && itineraryList.get(position) != null) { return itineraryList.get(position).getId(); } return RecyclerView.NO_ID; } public void setEditMode(boolean editMode) { boolean needsUpdate = isEditMode != editMode; isEditMode = editMode; if (needsUpdate) { notifyItemRangeChanged(0, getItemCount()); } } public boolean onItemMove(int fromPosition, int toPosition) { if (itineraryList == null || fromPosition < 0 || fromPosition >= itineraryList.size() || toPosition < 0 || toPosition >= itineraryList.size()) { return false; } if (fromPosition == toPosition) { return false; } // 1. Capture original time slots before swapping List<Calendar> originalTimeSlots = new ArrayList<>(itineraryList.size()); for (ItineraryItem item : itineraryList) { originalTimeSlots.add(item.getTime() != null ? (Calendar) item.getTime().clone() : null); } // 2. Perform the swap in the list if (fromPosition < toPosition) { for (int i = fromPosition; i < toPosition; i++) { Collections.swap(itineraryList, i, i + 1); } } else { for (int i = fromPosition; i > toPosition; i--) { Collections.swap(itineraryList, i, i - 1); } } // 3. Notify the adapter about the visual move notifyItemMoved(fromPosition, toPosition); // 4. Assign preserved times to the newly ordered list assignPreservedTimes(originalTimeSlots); return true; } // New method to assign original times to the reordered list private void assignPreservedTimes(List<Calendar> originalTimeSlots) { if (itineraryList == null || originalTimeSlots == null || itineraryList.size() != originalTimeSlots.size()) { // Data inconsistency, maybe log an error or fall back to full recalc? recalculateTimes(); // Fallback for safety return; } for (int i = 0; i < itineraryList.size(); i++) { ItineraryItem currentItem = itineraryList.get(i); Calendar preservedTime = originalTimeSlots.get(i); if (currentItem != null) { // Assign the preserved time (might be null if original was null) currentItem.setTime(preservedTime != null ? (Calendar) preservedTime.clone() : null); // Notify item changed to update the view with the new time notifyItemChanged(i); } } } public void recalculateTimes() { if (itineraryList == null || itineraryList.isEmpty()) return; Calendar firstTime = null; int firstTimeIndex = -1; for(int i = 0; i < itineraryList.size(); i++) { ItineraryItem current = itineraryList.get(i); if(current != null && current.getTime() != null) { firstTime = (Calendar) current.getTime().clone(); firstTimeIndex = i; break; } } if (firstTime == null) { if (!itineraryList.isEmpty() && itineraryList.get(0) != null) { firstTime = Calendar.getInstance(); firstTime.set(Calendar.HOUR_OF_DAY, 9); firstTime.set(Calendar.MINUTE, 0); firstTime.set(Calendar.SECOND, 0); itineraryList.get(0).setTime((Calendar)firstTime.clone()); firstTimeIndex = 0; notifyItemChanged(0); } else { return; } } Calendar currentTime = (Calendar) firstTime.clone(); for (int i = firstTimeIndex + 1; i < itineraryList.size(); i++) { ItineraryItem currentItem = itineraryList.get(i); if (currentItem != null) { currentTime.add(Calendar.HOUR_OF_DAY, 1); currentItem.setTime((Calendar) currentTime.clone()); notifyItemChanged(i); } } currentTime = (Calendar) firstTime.clone(); for (int i = firstTimeIndex - 1; i >= 0; i--) { ItineraryItem currentItem = itineraryList.get(i); if (currentItem != null) { currentTime.add(Calendar.HOUR_OF_DAY, -1); currentItem.setTime((Calendar) currentTime.clone()); notifyItemChanged(i); } } } public List<ItineraryItem> getCurrentList() { return itineraryList; } static class ItineraryViewHolder extends RecyclerView.ViewHolder { private final ListItemItineraryBinding binding; ItineraryViewHolder(@NonNull ListItemItineraryBinding binding) { super(binding.getRoot()); this.binding = binding; } } }
 \`\`\`
 
 # app\src\main\java\com\example\alayaapp\ItineraryItem.java
 
 \`\`\`java
-package com.example.alayaapp; import java.text.SimpleDateFormat; import java.util.Calendar; import java.util.Locale; // Added Locale import public class ItineraryItem { private long id; private Calendar time; private String activity; private String rating; private String bestTimeToVisit; // Added private double latitude; // Added private double longitude; // Added // Updated Constructor public ItineraryItem(long id, Calendar time, String activity, String rating, String bestTimeToVisit, double latitude, double longitude) { this.id = id; this.time = time; this.activity = activity; this.rating = rating; this.bestTimeToVisit = bestTimeToVisit; this.latitude = latitude; this.longitude = longitude; } // Default constructor for Gson/serialization if needed (can be empty) public ItineraryItem() {} // --- Getters --- public long getId() { return id; } public Calendar getTime() { return time; } public String getActivity() { return activity; } public String getRating() { return rating; } public String getBestTimeToVisit() { return bestTimeToVisit; } // Added public double getLatitude() { return latitude; } // Added public double getLongitude() { return longitude; } // Added // --- Setters --- public void setId(long id) { this.id = id; } // Added setter for ID if needed public void setTime(Calendar time) { this.time = time; } public void setActivity(String activity) { this.activity = activity; } // Added public void setRating(String rating) { this.rating = rating; } // Added public void setBestTimeToVisit(String bestTimeToVisit) { this.bestTimeToVisit = bestTimeToVisit; } // Added public void setLatitude(double latitude) { this.latitude = latitude; } // Added public void setLongitude(double longitude) { this.longitude = longitude; } // Added // Helper to format time (remains the same) public String getFormattedTime() { if (time == null) return "N/A"; // Handle null time SimpleDateFormat sdf = new SimpleDateFormat("h:mm a", Locale.getDefault()); return sdf.format(time.getTime()); } }
+package com.example.alayaapp; import java.text.SimpleDateFormat; import java.util.Calendar; import java.util.Locale; import java.util.Objects; // Added for equals/hashCode public class ItineraryItem { private long id; private Calendar time; private String activity; private String rating; private String bestTimeToVisit; private double latitude; private double longitude; public ItineraryItem(long id, Calendar time, String activity, String rating, String bestTimeToVisit, double latitude, double longitude) { this.id = id; this.time = time; this.activity = activity; this.rating = rating; this.bestTimeToVisit = bestTimeToVisit; this.latitude = latitude; this.longitude = longitude; } public ItineraryItem() {} public long getId() { return id; } public Calendar getTime() { return time; } public String getActivity() { return activity; } public String getRating() { return rating; } public String getBestTimeToVisit() { return bestTimeToVisit; } public double getLatitude() { return latitude; } public double getLongitude() { return longitude; } public void setId(long id) { this.id = id; } public void setTime(Calendar time) { this.time = time; } public void setActivity(String activity) { this.activity = activity; } public void setRating(String rating) { this.rating = rating; } public void setBestTimeToVisit(String bestTimeToVisit) { this.bestTimeToVisit = bestTimeToVisit; } public void setLatitude(double latitude) { this.latitude = latitude; } public void setLongitude(double longitude) { this.longitude = longitude; } public String getFormattedTime() { if (time == null) return "N/A"; SimpleDateFormat sdf = new SimpleDateFormat("h:mm a", Locale.getDefault()); return sdf.format(time.getTime()); } @Override public boolean equals(Object o) { if (this == o) return true; if (o == null || getClass() != o.getClass()) return false; ItineraryItem that = (ItineraryItem) o; return id == that.id && Double.compare(that.latitude, latitude) == 0 && Double.compare(that.longitude, longitude) == 0 && Objects.equals(time, that.time) && Objects.equals(activity, that.activity) && Objects.equals(rating, that.rating) && Objects.equals(bestTimeToVisit, that.bestTimeToVisit); } @Override public int hashCode() { return Objects.hash(id, time, activity, rating, bestTimeToVisit, latitude, longitude); } }
 \`\`\`
 
 # app\src\main\java\com\example\alayaapp\ItineraryItemTouchHelperCallback.java
 
 \`\`\`java
-package com.example.alayaapp; import android.graphics.Color; // Import for optional visual feedback import androidx.annotation.NonNull; import androidx.annotation.Nullable; import androidx.recyclerview.widget.ItemTouchHelper; import androidx.recyclerview.widget.RecyclerView; // Extend ItemTouchHelper.Callback to handle drag/swipe events public class ItineraryItemTouchHelperCallback extends ItemTouchHelper.Callback { // Need a reference to the adapter to notify it of moves private final ItineraryAdapter mAdapter; private boolean isEditMode = false; // Track if editing is active // Constructor to receive the adapter public ItineraryItemTouchHelperCallback(ItineraryAdapter adapter) { mAdapter = adapter; } // Public method for the Activity to enable/disable dragging public void setEditMode(boolean editMode) { isEditMode = editMode; } // --- Configuration Methods --- @Override public boolean isLongPressDragEnabled() { // Disable default long press drag because we will use a specific drag handle return false; } @Override public boolean isItemViewSwipeEnabled() { // Disable swipe functionality for this RecyclerView return false; } // --- Movement Flags --- @Override public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) { // Only allow movement if we are in edit mode if (!isEditMode) { return 0; // No movement allowed (dragFlags = 0, swipeFlags = 0) } // Define allowed drag directions (up and down) final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN; // Define allowed swipe directions (none in this case) final int swipeFlags = 0; // Combine flags and return return makeMovementFlags(dragFlags, swipeFlags); } // --- Handling Movement --- @Override public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder sourceViewHolder, @NonNull RecyclerView.ViewHolder targetViewHolder) { // This is called when an item is dragged over another item's position. // We delegate the actual list update and notification to the adapter. // viewHolder.getAdapterPosition() gives the current position during the drag. return mAdapter.onItemMove(sourceViewHolder.getAdapterPosition(), targetViewHolder.getAdapterPosition()); } @Override public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) { // This method is called when an item is swiped off the screen. // Since isItemViewSwipeEnabled() returns false, this will not be called. } // --- Optional Visual Feedback Callbacks --- @Override public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) { // Called when the state of an item changes (e.g., starts being dragged, finishes dragging) if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) { // Item is being actively dragged if (viewHolder != null) { // Apply visual feedback (e.g., change background, alpha, elevation) viewHolder.itemView.setAlpha(0.8f); // Make it slightly transparent // viewHolder.itemView.setBackgroundColor(Color.LTGRAY); // Example background change } } super.onSelectedChanged(viewHolder, actionState); } @Override public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) { // Called when the drag is released or cancelled super.clearView(recyclerView, viewHolder); // Reset any visual changes applied in onSelectedChanged viewHolder.itemView.setAlpha(1.0f); // Reset transparency // Reset background if you changed it // viewHolder.itemView.setBackgroundColor(Color.TRANSPARENT); // Or set back to original // viewHolder.itemView.setBackgroundResource(R.drawable.your_original_item_background); } }
+package com.example.alayaapp; import android.graphics.Color; import androidx.annotation.NonNull; import androidx.annotation.Nullable; import androidx.recyclerview.widget.ItemTouchHelper; import androidx.recyclerview.widget.RecyclerView; public class ItineraryItemTouchHelperCallback extends ItemTouchHelper.Callback { private final ItineraryAdapter mAdapter; private boolean isEditMode = false; public ItineraryItemTouchHelperCallback(ItineraryAdapter adapter) { mAdapter = adapter; } public void setEditMode(boolean editMode) { isEditMode = editMode; } @Override public boolean isLongPressDragEnabled() { return false; // We use a specific handle } @Override public boolean isItemViewSwipeEnabled() { return false; // No swipe } @Override public int getMovementFlags(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) { if (!isEditMode) { return 0; } final int dragFlags = ItemTouchHelper.UP | ItemTouchHelper.DOWN; final int swipeFlags = 0; return makeMovementFlags(dragFlags, swipeFlags); } @Override public boolean onMove(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder sourceViewHolder, @NonNull RecyclerView.ViewHolder targetViewHolder) { if (!isEditMode) return false; // Only allow moving in edit mode // Check bounds before calling adapter method int fromPosition = sourceViewHolder.getAdapterPosition(); int toPosition = targetViewHolder.getAdapterPosition(); if (fromPosition == RecyclerView.NO_POSITION || toPosition == RecyclerView.NO_POSITION) { return false; } return mAdapter.onItemMove(fromPosition, toPosition); } @Override public void onSwiped(@NonNull RecyclerView.ViewHolder viewHolder, int direction) { // Not used } @Override public void onSelectedChanged(@Nullable RecyclerView.ViewHolder viewHolder, int actionState) { if (actionState == ItemTouchHelper.ACTION_STATE_DRAG && isEditMode) { if (viewHolder != null) { viewHolder.itemView.setAlpha(0.8f); // Optional: Add elevation or background change for drag visual // viewHolder.itemView.setBackgroundColor(Color.LTGRAY); viewHolder.itemView.setElevation(8f); // Example elevation } } super.onSelectedChanged(viewHolder, actionState); } @Override public void clearView(@NonNull RecyclerView recyclerView, @NonNull RecyclerView.ViewHolder viewHolder) { super.clearView(recyclerView, viewHolder); viewHolder.itemView.setAlpha(1.0f); // Reset visual changes // viewHolder.itemView.setBackgroundColor(Color.TRANSPARENT); // Or restore original if needed viewHolder.itemView.setElevation(0f); // Reset elevation // Important: After dropping, ensure the background is correctly set based on edit mode // This might require access to the adapter's isEditMode state or passing it somehow, // but often the adapter's subsequent bind call handles this. // If flickering occurs, you might need to explicitly reset background here too. } }
 \`\`\`
 
 # app\src\main\java\com\example\alayaapp\LoginActivity.java
@@ -5367,7 +9037,7 @@ This is a binary file of the type: Image
 # app\src\main\res\layout\activity_itineraries.xml
 
 \`\`\`xml
-<?xml version="1.0" encoding="utf-8"?> <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/white" tools:context=".ItinerariesActivity"> <ScrollView android:id="@+id/scrollView" android:layout_width="0dp" android:layout_height="0dp" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toTopOf="@+id/bottom_navigation" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" android:fillViewport="true" android:scrollbars="none"> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="20dp" android:paddingEnd="20dp" android:paddingTop="24dp" android:paddingBottom="24dp" android:descendantFocusability="blocksDescendants"> <!-- Itineraries Title --> <TextView android:id="@+id/tv_itineraries_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/title_itineraries" android:textColor="@color/colorPrimary" android:textSize="34sp" android:textStyle="bold" /> <!-- Location Section --> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:layout_marginTop="24dp" android:gravity="center_vertical"> <TextView android:id="@+id/tv_current_location_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="Itinerary Location:" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold"/> <TextView android:id="@+id/tv_location_city" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:background="@drawable/bg_rounded_light_gray" android:drawableStart="@drawable/location" android:drawablePadding="8dp" android:gravity="center_vertical|start" android:padding="10dp" tools:text="Baguio City" android:textColor="@color/textPrimary" android:textSize="16sp" android:textStyle="bold" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" /> </LinearLayout> <!-- Generate Itinerary Button --> <Button android:id="@+id/btn_generate_itinerary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="12dp" android:text="Generate Sample Itinerary" app:backgroundTint="@color/colorPrimaryDark" android:textColor="@color/white" /> <!-- Suggested Itinerary Title Area --> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="24dp"> <!-- Reduced margin --> <TextView android:id="@+id/tv_suggested_title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Suggested Itinerary" android:textColor="@color/textPrimary" android:textSize="20sp" android:textStyle="bold"/> <ImageView android:id="@+id/iv_edit_itinerary" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginStart="8dp" android:src="@drawable/edit" app:tint="@color/colorPrimary" android:contentDescription="Edit Itinerary" android:background="?attr/selectableItemBackgroundBorderless" android:clickable="true" android:focusable="true" android:visibility="visible"/> <TextView android:id="@+id/tv_save_changes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Save changes" android:textColor="@color/colorPrimary" android:textSize="14sp" android:textStyle="bold" android:background="?attr/selectableItemBackground" android:padding="4dp" android:clickable="true" android:focusable="true" android:visibility="gone" tools:visibility="visible"/> </LinearLayout> <!-- Suggested Itinerary RecyclerView --> <androidx.recyclerview.widget.RecyclerView android:id="@+id/rv_suggested_itinerary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:paddingTop="4dp" android:paddingBottom="4dp" android:background="@drawable/bg_rounded_light_gray" app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" android:orientation="vertical" tools:listitem="@layout/list_item_itinerary" tools:itemCount="5" android:minHeight="150dp" android:nestedScrollingEnabled="false"/> <!-- Recommended Other Title --> <TextView android:id="@+id/tv_recommended_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="32dp" android:text="Recommended Other Itineraries" android:textColor="@color/textPrimary" android:textSize="20sp" android:textStyle="bold"/> <!-- Recommended Other Itineraries GridLayout --> <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:columnCount="2" android:useDefaultMargins="true"> <!-- Card 1: Arca's Yard --> <androidx.cardview.widget.CardView android:id="@+id/card_recommended_1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_gravity="fill_vertical" app:cardCornerRadius="12dp" app:cardElevation="3dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" app:cardBackgroundColor="@color/lightGrayBackground"> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"> <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Arca's Yard Cafe" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical"> <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(1K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> </LinearLayout> </LinearLayout> </androidx.cardview.widget.CardView> <!-- Card 2: Wright Park --> <androidx.cardview.widget.CardView android:id="@+id/card_recommended_2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_gravity="fill_vertical" app:cardCornerRadius="12dp" app:cardElevation="3dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" app:cardBackgroundColor="@color/lightGrayBackground"> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"> <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Wright Park Riding Center" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical"> <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.3" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(4K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> </LinearLayout> </LinearLayout> </androidx.cardview.widget.CardView> <!-- Card 3: Orchidarium --> <androidx.cardview.widget.CardView android:id="@+id/card_recommended_3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_gravity="fill_vertical" app:cardCornerRadius="12dp" app:cardElevation="3dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" app:cardBackgroundColor="@color/lightGrayBackground"> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"> <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Baguio Orchidarium" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical"> <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.5" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(2K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> </LinearLayout> </LinearLayout> </androidx.cardview.widget.CardView> <!-- Card 4: Camp John Hay Picnic --> <androidx.cardview.widget.CardView android:id="@+id/card_recommended_4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_gravity="fill_vertical" app:cardCornerRadius="12dp" app:cardElevation="3dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" app:cardBackgroundColor="@color/lightGrayBackground"> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"> <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Camp John Hay Picnic Area" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical"> <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(5K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> </LinearLayout> </LinearLayout> </androidx.cardview.widget.CardView> </GridLayout> </LinearLayout> </ScrollView> <!-- Bottom Navigation --> <com.google.android.material.bottomnavigation.BottomNavigationView android:id="@+id/bottom_navigation" android:layout_width="0dp" android:layout_height="wrap_content" android:background="?android:attr/windowBackground" app:elevation="8dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:menu="@menu/bottom_nav_menu" app:itemIconTint="@color/bottom_nav_color_selector" app:itemTextColor="@color/bottom_nav_color_selector" app:labelVisibilityMode="labeled" /> </androidx.constraintlayout.widget.ConstraintLayout>
+<?xml version="1.0" encoding="utf-8"?> <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="match_parent" android:background="@color/white" tools:context=".ItinerariesActivity"> <ScrollView android:id="@+id/scrollView" android:layout_width="0dp" android:layout_height="0dp" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toTopOf="@+id/bottom_navigation" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" android:fillViewport="true" android:scrollbars="none"> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:paddingStart="20dp" android:paddingEnd="20dp" android:paddingTop="24dp" android:paddingBottom="24dp" android:descendantFocusability="blocksDescendants"> <TextView android:id="@+id/tv_itineraries_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="@string/title_itineraries" android:textColor="@color/colorPrimary" android:textSize="34sp" android:textStyle="bold" /> <TextView android:id="@+id/tv_current_location_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="24dp" android:text="Current Location:" android:textColor="@color/textPrimary" android:textSize="18sp" android:textStyle="bold"/> <TextView android:id="@+id/tv_location_city" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:background="@drawable/bg_rounded_light_gray" android:drawableStart="@drawable/location" android:drawablePadding="12dp" android:gravity="center_vertical|start" android:padding="14dp" tools:text="Baguio City" android:textColor="@color/textPrimary" android:textSize="16sp" android:textStyle="bold" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" /> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical" android:layout_marginTop="24dp"> <TextView android:id="@+id/tv_suggested_title" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_weight="1" android:text="Suggested Itinerary" android:textColor="@color/textPrimary" android:textSize="20sp" android:textStyle="bold"/> <ImageView android:id="@+id/iv_edit_itinerary" android:layout_width="24dp" android:layout_height="24dp" android:layout_marginStart="8dp" android:src="@drawable/edit" app:tint="@color/colorPrimary" android:contentDescription="Edit Itinerary" android:background="?attr/selectableItemBackgroundBorderless" android:clickable="true" android:focusable="true" android:visibility="visible"/> <TextView android:id="@+id/tv_save_changes" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:text="Save changes" android:textColor="@color/colorPrimary" android:textSize="14sp" android:textStyle="bold" android:background="?attr/selectableItemBackground" android:padding="4dp" android:clickable="true" android:focusable="true" android:visibility="gone" tools:visibility="visible"/> </LinearLayout> <androidx.recyclerview.widget.RecyclerView android:id="@+id/rv_suggested_itinerary" android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="8dp" android:paddingTop="4dp" android:paddingBottom="4dp" android:background="@drawable/bg_rounded_light_gray" app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" android:orientation="vertical" tools:listitem="@layout/list_item_itinerary" tools:itemCount="5" android:minHeight="150dp" android:nestedScrollingEnabled="false"/> <TextView android:id="@+id/tv_recommended_title" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginTop="32dp" android:text="Recommended Other Itineraries" android:textColor="@color/textPrimary" android:textSize="20sp" android:textStyle="bold"/> <GridLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:layout_marginTop="16dp" android:columnCount="2" android:useDefaultMargins="true"> <androidx.cardview.widget.CardView android:id="@+id/card_recommended_1" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_gravity="fill_vertical" app:cardCornerRadius="12dp" app:cardElevation="3dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" app:cardBackgroundColor="@color/lightGrayBackground"> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"> <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Arca's Yard Cafe" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical"> <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(1K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> </LinearLayout> </LinearLayout> </androidx.cardview.widget.CardView> <androidx.cardview.widget.CardView android:id="@+id/card_recommended_2" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_gravity="fill_vertical" app:cardCornerRadius="12dp" app:cardElevation="3dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" app:cardBackgroundColor="@color/lightGrayBackground"> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"> <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Wright Park Riding Center" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical"> <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.3" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(4K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> </LinearLayout> </LinearLayout> </androidx.cardview.widget.CardView> <androidx.cardview.widget.CardView android:id="@+id/card_recommended_3" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_gravity="fill_vertical" app:cardCornerRadius="12dp" app:cardElevation="3dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" app:cardBackgroundColor="@color/lightGrayBackground"> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"> <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Baguio Orchidarium" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical"> <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.5" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(2K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> </LinearLayout> </LinearLayout> </androidx.cardview.widget.CardView> <androidx.cardview.widget.CardView android:id="@+id/card_recommended_4" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_columnWeight="1" android:layout_gravity="fill_vertical" app:cardCornerRadius="12dp" app:cardElevation="3dp" android:clickable="true" android:focusable="true" android:foreground="?android:attr/selectableItemBackground" app:cardBackgroundColor="@color/lightGrayBackground"> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp"> <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Camp John Hay Picnic Area" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/> <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical"> <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(5K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/> </LinearLayout> </LinearLayout> </androidx.cardview.widget.CardView> </GridLayout> </LinearLayout> </ScrollView> <com.google.android.material.bottomnavigation.BottomNavigationView android:id="@+id/bottom_navigation" android:layout_width="0dp" android:layout_height="wrap_content" android:background="?android:attr/windowBackground" app:elevation="8dp" app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintStart_toStartOf="parent" app:layout_constraintEnd_toEndOf="parent" app:menu="@menu/bottom_nav_menu" app:itemIconTint="@color/bottom_nav_color_selector" app:itemTextColor="@color/bottom_nav_color_selector" app:labelVisibilityMode="labeled" /> </androidx.constraintlayout.widget.ConstraintLayout>
 \`\`\`
 
 # app\src\main\res\layout\activity_itinerary_adapter.xml
@@ -5421,7 +9091,7 @@ This is a binary file of the type: Image
 # app\src\main\res\layout\list_item_itinerary.xml
 
 \`\`\`xml
-<?xml version="1.0" encoding="utf-8"?> <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="10dp" android:paddingBottom="10dp" android:paddingStart="8dp" android:paddingEnd="8dp" android:minHeight="?android:attr/listPreferredItemHeightSmall" android:background="?attr/selectableItemBackground" tools:ignore="MissingConstraints"> <ImageView android:id="@+id/iv_drag_handle" android:layout_width="wrap_content" android:layout_height="0dp" android:paddingStart="4dp" android:paddingEnd="8dp" android:scaleType="centerInside" android:src="@drawable/ic_drag_handle" app:tint="@color/textSecondary" android:visibility="gone" app:layout_constraintDimensionRatio="1:1" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" android:contentDescription="Drag to reorder" tools:visibility="visible"/> <TextView android:id="@+id/tv_item_rating" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/textSecondary" android:textSize="14sp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" tools:text="4.5"/> <TextView android:id="@+id/tv_item_time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textColor="@color/textSecondary" android:textSize="14sp" app:layout_constraintStart_toEndOf="@+id/iv_drag_handle" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" tools:text="9:00 AM"/> <TextView android:id="@+id/tv_item_activity" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_marginEnd="8dp" android:textColor="@color/textPrimary" android:textSize="14sp" app:layout_constraintStart_toEndOf="@+id/tv_item_time" app:layout_constraintEnd_toStartOf="@+id/tv_item_rating" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" tools:text="Breakfast at Café by the Ruins"/> </androidx.constraintlayout.widget.ConstraintLayout>
+<?xml version="1.0" encoding="utf-8"?> <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent" android:layout_height="wrap_content" android:paddingTop="10dp" android:paddingBottom="10dp" android:paddingStart="8dp" android:paddingEnd="16dp" android:minHeight="?android:attr/listPreferredItemHeightSmall" android:background="?attr/selectableItemBackground" tools:ignore="MissingConstraints"> <ImageView android:id="@+id/iv_drag_handle" android:layout_width="24dp" android:layout_height="24dp" android:layout_gravity="center_vertical" android:paddingStart="0dp" android:paddingEnd="0dp" android:scaleType="centerInside" android:src="@drawable/ic_drag_handle" app:tint="@color/textSecondary" android:visibility="gone" app:layout_constraintStart_toStartOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" android:contentDescription="Drag to reorder" tools:visibility="visible"/> <TextView android:id="@+id/tv_item_rating" android:layout_width="wrap_content" android:layout_height="wrap_content" android:textColor="@color/textSecondary" android:textSize="14sp" app:layout_constraintEnd_toEndOf="parent" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" tools:text="4.5"/> <TextView android:id="@+id/tv_item_time" android:layout_width="wrap_content" android:layout_height="wrap_content" android:layout_marginStart="8dp" android:textColor="@color/textSecondary" android:textSize="14sp" app:layout_constraintStart_toEndOf="@+id/iv_drag_handle" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" tools:text="9:00 AM"/> <TextView android:id="@+id/tv_item_activity" android:layout_width="0dp" android:layout_height="wrap_content" android:layout_marginStart="16dp" android:layout_marginEnd="8dp" android:textColor="@color/textPrimary" android:textSize="14sp" app:layout_constraintStart_toEndOf="@+id/tv_item_time" app:layout_constraintEnd_toStartOf="@+id/tv_item_rating" app:layout_constraintTop_toTopOf="parent" app:layout_constraintBottom_toBottomOf="parent" tools:text="Breakfast at Café by the Ruins"/> </androidx.constraintlayout.widget.ConstraintLayout>
 \`\`\`
 
 # app\src\main\res\menu\bottom_nav_menu.xml
@@ -5551,7 +9221,7 @@ package com.example.alayaapp; import org.junit.Test; import static org.junit.Ass
 # gradle\libs.versions.toml
 
 \`\`\`toml
-[versions] agp = "8.9.1" junit = "4.13.2" junitVersion = "1.1.5" espressoCore = "3.5.1" appcompat = "1.6.1" material = "1.10.0" activity = "1.8.0" constraintlayout = "2.1.4" [libraries] junit = { group = "junit", name = "junit", version.ref = "junit" } ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" } espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" } appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" } material = { group = "com.google.android.material", name = "material", version.ref = "material" } activity = { group = "androidx.activity", name = "activity", version.ref = "activity" } constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" } [plugins] android-application = { id = "com.android.application", version.ref = "agp" }
+[versions] agp = "8.9.2" junit = "4.13.2" junitVersion = "1.1.5" espressoCore = "3.5.1" appcompat = "1.6.1" material = "1.10.0" activity = "1.8.0" constraintlayout = "2.1.4" [libraries] junit = { group = "junit", name = "junit", version.ref = "junit" } ext-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" } espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore" } appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" } material = { group = "com.google.android.material", name = "material", version.ref = "material" } activity = { group = "androidx.activity", name = "activity", version.ref = "activity" } constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" } [plugins] android-application = { id = "com.android.application", version.ref = "agp" }
 \`\`\`
 
 # gradle\wrapper\gradle-wrapper.jar
