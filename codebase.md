@@ -802,12 +802,27 @@ AlayaApp
       <config />
     </shared>
     <layouts>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_change_password.xml">
+        <config>
+          <theme>@style/Theme.AlayaApp</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_edit_email.xml">
+        <config>
+          <theme>@style/Theme.AlayaApp</theme>
+        </config>
+      </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_itineraries.xml">
         <config>
           <theme>@style/Theme.AlayaApp</theme>
         </config>
       </layout>
       <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_itinerary_adapter.xml">
+        <config>
+          <theme>@style/Theme.AlayaApp</theme>
+        </config>
+      </layout>
+      <layout url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_profile.xml">
         <config>
           <theme>@style/Theme.AlayaApp</theme>
         </config>
@@ -829,7 +844,10 @@ AlayaApp
   </component>
   <component name="ChangeListManager">
     <list default="true" id="01420886-470c-47ac-81ec-ac261690f18c" name="Changes" comment="updated codebase.md">
+      <change beforePath="$PROJECT_DIR$/app/google-services.json" beforeDir="false" afterPath="$PROJECT_DIR$/app/google-services.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ProfileActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/ProfileActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/SignUpActivity.java" beforeDir="false" afterPath="$PROJECT_DIR$/app/src/main/java/com/example/alayaapp/SignUpActivity.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/codebase.md" beforeDir="false" afterPath="$PROJECT_DIR$/codebase.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -920,7 +938,7 @@ AlayaApp
     "ScreenRecorder.SavePath": "C:\\Users\\Fretz\\Videos",
     "cf.first.check.clang-format": "false",
     "cidr.known.project.marker": "true",
-    "git-widget-placeholder": "loginfunction",
+    "git-widget-placeholder": "profileedit",
     "ignore.virus.scanning.warn.message": "true",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "C:/Users/Fretz/Videos"
@@ -1142,6 +1160,7 @@ dependencies {
 {
   "project_info": {
     "project_number": "634657318925",
+    "firebase_url": "https://alayadatabase-22359-default-rtdb.asia-southeast1.firebasedatabase.app",
     "project_id": "alayadatabase-22359",
     "storage_bucket": "alayadatabase-22359.firebasestorage.app"
   },
@@ -1272,10 +1291,9 @@ public class ExampleInstrumentedTest {
             android:exported="false" /> <!-- SignUp Activity - Not exported, launched internally -->
         <activity
             android:name=".SignUpActivity"
-            android:exported="false" /> <!-- OtpVerification Activity - Not exported, launched internally -->
-        <activity
-            android:name=".OtpVerificationActivity"
-            android:exported="false" /> <!-- Home Activity - Not exported, launched internally -->
+            android:exported="false" />
+        <!-- REMOVED OtpVerification Activity declaration -->
+        <!-- Home Activity - Not exported, launched internally -->
         <activity
             android:name=".HomeActivity"
             android:exported="false"
@@ -1285,7 +1303,7 @@ public class ExampleInstrumentedTest {
             android:name=".ItinerariesActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" /> <!-- Optional: Prevent resize on keyboard show -->
-        <activity android:name=".ResetPasswordActivity" /> <!-- REMOVED MainActivity reference as it's being deleted -->
+        <activity android:name=".ResetPasswordActivity" />
         <activity
             android:name=".BurnhamDetailsActivity"
             android:exported="false" />
@@ -1293,9 +1311,10 @@ public class ExampleInstrumentedTest {
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-        <meta-data
+        <!-- Note: Duplicate preloaded_fonts meta-data, keeping one is enough -->
+        <!-- <meta-data
             android:name="preloaded_fonts"
-            android:resource="@array/preloaded_fonts" />
+            android:resource="@array/preloaded_fonts" /> -->
 
         <activity
             android:name=".ChangePasswordActivity"
@@ -1314,14 +1333,7 @@ public class ExampleInstrumentedTest {
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR_GOOGLE_MAPS_API_KEY" />
 
-
-
-
-
-
-
     </application>
-
 
 </manifest>
 ```
@@ -2214,15 +2226,14 @@ public class LoginActivity extends AppCompatActivity {
                         binding.loginButton.setEnabled(true);
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            // FirebaseUser user = mAuth.getCurrentUser(); // You can get user if needed
                             Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
 
-                            // Navigate to OtpVerificationActivity (as per your original flow)
-                            // You might want to check user.isEmailVerified() here in a real app
-                            // and if verified, go directly to HomeActivity.
-                            Intent intent = new Intent(LoginActivity.this, OtpVerificationActivity.class);
+                            // Navigate directly to HomeActivity
+                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear back stack
                             startActivity(intent);
-                            finish();
+                            finish(); // Close LoginActivity
                         } else {
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed: " +
@@ -2514,176 +2525,35 @@ public class MapsActivity extends AppCompatActivity /* Remove "implements OnMapR
 }
 ```
 
-# app\src\main\java\com\example\alayaapp\OtpVerificationActivity.java
-
-```java
-package com.example.alayaapp;
-
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.drawable.ColorDrawable;
-import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.widget.Toast;
-
-import com.example.alayaapp.databinding.ActivityOtpVerificationBinding;
-import com.example.alayaapp.databinding.DialogSuccessBinding; // For your existing success dialog
-import com.example.alayaapp.databinding.DialogNewOtpBinding; // *** IMPORT FOR THE NEW OTP RESENT DIALOG ***
-
-public class OtpVerificationActivity extends AppCompatActivity {
-
-    private ActivityOtpVerificationBinding binding;
-    private AlertDialog otpResendDialogInstance; // To keep a reference to the resend dialog
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        binding = ActivityOtpVerificationBinding.inflate(getLayoutInflater());
-        setContentView(binding.getRoot());
-
-        // Request focus on the first OTP box on activity start
-        binding.etOtp1.requestFocus();
-
-        // TODO: Consider adding TextWatchers for auto-focusing next OTP box
-        // and handling backspace for a smoother UX.
-
-        binding.btnOtpSubmit.setOnClickListener(v -> {
-            String otp = binding.etOtp1.getText().toString() +
-                    binding.etOtp2.getText().toString() +
-                    binding.etOtp3.getText().toString() +
-                    binding.etOtp4.getText().toString();
-
-            if (otp.length() != 4) {
-                Toast.makeText(this, "Please enter all 4 digits", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            boolean isOtpCorrect = true; // Replace with real validation (e.g., "1234".equals(otp))
-
-            if (isOtpCorrect) {
-                showOtpSubmissionSuccessDialog(); // Renamed for clarity
-            } else {
-                Toast.makeText(this, "Invalid OTP", Toast.LENGTH_SHORT).show();
-                // Optionally clear OTP fields
-                clearOtpFields();
-                binding.etOtp1.requestFocus();
-            }
-        });
-
-        binding.btnOtpCancel.setOnClickListener(v -> {
-            finish();
-        });
-
-        binding.tvResendOtp.setOnClickListener(v -> {
-            // --- Replace with your actual logic to resend the OTP via API ---
-            boolean resendApiCallSuccess = true; // Placeholder for API call result
-            // --- ---
-
-            if (resendApiCallSuccess) {
-                showOtpResentConfirmationDialog();
-            } else {
-                Toast.makeText(this, "Failed to resend OTP. Please try again.", Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-    // This dialog is for when the OTP is successfully SUBMITTED
-    private void showOtpSubmissionSuccessDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-        DialogSuccessBinding dialogSuccessBinding = DialogSuccessBinding.inflate(inflater);
-        builder.setView(dialogSuccessBinding.getRoot());
-
-        final AlertDialog dialog = builder.create();
-        if (dialog.getWindow() != null) {
-            dialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-
-        dialogSuccessBinding.btnDialogContinue.setOnClickListener(v -> {
-            dialog.dismiss();
-            Intent intent = new Intent(OtpVerificationActivity.this, HomeActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
-        });
-        dialog.show();
-    }
-
-    // *** NEW METHOD: This dialog is for confirming OTP has been RESENT ***
-    private void showOtpResentConfirmationDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        LayoutInflater inflater = this.getLayoutInflater();
-
-        // Inflate the dialog layout using its specific ViewBinding class
-        DialogNewOtpBinding dialogNewOtpBinding = DialogNewOtpBinding.inflate(inflater);
-        builder.setView(dialogNewOtpBinding.getRoot());
-        builder.setCancelable(false); // User must click "Continue"
-
-        // Store the dialog instance so we can dismiss it in onDestroy
-        otpResendDialogInstance = builder.create();
-
-        if (otpResendDialogInstance.getWindow() != null) {
-            otpResendDialogInstance.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-        }
-
-        dialogNewOtpBinding.btnDialogContinue.setOnClickListener(v -> {
-            if (otpResendDialogInstance != null) {
-                otpResendDialogInstance.dismiss();
-            }
-            refreshOtpScreen(); // Refresh the main OTP screen
-        });
-
-        otpResendDialogInstance.show();
-    }
-
-    private void clearOtpFields() {
-        binding.etOtp1.setText("");
-        binding.etOtp2.setText("");
-        binding.etOtp3.setText("");
-        binding.etOtp4.setText("");
-    }
-
-    private void refreshOtpScreen() {
-        clearOtpFields();
-        binding.etOtp1.requestFocus(); // Focus on the first OTP box
-        Toast.makeText(this, "Please enter the new OTP", Toast.LENGTH_SHORT).show();
-        // If you have a countdown timer for OTP, you might want to reset it here.
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        // Dismiss the dialog if it's showing to prevent window leaks
-        if (otpResendDialogInstance != null && otpResendDialogInstance.isShowing()) {
-            otpResendDialogInstance.dismiss();
-        }
-        // You might also want to dismiss the showOtpSubmissionSuccessDialog if you store its instance
-    }
-}
-```
-
 # app\src\main\java\com\example\alayaapp\ProfileActivity.java
 
 ```java
 package com.example.alayaapp;
 
+import androidx.annotation.NonNull; // Added for DataSnapshot
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log; // Added for logging
 import android.widget.Toast;
 
 import com.example.alayaapp.databinding.ActivityProfileBinding;
-import com.google.firebase.auth.FirebaseAuth; // Import FirebaseAuth
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser; // Added for FirebaseUser
+import com.google.firebase.database.DataSnapshot; // Added
+import com.google.firebase.database.DatabaseError; // Added
+import com.google.firebase.database.DatabaseReference; // Added
+import com.google.firebase.database.FirebaseDatabase; // Added
+import com.google.firebase.database.ValueEventListener; // Added
 
 public class ProfileActivity extends AppCompatActivity {
 
     private ActivityProfileBinding binding;
     final int CURRENT_ITEM_ID = R.id.navigation_profile;
 
-    private FirebaseAuth mAuth; // Declare Firebase Auth instance
+    private FirebaseAuth mAuth;
+    private DatabaseReference userDatabaseReference; // For fetching user data
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -2691,16 +2561,17 @@ public class ProfileActivity extends AppCompatActivity {
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            // Initialize database reference to the specific user's node
+            userDatabaseReference = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
+        }
 
-        // --- Set Initial State for Bottom Nav ---
+
         binding.bottomNavigationProfilePage.setSelectedItemId(CURRENT_ITEM_ID);
-
-        // --- Setup Listeners ---
         setupBottomNavListener();
         setupActionListeners();
-
         loadProfileData();
     }
 
@@ -2709,7 +2580,7 @@ public class ProfileActivity extends AppCompatActivity {
             int destinationItemId = item.getItemId();
 
             if (destinationItemId == CURRENT_ITEM_ID) {
-                return true; // Already on Profile screen
+                return true;
             }
 
             Class<?> destinationActivityClass = null;
@@ -2718,7 +2589,7 @@ public class ProfileActivity extends AppCompatActivity {
             } else if (destinationItemId == R.id.navigation_itineraries) {
                 destinationActivityClass = ItinerariesActivity.class;
             } else if (destinationItemId == R.id.navigation_map) {
-                destinationActivityClass = MapsActivity.class; // Assuming MapsActivity exists
+                destinationActivityClass = MapsActivity.class;
             }
 
             if (destinationActivityClass != null) {
@@ -2731,15 +2602,12 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupActionListeners() {
         binding.ivLogout.setOnClickListener(v -> {
-            // --- Firebase Logout Logic ---
             mAuth.signOut();
             Toast.makeText(ProfileActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-
-            // Navigate to LoginActivity and clear the back stack
             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            finish(); // Close ProfileActivity
+            finish();
         });
 
         binding.tvEditEmail.setOnClickListener(v -> {
@@ -2763,38 +2631,74 @@ public class ProfileActivity extends AppCompatActivity {
         binding.layoutHistory.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, TripHistoryActivity.class);
             startActivity(intent);
-            // Optional: overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
     }
 
     private void loadProfileData() {
-        // In a real app, fetch this from SharedPreferences, database, or API
-        // If user is logged in, you could fetch their email from mAuth.getCurrentUser().getEmail()
-        // and name from your Realtime Database
-        if (mAuth.getCurrentUser() != null) {
-            binding.tvProfileEmail.setText(mAuth.getCurrentUser().getEmail());
-            // You'd need to add a listener to Firebase Realtime Database to get the name here
-            // For now, keeping placeholders or hardcoded values for name and birthday.
-            binding.tvProfileNameHeader.setText("Alice Go"); // Placeholder
-            binding.tvProfileNameDetail.setText("Alice Go"); // Placeholder
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null && userDatabaseReference != null) {
+            // Set email from Auth directly as it's authoritative
+            binding.tvProfileEmail.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "N/A");
+
+            userDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String name = dataSnapshot.child("name").getValue(String.class);
+                        String contactNumber = dataSnapshot.child("contactNumber").getValue(String.class);
+                        String birthday = dataSnapshot.child("birthday").getValue(String.class);
+                        // Email is already set from Auth, but you could read it here too if needed for consistency check
+
+                        binding.tvProfileNameHeader.setText(name != null && !name.isEmpty() ? name : "Set your name");
+                        binding.tvProfileNameDetail.setText(name != null && !name.isEmpty() ? name : "Set your name");
+                        binding.tvProfilePhone.setText(contactNumber != null && !contactNumber.isEmpty() ? contactNumber : "Set contact no.");
+                        binding.tvProfileBirthday.setText(birthday != null && !birthday.isEmpty() ? birthday : "Set birthday");
+                    } else {
+                        Log.w(TAG, "User data not found in database for UID: " + currentUser.getUid());
+                        // Set defaults or placeholders if no data found
+                        binding.tvProfileNameHeader.setText("User Name");
+                        binding.tvProfileNameDetail.setText("User Name");
+                        binding.tvProfilePhone.setText("Not Set");
+                        binding.tvProfileBirthday.setText("Not Set");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.e("ProfileActivity", "Failed to load profile data.", databaseError.toException());
+                    Toast.makeText(ProfileActivity.this, "Failed to load profile details.", Toast.LENGTH_SHORT).show();
+                    // Fallback UI if load fails
+                    binding.tvProfileNameHeader.setText("User");
+                    binding.tvProfileNameDetail.setText("User");
+                    binding.tvProfileEmail.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "user@example.com");
+                    binding.tvProfilePhone.setText("Error loading");
+                    binding.tvProfileBirthday.setText("Error loading");
+                }
+            });
         } else {
-            // Handle case where user is somehow null (shouldn't happen if they reached profile)
+            // Handle case where user is null or database reference couldn't be initialized
             binding.tvProfileNameHeader.setText("User");
             binding.tvProfileNameDetail.setText("User");
             binding.tvProfileEmail.setText("user@example.com");
+            binding.tvProfilePhone.setText("N/A");
+            binding.tvProfileBirthday.setText("N/A");
+            if (currentUser == null) {
+                Log.e("ProfileActivity", "Cannot load profile data: current user is null.");
+            } else {
+                Log.e("ProfileActivity", "Cannot load profile data: userDatabaseReference is null.");
+            }
         }
 
-        binding.tvProfileBirthday.setText("January 1, 2000"); // Placeholder
-        binding.tvProfilePhone.setText("09215687102"); // Placeholder
+        // Password display is just a placeholder
         if (binding.tvProfilePassword != null) {
             binding.tvProfilePassword.setText("************");
         }
     }
+    private static final String TAG = "ProfileActivity"; // Added TAG for logging
+
 
     private void navigateTo(Class<?> destinationActivityClass, int destinationItemId, boolean finishCurrent) {
         Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
-        // Clear previous activities in the stack if navigating to a main tab
-        // This is important to prevent a deep back stack when switching main tabs
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
 
@@ -2818,19 +2722,6 @@ public class ProfileActivity extends AppCompatActivity {
         if (itemId == R.id.navigation_profile) return 3;
         return -1;
     }
-
-    /*
-    // Optional: Re-select current item if navigating back to ProfileActivity
-    // without it being finished. However, with FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP
-    // and finish() in navigateTo, this might not be strictly necessary.
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (binding != null && binding.bottomNavigationProfilePage != null) {
-            binding.bottomNavigationProfilePage.setSelectedItemId(CURRENT_ITEM_ID);
-        }
-    }
-    */
 }
 ```
 
@@ -2962,31 +2853,31 @@ import android.widget.Button;
 import android.widget.Toast;
 
 import com.example.alayaapp.databinding.ActivitySignUpBinding;
-import com.example.alayaapp.databinding.ActivityWelcomePageBinding;
-import com.google.firebase.auth.FirebaseAuth; // Firebase Import
-import com.google.firebase.auth.FirebaseUser; // Firebase Import
-import com.google.firebase.database.DatabaseReference; // Firebase Import
-import com.google.firebase.database.FirebaseDatabase;  // Firebase Import
+import com.example.alayaapp.databinding.ActivityWelcomePageBinding; // Assuming this is still used for the welcome flow
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import java.util.HashMap; // For user data
 
 public class SignUpActivity extends AppCompatActivity {
 
     private ActivitySignUpBinding signUpFormBinding;
-    private ActivityWelcomePageBinding welcomeScreenBinding; // Assuming you still use this
-    private AlertDialog locationDialog;
+    private ActivityWelcomePageBinding welcomeScreenBinding; // For the welcome flow after signup
+    private AlertDialog locationDialog; // For the location permission dialog
 
-    private FirebaseAuth mAuth; // Firebase Auth instance
-    private DatabaseReference databaseReference; // Firebase Realtime Database reference
+    private FirebaseAuth mAuth;
+    private DatabaseReference databaseReference;
     private static final String TAG = "SignUpActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        // Initialize Firebase Auth and Database
         mAuth = FirebaseAuth.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference("users"); // "users" node
+        // Initialize databaseReference to point to the "users" node
+        databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
-        showSignUpForm(); // Initial call to display the form
+        showSignUpForm(); // Display the sign-up form
     }
 
     private void showSignUpForm() {
@@ -2997,9 +2888,6 @@ public class SignUpActivity extends AppCompatActivity {
             String email = signUpFormBinding.emailEditText.getText().toString().trim();
             String password = signUpFormBinding.passwordEditText.getText().toString().trim();
             String confirmPassword = signUpFormBinding.confirmPasswordEditText.getText().toString().trim();
-            // If you add a name field in activity_sign_up.xml:
-            // String name = signUpFormBinding.nameEditText.getText().toString().trim();
-
 
             boolean valid = true;
             if (email.isEmpty()) {
@@ -3009,13 +2897,17 @@ public class SignUpActivity extends AppCompatActivity {
                 signUpFormBinding.emailLayout.setError(null);
             }
 
-            if (password.isEmpty() || confirmPassword.isEmpty()) {
-                Toast.makeText(SignUpActivity.this, "Password fields cannot be empty", Toast.LENGTH_SHORT).show();
-                if (password.isEmpty()) signUpFormBinding.passwordLayout.setError("Password required"); else signUpFormBinding.passwordLayout.setError(null);
-                if (confirmPassword.isEmpty()) signUpFormBinding.confirmPasswordLayout.setError("Confirmation required"); else signUpFormBinding.confirmPasswordLayout.setError(null);
+            if (password.isEmpty()) {
+                signUpFormBinding.passwordLayout.setError("Password required");
                 valid = false;
             } else {
                 signUpFormBinding.passwordLayout.setError(null);
+            }
+
+            if (confirmPassword.isEmpty()) {
+                signUpFormBinding.confirmPasswordLayout.setError("Confirmation required");
+                valid = false;
+            } else {
                 signUpFormBinding.confirmPasswordLayout.setError(null);
             }
 
@@ -3028,7 +2920,6 @@ public class SignUpActivity extends AppCompatActivity {
                 signUpFormBinding.confirmPasswordLayout.setError(null);
             }
 
-            // --- Firebase Sign Up ---
             signUpFormBinding.signupButton.setEnabled(false);
             Toast.makeText(SignUpActivity.this, "Creating account...", Toast.LENGTH_SHORT).show();
 
@@ -3041,18 +2932,19 @@ public class SignUpActivity extends AppCompatActivity {
 
                             if (firebaseUser != null) {
                                 String userId = firebaseUser.getUid();
-                                // Store additional user information (e.g., email, name if you add it)
+
+                                // Create a HashMap to store user data
                                 HashMap<String, Object> userInfo = new HashMap<>();
                                 userInfo.put("email", email);
-                                // userInfo.put("name", name); // if you added a name field
-                                // userInfo.put("createdAt", System.currentTimeMillis()); // Example timestamp
+                                userInfo.put("name", ""); // Blank initially, user will edit in profile
+                                userInfo.put("contactNumber", ""); // Blank initially
+                                userInfo.put("birthday", ""); // Blank initially
+                                // Password is handled by Firebase Auth, not stored here directly.
 
+                                // Save user information to Firebase Realtime Database under users/<userId>
                                 databaseReference.child(userId).setValue(userInfo)
                                         .addOnSuccessListener(aVoid -> Log.d(TAG, "User info successfully written to DB for UID: " + userId))
                                         .addOnFailureListener(e -> Log.w(TAG, "Error writing user info to DB for UID: " + userId, e));
-
-                                // Optional: Send email verification
-                                // firebaseUser.sendEmailVerification().addOnCompleteListener(...);
                             }
 
                             Toast.makeText(SignUpActivity.this, "Sign Up Successful!", Toast.LENGTH_SHORT).show();
@@ -3072,17 +2964,12 @@ public class SignUpActivity extends AppCompatActivity {
     }
 
     private void showWelcomeScreen() {
-        // This part remains the same as your original logic
         welcomeScreenBinding = ActivityWelcomePageBinding.inflate(getLayoutInflater());
         setContentView(welcomeScreenBinding.getRoot());
-
-        welcomeScreenBinding.getStartedButton.setOnClickListener(v_welcome -> {
-            showLocationPermissionDialog();
-        });
+        welcomeScreenBinding.getStartedButton.setOnClickListener(v_welcome -> showLocationPermissionDialog());
     }
 
     private void showLocationPermissionDialog() {
-        // This part remains the same as your original logic
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_location_notification, null);
@@ -3596,18 +3483,6 @@ public class TripHistoryActivity extends AppCompatActivity {
     android:shape="rectangle">
     <solid android:color="#F5F5F5"/> <!-- Light grey -->
     <corners android:radius="8dp"/>
-</shape>
-```
-
-# app\src\main\res\drawable\bg_otp_box.xml
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="@android:color/transparent"/> <!-- Or @color/white if needed -->
-    <stroke android:width="1dp" android:color="#CCCCCC"/> <!-- Light gray border -->
-    <corners android:radius="4dp"/> <!-- Slight rounding -->
 </shape>
 ```
 
@@ -6147,202 +6022,6 @@ android:layout_gravity="bottom"
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 ```
 
-# app\src\main\res\layout\activity_otp_verification.xml
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/white"
-    android:padding="24dp"
-    tools:context=".OtpVerificationActivity">
-
-    <ImageView
-        android:id="@+id/iv_otp_logo"
-        android:layout_width="100dp"
-        android:layout_height="100dp"
-        android:layout_marginTop="48dp"
-        android:src="@drawable/logo_black_text"
-        android:contentDescription="@string/app_logo_description"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tv_otp_title"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:text="Verify with OTP"
-        android:textColor="@color/textPrimary"
-        android:textSize="22sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/iv_otp_logo" />
-
-    <TextView
-        android:id="@+id/tv_otp_instructions"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:gravity="center"
-        android:text="Please enter the One-Time Password (OTP) sent to your registered email below."
-        android:textColor="@color/textSecondary"
-        android:textSize="14sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_otp_title" />
-
-    <!-- OTP Input Boxes -->
-    <LinearLayout
-        android:id="@+id/layout_otp_boxes"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="24dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tv_otp_instructions">
-
-        <EditText
-            android:id="@+id/et_otp_1"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:background="@drawable/bg_otp_box"
-            android:gravity="center"
-            android:inputType="number"
-            android:maxLength="1"
-            android:textColor="@color/textPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            tools:ignore="LabelFor"
-            android:autofillHints="smsOTPCode"
-            tools:text="1"/>
-
-        <EditText
-            android:id="@+id/et_otp_2"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="12dp"
-            android:background="@drawable/bg_otp_box"
-            android:gravity="center"
-            android:inputType="number"
-            android:maxLength="1"
-            android:textColor="@color/textPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            tools:ignore="LabelFor"
-            android:autofillHints="smsOTPCode"
-            tools:text="2"/>
-
-        <EditText
-            android:id="@+id/et_otp_3"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="12dp"
-            android:background="@drawable/bg_otp_box"
-            android:gravity="center"
-            android:inputType="number"
-            android:maxLength="1"
-            android:textColor="@color/textPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            tools:ignore="LabelFor"
-            android:autofillHints="smsOTPCode"
-            tools:text="3"/>
-
-        <EditText
-            android:id="@+id/et_otp_4"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
-            android:layout_marginStart="12dp"
-            android:background="@drawable/bg_otp_box"
-            android:gravity="center"
-            android:inputType="number"
-            android:maxLength="1"
-            android:textColor="@color/textPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold"
-            tools:ignore="LabelFor"
-            android:autofillHints="smsOTPCode"
-            tools:text="4"/>
-
-    </LinearLayout>
-
-    <!-- Resend OTP Area -->
-    <LinearLayout
-        android:id="@+id/layout_resend"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:gravity="center"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout_otp_boxes">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Didn't receive the OTP? "
-            android:textColor="@color/textSecondary"
-            android:textSize="14sp" />
-
-        <TextView
-            android:id="@+id/tv_resend_otp"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Resend"
-            android:textColor="@color/colorPrimary"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-    </LinearLayout>
-
-    <Button
-        android:id="@+id/btn_otp_submit"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/bg_button_filled_green"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:text="Submit"
-        android:textAllCaps="false"
-        android:textColor="@color/white"
-        android:textSize="16sp"
-        app:backgroundTint="@null"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/layout_resend" />
-
-    <Button
-        android:id="@+id/btn_otp_cancel"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="12dp"
-        android:background="@drawable/bg_button_outlined_green"
-        android:paddingTop="12dp"
-        android:paddingBottom="12dp"
-        android:text="Cancel"
-        android:textAllCaps="false"
-        android:textColor="@color/colorPrimary"
-        android:textSize="16sp"
-        app:backgroundTint="@null"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_otp_submit" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-```
-
 # app\src\main\res\layout\activity_profile.xml
 
 ```xml
@@ -7588,46 +7267,6 @@ app:menu="@menu/bottom_nav_menu" />
 </LinearLayout>
 ```
 
-# app\src\main\res\layout\dialog_new_otp.xml
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="32dp"
-    android:gravity="center"
-    android:background="@drawable/dialog_background_gradient_rounded">
-
-    <TextView
-        android:id="@+id/tv_dialog_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="A new OTP was sent to your email. Please check your inbox."
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:layout_marginBottom="24dp"
-        android:gravity="center" />
-
-    <Button
-        android:id="@+id/btn_dialog_continue"
-        style="@style/Widget.AppCompat.Button.Borderless"
-        android:layout_width="wrap_content"
-        android:layout_height="36dp"
-        android:background="@drawable/bg_button_white_rounded"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:text="Continue"
-        android:textAllCaps="false"
-        android:textColor="@color/colorPrimaryDarker"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:backgroundTint="@null" />
-</LinearLayout>
-```
-
 # app\src\main\res\layout\dialog_success_password_change.xml
 
 ```xml
@@ -7665,47 +7304,6 @@ app:menu="@menu/bottom_nav_menu" />
         android:textSize="14sp"
         android:textStyle="bold"
         app:backgroundTint="@null" />
-
-</LinearLayout>
-```
-
-# app\src\main\res\layout\dialog_success.xml
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:padding="32dp"
-    android:gravity="center"
-    android:background="@drawable/bg_dialog_success">
-
-    <TextView
-        android:id="@+id/tv_dialog_message"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Successfully Logged In!"
-        android:textColor="@color/white"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="24dp"/>
-
-    <Button
-        android:id="@+id/btn_dialog_continue"
-        android:layout_width="wrap_content"
-        android:layout_height="40dp"
-        android:background="@drawable/bg_button_white_rounded"
-        android:text="Continue"
-        android:textAllCaps="false"
-        android:paddingStart="24dp"
-        android:paddingEnd="24dp"
-        android:textColor="@color/colorPrimaryDarker"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:backgroundTint="@null"
-        style="@style/Widget.AppCompat.Button.Borderless"/>
 
 </LinearLayout>
 ```

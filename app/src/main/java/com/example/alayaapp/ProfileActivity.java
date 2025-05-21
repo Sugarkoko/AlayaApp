@@ -1,20 +1,29 @@
 package com.example.alayaapp;
 
+import androidx.annotation.NonNull; // Added for DataSnapshot
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log; // Added for logging
 import android.widget.Toast;
 
 import com.example.alayaapp.databinding.ActivityProfileBinding;
-import com.google.firebase.auth.FirebaseAuth; // Import FirebaseAuth
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser; // Added for FirebaseUser
+import com.google.firebase.database.DataSnapshot; // Added
+import com.google.firebase.database.DatabaseError; // Added
+import com.google.firebase.database.DatabaseReference; // Added
+import com.google.firebase.database.FirebaseDatabase; // Added
+import com.google.firebase.database.ValueEventListener; // Added
 
 public class ProfileActivity extends AppCompatActivity {
 
     private ActivityProfileBinding binding;
     final int CURRENT_ITEM_ID = R.id.navigation_profile;
 
-    private FirebaseAuth mAuth; // Declare Firebase Auth instance
+    private FirebaseAuth mAuth;
+    private DatabaseReference userDatabaseReference; // For fetching user data
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,16 +31,17 @@ public class ProfileActivity extends AppCompatActivity {
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null) {
+            // Initialize database reference to the specific user's node
+            userDatabaseReference = FirebaseDatabase.getInstance().getReference("users").child(currentUser.getUid());
+        }
 
-        // --- Set Initial State for Bottom Nav ---
+
         binding.bottomNavigationProfilePage.setSelectedItemId(CURRENT_ITEM_ID);
-
-        // --- Setup Listeners ---
         setupBottomNavListener();
         setupActionListeners();
-
         loadProfileData();
     }
 
@@ -40,7 +50,7 @@ public class ProfileActivity extends AppCompatActivity {
             int destinationItemId = item.getItemId();
 
             if (destinationItemId == CURRENT_ITEM_ID) {
-                return true; // Already on Profile screen
+                return true;
             }
 
             Class<?> destinationActivityClass = null;
@@ -49,7 +59,7 @@ public class ProfileActivity extends AppCompatActivity {
             } else if (destinationItemId == R.id.navigation_itineraries) {
                 destinationActivityClass = ItinerariesActivity.class;
             } else if (destinationItemId == R.id.navigation_map) {
-                destinationActivityClass = MapsActivity.class; // Assuming MapsActivity exists
+                destinationActivityClass = MapsActivity.class;
             }
 
             if (destinationActivityClass != null) {
@@ -62,15 +72,12 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupActionListeners() {
         binding.ivLogout.setOnClickListener(v -> {
-            // --- Firebase Logout Logic ---
             mAuth.signOut();
             Toast.makeText(ProfileActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-
-            // Navigate to LoginActivity and clear the back stack
             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
-            finish(); // Close ProfileActivity
+            finish();
         });
 
         binding.tvEditEmail.setOnClickListener(v -> {
@@ -94,38 +101,74 @@ public class ProfileActivity extends AppCompatActivity {
         binding.layoutHistory.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, TripHistoryActivity.class);
             startActivity(intent);
-            // Optional: overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
     }
 
     private void loadProfileData() {
-        // In a real app, fetch this from SharedPreferences, database, or API
-        // If user is logged in, you could fetch their email from mAuth.getCurrentUser().getEmail()
-        // and name from your Realtime Database
-        if (mAuth.getCurrentUser() != null) {
-            binding.tvProfileEmail.setText(mAuth.getCurrentUser().getEmail());
-            // You'd need to add a listener to Firebase Realtime Database to get the name here
-            // For now, keeping placeholders or hardcoded values for name and birthday.
-            binding.tvProfileNameHeader.setText("Alice Go"); // Placeholder
-            binding.tvProfileNameDetail.setText("Alice Go"); // Placeholder
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser != null && userDatabaseReference != null) {
+            // Set email from Auth directly as it's authoritative
+            binding.tvProfileEmail.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "N/A");
+
+            userDatabaseReference.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    if (dataSnapshot.exists()) {
+                        String name = dataSnapshot.child("name").getValue(String.class);
+                        String contactNumber = dataSnapshot.child("contactNumber").getValue(String.class);
+                        String birthday = dataSnapshot.child("birthday").getValue(String.class);
+                        // Email is already set from Auth, but you could read it here too if needed for consistency check
+
+                        binding.tvProfileNameHeader.setText(name != null && !name.isEmpty() ? name : "Set your name");
+                        binding.tvProfileNameDetail.setText(name != null && !name.isEmpty() ? name : "Set your name");
+                        binding.tvProfilePhone.setText(contactNumber != null && !contactNumber.isEmpty() ? contactNumber : "Set contact no.");
+                        binding.tvProfileBirthday.setText(birthday != null && !birthday.isEmpty() ? birthday : "Set birthday");
+                    } else {
+                        Log.w(TAG, "User data not found in database for UID: " + currentUser.getUid());
+                        // Set defaults or placeholders if no data found
+                        binding.tvProfileNameHeader.setText("User Name");
+                        binding.tvProfileNameDetail.setText("User Name");
+                        binding.tvProfilePhone.setText("Not Set");
+                        binding.tvProfileBirthday.setText("Not Set");
+                    }
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                    Log.e("ProfileActivity", "Failed to load profile data.", databaseError.toException());
+                    Toast.makeText(ProfileActivity.this, "Failed to load profile details.", Toast.LENGTH_SHORT).show();
+                    // Fallback UI if load fails
+                    binding.tvProfileNameHeader.setText("User");
+                    binding.tvProfileNameDetail.setText("User");
+                    binding.tvProfileEmail.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "user@example.com");
+                    binding.tvProfilePhone.setText("Error loading");
+                    binding.tvProfileBirthday.setText("Error loading");
+                }
+            });
         } else {
-            // Handle case where user is somehow null (shouldn't happen if they reached profile)
+            // Handle case where user is null or database reference couldn't be initialized
             binding.tvProfileNameHeader.setText("User");
             binding.tvProfileNameDetail.setText("User");
             binding.tvProfileEmail.setText("user@example.com");
+            binding.tvProfilePhone.setText("N/A");
+            binding.tvProfileBirthday.setText("N/A");
+            if (currentUser == null) {
+                Log.e("ProfileActivity", "Cannot load profile data: current user is null.");
+            } else {
+                Log.e("ProfileActivity", "Cannot load profile data: userDatabaseReference is null.");
+            }
         }
 
-        binding.tvProfileBirthday.setText("January 1, 2000"); // Placeholder
-        binding.tvProfilePhone.setText("09215687102"); // Placeholder
+        // Password display is just a placeholder
         if (binding.tvProfilePassword != null) {
             binding.tvProfilePassword.setText("************");
         }
     }
+    private static final String TAG = "ProfileActivity"; // Added TAG for logging
+
 
     private void navigateTo(Class<?> destinationActivityClass, int destinationItemId, boolean finishCurrent) {
         Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
-        // Clear previous activities in the stack if navigating to a main tab
-        // This is important to prevent a deep back stack when switching main tabs
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
 
@@ -149,17 +192,4 @@ public class ProfileActivity extends AppCompatActivity {
         if (itemId == R.id.navigation_profile) return 3;
         return -1;
     }
-
-    /*
-    // Optional: Re-select current item if navigating back to ProfileActivity
-    // without it being finished. However, with FLAG_ACTIVITY_CLEAR_TOP | FLAG_ACTIVITY_SINGLE_TOP
-    // and finish() in navigateTo, this might not be strictly necessary.
-    @Override
-    protected void onResume() {
-        super.onResume();
-        if (binding != null && binding.bottomNavigationProfilePage != null) {
-            binding.bottomNavigationProfilePage.setSelectedItemId(CURRENT_ITEM_ID);
-        }
-    }
-    */
 }
