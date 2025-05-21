@@ -56,15 +56,14 @@ public class LoginActivity extends AppCompatActivity {
                         binding.loginButton.setEnabled(true);
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
+                            // FirebaseUser user = mAuth.getCurrentUser(); // You can get user if needed
                             Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
 
-                            // Navigate to OtpVerificationActivity (as per your original flow)
-                            // You might want to check user.isEmailVerified() here in a real app
-                            // and if verified, go directly to HomeActivity.
-                            Intent intent = new Intent(LoginActivity.this, OtpVerificationActivity.class);
+                            // Navigate directly to HomeActivity
+                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear back stack
                             startActivity(intent);
-                            finish();
+                            finish(); // Close LoginActivity
                         } else {
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
                             Toast.makeText(LoginActivity.this, "Authentication failed: " +

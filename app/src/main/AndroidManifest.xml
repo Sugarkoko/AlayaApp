@@ -40,10 +40,9 @@
             android:exported="false" /> <!-- SignUp Activity - Not exported, launched internally -->
         <activity
             android:name=".SignUpActivity"
-            android:exported="false" /> <!-- OtpVerification Activity - Not exported, launched internally -->
-        <activity
-            android:name=".OtpVerificationActivity"
-            android:exported="false" /> <!-- Home Activity - Not exported, launched internally -->
+            android:exported="false" />
+        <!-- REMOVED OtpVerification Activity declaration -->
+        <!-- Home Activity - Not exported, launched internally -->
         <activity
             android:name=".HomeActivity"
             android:exported="false"
@@ -53,7 +52,7 @@
             android:name=".ItinerariesActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustPan" /> <!-- Optional: Prevent resize on keyboard show -->
-        <activity android:name=".ResetPasswordActivity" /> <!-- REMOVED MainActivity reference as it's being deleted -->
+        <activity android:name=".ResetPasswordActivity" />
         <activity
             android:name=".BurnhamDetailsActivity"
             android:exported="false" />
@@ -61,9 +60,10 @@
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-        <meta-data
+        <!-- Note: Duplicate preloaded_fonts meta-data, keeping one is enough -->
+        <!-- <meta-data
             android:name="preloaded_fonts"
-            android:resource="@array/preloaded_fonts" />
+            android:resource="@array/preloaded_fonts" /> -->
 
         <activity
             android:name=".ChangePasswordActivity"
@@ -82,13 +82,6 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="YOUR_GOOGLE_MAPS_API_KEY" />
 
-
-
-
-
-
-
     </application>
-
 
 </manifest>
