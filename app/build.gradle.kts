@@ -44,8 +44,8 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.play.services.maps)
-    implementation(libs.play.services.maps) // Assuming this is correctly defined in libs
+    implementation(libs.play.services.maps) // Keep one instance
+    implementation(libs.play.services.location) // Add this for location services
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

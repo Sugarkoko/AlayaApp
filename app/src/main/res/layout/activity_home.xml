@@ -42,37 +42,26 @@
                 android:textStyle="bold" />
 
             <!-- When is your trip Button -->
-            <!-- When is your trip Button -->
-            <!-- Use Borderless style to remove default button styling/shadow -->
-
-            <!-- Current Location Title -->
-
-
             <Button
                 android:id="@+id/btn_trip_date"
                 style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="375dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/bg_rounded_light_gray"
-                android:drawableStart="@drawable/calendar"
-                android:drawablePadding="12dp"
-                android:fontFamily="@font/roboto_bold"
-                android:gravity="center"
-                android:paddingStart="14dp"
-                android:paddingTop="14dp"
-                android:paddingEnd="14dp"
-                android:paddingBottom="14dp"
-                android:text="When is your Trip?"
-                android:textAllCaps="false"
-                android:textColor="#101010"
-                android:textSize="16sp"
-
-                app:backgroundTint="@null"
-                app:icon="@drawable/calendar"
-                app:iconPadding="0dp"
-                app:iconTint="#0F0F0F" />
-
+                android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:background="@drawable/bg_rounded_light_gray"
+            android:drawableStart="@drawable/calendar"
+            android:drawablePadding="12dp"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center_vertical|start"
+            android:paddingStart="14dp"
+            android:paddingTop="14dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="14dp"
+            android:text="When is your Trip?"
+            android:textAllCaps="false"
+            android:textColor="#101010"
+            android:textSize="16sp"
+            app:backgroundTint="@null" />
             <TextView
                 android:id="@+id/tv_current_location_title"
                 android:layout_width="wrap_content"
@@ -84,26 +73,23 @@
                 android:textStyle="bold"/>
 
             <!-- Location Display Box (TextView styled like a button) -->
-
-
-            <!-- Spots Title -->
-
             <TextView
                 android:id="@+id/tv_location_city2"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_rounded_light_gray"
-
                 android:drawableStart="@drawable/location"
-                android:drawablePadding="0dp"
-                android:gravity="center"
-                android:padding="14dp"
-                android:text="Baguio City"
-                android:textColor="@color/textPrimary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:drawableStartCompat="@drawable/location" />
+                android:drawablePadding="12dp"
+            android:gravity="center_vertical|start"
+            android:padding="14dp"
+            android:text="Tap to get current location"
+            android:textColor="@color/textPrimary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:clickable="true"
+            android:focusable="true"
+            android:foreground="?android:attr/selectableItemBackground" />
 
             <TextView
                 android:id="@+id/tv_spots_title"
@@ -134,13 +120,14 @@
                     <ImageView
                         android:id="@+id/iv_spot1"
                         android:layout_width="100dp"
-                        android:layout_height="96dp"
-                        android:contentDescription="Spot Image"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/burnham"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
+                        android:layout_height="0dp"
+                    app:layout_constraintDimensionRatio="1:1"
+                    android:contentDescription="Spot Image"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/burnham"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/tv_spot_name1"
@@ -223,7 +210,8 @@
                     <ImageView
                         android:id="@+id/iv_spot2"
                         android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
                         android:scaleType="centerCrop"
                         android:src="@drawable/mines"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -312,7 +300,8 @@
                     <ImageView
                         android:id="@+id/iv_spot3"
                         android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
                         android:scaleType="centerCrop"
                         android:src="@drawable/botanical"
                         app:layout_constraintBottom_toBottomOf="parent"
@@ -395,15 +384,14 @@
                 app:cardBackgroundColor="@color/lightGrayBackground">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="377dp"
-                    android:layout_height="98dp"
-                    tools:layout_editor_absoluteX="1dp"
-                    tools:layout_editor_absoluteY="1dp">
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
 
                     <ImageView
                         android:id="@+id/iv_spot4"
                         android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
                         android:contentDescription="Spot Image"
                         android:src="@drawable/campjohn"
                         android:scaleType="centerCrop"
@@ -488,12 +476,12 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
         app:elevation="8dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:menu="@menu/bottom_nav_menu"
-    app:itemIconTint="@color/bottom_nav_color_selector"
-    app:itemTextColor="@color/bottom_nav_color_selector"
-    app:labelVisibilityMode="labeled" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:labelVisibilityMode="labeled" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
