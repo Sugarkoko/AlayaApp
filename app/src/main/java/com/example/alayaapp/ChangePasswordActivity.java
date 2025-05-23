@@ -1,24 +1,34 @@
 package com.example.alayaapp;
 
+import androidx.annotation.NonNull; // Import NonNull
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
-import android.text.method.PasswordTransformationMethod; // For password visibility
+// import android.text.method.PasswordTransformationMethod; // Already there, keep if using custom toggle
+import android.util.Log; // For logging
 import android.view.View;
 import android.widget.Toast;
 
 import com.example.alayaapp.databinding.ActivityChangePasswordBinding;
+import com.google.android.gms.tasks.OnCompleteListener; // For Firebase tasks
+import com.google.android.gms.tasks.Task; // For Firebase tasks
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.FirebaseAuth; // Firebase Auth
+import com.google.firebase.auth.FirebaseUser; // Firebase User
 
 public class ChangePasswordActivity extends AppCompatActivity {
 
     private ActivityChangePasswordBinding binding;
+    private FirebaseAuth mAuth; // Firebase Auth instance
+    private static final String TAG = "ChangePasswordActivity"; // For logging
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityChangePasswordBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
+        mAuth = FirebaseAuth.getInstance(); // Initialize Firebase Auth
 
         // Back arrow listener
         binding.ivBackArrowChangePassword.setOnClickListener(v -> {
@@ -29,10 +39,6 @@ public class ChangePasswordActivity extends AppCompatActivity {
         binding.btnChangePasswordSubmit.setOnClickListener(v -> {
             handleChangePassword();
         });
-
-        // Optional: Setup password visibility toggle manually if needed for custom icons
-        // setupPasswordToggleListener(binding.tilNewPassword);
-        // setupPasswordToggleListener(binding.tilConfirmPassword);
     }
 
     private void handleChangePassword() {
@@ -42,13 +48,16 @@ public class ChangePasswordActivity extends AppCompatActivity {
         // Basic Validation
         if (newPassword.isEmpty()) {
             binding.tilNewPassword.setError("New password cannot be empty");
+            binding.etNewPassword.requestFocus();
             return;
         } else {
-            binding.tilNewPassword.setError(null); // Clear error
+            binding.tilNewPassword.setError(null);
         }
 
-        if (newPassword.length() < 6) { // Example: minimum length
+        // Firebase requires passwords to be at least 6 characters.
+        if (newPassword.length() < 6) {
             binding.tilNewPassword.setError("Password must be at least 6 characters");
+            binding.etNewPassword.requestFocus();
             return;
         } else {
             binding.tilNewPassword.setError(null);
@@ -56,6 +65,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         if (confirmPassword.isEmpty()) {
             binding.tilConfirmPassword.setError("Please confirm your password");
+            binding.etConfirmPassword.requestFocus();
             return;
         } else {
             binding.tilConfirmPassword.setError(null);
@@ -63,36 +73,59 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         if (!newPassword.equals(confirmPassword)) {
             binding.tilConfirmPassword.setError("Passwords do not match");
+            binding.etConfirmPassword.requestFocus(); // Keep focus here
+            binding.tilNewPassword.setError("Passwords do not match"); // Also show on new password
             return;
         } else {
             binding.tilConfirmPassword.setError(null);
+            binding.tilNewPassword.setError(null); // Clear error on new password if they match
         }
 
-        // --- TODO: Implement actual password change logic here ---
-        // This would typically involve:
-        // 1. Getting the current user's ID or token.
-        // 2. Making an API call to your backend server to update the password.
-        // 3. Handling success and error responses from the server.
+        // --- Firebase Password Change Logic ---
+        FirebaseUser user = mAuth.getCurrentUser();
 
-        Toast.makeText(this, "Password change request sent (Placeholder)", Toast.LENGTH_SHORT).show();
-        // Example: On success, you might navigate back or to a success screen
-        // finish();
+        if (user != null) {
+            binding.btnChangePasswordSubmit.setEnabled(false); // Disable button during operation
+            Toast.makeText(this, "Updating password...", Toast.LENGTH_SHORT).show();
+
+            user.updatePassword(newPassword)
+                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                        @Override
+                        public void onComplete(@NonNull Task<Void> task) {
+                            binding.btnChangePasswordSubmit.setEnabled(true); // Re-enable button
+                            if (task.isSuccessful()) {
+                                Log.d(TAG, "User password updated.");
+                                Toast.makeText(ChangePasswordActivity.this, "Password updated successfully!", Toast.LENGTH_LONG).show();
+                                // Optional: Sign the user out and redirect to login for security
+                                // mAuth.signOut();
+                                // Intent intent = new Intent(ChangePasswordActivity.this, LoginActivity.class);
+                                // intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                                // startActivity(intent);
+                                finish(); // Close this activity and return to profile
+                            } else {
+                                Log.e(TAG, "Error updating password", task.getException());
+                                String errorMessage = "Failed to update password.";
+                                if (task.getException() != null) {
+                                    // You might want to check for specific Firebase Auth exceptions
+                                    // e.g., FirebaseAuthWeakPasswordException, FirebaseAuthRecentLoginRequiredException
+                                    errorMessage += " " + task.getException().getMessage();
+                                    if (task.getException().getMessage().contains("CREDENTIAL_TOO_OLD_LOGIN_AGAIN")) {
+                                        errorMessage = "For security, please sign out and sign back in before changing your password.";
+                                    }
+                                }
+                                Toast.makeText(ChangePasswordActivity.this, errorMessage, Toast.LENGTH_LONG).show();
+                                binding.tilNewPassword.setError(errorMessage); // Show error on a field
+                            }
+                        }
+                    });
+        } else {
+            // This shouldn't happen if the user reached this screen while logged in
+            Toast.makeText(this, "No user signed in. Please sign in again.", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Cannot change password: No user is currently signed in.");
+            // Optionally navigate to Login screen
+            // Intent intent = new Intent(ChangePasswordActivity.this, LoginActivity.class);
+            // startActivity(intent);
+            // finishAffinity();
+        }
     }
-
-    // Optional: If you want to use custom drawables for password toggle and handle state
-    // private void setupPasswordToggleListener(final TextInputLayout textInputLayout) {
-    //    textInputLayout.setEndIconOnClickListener(v -> {
-    //        if (textInputLayout.getEditText().getTransformationMethod() == null) {
-    //            // If password visible, hide it
-    //            textInputLayout.getEditText().setTransformationMethod(PasswordTransformationMethod.getInstance());
-    //            textInputLayout.setEndIconDrawable(R.drawable.ic_visibility_on); // Set to "eye open"
-    //        } else {
-    //            // If password hidden, show it
-    //            textInputLayout.getEditText().setTransformationMethod(null);
-    //            textInputLayout.setEndIconDrawable(R.drawable.ic_visibility_off); // Set to "eye crossed"
-    //        }
-    //        // Move cursor to the end
-    //        textInputLayout.getEditText().setSelection(textInputLayout.getEditText().getText().length());
-    //    });
-    // }
 }

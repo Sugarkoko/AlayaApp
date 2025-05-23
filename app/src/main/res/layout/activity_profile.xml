@@ -7,67 +7,61 @@
     android:background="@color/white"
     tools:context=".ProfileActivity">
 
-  <!-- Header Section -->
+    <!-- Header Section -->
     <View
         android:id="@+id/viewHeaderBackground"
-        android:layout_width="468dp"
+        android:layout_width="0dp"
         android:layout_height="249dp"
         android:background="@drawable/profile_header_background"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-  <TextView
-      android:id="@+id/tvProfileNameHeader"
-      android:layout_width="wrap_content"
-      android:layout_height="wrap_content"
-      android:layout_marginTop="32dp"
-      android:text="Alice Go"
-      android:textColor="@android:color/white"
-      android:textSize="28sp"
-      android:textStyle="bold"
-      app:layout_constraintEnd_toEndOf="parent"
-      app:layout_constraintStart_toStartOf="parent"
-      app:layout_constraintTop_toTopOf="@id/viewHeaderBackground" />
+    <TextView
+        android:id="@+id/tvProfileNameHeader"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Alice Go"
+        android:textColor="@android:color/white"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/viewHeaderBackground" />
 
-  <!-- Profile Image Container -->
-  <FrameLayout
-      android:id="@+id/flProfileImageContainer"
-      android:layout_width="200dp"
-  android:layout_height="200dp"
-  android:elevation="8dp"
-  app:layout_constraintStart_toStartOf="parent"
-  app:layout_constraintEnd_toEndOf="parent"
-  app:layout_constraintTop_toBottomOf="@id/tvProfileNameHeader"
-  android:layout_marginTop="50dp"
-  >
+    <!-- Profile Image Container -->
+    <FrameLayout
+        android:id="@+id/flProfileImageContainer"
+        android:layout_width="200dp"
+        android:layout_height="200dp"
+        android:elevation="8dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvProfileNameHeader"
+        android:layout_marginTop="50dp">
 
+        <ImageView
+            android:id="@+id/ivProfileBackground"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:src="@drawable/circle_gradient_background"
+            android:scaleType="fitXY"/>
 
-  <ImageView
-      android:id="@+id/ivProfileBackground"
-      android:layout_width="match_parent"
-      android:layout_height="match_parent"
-      android:src="@drawable/circle_gradient_background"
-      android:scaleType="fitXY"/>
+        <ImageView
+            android:id="@+id/ivProfileBorder"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
 
-  <!-- White Border -->
-
-      <ImageView
-          android:id="@+id/ivProfileBorder"
-          android:layout_width="match_parent"
-          android:layout_height="match_parent" />
-
-      <ImageView
-      android:id="@+id/ivProfileIcon"
-      android:layout_width="100dp"
-  android:layout_height="100dp"
-  android:layout_gravity="center"
-  android:scaleType="fitCenter"
-  android:src="@drawable/ic_profile_placeholder" />
-
-</FrameLayout>
-
-    <!-- Bottom Navigation -->
+        <ImageView
+            android:id="@+id/ivProfileIcon"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_gravity="center"
+            android:scaleType="fitCenter"
+            android:src="@drawable/ic_profile_placeholder"
+            android:contentDescription="Profile Picture" />
+    </FrameLayout>
 
     <ScrollView
         android:id="@+id/scrollViewProfile"
@@ -77,13 +71,9 @@
         android:clipToPadding="false"
         android:paddingTop="90dp"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation_profile_page"
-
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/flProfileImageContainer"
-        app:layout_constraintVertical_bias="1.0">
-
+        app:layout_constraintTop_toBottomOf="@id/flProfileImageContainer">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -94,7 +84,7 @@
             android:paddingEnd="16dp"
             android:paddingBottom="16dp">
 
-
+            <!-- Name Row -->
             <RelativeLayout
                 android:id="@+id/layoutName"
                 android:layout_width="match_parent"
@@ -108,17 +98,21 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_profile"
-                    app:tint="@color/colorPrimaryDarker" />
+                    app:tint="@color/colorPrimaryDarker"
+                    android:contentDescription="Name Icon"/>
 
                 <TextView
                     android:id="@+id/tvProfileNameDetail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_toStartOf="@id/ivLogout"
                     android:layout_toEndOf="@id/iconName"
                     android:text="Alice Go"
                     android:textColor="@color/black"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="4dp"/>
 
                 <ImageView
                     android:id="@+id/ivLogout"
@@ -130,13 +124,14 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:src="@drawable/ic_logout"
-                    app:tint="@color/colorPrimaryDarker" />
+                    app:tint="@color/colorPrimaryDarker"
+                    android:contentDescription="Logout"/>
             </RelativeLayout>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/colorPrimaryDarker" />
+
             <!-- Birthday Row -->
             <RelativeLayout
                 android:id="@+id/layoutBirthday"
@@ -151,23 +146,26 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_calendar_today"
-                    app:tint="@color/colorPrimaryDarker" />
+                    app:tint="@color/colorPrimaryDarker"
+                    android:contentDescription="Birthday Icon"/>
 
                 <TextView
                     android:id="@+id/tvProfileBirthday"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toEndOf="@id/iconBirthday"
                     android:text="January 1, 2000"
                     android:textColor="@color/textPrimary"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="4dp"/>
             </RelativeLayout>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/colorPrimaryDarker" />
+
             <!-- Email Row -->
             <RelativeLayout
                 android:id="@+id/layoutEmail"
@@ -182,17 +180,21 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_email"
-                    app:tint="@color/colorPrimaryDarker" />
+                    app:tint="@color/colorPrimaryDarker"
+                    android:contentDescription="Email Icon"/>
 
                 <TextView
                     android:id="@+id/tvProfileEmail"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_toStartOf="@+id/tvEditEmail"
                     android:layout_toEndOf="@id/iconEmail"
                     android:text="alicego@gmail.com"
                     android:textColor="@color/textPrimary"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:padding="4dp"/>
+                <!-- android:background="?attr/selectableItemBackground" --> <!-- Add if email edit implemented -->
 
                 <TextView
                     android:id="@+id/tvEditEmail"
@@ -206,13 +208,14 @@
                     android:padding="4dp"
                     android:text="edit"
                     android:textColor="@color/colorPrimaryDarker"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:visibility="gone" /> <!-- Hiding as per current Java implementation -->
             </RelativeLayout>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/colorPrimaryDarker" />
+
             <!-- Phone Row -->
             <RelativeLayout
                 android:id="@+id/layoutPhone"
@@ -227,17 +230,21 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_phone"
-                    app:tint="@color/colorPrimaryDarker" />
+                    app:tint="@color/colorPrimaryDarker"
+                    android:contentDescription="Phone Icon"/>
 
                 <TextView
                     android:id="@+id/tvProfilePhone"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
+                    android:layout_toStartOf="@+id/tvEditPhone"
                     android:layout_toEndOf="@id/iconPhone"
                     android:text="09215687102"
                     android:textColor="@color/textPrimary"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="4dp"/>
 
                 <TextView
                     android:id="@+id/tvEditPhone"
@@ -251,13 +258,14 @@
                     android:padding="4dp"
                     android:text="edit"
                     android:textColor="@color/colorPrimaryDarker"
-                    android:textSize="14sp" />
+                    android:textSize="14sp"
+                    android:visibility="gone" /> <!-- Hiding -->
             </RelativeLayout>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/colorPrimaryDarker" />
+
             <!-- Password Row -->
             <RelativeLayout
                 android:id="@+id/layoutPassword"
@@ -272,7 +280,8 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_visibility_on"
-                    app:tint="@color/colorPrimaryDarker" />
+                    app:tint="@color/colorPrimaryDarker"
+                    android:contentDescription="Password Icon"/>
 
                 <TextView
                     android:id="@+id/tvProfilePassword"
@@ -282,7 +291,8 @@
                     android:layout_toEndOf="@id/iconPassword"
                     android:text="************"
                     android:textColor="@color/textPrimary"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:padding="4dp"/>
 
                 <LinearLayout
                     android:id="@+id/layoutChangePassword"
@@ -302,7 +312,8 @@
                         android:layout_gravity="center_vertical"
                         android:layout_marginEnd="4dp"
                         android:src="@drawable/ic_visibility_on"
-                        app:tint="@color/colorPrimaryDarker" />
+                        app:tint="@color/colorPrimaryDarker"
+                        android:contentDescription="Change Password Icon"/>
 
                     <TextView
                         android:id="@+id/tvChangePassword"
@@ -313,11 +324,11 @@
                         android:textSize="14sp" />
                 </LinearLayout>
             </RelativeLayout>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/colorPrimaryDarker" />
+
             <!-- History Row -->
             <RelativeLayout
                 android:id="@+id/layoutHistory"
@@ -335,7 +346,8 @@
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_history"
-                    app:tint="@color/colorPrimaryDarker" />
+                    app:tint="@color/colorPrimaryDarker"
+                    android:contentDescription="History Icon"/>
 
                 <TextView
                     android:id="@+id/tvProfileHistory"
@@ -345,30 +357,29 @@
                     android:layout_toEndOf="@id/iconHistory"
                     android:text="Location and Itinerary History"
                     android:textColor="@color/textPrimary"
-                    android:textSize="16sp" />
+                    android:textSize="16sp"
+                    android:padding="4dp"/>
             </RelativeLayout>
-
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/colorPrimaryDarker" />
-
-
         </LinearLayout>
     </ScrollView>
 
+    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
-android:id="@+id/bottom_navigation_profile_page"
-android:layout_width="0dp"
-android:layout_height="wrap_content"
-android:background="?android:attr/windowBackground"
-app:elevation="8dp"
-app:itemIconTint="@color/bottom_nav_color_selector"
-app:itemTextColor="@color/bottom_nav_color_selector"
-app:labelVisibilityMode="labeled"
-app:layout_constraintBottom_toBottomOf="parent"
-app:layout_constraintEnd_toEndOf="parent"
-app:layout_constraintStart_toStartOf="parent"
-app:menu="@menu/bottom_nav_menu" />
+        android:id="@+id/bottom_navigation_profile_page"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?android:attr/windowBackground"
+        app:elevation="8dp"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
