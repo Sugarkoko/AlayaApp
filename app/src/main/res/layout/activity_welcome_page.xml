@@ -49,23 +49,22 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/title_text" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/get_started_button"
-        android:layout_width="298dp"
+        android:layout_width="0dp"
         android:layout_height="52dp"
-        android:layout_marginTop="32dp"
-        android:background="@drawable/rounded_button_white"
-        android:fontFamily="@font/roboto_medium"
-        android:gravity="center"
-        android:paddingLeft="32dp"
-        android:paddingTop="12dp"
-        android:paddingRight="32dp"
-        android:paddingBottom="12dp"
-        android:text="Get Started"
-        android:textColor="#09510D"
-        android:textSize="16sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/subtitle_text" />
+        android:layout_marginStart="32dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginTop="24dp"
+        app:backgroundTint="@android:color/white"
+    android:fontFamily="@font/roboto_medium"
+    android:text="Get Started"
+    android:textColor="#09510D"
+    android:textSize="16sp"
+    app:cornerRadius="10dp"
+    app:layout_constraintEnd_toEndOf="parent"
+    app:layout_constraintStart_toStartOf="parent"
+    app:layout_constraintTop_toBottomOf="@id/subtitle_text"
+    app:layout_constraintWidth_max="298dp"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
