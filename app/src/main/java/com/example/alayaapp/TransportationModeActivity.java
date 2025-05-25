@@ -1,36 +1,36 @@
 package com.example.alayaapp;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.FragmentTransaction; // For map fragment
-
+// import androidx.fragment.app.FragmentTransaction; // For map fragment - Commented out
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
+// import android.widget.ImageView; // Not directly used if using binding
+// import android.widget.TextView; // Not directly used if using binding
 import android.widget.Toast;
 
 import com.example.alayaapp.databinding.ActivityTransportationModeBinding;
 import com.example.alayaapp.databinding.ItemTransportOptionBinding; // Binding for included layout
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-// Add PolylineOptions if you plan to draw routes
+
+// --- Comment out Google Maps imports ---
+// import com.google.android.gms.maps.CameraUpdateFactory;
+// import com.google.android.gms.maps.GoogleMap;
+// import com.google.android.gms.maps.OnMapReadyCallback;
+// import com.google.android.gms.maps.SupportMapFragment;
+// import com.google.android.gms.maps.model.LatLng;
+// import com.google.android.gms.maps.model.MarkerOptions;
 // import com.google.android.gms.maps.model.PolylineOptions;
 
-
-public class TransportationModeActivity extends AppCompatActivity implements OnMapReadyCallback {
+// --- Remove OnMapReadyCallback interface ---
+public class TransportationModeActivity extends AppCompatActivity /* implements OnMapReadyCallback */ {
 
     private ActivityTransportationModeBinding binding;
-    private GoogleMap mMap;
+    // private GoogleMap mMap; // Commented out
 
-    // Define constants for clarity (example coordinates)
-    private final LatLng HOTEL_VENIZ_COORDS = new LatLng(16.4122, 120.5966); // Example
-    private final LatLng BURNHAM_PARK_COORDS = new LatLng(16.4097, 120.5935); // Example
-
+    // --- Comment out LatLng constants or replace with OSMDroid's GeoPoint if migrating now ---
+    // For now, just commenting them out as they are Google Maps specific
+    // private final LatLng HOTEL_VENIZ_COORDS = new LatLng(16.4122, 120.5966); // Example
+    // private final LatLng BURNHAM_PARK_COORDS = new LatLng(16.4097, 120.5935); // Example
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,21 +38,18 @@ public class TransportationModeActivity extends AppCompatActivity implements OnM
         binding = ActivityTransportationModeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Handle Back Arrow Click
+        // Handle Back Arrow Click (Assuming you have a back arrow, if not, add one or remove this)
+        // Example: if (binding.ivBackArrowTransport != null) { // Replace with your actual ID
+        //    binding.ivBackArrowTransport.setOnClickListener(v -> finish());
+        // }
 
 
-        // Setup data for transportation options (Placeholder)
         setupTransportationOptions();
-
-        // Setup Map Fragment
-        setupMapFragment();
-
-        // Setup Bottom Navigation
-        // Decide which item should be selected. If this page is reached from "Map", select Map.
-        // If it's a detail page, maybe none, or keep the previous activity's selection.
-        // For now, let's assume we keep Home selected if no other logic dictates.
-        binding.bottomNavigationTransportPage.setSelectedItemId(R.id.navigation_home);
+        // setupMapFragment(); // Commented out call
         setupBottomNavListener();
+
+        // Set initial selected item for Bottom Nav
+        binding.bottomNavigationTransportPage.setSelectedItemId(R.id.navigation_home); // Or relevant default
     }
 
     private void setupTransportationOptions() {
@@ -63,11 +60,18 @@ public class TransportationModeActivity extends AppCompatActivity implements OnM
         populateTransportOption(binding.transportMotorcycle, "Motorcycle", null, R.drawable.ic_motorcycle, "4 mins", "FREE", 0, 0);
         populateTransportOption(binding.transportWalk, "Walk", null, R.drawable.ic_walk, "10 mins", "FREE", 0, 0);
 
-        binding.transportTaxi.getRoot().setOnClickListener(v -> showRouteOnMap("taxi"));
-        binding.transportBus.getRoot().setOnClickListener(v -> showRouteOnMap("bus"));
-        // ... etc.
+        // Update click listeners to show placeholder or navigate without map for now
+        binding.transportTaxi.getRoot().setOnClickListener(v -> showToastForMode("taxi"));
+        binding.transportBus.getRoot().setOnClickListener(v -> showToastForMode("bus"));
+        binding.transportBike.getRoot().setOnClickListener(v -> showToastForMode("bike"));
+        binding.transportMotorcycle.getRoot().setOnClickListener(v -> showToastForMode("motorcycle"));
+        binding.transportWalk.getRoot().setOnClickListener(v -> showToastForMode("walk"));
     }
 
+    private void showToastForMode(String mode) {
+        Toast.makeText(this, "Selected mode: " + mode + " (Map route display TBD)", Toast.LENGTH_SHORT).show();
+        // showRouteOnMap(mode); // This would need to be refactored for OSMDroid
+    }
 
     private void populateTransportOption(ItemTransportOptionBinding itemBinding, String name, String badgeText, int iconRes, String duration, String price, int badgeBgRes, int badgeTextColorRes) {
         itemBinding.tvTransportName.setText(name);
@@ -78,6 +82,7 @@ public class TransportationModeActivity extends AppCompatActivity implements OnM
         if (badgeText != null) {
             itemBinding.tvTransportBadge.setText(badgeText);
             itemBinding.tvTransportBadge.setBackgroundResource(badgeBgRes);
+            // Use ContextCompat for deprecated getColor method if minSdk < 23
             itemBinding.tvTransportBadge.setTextColor(getResources().getColor(badgeTextColorRes, getTheme()));
             itemBinding.tvTransportBadge.setVisibility(View.VISIBLE);
         } else {
@@ -85,10 +90,12 @@ public class TransportationModeActivity extends AppCompatActivity implements OnM
         }
     }
 
-
+    /*
+    // --- Comment out entire Google Maps specific methods ---
     private void setupMapFragment() {
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map_fragment_container_transport); // Check if already added
+                .findFragmentById(R.id.map_fragment_container_transport); // Ensure this ID is in your XML
+
         if (mapFragment == null) {
             mapFragment = SupportMapFragment.newInstance();
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -104,16 +111,14 @@ public class TransportationModeActivity extends AppCompatActivity implements OnM
             Toast.makeText(this, "Error - Map not available", Toast.LENGTH_SHORT).show();
             return;
         }
-
         // Add markers for start and end points (example)
-        mMap.addMarker(new MarkerOptions().position(HOTEL_VENIZ_COORDS).title("Hotel Veniz"));
-        mMap.addMarker(new MarkerOptions().position(BURNHAM_PARK_COORDS).title("Burnham Park"));
-
+        // mMap.addMarker(new MarkerOptions().position(HOTEL_VENIZ_COORDS).title("Hotel Veniz"));
+        // mMap.addMarker(new MarkerOptions().position(BURNHAM_PARK_COORDS).title("Burnham Park"));
         // Move camera to show both markers or a default route overview
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(BURNHAM_PARK_COORDS, 15f)); // Zoom to destination
-
+        // mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(BURNHAM_PARK_COORDS, 15f)); // Zoom to destination
         // TODO: Initially, you might show a default route (e.g., walking)
         // showRouteOnMap("walk"); // Or your default
+        Toast.makeText(this, "Map ready (Google Maps - Needs migration to OSM)", Toast.LENGTH_SHORT).show();
     }
 
     private void showRouteOnMap(String mode) {
@@ -121,25 +126,22 @@ public class TransportationModeActivity extends AppCompatActivity implements OnM
         mMap.clear(); // Clear previous routes/markers if any
 
         // Re-add markers
-        mMap.addMarker(new MarkerOptions().position(HOTEL_VENIZ_COORDS).title("Hotel Veniz"));
-        mMap.addMarker(new MarkerOptions().position(BURNHAM_PARK_COORDS).title("Burnham Park"));
+        // mMap.addMarker(new MarkerOptions().position(HOTEL_VENIZ_COORDS).title("Hotel Veniz"));
+        // mMap.addMarker(new MarkerOptions().position(BURNHAM_PARK_COORDS).title("Burnham Park"));
 
-
-        Toast.makeText(this, "Showing route for: " + mode, Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Showing route for: " + mode + " (Google Maps - Needs migration to OSM)", Toast.LENGTH_SHORT).show();
         // TODO: Implement actual route drawing using Google Directions API
         // For now, just center the map or draw a straight line as placeholder
         // Example: mMap.addPolyline(new PolylineOptions().add(HOTEL_VENIZ_COORDS, BURNHAM_PARK_COORDS));
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(BURNHAM_PARK_COORDS, 15f));
+        // mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(BURNHAM_PARK_COORDS, 15f));
     }
-
+    */
 
     private void setupBottomNavListener() {
         binding.bottomNavigationTransportPage.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
-
-            // if (destinationItemId == CURRENT_NAV_ITEM_ID) { // If this page had a "current" item
-            //     return true;
-            // }
+            // If this page had its own "current" item ID, you'd check against it here.
+            // For now, assume any selection navigates away or reloads.
 
             Class<?> destinationActivityClass = null;
             if (destinationItemId == R.id.navigation_home) {
@@ -147,10 +149,11 @@ public class TransportationModeActivity extends AppCompatActivity implements OnM
             } else if (destinationItemId == R.id.navigation_itineraries) {
                 destinationActivityClass = ItinerariesActivity.class;
             } else if (destinationItemId == R.id.navigation_map) {
-                Toast.makeText(this, "Map (TBD - Already on a map related screen)", Toast.LENGTH_SHORT).show();
-                // Potentially navigate to a main MapActivity if this is a sub-page
-                // destinationActivityClass = MapActivity.class;
-                return true; // Prevent re-navigation for now
+                // If MapsActivity is the main map screen, navigate there.
+                // If this screen IS the map screen, or a sub-map screen, handle appropriately.
+                destinationActivityClass = MapsActivity.class; // Assuming you want to go to the main OSM Map
+                // Toast.makeText(this, "Map (TBD - Already on a map related screen or go to main map)", Toast.LENGTH_SHORT).show();
+                // return true; // Prevent re-navigation for now if it's complex
             } else if (destinationItemId == R.id.navigation_profile) {
                 destinationActivityClass = ProfileActivity.class;
             }
@@ -166,14 +169,18 @@ public class TransportationModeActivity extends AppCompatActivity implements OnM
     private void navigateTo(Class<?> destinationActivityClass, int destinationItemId) {
         Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
         // Clear previous activities if navigating to a main tab like Home
-        if (destinationActivityClass == HomeActivity.class ) { // || destinationActivityClass == ItinerariesActivity.class etc.
+        if (destinationActivityClass == HomeActivity.class ||
+                destinationActivityClass == ItinerariesActivity.class ||
+                destinationActivityClass == MapsActivity.class ||
+                destinationActivityClass == ProfileActivity.class) {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         }
         startActivity(intent);
 
-        // Basic fade animation for now, or implement indexed sliding
+        // Implement indexed sliding or basic fade
+        // You'll need to define a CURRENT_NAV_ITEM_ID for this activity if using sliding
+        // For now, using a basic fade to avoid complexity if index is not defined for this specific screen.
         overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
-
         finish(); // Close this activity
     }
 }

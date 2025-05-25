@@ -13,7 +13,6 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -27,14 +26,18 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17 // Updated
+        targetCompatibility = JavaVersion.VERSION_17 // Updated
     }
-
     buildFeatures {
         viewBinding = true
+        buildConfig = true
     }
 }
+
+// app/build.gradle.kts
+
+// ... other parts of the file ...
 
 dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
@@ -44,12 +47,17 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.play.services.maps)
-    implementation(libs.play.services.maps) // Assuming this is correctly defined in libs
+
+    implementation(libs.play.services.location) // For FusedLocationProviderClient
+
+    // OSMDroid
+    implementation("org.osmdroid:osmdroid-android:6.1.18")
+    // implementation("org.osmdroid:osmdroid-bonuspack:6.9.0") // REMOVE THIS LINE
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-database")
-    implementation("de.hdodenhof:circleimageview:3.1.0") // Correct syntax for Kotlin DSL
+    implementation("de.hdodenhof:circleimageview:3.1.0")
 }

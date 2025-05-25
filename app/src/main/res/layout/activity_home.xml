@@ -1,15 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
     tools:context=".HomeActivity">
-
-    <!-- Note: The faint "Home Page" at the very top isn't included here.
-         It would typically be part of an ActionBar/Toolbar -->
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -20,7 +16,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:fillViewport="true"
-        android:scrollbars="none">  <!-- Hide scrollbar -->
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,7 +27,6 @@
             android:paddingTop="24dp"
             android:paddingBottom="16dp">
 
-            <!-- Home Title -->
             <TextView
                 android:id="@+id/tv_home_title"
                 android:layout_width="wrap_content"
@@ -41,24 +36,17 @@
                 android:textSize="34sp"
                 android:textStyle="bold" />
 
-            <!-- When is your trip Button -->
-            <!-- When is your trip Button -->
-            <!-- Use Borderless style to remove default button styling/shadow -->
-
-            <!-- Current Location Title -->
-
-
             <Button
                 android:id="@+id/btn_trip_date"
                 style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="375dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/bg_rounded_light_gray"
                 android:drawableStart="@drawable/calendar"
                 android:drawablePadding="12dp"
                 android:fontFamily="@font/roboto_bold"
-                android:gravity="center"
+                android:gravity="center_vertical|start"
                 android:paddingStart="14dp"
                 android:paddingTop="14dp"
                 android:paddingEnd="14dp"
@@ -67,11 +55,7 @@
                 android:textAllCaps="false"
                 android:textColor="#101010"
                 android:textSize="16sp"
-
-                app:backgroundTint="@null"
-                app:icon="@drawable/calendar"
-                app:iconPadding="0dp"
-                app:iconTint="#0F0F0F" />
+                app:backgroundTint="@null" />
 
             <TextView
                 android:id="@+id/tv_current_location_title"
@@ -83,27 +67,66 @@
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
-            <!-- Location Display Box (TextView styled like a button) -->
-
-
-            <!-- Spots Title -->
-
-            <TextView
-                android:id="@+id/tv_location_city2"
+            <!-- Location Display Box with Edit Button -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_location_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_rounded_light_gray"
+                android:padding="14dp">
 
-                android:drawableStart="@drawable/location"
-                android:drawablePadding="0dp"
-                android:gravity="center"
-                android:padding="14dp"
-                android:text="Baguio City"
-                android:textColor="@color/textPrimary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:drawableStartCompat="@drawable/location" />
+                <ImageView
+                    android:id="@+id/iv_location_icon_home"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/location"
+                    app:tint="@color/textPrimary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:contentDescription="Location Icon"/>
+
+                <TextView
+                    android:id="@+id/tv_location_city2"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="8dp"
+                    tools:text="Tap to get current location"
+                    android:text="Tap to get current location"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@id/iv_location_icon_home"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_edit_location"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <ImageButton
+                    android:id="@+id/ib_edit_location"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/edit"
+                    app:tint="@color/colorPrimary"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Edit Location"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- This TextView was part of MapsActivity, adding it here for consistency if needed for debug -->
+            <TextView
+                android:id="@+id/tv_direction_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="12sp"
+                android:textColor="@color/textSecondary"
+                tools:text="Location status will show here"/>
+
 
             <TextView
                 android:id="@+id/tv_spots_title"
@@ -116,7 +139,6 @@
                 android:textStyle="bold"/>
 
             <!-- Spot List Area -->
-
             <!-- Item 1: Burnham Park -->
             <androidx.cardview.widget.CardView
                 android:id="@+id/card_burnham_park"
@@ -126,22 +148,20 @@
                 app:cardCornerRadius="15dp"
                 app:cardElevation="2dp"
                 app:cardBackgroundColor="@color/lightGrayBackground">
-
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-
                     <ImageView
                         android:id="@+id/iv_spot1"
                         android:layout_width="100dp"
-                        android:layout_height="96dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
                         android:contentDescription="Spot Image"
                         android:scaleType="centerCrop"
                         android:src="@drawable/burnham"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
-
                     <TextView
                         android:id="@+id/tv_spot_name1"
                         android:layout_width="0dp"
@@ -156,7 +176,6 @@
                         app:layout_constraintStart_toEndOf="@id/iv_spot1"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/tv_spot_distance1"/>
-
                     <ImageView
                         android:id="@+id/iv_star1"
                         android:layout_width="16dp"
@@ -167,7 +186,6 @@
                         app:layout_constraintStart_toStartOf="@id/tv_spot_name1"
                         app:layout_constraintTop_toBottomOf="@id/tv_spot_name1"
                         android:contentDescription="Rating Star"/>
-
                     <TextView
                         android:id="@+id/tv_spot_rating1"
                         android:layout_width="wrap_content"
@@ -179,7 +197,6 @@
                         app:layout_constraintBottom_toBottomOf="@id/iv_star1"
                         app:layout_constraintStart_toEndOf="@id/iv_star1"
                         app:layout_constraintTop_toTopOf="@id/iv_star1" />
-
                     <TextView
                         android:id="@+id/tv_spot_reviews1"
                         android:layout_width="wrap_content"
@@ -191,7 +208,6 @@
                         app:layout_constraintBottom_toBottomOf="@id/tv_spot_rating1"
                         app:layout_constraintStart_toEndOf="@id/tv_spot_rating1"
                         app:layout_constraintTop_toTopOf="@id/tv_spot_rating1" />
-
                     <TextView
                         android:id="@+id/tv_spot_distance1"
                         android:layout_width="wrap_content"
@@ -203,7 +219,6 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@id/tv_spot_name1"
                         app:layout_constraintBottom_toBottomOf="@id/tv_spot_name1"/>
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
@@ -215,22 +230,20 @@
                 app:cardCornerRadius="15dp"
                 app:cardElevation="2dp"
                 app:cardBackgroundColor="@color/lightGrayBackground">
-
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-
                     <ImageView
                         android:id="@+id/iv_spot2"
                         android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
                         android:scaleType="centerCrop"
                         android:src="@drawable/mines"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         android:contentDescription="Spot Image"/>
-
                     <TextView
                         android:id="@+id/tv_spot_name2"
                         android:layout_width="0dp"
@@ -245,7 +258,6 @@
                         app:layout_constraintStart_toEndOf="@id/iv_spot2"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/tv_spot_distance2"/>
-
                     <ImageView
                         android:id="@+id/iv_star2"
                         android:layout_width="16dp"
@@ -256,7 +268,6 @@
                         app:layout_constraintStart_toStartOf="@id/tv_spot_name2"
                         app:layout_constraintTop_toBottomOf="@id/tv_spot_name2"
                         android:contentDescription="Rating Star"/>
-
                     <TextView
                         android:id="@+id/tv_spot_rating2"
                         android:layout_width="wrap_content"
@@ -268,7 +279,6 @@
                         app:layout_constraintBottom_toBottomOf="@id/iv_star2"
                         app:layout_constraintStart_toEndOf="@id/iv_star2"
                         app:layout_constraintTop_toTopOf="@id/iv_star2" />
-
                     <TextView
                         android:id="@+id/tv_spot_reviews2"
                         android:layout_width="wrap_content"
@@ -280,7 +290,6 @@
                         app:layout_constraintBottom_toBottomOf="@id/tv_spot_rating2"
                         app:layout_constraintStart_toEndOf="@id/tv_spot_rating2"
                         app:layout_constraintTop_toTopOf="@id/tv_spot_rating2" />
-
                     <TextView
                         android:id="@+id/tv_spot_distance2"
                         android:layout_width="wrap_content"
@@ -292,7 +301,6 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@id/tv_spot_name2"
                         app:layout_constraintBottom_toBottomOf="@id/tv_spot_name2"/>
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
@@ -304,22 +312,20 @@
                 app:cardCornerRadius="15dp"
                 app:cardElevation="2dp"
                 app:cardBackgroundColor="@color/lightGrayBackground">
-
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-
                     <ImageView
                         android:id="@+id/iv_spot3"
                         android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
                         android:scaleType="centerCrop"
                         android:src="@drawable/botanical"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         android:contentDescription="Spot Image"/>
-
                     <TextView
                         android:id="@+id/tv_spot_name3"
                         android:layout_width="0dp"
@@ -334,7 +340,6 @@
                         app:layout_constraintStart_toEndOf="@id/iv_spot3"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toStartOf="@+id/tv_spot_distance3"/>
-
                     <ImageView
                         android:id="@+id/iv_star3"
                         android:layout_width="16dp"
@@ -345,7 +350,6 @@
                         app:layout_constraintStart_toStartOf="@id/tv_spot_name3"
                         app:layout_constraintTop_toBottomOf="@id/tv_spot_name3"
                         android:contentDescription="Rating Star"/>
-
                     <TextView
                         android:id="@+id/tv_spot_rating3"
                         android:layout_width="wrap_content"
@@ -357,7 +361,6 @@
                         app:layout_constraintBottom_toBottomOf="@id/iv_star3"
                         app:layout_constraintStart_toEndOf="@id/iv_star3"
                         app:layout_constraintTop_toTopOf="@id/iv_star3" />
-
                     <TextView
                         android:id="@+id/tv_spot_reviews3"
                         android:layout_width="wrap_content"
@@ -369,7 +372,6 @@
                         app:layout_constraintBottom_toBottomOf="@id/tv_spot_rating3"
                         app:layout_constraintStart_toEndOf="@id/tv_spot_rating3"
                         app:layout_constraintTop_toTopOf="@id/tv_spot_rating3" />
-
                     <TextView
                         android:id="@+id/tv_spot_distance3"
                         android:layout_width="wrap_content"
@@ -381,7 +383,6 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@id/tv_spot_name3"
                         app:layout_constraintBottom_toBottomOf="@id/tv_spot_name3"/>
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
@@ -393,24 +394,20 @@
                 app:cardCornerRadius="15dp"
                 app:cardElevation="2dp"
                 app:cardBackgroundColor="@color/lightGrayBackground">
-
                 <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="377dp"
-                    android:layout_height="98dp"
-                    tools:layout_editor_absoluteX="1dp"
-                    tools:layout_editor_absoluteY="1dp">
-
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
                     <ImageView
                         android:id="@+id/iv_spot4"
                         android:layout_width="100dp"
-                        android:layout_height="100dp"
+                        android:layout_height="0dp"
+                        app:layout_constraintDimensionRatio="1:1"
                         android:contentDescription="Spot Image"
                         android:src="@drawable/campjohn"
                         android:scaleType="centerCrop"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
-
                     <TextView
                         android:id="@+id/tv_spot_name4"
                         android:layout_width="0dp"
@@ -425,7 +422,6 @@
                         app:layout_constraintEnd_toStartOf="@+id/tv_spot_distance4"
                         app:layout_constraintStart_toEndOf="@id/iv_spot4"
                         app:layout_constraintTop_toTopOf="parent" />
-
                     <ImageView
                         android:id="@+id/iv_star4"
                         android:layout_width="16dp"
@@ -436,7 +432,6 @@
                         app:layout_constraintStart_toStartOf="@id/tv_spot_name4"
                         app:layout_constraintTop_toBottomOf="@id/tv_spot_name4"
                         app:tint="@color/starColor" />
-
                     <TextView
                         android:id="@+id/tv_spot_rating4"
                         android:layout_width="wrap_content"
@@ -448,7 +443,6 @@
                         app:layout_constraintBottom_toBottomOf="@id/iv_star4"
                         app:layout_constraintStart_toEndOf="@id/iv_star4"
                         app:layout_constraintTop_toTopOf="@id/iv_star4" />
-
                     <TextView
                         android:id="@+id/tv_spot_reviews4"
                         android:layout_width="wrap_content"
@@ -460,7 +454,6 @@
                         app:layout_constraintBottom_toBottomOf="@id/tv_spot_rating4"
                         app:layout_constraintStart_toEndOf="@id/tv_spot_rating4"
                         app:layout_constraintTop_toTopOf="@id/tv_spot_rating4" />
-
                     <TextView
                         android:id="@+id/tv_spot_distance4"
                         android:layout_width="wrap_content"
@@ -472,11 +465,8 @@
                         app:layout_constraintBottom_toBottomOf="@id/tv_spot_name4"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@id/tv_spot_name4" />
-
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
-
-            <!-- Add more CardViews here for a longer list -->
 
         </LinearLayout>
     </ScrollView>
@@ -488,12 +478,12 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
         app:elevation="8dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintStart_toStartOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:menu="@menu/bottom_nav_menu"
-    app:itemIconTint="@color/bottom_nav_color_selector"
-    app:itemTextColor="@color/bottom_nav_color_selector"
-    app:labelVisibilityMode="labeled" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:labelVisibilityMode="labeled" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

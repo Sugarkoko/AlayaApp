@@ -3,8 +3,11 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.example.alayaapp">
 
-    <application
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
+    <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -15,10 +18,21 @@
         android:theme="@style/Theme.AlayaApp"
         tools:targetApi="34">
 
-
         <activity
             android:name=".MapsActivity"
             android:exported="false" />
+
+
+        <activity
+            android:name=".ManualLocationPickerActivity"
+            android:exported="false"
+            android:label="Set Location"
+            android:parentActivityName=".HomeActivity" >
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".HomeActivity" />
+        </activity>
+
         <activity
             android:name=".ItineraryLogDetailActivity"
             android:exported="false" />
@@ -31,40 +45,30 @@
             android:theme="@style/Theme.AlayaApp.SplashImitation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity> <!-- Login Activity - Not exported, launched internally -->
+        </activity>
         <activity
             android:name=".LoginActivity"
-            android:exported="false" /> <!-- SignUp Activity - Not exported, launched internally -->
+            android:exported="false" />
         <activity
             android:name=".SignUpActivity"
             android:exported="false" />
-        <!-- REMOVED OtpVerification Activity declaration -->
-        <!-- Home Activity - Not exported, launched internally -->
         <activity
             android:name=".HomeActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan" /> <!-- Optional: Prevent resize on keyboard show -->
-        <!-- Itineraries Activity - Not exported, launched internally -->
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ItinerariesActivity"
             android:exported="false"
-            android:windowSoftInputMode="adjustPan" /> <!-- Optional: Prevent resize on keyboard show -->
+            android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ResetPasswordActivity" />
         <activity
             android:name=".BurnhamDetailsActivity"
             android:exported="false" />
-
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
-        <!-- Note: Duplicate preloaded_fonts meta-data, keeping one is enough -->
-        <!-- <meta-data
-            android:name="preloaded_fonts"
-            android:resource="@array/preloaded_fonts" /> -->
-
         <activity
             android:name=".ChangePasswordActivity"
             android:exported="false" />
@@ -78,10 +82,5 @@
             android:name=".MainActivity"
             android:exported="false" />
 
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="YOUR_GOOGLE_MAPS_API_KEY" />
-
     </application>
-
 </manifest>
