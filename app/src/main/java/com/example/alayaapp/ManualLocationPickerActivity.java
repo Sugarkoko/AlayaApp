@@ -2,11 +2,11 @@ package com.example.alayaapp;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-// Android's Geocoder and Address
-import android.location.Address;
-import android.location.Geocoder;
+import android.location.Address; // Using android.location.Address
+import android.location.Geocoder;  // Using android.location.Geocoder
 import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -15,8 +15,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
@@ -44,6 +46,8 @@ import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -69,6 +73,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity {
         Context ctx = getApplicationContext();
         Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
         Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
+
 
         binding = ActivityManualLocationPickerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -108,7 +113,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity {
                 setResult(RESULT_OK, resultIntent);
                 finish();
             } else {
-                Toast.makeText(this, "Please tap on the map to select a location.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Please select a location on the map or by search.", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -116,8 +121,8 @@ public class ManualLocationPickerActivity extends AppCompatActivity {
             @Override
             public boolean singleTapConfirmedHelper(GeoPoint p) {
                 currentSelectedPoint = p;
-                updateMarker(p, "Fetching address..."); // Initial name for pinned
-                new ReverseGeocodeTaskInternal(ManualLocationPickerActivity.this).execute(p);
+                updateMarker(p, "Fetching address...");
+                new ReverseGeocodeTask(ManualLocationPickerActivity.this).execute(p);
                 return true;
             }
 
@@ -187,7 +192,6 @@ public class ManualLocationPickerActivity extends AppCompatActivity {
         }
     }
 
-    // Corrected code
     private void startPickerLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -195,20 +199,27 @@ public class ManualLocationPickerActivity extends AppCompatActivity {
         }
         LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 10000)
                 .setMinUpdateIntervalMillis(5000)
-                .setMaxUpdates(1) // <-- Corrected method
+                .setMaxUpdates(1) // Changed from setNumUpdates(1)
                 .build();
         fusedLocationClientPicker.requestLocationUpdates(locationRequest, locationCallbackPicker, Looper.getMainLooper());
     }
 
     private void performSearch() {
-        // String query = binding.etSearchLocation.getText().toString().trim(); // Keep for future
+        String query = binding.etSearchLocation.getText().toString().trim();
+        if (query.isEmpty()) {
+            Toast.makeText(this, "Please enter a location to search.", Toast.LENGTH_SHORT).show();
+            return;
+        }
         InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
         if (imm != null && getCurrentFocus() != null) {
             imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
         }
-        // Temporarily disable text search
-        Toast.makeText(this, "Text search feature is temporarily unavailable. Tap map to select.", Toast.LENGTH_LONG).show();
-        // new GeocodeTaskInternal().execute(query); // This was for osmdroid-bonuspack
+        // Use Android's Geocoder for text search
+        if (Geocoder.isPresent()) {
+            new GeocodeFromNameTaskAndroid(this).execute(query);
+        } else {
+            Toast.makeText(this, "Geocoder service not available on this device.", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void updateMarker(GeoPoint point, String title) {
@@ -223,27 +234,111 @@ public class ManualLocationPickerActivity extends AppCompatActivity {
         selectedLocationMarker.setPosition(point);
         selectedLocationMarker.setTitle(title);
         mapView.getController().animateTo(point);
+        if (mapView.getZoomLevelDouble() < 15.0) {
+            mapView.getController().setZoom(16.0);
+        }
         mapView.invalidate();
-        binding.etSearchLocation.setText(title); // Update search bar with (reverse geocoded) name
+        binding.etSearchLocation.setText(title);
         binding.etSearchLocation.clearFocus();
     }
 
-    // COMMENT OUT GeocodeTaskInternal that used GeocoderNominatim
-    /*
-    private class GeocodeTaskInternal extends AsyncTask<String, Void, List<org.osmdroid.bonuspack.location.Address>> {
-        // ...
+    // AsyncTask for Forward Geocoding (text search) using ANDROID'S Geocoder
+    private static class GeocodeFromNameTaskAndroid extends AsyncTask<String, Void, List<Address>> {
+        private WeakReference<ManualLocationPickerActivity> activityReference;
+
+        GeocodeFromNameTaskAndroid(ManualLocationPickerActivity activity) {
+            activityReference = new WeakReference<>(activity);
+        }
+
+        @Override
+        protected List<Address> doInBackground(String... params) {
+            ManualLocationPickerActivity activity = activityReference.get();
+            if (activity == null || activity.isFinishing() || !Geocoder.isPresent()) {
+                return null;
+            }
+            String locationName = params[0];
+            Geocoder geocoder = new Geocoder(activity, Locale.getDefault());
+            try {
+                // Android Geocoder's getFromLocationName
+                // You can optionally provide a bounding box for more specific results
+                // lowerLeftLatitude, lowerLeftLongitude, upperRightLatitude, upperRightLongitude
+                return geocoder.getFromLocationName(locationName, 5); // Get max 5 results
+            } catch (IOException e) {
+                Log.e(TAG, "Android Geocoder error", e);
+                return null;
+            }
+        }
+
+        @Override
+        protected void onPostExecute(List<Address> addresses) {
+            ManualLocationPickerActivity activity = activityReference.get();
+            if (activity == null || activity.isFinishing()) {
+                return;
+            }
+            if (addresses == null || addresses.isEmpty()) {
+                Toast.makeText(activity, "Location not found.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
+            if (addresses.size() == 1) {
+                Address firstResult = addresses.get(0);
+                // Android Geocoder.getFromLocationName already returns lat/lon if available
+                if (firstResult.hasLatitude() && firstResult.hasLongitude()){
+                    GeoPoint resultPoint = new GeoPoint(firstResult.getLatitude(), firstResult.getLongitude());
+                    String displayName = Helper.getAddressDisplayName(firstResult);
+                    activity.updateMarker(resultPoint, displayName);
+                } else {
+                    Toast.makeText(activity, "Location found, but coordinates missing.", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                activity.showSearchResultsDialog(addresses);
+            }
+        }
     }
-    */
 
-    // MODIFIED ReverseGeocodeTaskInternal to use android.location.Geocoder
-    private static class ReverseGeocodeTaskInternal extends AsyncTask<GeoPoint, Void, String> {
-        private ManualLocationPickerActivity activity;
+    private void showSearchResultsDialog(List<Address> addresses) {
+        ArrayList<String> addressDisplayNames = new ArrayList<>();
+        // Filter out results without coordinates, as we need them for the map
+        List<Address> validAddresses = new ArrayList<>();
+        for (Address address : addresses) {
+            if (address.hasLatitude() && address.hasLongitude()) {
+                addressDisplayNames.add(Helper.getAddressDisplayName(address));
+                validAddresses.add(address);
+            }
+        }
 
-        ReverseGeocodeTaskInternal(ManualLocationPickerActivity activity) {
-            this.activity = activity;
+        if (validAddresses.isEmpty()){
+            Toast.makeText(this, "No locations with coordinates found for your search.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(this,
+                android.R.layout.simple_list_item_1, addressDisplayNames);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Select a Location")
+                .setAdapter(adapter, (dialog, which) -> {
+                    Address selectedAddress = validAddresses.get(which);
+                    GeoPoint resultPoint = new GeoPoint(selectedAddress.getLatitude(), selectedAddress.getLongitude());
+                    String displayName = Helper.getAddressDisplayName(selectedAddress);
+                    updateMarker(resultPoint, displayName);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+
+    // AsyncTask for Reverse Geocoding (tap on map) using Android's Geocoder
+    private static class ReverseGeocodeTask extends AsyncTask<GeoPoint, Void, String> {
+        private WeakReference<ManualLocationPickerActivity> activityReference;
+
+        ReverseGeocodeTask(ManualLocationPickerActivity activity) {
+            activityReference = new WeakReference<>(activity);
         }
         @Override
         protected String doInBackground(GeoPoint... params) {
+            ManualLocationPickerActivity activity = activityReference.get();
             if (activity == null || activity.isFinishing() || !Geocoder.isPresent()) {
                 return "Pinned Location (Geocoder N/A)";
             }
@@ -252,7 +347,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity {
             try {
                 List<Address> addresses = geocoder.getFromLocation(pointToReverse.getLatitude(), pointToReverse.getLongitude(), 1);
                 if (addresses != null && !addresses.isEmpty()) {
-                    return getAddressDisplayName(addresses.get(0));
+                    return Helper.getAddressDisplayName(addresses.get(0));
                 }
             } catch (IOException e) {
                 Log.e(TAG, "Reverse geocoding error (Android Geocoder)", e);
@@ -262,6 +357,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(String addressName) {
+            ManualLocationPickerActivity activity = activityReference.get();
             if (activity != null && !activity.isFinishing() && addressName != null) {
                 activity.currentSelectedName = addressName;
                 if (activity.selectedLocationMarker != null && activity.currentSelectedPoint != null) {
@@ -272,45 +368,67 @@ public class ManualLocationPickerActivity extends AppCompatActivity {
         }
     }
 
-    // Helper to get a displayable name from an android.location.Address object
-    private static String getAddressDisplayName(Address address) {
-        StringBuilder displayNameBuilder = new StringBuilder();
-        // Try to build a comprehensive address line
-        if (address.getFeatureName() != null) { // POI, building name
-            displayNameBuilder.append(address.getFeatureName());
-        }
-        if (address.getThoroughfare() != null) { // Street name
-            if (displayNameBuilder.length() > 0) displayNameBuilder.append(", ");
-            displayNameBuilder.append(address.getThoroughfare());
-            if (address.getSubThoroughfare() != null) { // Street number
-                displayNameBuilder.append(" ").append(address.getSubThoroughfare());
-            }
-        }
-        if (address.getSubLocality() != null) { // Neighborhood, district
-            if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(address.getSubLocality())) displayNameBuilder.append(", ");
-            if(!displayNameBuilder.toString().contains(address.getSubLocality())) displayNameBuilder.append(address.getSubLocality());
-        }
-        if (address.getLocality() != null) { // City
-            if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(address.getLocality())) displayNameBuilder.append(", ");
-            if(!displayNameBuilder.toString().contains(address.getLocality())) displayNameBuilder.append(address.getLocality());
-        }
-        if (address.getAdminArea() != null) { // Province/State
-            if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(address.getAdminArea())) displayNameBuilder.append(", ");
-            if(!displayNameBuilder.toString().contains(address.getAdminArea())) displayNameBuilder.append(address.getAdminArea());
-        }
-        if (address.getCountryName() != null) {
-            if (displayNameBuilder.length() > 0) displayNameBuilder.append(", ");
-            displayNameBuilder.append(address.getCountryName());
-        }
+    // Static Helper class for address formatting
+    public static class Helper {
+        public static String getAddressDisplayName(Address address) {
+            if (address == null) return "Unknown Location";
 
-        if (displayNameBuilder.length() == 0) { // Fallback if no parts were found
-            if (address.getAddressLine(0) != null) { // Use the first address line
-                return address.getAddressLine(0);
-            } else {
-                return "Unknown Location";
+            StringBuilder displayNameBuilder = new StringBuilder();
+            // Android's Geocoder often has good info in AddressLine(0) or FeatureName
+            String featureName = address.getFeatureName();
+            String addressLine0 = address.getAddressLine(0);
+
+            if (addressLine0 != null && !addressLine0.isEmpty()) {
+                return addressLine0; // Prefer the full first address line if available from Android Geocoder
             }
+
+            if (featureName != null && !featureName.isEmpty() && !featureName.matches("\\d+.*")) {
+                displayNameBuilder.append(featureName);
+            }
+
+            String thoroughfare = address.getThoroughfare();
+            if (thoroughfare != null) {
+                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(thoroughfare)) displayNameBuilder.append(", ");
+                if (!displayNameBuilder.toString().contains(thoroughfare)) displayNameBuilder.append(thoroughfare);
+                String subThoroughfare = address.getSubThoroughfare();
+                if (subThoroughfare != null) {
+                    displayNameBuilder.append(" ").append(subThoroughfare);
+                }
+            }
+            String subLocality = address.getSubLocality();
+            if (subLocality != null) {
+                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(subLocality)) displayNameBuilder.append(", ");
+                if(!displayNameBuilder.toString().contains(subLocality)) displayNameBuilder.append(subLocality);
+            }
+
+            String locality = address.getLocality();
+            if (locality != null) {
+                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(locality)) displayNameBuilder.append(", ");
+                if(!displayNameBuilder.toString().contains(locality)) displayNameBuilder.append(locality);
+            }
+
+            String adminArea = address.getAdminArea();
+            if (adminArea != null) {
+                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(adminArea)) displayNameBuilder.append(", ");
+                if(!displayNameBuilder.toString().contains(adminArea) && (locality == null || !locality.equals(adminArea))) displayNameBuilder.append(adminArea);
+            }
+
+            String countryName = address.getCountryName();
+            if (countryName != null) {
+                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(countryName)) displayNameBuilder.append(", ");
+                if(!displayNameBuilder.toString().contains(countryName)) displayNameBuilder.append(countryName);
+            }
+
+            if (displayNameBuilder.length() == 0) {
+                if (address.hasLatitude() && address.hasLongitude()) {
+                    return "Location (Lat: " + String.format(Locale.US, "%.4f", address.getLatitude()) +
+                            ", Lon: " + String.format(Locale.US, "%.4f", address.getLongitude()) + ")";
+                } else {
+                    return "Unknown Location";
+                }
+            }
+            return displayNameBuilder.toString();
         }
-        return displayNameBuilder.toString();
     }
 
 
