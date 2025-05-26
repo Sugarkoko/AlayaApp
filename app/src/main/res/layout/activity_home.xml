@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
@@ -60,7 +59,7 @@
                 android:textSize="16sp"
                 app:backgroundTint="@null" />
 
-
+            <!-- Current Location Title -->
             <TextView
                 android:id="@+id/tv_current_location_title"
                 android:layout_width="wrap_content"
@@ -71,21 +70,68 @@
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
-            <TextView
-                android:id="@+id/tv_location_city"
+            <!-- Location Display Box with Edit Button (from Code 1) -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_location_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="12dp"
                 android:background="@drawable/bg_rounded_light_gray"
-                android:drawableStart="@drawable/location"
-                android:drawablePadding="12dp"
-                android:gravity="center_vertical|start"
-                android:padding="14dp"
-                android:text="Baguio City"
+                android:padding="14dp">
+
+                <ImageView
+                    android:id="@+id/iv_location_icon_home"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/location"
+                    app:tint="@color/textPrimary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:contentDescription="Location Icon"/>
+
+                <TextView
+                    android:id="@+id/tv_location_city2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                tools:text="Tap to get current location"
+                android:text="Tap to get current location"
                 android:textColor="@color/textPrimary"
                 android:textSize="16sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@id/iv_location_icon_home"
+                app:layout_constraintEnd_toStartOf="@+id/ib_edit_location"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
+                <ImageButton
+                    android:id="@+id/ib_edit_location"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/edit"
+                    app:tint="@color/colorPrimary"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Edit Location"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Direction/Status Text (from Code 1) -->
+            <TextView
+                android:id="@+id/tv_direction_text"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:textSize="12sp"
+                android:textColor="@color/textSecondary"
+                tools:text="Location status will show here"/>
+
+
+            <!-- Tourist and Food Spots Title -->
             <TextView
                 android:id="@+id/tv_spots_title"
                 android:layout_width="wrap_content"
@@ -96,32 +142,32 @@
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
-            <!-- Loading Indicator -->
+            <!-- Loading Indicator (from Code 2) -->
             <ProgressBar
                 android:id="@+id/progressBar_home"
-            style="?android:attr/progressBarStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="24dp"
-            android:visibility="gone"
-            tools:visibility="visible"/> <!-- tools:visibility makes it visible in preview -->
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="24dp"
+                android:visibility="gone"
+                tools:visibility="visible"/> <!-- tools:visibility makes it visible in preview -->
 
-            <!-- Empty State TextView -->
+            <!-- Empty State TextView (from Code 2) -->
             <TextView
                 android:id="@+id/tv_empty_places"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="24dp"
-            android:text="No places found nearby."
-            android:textColor="@color/textSecondary"
-            android:textSize="16sp"
-            android:visibility="gone"
-            tools:visibility="gone"/>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="24dp"
+                android:text="No places found nearby."
+                android:textColor="@color/textSecondary"
+                android:textSize="16sp"
+                android:visibility="gone"
+                tools:visibility="gone"/>
 
 
-            <!-- RecyclerView for displaying places -->
+            <!-- RecyclerView for displaying places (from Code 2) -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_places_list"
                 android:layout_width="match_parent"
@@ -129,7 +175,7 @@
                 android:layout_marginTop="16dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/item_place_card"
-                tools:itemCount="3" />
+                tools:itemCount="3" /> <!-- Example item count for preview -->
 
         </LinearLayout>
     </ScrollView>
