@@ -1,41 +1,45 @@
 package com.example.alayaapp;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils; // For checking empty name
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.widget.Button;   // For location dialog
+import android.widget.EditText; // For name dialog
 import android.widget.Toast;
 
 import com.example.alayaapp.databinding.ActivitySignUpBinding;
-import com.example.alayaapp.databinding.ActivityWelcomePageBinding; // Assuming this is still used for the welcome flow
+import com.example.alayaapp.databinding.ActivityWelcomePageBinding;
+import com.google.android.material.button.MaterialButton; // For name dialog button
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import java.util.HashMap; // For user data
+import java.util.HashMap;
 
 public class SignUpActivity extends AppCompatActivity {
 
     private ActivitySignUpBinding signUpFormBinding;
-    private ActivityWelcomePageBinding welcomeScreenBinding; // For the welcome flow after signup
-    private AlertDialog locationDialog; // For the location permission dialog
+    private ActivityWelcomePageBinding welcomeScreenBinding;
+    private AlertDialog locationDialog;
+    private AlertDialog nameEntryDialog; // Dialog for entering name
 
     private FirebaseAuth mAuth;
-    private DatabaseReference databaseReference;
+    private DatabaseReference databaseReference; // Points to "users" node
     private static final String TAG = "SignUpActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
-        // Initialize databaseReference to point to the "users" node
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
 
-        showSignUpForm(); // Display the sign-up form
+        showSignUpForm();
     }
 
     private void showSignUpForm() {
@@ -47,6 +51,7 @@ public class SignUpActivity extends AppCompatActivity {
             String password = signUpFormBinding.passwordEditText.getText().toString().trim();
             String confirmPassword = signUpFormBinding.confirmPasswordEditText.getText().toString().trim();
 
+            // --- Your existing validation logic ---
             boolean valid = true;
             if (email.isEmpty()) {
                 signUpFormBinding.emailLayout.setError("Email required");
@@ -77,6 +82,7 @@ public class SignUpActivity extends AppCompatActivity {
             } else {
                 signUpFormBinding.confirmPasswordLayout.setError(null);
             }
+            // --- End of validation logic ---
 
             signUpFormBinding.signupButton.setEnabled(false);
             Toast.makeText(SignUpActivity.this, "Creating account...", Toast.LENGTH_SHORT).show();
@@ -90,23 +96,22 @@ public class SignUpActivity extends AppCompatActivity {
 
                             if (firebaseUser != null) {
                                 String userId = firebaseUser.getUid();
-
-                                // Create a HashMap to store user data
                                 HashMap<String, Object> userInfo = new HashMap<>();
                                 userInfo.put("email", email);
-                                userInfo.put("name", ""); // Blank initially, user will edit in profile
-                                userInfo.put("contactNumber", ""); // Blank initially
-                                userInfo.put("birthday", ""); // Blank initially
-                                // Password is handled by Firebase Auth, not stored here directly.
+                                userInfo.put("name", ""); // Name initially blank
+                                userInfo.put("contactNumber", "");
+                                userInfo.put("birthday", "");
 
-                                // Save user information to Firebase Realtime Database under users/<userId>
                                 databaseReference.child(userId).setValue(userInfo)
-                                        .addOnSuccessListener(aVoid -> Log.d(TAG, "User info successfully written to DB for UID: " + userId))
+                                        .addOnSuccessListener(aVoid -> Log.d(TAG, "User info (empty name) successfully written for UID: " + userId))
                                         .addOnFailureListener(e -> Log.w(TAG, "Error writing user info to DB for UID: " + userId, e));
-                            }
 
-                            Toast.makeText(SignUpActivity.this, "Sign Up Successful!", Toast.LENGTH_SHORT).show();
-                            showWelcomeScreen(); // Proceed to welcome screen or location dialog
+                                Toast.makeText(SignUpActivity.this, "Sign Up Successful!", Toast.LENGTH_SHORT).show();
+                                showWelcomeScreen(firebaseUser); // Pass user to next step
+                            } else {
+                                // Should not happen if task is successful, but handle defensively
+                                Toast.makeText(SignUpActivity.this, "User creation error. Please try again.", Toast.LENGTH_LONG).show();
+                            }
                         } else {
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
                             Toast.makeText(SignUpActivity.this, "Authentication failed: " +
@@ -117,36 +122,99 @@ public class SignUpActivity extends AppCompatActivity {
         });
 
         signUpFormBinding.switchToLoginLayout.setOnClickListener(v -> {
-            finish(); // Go back to LoginActivity
+            finish();
         });
     }
 
-    private void showWelcomeScreen() {
+    private void showWelcomeScreen(FirebaseUser firebaseUser) {
         welcomeScreenBinding = ActivityWelcomePageBinding.inflate(getLayoutInflater());
         setContentView(welcomeScreenBinding.getRoot());
-        welcomeScreenBinding.getStartedButton.setOnClickListener(v_welcome -> showLocationPermissionDialog());
+        // Ensure R.id.get_started_button is in the layout used by ActivityWelcomePageBinding
+        welcomeScreenBinding.getStartedButton.setOnClickListener(v_welcome -> {
+            showEnterNameDialog(firebaseUser); // Show name dialog first
+        });
+    }
+
+    private void showEnterNameDialog(FirebaseUser firebaseUser) {
+        if (nameEntryDialog != null && nameEntryDialog.isShowing()) {
+            return; // Prevent multiple dialogs
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.TransparentDialog);
+        LayoutInflater inflater = this.getLayoutInflater();
+        // Ensure res/layout/dialog_enter_name.xml exists
+        View dialogView = inflater.inflate(R.layout.dialog_enter_name, null);
+        builder.setView(dialogView);
+
+        // Ensure R.id.dialog_name_edit_text is in dialog_enter_name.xml
+        final EditText nameEditText = dialogView.findViewById(R.id.dialog_name_edit_text);
+        // Ensure R.id.dialog_next_button is in dialog_enter_name.xml
+        MaterialButton nextButton = dialogView.findViewById(R.id.dialog_next_button);
+
+        nameEntryDialog = builder.create();
+        nameEntryDialog.setCancelable(false); // User must interact
+
+        nextButton.setOnClickListener(v_name_dialog -> {
+            String name = nameEditText.getText().toString().trim();
+            if (TextUtils.isEmpty(name)) {
+                nameEditText.setError("Name cannot be empty");
+                return;
+            }
+
+            // Save the name to Firebase
+            databaseReference.child(firebaseUser.getUid()).child("name").setValue(name)
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(SignUpActivity.this, "Name saved!", Toast.LENGTH_SHORT).show();
+                        if (nameEntryDialog != null) nameEntryDialog.dismiss();
+                        showLocationPermissionDialog(); // Proceed to location permission
+                    })
+                    .addOnFailureListener(e -> {
+                        Toast.makeText(SignUpActivity.this, "Failed to save name: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "Failed to save name to Firebase", e);
+                        // Optionally, don't dismiss or allow retry
+                    });
+        });
+
+        nameEntryDialog.show();
     }
 
     private void showLocationPermissionDialog() {
+        if (locationDialog != null && locationDialog.isShowing()) {
+            return; // Prevent multiple dialogs
+        }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
+        // Ensure res/layout/dialog_location_notification.xml exists
         View dialogView = inflater.inflate(R.layout.dialog_location_notification, null);
         builder.setView(dialogView);
 
+        // Ensure R.id.btn_turn_on is in dialog_location_notification.xml
         Button btnTurnOn = dialogView.findViewById(R.id.btn_turn_on);
         locationDialog = builder.create();
 
         if (locationDialog.getWindow() != null) {
             locationDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
+        locationDialog.setCancelable(false); // User must interact
 
         btnTurnOn.setOnClickListener(v_dialog_button -> {
-            locationDialog.dismiss();
+            if (locationDialog != null) locationDialog.dismiss();
             Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         });
         locationDialog.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Dismiss dialogs to prevent window leaks if activity is destroyed
+        if (locationDialog != null && locationDialog.isShowing()) {
+            locationDialog.dismiss();
+        }
+        if (nameEntryDialog != null && nameEntryDialog.isShowing()) {
+            nameEntryDialog.dismiss();
+        }
     }
 }

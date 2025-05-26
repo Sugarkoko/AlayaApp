@@ -17,4 +17,8 @@
         <item name="android:statusBarColor">@color/colorPrimary</item>
         <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
     </style>
+
+    <style name="TransparentDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="android:windowBackground">@android:color/transparent</item>
+    </style>
 </resources>

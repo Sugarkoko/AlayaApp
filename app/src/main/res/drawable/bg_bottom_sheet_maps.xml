@@ -1,6 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="rectangle">
-    <solid android:color="@android:color/white" />
-    <corners android:topLeftRadius="20dp" android:topRightRadius="20dp" />
+<!-- res/drawable/bg_bottom_sheet_maps.xml -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@android:color/white"/>
+    <!-- Optional: Add rounded top corners if desired -->
+    <!-- <corners android:topLeftRadius="16dp" android:topRightRadius="16dp"/> -->
 </shape>
