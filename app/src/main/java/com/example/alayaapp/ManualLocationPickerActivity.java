@@ -35,6 +35,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.CancellationTokenSource;
+import com.google.firebase.database.collection.BuildConfig;
 
 import org.osmdroid.api.IMapController;
 import org.osmdroid.config.Configuration;

@@ -28,5 +28,7 @@
     <string name="preview_transport_badge_best">Best!</string>
     <string name="preview_transport_duration_5mins">5 mins</string>
     <string name="preview_transport_price_30_50">₱30 - 50</string>
+    <string name="content_desc_spot_image">Image of the tourist spot</string>
+    <string name="content_desc_rating_star">Rating star icon</string>
 
 </resources>

@@ -3,14 +3,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="0dp"
-    android:layout_height="wrap_content"
+    android:layout_height="90dp"
     android:orientation="vertical"
     android:padding="12dp"
     android:background="@drawable/bg_transport_card"
     android:layout_gravity="fill_horizontal"
     android:clickable="true"
     android:focusable="true"
-    tools:layout_width="150dp">
+    tools:layout_width="150dp"
+    tools:layout_height="90dp">
 
 <RelativeLayout
 android:layout_width="match_parent"
@@ -49,35 +50,35 @@ android:layout_height="wrap_content">
 <LinearLayout
 android:layout_width="match_parent"
 android:layout_height="wrap_content"
-android:orientation="horizontal"
-android:layout_marginTop="8dp"
-android:gravity="center_vertical">
+    android:orientation="horizontal"
+    android:layout_marginTop="8dp"
+    android:gravity="center_vertical">
 
 <ImageView
-    android:id="@+id/iv_transport_icon"
-    android:layout_width="24dp"
-    android:layout_height="24dp"
-    tools:src="@drawable/ic_taxi"
-    app:tint="@color/colorPrimary" />
+android:id="@+id/iv_transport_icon"
+android:layout_width="24dp"
+android:layout_height="24dp"
+tools:src="@drawable/ic_taxi"
+app:tint="@color/colorPrimary" />
 
 <TextView
-    android:id="@+id/tv_transport_duration"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:layout_marginStart="8dp"
-    tools:text="5 mins"
-    android:textColor="@android:color/darker_gray"
-    android:textSize="14sp"/>
+android:id="@+id/tv_transport_duration"
+android:layout_width="wrap_content"
+android:layout_height="wrap_content"
+android:layout_marginStart="8dp"
+tools:text="5 mins"
+android:textColor="@android:color/darker_gray"
+android:textSize="14sp"/>
 
 <TextView
-    android:id="@+id/tv_transport_price"
-    android:layout_width="0dp"
-    android:layout_height="wrap_content"
-    android:layout_weight="1"
-    android:gravity="end"
-    tools:text="₱30 - 50"
-    android:textColor="@android:color/darker_gray"
-    android:textSize="14sp"
-    android:textStyle="bold"/>
-</LinearLayout>
+android:id="@+id/tv_transport_price"
+android:layout_width="0dp"
+android:layout_height="wrap_content"
+android:layout_weight="1"
+android:gravity="end"
+tools:text="₱30 - 50"
+android:textColor="@android:color/darker_gray"
+android:textSize="14sp"
+android:textStyle="bold"/>
+    </LinearLayout>
     </LinearLayout>

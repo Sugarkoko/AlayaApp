@@ -27,6 +27,7 @@
             android:paddingTop="24dp"
             android:paddingBottom="16dp">
 
+            <!-- Home Title -->
             <TextView
                 android:id="@+id/tv_home_title"
                 android:layout_width="wrap_content"
@@ -36,6 +37,7 @@
                 android:textSize="34sp"
                 android:textStyle="bold" />
 
+            <!-- When is your trip Button -->
             <Button
                 android:id="@+id/btn_trip_date"
                 style="@style/Widget.AppCompat.Button.Borderless"
@@ -57,6 +59,7 @@
                 android:textSize="16sp"
                 app:backgroundTint="@null" />
 
+            <!-- Current Location Title -->
             <TextView
                 android:id="@+id/tv_current_location_title"
                 android:layout_width="wrap_content"
@@ -67,7 +70,7 @@
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
-            <!-- Location Display Box with Edit Button -->
+            <!-- Location Display Box with Edit Button (from Code 1) -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_location_container"
                 android:layout_width="match_parent"
@@ -89,19 +92,19 @@
 
                 <TextView
                     android:id="@+id/tv_location_city2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginEnd="8dp"
-                    tools:text="Tap to get current location"
-                    android:text="Tap to get current location"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toEndOf="@id/iv_location_icon_home"
-                    app:layout_constraintEnd_toStartOf="@+id/ib_edit_location"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                tools:text="Tap to get current location"
+                android:text="Tap to get current location"
+                android:textColor="@color/textPrimary"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintStart_toEndOf="@id/iv_location_icon_home"
+                app:layout_constraintEnd_toStartOf="@+id/ib_edit_location"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <ImageButton
                     android:id="@+id/ib_edit_location"
@@ -117,7 +120,7 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- This TextView was part of MapsActivity, adding it here for consistency if needed for debug -->
+            <!-- Direction/Status Text (from Code 1) -->
             <TextView
                 android:id="@+id/tv_direction_text"
                 android:layout_width="match_parent"
@@ -128,6 +131,7 @@
                 tools:text="Location status will show here"/>
 
 
+            <!-- Tourist and Food Spots Title -->
             <TextView
                 android:id="@+id/tv_spots_title"
                 android:layout_width="wrap_content"
@@ -138,335 +142,40 @@
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
-            <!-- Spot List Area -->
-            <!-- Item 1: Burnham Park -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/card_burnham_park"
+            <!-- Loading Indicator (from Code 2) -->
+            <ProgressBar
+                android:id="@+id/progressBar_home"
+                style="?android:attr/progressBarStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="24dp"
+                android:visibility="gone"
+                tools:visibility="visible"/> <!-- tools:visibility makes it visible in preview -->
+
+            <!-- Empty State TextView (from Code 2) -->
+            <TextView
+                android:id="@+id/tv_empty_places"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="24dp"
+                android:text="No places found nearby."
+                android:textColor="@color/textSecondary"
+                android:textSize="16sp"
+                android:visibility="gone"
+                tools:visibility="gone"/>
+
+
+            <!-- RecyclerView for displaying places (from Code 2) -->
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/rv_places_list"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                app:cardCornerRadius="15dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/lightGrayBackground">
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <ImageView
-                        android:id="@+id/iv_spot1"
-                        android:layout_width="100dp"
-                        android:layout_height="0dp"
-                        app:layout_constraintDimensionRatio="1:1"
-                        android:contentDescription="Spot Image"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/burnham"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-                    <TextView
-                        android:id="@+id/tv_spot_name1"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="Burnham Park"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toEndOf="@id/iv_spot1"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/tv_spot_distance1"/>
-                    <ImageView
-                        android:id="@+id/iv_star1"
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:layout_marginTop="4dp"
-                        android:src="@drawable/star"
-                        app:tint="@color/starColor"
-                        app:layout_constraintStart_toStartOf="@id/tv_spot_name1"
-                        app:layout_constraintTop_toBottomOf="@id/tv_spot_name1"
-                        android:contentDescription="Rating Star"/>
-                    <TextView
-                        android:id="@+id/tv_spot_rating1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="4.4"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@id/iv_star1"
-                        app:layout_constraintStart_toEndOf="@id/iv_star1"
-                        app:layout_constraintTop_toTopOf="@id/iv_star1" />
-                    <TextView
-                        android:id="@+id/tv_spot_reviews1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="(31K)"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@id/tv_spot_rating1"
-                        app:layout_constraintStart_toEndOf="@id/tv_spot_rating1"
-                        app:layout_constraintTop_toTopOf="@id/tv_spot_rating1" />
-                    <TextView
-                        android:id="@+id/tv_spot_distance1"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp"
-                        android:text="0.5 km"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/tv_spot_name1"
-                        app:layout_constraintBottom_toBottomOf="@id/tv_spot_name1"/>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Item 2: Mines View -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardCornerRadius="15dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/lightGrayBackground">
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <ImageView
-                        android:id="@+id/iv_spot2"
-                        android:layout_width="100dp"
-                        android:layout_height="0dp"
-                        app:layout_constraintDimensionRatio="1:1"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/mines"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:contentDescription="Spot Image"/>
-                    <TextView
-                        android:id="@+id/tv_spot_name2"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="Mines View"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toEndOf="@id/iv_spot2"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/tv_spot_distance2"/>
-                    <ImageView
-                        android:id="@+id/iv_star2"
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:layout_marginTop="4dp"
-                        android:src="@drawable/star"
-                        app:tint="@color/starColor"
-                        app:layout_constraintStart_toStartOf="@id/tv_spot_name2"
-                        app:layout_constraintTop_toBottomOf="@id/tv_spot_name2"
-                        android:contentDescription="Rating Star"/>
-                    <TextView
-                        android:id="@+id/tv_spot_rating2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="4.3"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@id/iv_star2"
-                        app:layout_constraintStart_toEndOf="@id/iv_star2"
-                        app:layout_constraintTop_toTopOf="@id/iv_star2" />
-                    <TextView
-                        android:id="@+id/tv_spot_reviews2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="(13K)"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@id/tv_spot_rating2"
-                        app:layout_constraintStart_toEndOf="@id/tv_spot_rating2"
-                        app:layout_constraintTop_toTopOf="@id/tv_spot_rating2" />
-                    <TextView
-                        android:id="@+id/tv_spot_distance2"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp"
-                        android:text="2.5 km"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/tv_spot_name2"
-                        app:layout_constraintBottom_toBottomOf="@id/tv_spot_name2"/>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Item 3: Botanical Garden -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardCornerRadius="15dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/lightGrayBackground">
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <ImageView
-                        android:id="@+id/iv_spot3"
-                        android:layout_width="100dp"
-                        android:layout_height="0dp"
-                        app:layout_constraintDimensionRatio="1:1"
-                        android:scaleType="centerCrop"
-                        android:src="@drawable/botanical"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent"
-                        android:contentDescription="Spot Image"/>
-                    <TextView
-                        android:id="@+id/tv_spot_name3"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="Botanical Garden"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        app:layout_constraintStart_toEndOf="@id/iv_spot3"
-                        app:layout_constraintTop_toTopOf="parent"
-                        app:layout_constraintEnd_toStartOf="@+id/tv_spot_distance3"/>
-                    <ImageView
-                        android:id="@+id/iv_star3"
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:layout_marginTop="4dp"
-                        android:src="@drawable/star"
-                        app:tint="@color/starColor"
-                        app:layout_constraintStart_toStartOf="@id/tv_spot_name3"
-                        app:layout_constraintTop_toBottomOf="@id/tv_spot_name3"
-                        android:contentDescription="Rating Star"/>
-                    <TextView
-                        android:id="@+id/tv_spot_rating3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="4.4"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@id/iv_star3"
-                        app:layout_constraintStart_toEndOf="@id/iv_star3"
-                        app:layout_constraintTop_toTopOf="@id/iv_star3" />
-                    <TextView
-                        android:id="@+id/tv_spot_reviews3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="(7.6K)"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@id/tv_spot_rating3"
-                        app:layout_constraintStart_toEndOf="@id/tv_spot_rating3"
-                        app:layout_constraintTop_toTopOf="@id/tv_spot_rating3" />
-                    <TextView
-                        android:id="@+id/tv_spot_distance3"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp"
-                        android:text="3.0 km"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/tv_spot_name3"
-                        app:layout_constraintBottom_toBottomOf="@id/tv_spot_name3"/>
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.cardview.widget.CardView>
-
-            <!-- Item 4: Camp John Hay -->
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                app:cardCornerRadius="15dp"
-                app:cardElevation="2dp"
-                app:cardBackgroundColor="@color/lightGrayBackground">
-                <androidx.constraintlayout.widget.ConstraintLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-                    <ImageView
-                        android:id="@+id/iv_spot4"
-                        android:layout_width="100dp"
-                        android:layout_height="0dp"
-                        app:layout_constraintDimensionRatio="1:1"
-                        android:contentDescription="Spot Image"
-                        android:src="@drawable/campjohn"
-                        android:scaleType="centerCrop"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-                    <TextView
-                        android:id="@+id/tv_spot_name4"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="12dp"
-                        android:layout_marginEnd="8dp"
-                        android:text="Camp John Hay"
-                        android:textColor="@color/textPrimary"
-                        android:textSize="16sp"
-                        android:textStyle="bold"
-                        app:layout_constraintEnd_toStartOf="@+id/tv_spot_distance4"
-                        app:layout_constraintStart_toEndOf="@id/iv_spot4"
-                        app:layout_constraintTop_toTopOf="parent" />
-                    <ImageView
-                        android:id="@+id/iv_star4"
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:layout_marginTop="4dp"
-                        android:src="@drawable/star"
-                        android:contentDescription="Rating Star"
-                        app:layout_constraintStart_toStartOf="@id/tv_spot_name4"
-                        app:layout_constraintTop_toBottomOf="@id/tv_spot_name4"
-                        app:tint="@color/starColor" />
-                    <TextView
-                        android:id="@+id/tv_spot_rating4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="4.7"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@id/iv_star4"
-                        app:layout_constraintStart_toEndOf="@id/iv_star4"
-                        app:layout_constraintTop_toTopOf="@id/iv_star4" />
-                    <TextView
-                        android:id="@+id/tv_spot_reviews4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:text="(63)"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@id/tv_spot_rating4"
-                        app:layout_constraintStart_toEndOf="@id/tv_spot_rating4"
-                        app:layout_constraintTop_toTopOf="@id/tv_spot_rating4" />
-                    <TextView
-                        android:id="@+id/tv_spot_distance4"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="16dp"
-                        android:text="1.0 km"
-                        android:textColor="@color/textSecondary"
-                        android:textSize="14sp"
-                        app:layout_constraintBottom_toBottomOf="@id/tv_spot_name4"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toTopOf="@id/tv_spot_name4" />
-                </androidx.constraintlayout.widget.ConstraintLayout>
-            </androidx.cardview.widget.CardView>
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/item_place_card"
+                tools:itemCount="3" /> <!-- Example item count for preview -->
 
         </LinearLayout>
     </ScrollView>

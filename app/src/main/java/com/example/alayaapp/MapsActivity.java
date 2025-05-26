@@ -28,6 +28,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
+import com.google.firebase.database.collection.BuildConfig;
 
 // OSMDroid Imports
 import org.osmdroid.config.Configuration;

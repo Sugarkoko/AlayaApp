@@ -64,7 +64,7 @@
             android:windowSoftInputMode="adjustPan" />
         <activity android:name=".ResetPasswordActivity" />
         <activity
-            android:name=".BurnhamDetailsActivity"
+            android:name=".PlaceDetailsActivity"
             android:exported="false" />
         <meta-data
             android:name="preloaded_fonts"
