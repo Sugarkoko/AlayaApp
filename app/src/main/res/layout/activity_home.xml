@@ -46,18 +46,18 @@
                 android:layout_marginTop="20dp"
                 android:background="@drawable/bg_rounded_light_gray"
                 android:drawableStart="@drawable/calendar"
-                android:drawablePadding="12dp"
-                android:fontFamily="@font/roboto_bold"
-                android:gravity="center_vertical|start"
-                android:paddingStart="14dp"
-                android:paddingTop="14dp"
-                android:paddingEnd="14dp"
-                android:paddingBottom="14dp"
-                android:text="When is your Trip?"
-                android:textAllCaps="false"
-                android:textColor="#101010"
-                android:textSize="16sp"
-                app:backgroundTint="@null" />
+            android:drawablePadding="12dp"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center_vertical|start"
+            android:paddingStart="14dp"
+            android:paddingTop="14dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="14dp"
+            android:text="When is your Trip?"
+            android:textAllCaps="false"
+            android:textColor="#101010"
+            android:textSize="16sp"
+            app:backgroundTint="@null" />
 
             <!-- Current Location Title -->
             <TextView
