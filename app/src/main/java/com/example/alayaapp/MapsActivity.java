@@ -2,7 +2,9 @@ package com.example.alayaapp;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences; // Added
 import android.content.pm.PackageManager;
+import android.location.Location; // Added
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
@@ -23,6 +25,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory; // Added for custom marker color
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -40,10 +43,20 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     final int CURRENT_ITEM_ID = R.id.navigation_map;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 101;
 
-    // Keys for receiving specific location data from PlaceDetailsActivity
     public static final String EXTRA_TARGET_LATITUDE = "com.example.alayaapp.TARGET_LATITUDE";
     public static final String EXTRA_TARGET_LONGITUDE = "com.example.alayaapp.TARGET_LONGITUDE";
     public static final String EXTRA_TARGET_NAME = "com.example.alayaapp.TARGET_NAME";
+
+    // SharedPreferences Keys (ensure these match HomeActivity)
+    private static final String PREFS_NAME = "AlayaAppPrefs";
+    private static final String KEY_LOCATION_MODE = "location_mode";
+    private static final String KEY_MANUAL_LATITUDE = "manual_latitude";
+    private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
+    private static final String KEY_MANUAL_LOCATION_NAME = "manual_location_name";
+
+    private String currentLocationMode = "auto"; // Default to auto
+    private LatLng manualHomeLocation = null;
+    private String manualHomeLocationName = "Manually Set Location";
 
 
     @Override
@@ -70,6 +83,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         db = FirebaseFirestore.getInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        loadHomeLocationPreference(); // Load preferences before map is ready
         setupBottomNavigation();
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -83,23 +97,41 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         binding.fabMyLocation.setOnClickListener(v -> {
             if (mMap != null) {
-                enableMyLocation();
+                if ("auto".equals(currentLocationMode)) {
+                    centerOnActualGPSLocation(true); // true to animate
+                } else if (manualHomeLocation != null) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(manualHomeLocation, 15f));
+                    Toast.makeText(this, "Centering on your manually set home location.", Toast.LENGTH_SHORT).show();
+                }
             }
         });
+    }
+
+    private void loadHomeLocationPreference() {
+        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        currentLocationMode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
+        if ("manual".equals(currentLocationMode)) {
+            double lat = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LATITUDE, Double.doubleToRawLongBits(0.0)));
+            double lon = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LONGITUDE, Double.doubleToRawLongBits(0.0)));
+            manualHomeLocationName = sharedPreferences.getString(KEY_MANUAL_LOCATION_NAME, "Manually Set Location");
+            if (lat != 0.0 && lon != 0.0) {
+                manualHomeLocation = new LatLng(lat, lon);
+            }
+        }
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
-        mMap.setOnInfoWindowClickListener(this); // Set listener for info window clicks
+        mMap.setOnInfoWindowClickListener(this);
 
         if (binding.tvDirectionText != null) {
-            binding.tvDirectionText.setText("Map is ready. Loading places...");
+            binding.tvDirectionText.setText("Map is ready. Determining view...");
         }
 
-        // Check if intent has specific location data
         Intent intent = getIntent();
         if (intent != null && intent.hasExtra(EXTRA_TARGET_LATITUDE) && intent.hasExtra(EXTRA_TARGET_LONGITUDE)) {
+            // Priority 1: Focus on specific place passed from PlaceDetailsActivity
             double targetLat = intent.getDoubleExtra(EXTRA_TARGET_LATITUDE, 0);
             double targetLng = intent.getDoubleExtra(EXTRA_TARGET_LONGITUDE, 0);
             String targetName = intent.getStringExtra(EXTRA_TARGET_NAME);
@@ -108,47 +140,78 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 LatLng targetLocation = new LatLng(targetLat, targetLng);
                 mMap.addMarker(new MarkerOptions().position(targetLocation).title(targetName != null ? targetName : "Selected Location"));
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(targetLocation, 15f));
+                if (binding.tvDirectionText != null) {
+                    binding.tvDirectionText.setText("Showing: " + (targetName != null ? targetName : "Selected Location"));
+                }
             }
-            fetchAndDisplayAllPlaces(); // Still fetch all other places
         } else {
-            // Default view (e.g., center on Philippines or try user's location)
-            LatLng philippines = new LatLng(12.8797, 121.7740); // General Philippines
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(philippines, 6f));
-            fetchAndDisplayAllPlaces();
-            enableMyLocation(); // Attempt to show user's location
+            // Priority 2: Focus based on Home tab's location choice
+            if ("auto".equals(currentLocationMode)) {
+                if (binding.tvDirectionText != null) {
+                    binding.tvDirectionText.setText("Using current GPS location.");
+                }
+                centerOnActualGPSLocation(false); // Don't animate first time, just move
+            } else if (manualHomeLocation != null) {
+                mMap.addMarker(new MarkerOptions()
+                        .position(manualHomeLocation)
+                        .title(manualHomeLocationName)
+                        .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))); // Different color for manual home
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(manualHomeLocation, 15f));
+                if (binding.tvDirectionText != null) {
+                    binding.tvDirectionText.setText(manualHomeLocationName); // MODIFIED LINE
+                }
+            } else {
+                // Fallback: General view if no specific home setting or target
+                LatLng philippines = new LatLng(12.8797, 121.7740);
+                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(philippines, 6f));
+                if (binding.tvDirectionText != null) {
+                    binding.tvDirectionText.setText("Explore the map.");
+                }
+            }
         }
+        fetchAndDisplayAllPois(); // Load all Points of Interest
     }
 
-    private void fetchAndDisplayAllPlaces() {
+    private void fetchAndDisplayAllPois() {
         db.collection("places")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful() && task.getResult() != null) {
-                        if (mMap == null) return; // Map not ready
-                        // mMap.clear(); // Clear previous markers if you intend to refresh all
+                        if (mMap == null) return;
 
                         for (QueryDocumentSnapshot document : task.getResult()) {
                             Place place = document.toObject(Place.class);
                             if (place != null && place.getLatitude() != null && place.getLongitude() != null) {
+                                // Avoid re-adding marker if it's the manually set home location and already added
                                 LatLng placeLocation = new LatLng(place.getLatitude(), place.getLongitude());
-                                MarkerOptions markerOptions = new MarkerOptions()
-                                        .position(placeLocation)
-                                        .title(place.getName());
-                                Marker marker = mMap.addMarker(markerOptions);
-                                if (marker != null) {
-                                    marker.setTag(document.getId()); // Store Firestore document ID
+                                boolean isManualHomeAndAlreadyAdded = "manual".equals(currentLocationMode) &&
+                                        manualHomeLocation != null &&
+                                        manualHomeLocation.equals(placeLocation) &&
+                                        getIntent() == null; // Only skip if not specifically targeted by intent
+
+                                if (!isManualHomeAndAlreadyAdded) {
+                                    MarkerOptions markerOptions = new MarkerOptions()
+                                            .position(placeLocation)
+                                            .title(place.getName());
+                                    Marker marker = mMap.addMarker(markerOptions);
+                                    if (marker != null) {
+                                        marker.setTag(document.getId());
+                                    }
                                 }
                             }
                         }
-                        if (binding.tvDirectionText != null) {
-                            binding.tvDirectionText.setText("Places loaded. Tap markers for details.");
+                        // Update text after POIs are loaded, if not showing a specific target
+                        if (getIntent() == null || !getIntent().hasExtra(EXTRA_TARGET_LATITUDE)) {
+                            if (binding.tvDirectionText != null && binding.tvDirectionText.getText().toString().contains("Determining view...")) {
+                                binding.tvDirectionText.setText("Places loaded. Tap markers for details.");
+                            }
                         }
                     } else {
-                        Log.w(TAG, "Error getting documents for map.", task.getException());
+                        Log.w(TAG, "Error getting POI documents for map.", task.getException());
                         if (binding.tvDirectionText != null) {
-                            binding.tvDirectionText.setText("Could not load places.");
+                            binding.tvDirectionText.setText("Could not load points of interest.");
                         }
-                        Toast.makeText(MapsActivity.this, "Failed to load places on map.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(MapsActivity.this, "Failed to load points of interest.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
@@ -156,7 +219,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     public void onInfoWindowClick(@NonNull Marker marker) {
         String placeDocumentId = (String) marker.getTag();
+        // Prevent opening details for the "Your Set Location" marker if it has no proper document ID
         if (placeDocumentId != null && !placeDocumentId.isEmpty()) {
+            // Check if the clicked marker is the manual home location marker which might not have a "placeDocumentId" tag
+            // or has a generic tag. We primarily want to open details for actual POIs.
+            if (marker.getTitle() != null && marker.getTitle().equals(manualHomeLocationName) && (placeDocumentId.equals(manualHomeLocationName) || placeDocumentId.equals("manual_home_marker_tag"))){
+                Toast.makeText(this, "This is your manually set home location.", Toast.LENGTH_SHORT).show();
+                return;
+            }
+
             Intent intent = new Intent(MapsActivity.this, PlaceDetailsActivity.class);
             intent.putExtra(PlaceDetailsActivity.EXTRA_PLACE_DOCUMENT_ID, placeDocumentId);
             startActivity(intent);
@@ -165,32 +236,32 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
-    private void enableMyLocation() {
+    private void centerOnActualGPSLocation(boolean animate) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             if (mMap != null) {
-                mMap.setMyLocationEnabled(true);
+                mMap.setMyLocationEnabled(true); // Enable blue dot for actual GPS
                 mMap.getUiSettings().setMyLocationButtonEnabled(false); // We use our custom FAB
 
                 fusedLocationClient.getLastLocation()
                         .addOnSuccessListener(this, location -> {
                             if (location != null) {
                                 LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                                // Only move camera if not focusing on a specific target from intent
-                                if (getIntent() == null || !getIntent().hasExtra(EXTRA_TARGET_LATITUDE)) {
+                                if (animate) {
                                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15f));
+                                } else {
+                                    mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15f));
                                 }
+                                Toast.makeText(this, "Centered on current GPS location.", Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(this, "Current location not available.", Toast.LENGTH_SHORT).show();
+                                Toast.makeText(this, "Current GPS location not available.", Toast.LENGTH_SHORT).show();
                             }
                         })
                         .addOnFailureListener(this, e -> {
-                            Toast.makeText(this, "Failed to get current location.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(this, "Failed to get current GPS location.", Toast.LENGTH_SHORT).show();
                         });
             }
         } else {
-            // Permission to access the location is missing. Show rationale and request permission
             ActivityCompat.requestPermissions(this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     LOCATION_PERMISSION_REQUEST_CODE);
@@ -203,13 +274,15 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                enableMyLocation();
+                if ("auto".equals(currentLocationMode)) {
+                    centerOnActualGPSLocation(true); // Animate to new location
+                }
             } else {
                 Toast.makeText(this, "Location permission denied.", Toast.LENGTH_LONG).show();
+                if (mMap != null) mMap.setMyLocationEnabled(false); // Ensure blue dot is off if permission denied
             }
         }
     }
-
 
     private void setupBottomNavigation() {
         if (binding.bottomNavigationMapsPage == null) {
