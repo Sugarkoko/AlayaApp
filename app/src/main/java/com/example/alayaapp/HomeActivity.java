@@ -36,7 +36,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import org.osmdroid.util.GeoPoint;
+import com.example.alayaapp.util.GeoPoint;
 
 import java.io.IOException;
 import java.util.ArrayList;

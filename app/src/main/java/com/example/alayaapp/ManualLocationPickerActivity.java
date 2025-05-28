@@ -11,7 +11,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.preference.PreferenceManager;
+// import android.preference.PreferenceManager; // No longer needed for OSM config
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -19,6 +19,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -27,6 +28,8 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.alayaapp.databinding.ActivityManualLocationPickerBinding;
+import com.example.alayaapp.util.GeoPoint; // Using your local GeoPoint
+
 import com.google.android.gms.location.CurrentLocationRequest;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -35,19 +38,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.gms.tasks.CancellationTokenSource;
-import com.google.firebase.database.collection.BuildConfig;
-
-import org.osmdroid.api.IMapController;
-import org.osmdroid.config.Configuration;
-import org.osmdroid.events.MapEventsReceiver;
-import org.osmdroid.tileprovider.tilesource.TileSourceFactory;
-import org.osmdroid.util.GeoPoint;
-import org.osmdroid.views.CustomZoomButtonsController;
-import org.osmdroid.views.MapView;
-import org.osmdroid.views.overlay.MapEventsOverlay;
-import org.osmdroid.views.overlay.Marker;
-import org.osmdroid.views.overlay.mylocation.GpsMyLocationProvider;
-import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay;
+// import com.google.firebase.database.collection.BuildConfig; // Removed if only for OSM User Agent
 
 import java.io.IOException;
 import java.lang.ref.WeakReference;
@@ -56,40 +47,38 @@ import java.util.List;
 import java.util.Locale;
 
 public class ManualLocationPickerActivity extends AppCompatActivity implements LocationSuggestionAdapter.OnSuggestionClickListener {
-
     private static final String TAG = "ManualLocationPicker";
     private ActivityManualLocationPickerBinding binding;
-    private MapView mapView;
-    private Marker selectedLocationMarker;
-    private GeoPoint currentSelectedPoint;
+    // private MapView mapView; // OSM MapView removed
+    // private Marker selectedLocationMarker; // OSM Marker removed
+    private GeoPoint currentSelectedPoint; // Using com.example.alayaapp.util.GeoPoint
     private String currentSelectedName = "Selected Location";
 
     private FusedLocationProviderClient fusedLocationClientPicker;
     private LocationCallback locationCallbackPicker;
-    private MyLocationNewOverlay myLocationOverlayPicker;
+    // private MyLocationNewOverlay myLocationOverlayPicker; // OSM Overlay removed
     private static final int REQUEST_LOCATION_PERMISSION_PICKER = 3;
+
     private CancellationTokenSource cancellationTokenSource;
-
-
     private LocationSuggestionAdapter suggestionAdapter;
     private Handler searchDebounceHandler = new Handler(Looper.getMainLooper());
     private Runnable searchDebounceRunnable;
     private static final long SEARCH_DEBOUNCE_DELAY_MS = 500;
 
+    // Bounding box for PH geocoding (can be kept if Geocoder supports it well)
     private static final double PH_LOWER_LEFT_LAT = 4.0;
     private static final double PH_LOWER_LEFT_LON = 116.0;
     private static final double PH_UPPER_RIGHT_LAT = 22.0;
     private static final double PH_UPPER_RIGHT_LON = 127.0;
 
-    private boolean isProcessingSuggestionClick = false; // Flag to manage TextWatcher behavior
+    private boolean isProcessingSuggestionClick = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        Context ctx = getApplicationContext();
-        Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx));
-        Configuration.getInstance().setUserAgentValue(BuildConfig.APPLICATION_ID);
+        // Context ctx = getApplicationContext(); // Context can be obtained directly if needed
+        // Configuration.getInstance().load(ctx, PreferenceManager.getDefaultSharedPreferences(ctx)); // OSM Config removed
+        // Configuration.getInstance().setUserAgentValue(com.example.alayaapp.BuildConfig.APPLICATION_ID); // OSM User Agent removed
 
         binding = ActivityManualLocationPickerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -102,10 +91,10 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
         }
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        mapView = binding.mapViewPicker;
-        setupOsmMapPicker();
-        setupSuggestionRecyclerView();
+        // mapView = binding.mapViewPicker; // mapViewPicker ID will be for the placeholder FrameLayout
+        // setupOsmMapPicker(); // Removed
 
+        setupSuggestionRecyclerView();
         fusedLocationClientPicker = LocationServices.getFusedLocationProviderClient(this);
         setupLocationCallbackPickerForFallback();
         checkAndRequestPickerPermissions();
@@ -126,7 +115,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (isProcessingSuggestionClick) { // If text is being set by a suggestion click, skip auto-search
+                if (isProcessingSuggestionClick) {
                     return;
                 }
                 searchDebounceHandler.removeCallbacks(searchDebounceRunnable);
@@ -141,6 +130,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
                     binding.rvLocationSuggestions.setVisibility(View.GONE);
                 }
             }
+
             @Override
             public void afterTextChanged(Editable s) {}
         });
@@ -149,9 +139,8 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
             binding.etSearchLocation.setText("");
         });
 
-
         binding.btnConfirmLocation.setOnClickListener(v -> {
-            if (currentSelectedPoint != null) {
+            if (currentSelectedPoint != null && currentSelectedName != null && !currentSelectedName.equals("Selected Location") && !currentSelectedName.isEmpty()) {
                 Intent resultIntent = new Intent();
                 resultIntent.putExtra("selected_location_name", currentSelectedName);
                 resultIntent.putExtra("selected_latitude", currentSelectedPoint.getLatitude());
@@ -159,26 +148,20 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
                 setResult(RESULT_OK, resultIntent);
                 finish();
             } else {
-                Toast.makeText(this, "Please select a location on the map or by search.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Please select a location by search.", Toast.LENGTH_LONG).show();
             }
         });
 
-        MapEventsReceiver mapEventsReceiver = new MapEventsReceiver() {
-            @Override
-            public boolean singleTapConfirmedHelper(GeoPoint p) {
+        // MapEventsReceiver and MapEventsOverlay removed as there's no interactive map
+        // The placeholder FrameLayout (map_placeholder_container_picker) can have its own click listener if needed for other purposes
+        if (binding.mapPlaceholderContainerPicker != null) {
+            binding.mapPlaceholderContainerPicker.setOnClickListener(view -> {
+                Toast.makeText(ManualLocationPickerActivity.this, "Tap on map disabled. Please use search.", Toast.LENGTH_SHORT).show();
                 hideKeyboard();
                 binding.rvLocationSuggestions.setVisibility(View.GONE);
                 suggestionAdapter.setSuggestions(null);
-                currentSelectedPoint = p;
-                updateMarker(p, "Fetching address...");
-                new ReverseGeocodeTask(ManualLocationPickerActivity.this).execute(p);
-                return true;
-            }
-            @Override
-            public boolean longPressHelper(GeoPoint p) { return false; }
-        };
-        MapEventsOverlay mapEventsOverlay = new MapEventsOverlay(mapEventsReceiver);
-        mapView.getOverlays().add(0, mapEventsOverlay);
+            });
+        }
     }
 
     private void setupSuggestionRecyclerView() {
@@ -195,10 +178,12 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
                 Location location = locationResult.getLastLocation();
                 GeoPoint currentLocation = new GeoPoint(location.getLatitude(), location.getLongitude());
                 Log.d(TAG, "Fallback LocationCallback received: " + currentLocation.getLatitude() + ", " + currentLocation.getLongitude());
-                if (selectedLocationMarker == null && currentSelectedPoint == null) {
-                    mapView.getController().animateTo(currentLocation);
-                    mapView.getController().setZoom(15.0);
-                }
+
+                // No map to animate or check marker status against
+                // if (selectedLocationMarker == null && currentSelectedPoint == null) {
+                // No map interaction
+                // }
+
                 if (fusedLocationClientPicker != null && locationCallbackPicker != null) {
                     Log.d(TAG, "Stopping fallback continuous updates.");
                     fusedLocationClientPicker.removeLocationUpdates(locationCallbackPicker);
@@ -223,11 +208,11 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
                 .addOnSuccessListener(this, location -> {
                     if (location != null) {
                         Log.d(TAG, "Successfully got current location (single request): " + location.getLatitude() + ", " + location.getLongitude());
-                        GeoPoint currentLocationGeoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
-                        if (selectedLocationMarker == null && currentSelectedPoint == null) {
-                            mapView.getController().animateTo(currentLocationGeoPoint);
-                            mapView.getController().setZoom(15.0);
-                        }
+                        // GeoPoint currentLocationGeoPoint = new GeoPoint(location.getLatitude(), location.getLongitude());
+                        // No map to animate or check marker status against
+                        // if (selectedLocationMarker == null && currentSelectedPoint == null) {
+                        // No map interaction
+                        // }
                     } else {
                         Log.d(TAG, "Current location (single request) is null. Attempting fallback.");
                         startBriefContinuousUpdatesAsFallback();
@@ -249,16 +234,18 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
                 .setMinUpdateIntervalMillis(2000)
                 .build();
         fusedLocationClientPicker.requestLocationUpdates(locationRequest, locationCallbackPicker, Looper.getMainLooper());
+
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             if (fusedLocationClientPicker != null && locationCallbackPicker != null) {
-                if (selectedLocationMarker == null && currentSelectedPoint == null && mapView.getZoomLevelDouble() < 10) {
+                // Check if we still need updates (e.g. user hasn't selected anything)
+                // Removed map specific condition "mapView.getZoomLevelDouble() < 10"
+                if (currentSelectedPoint == null) {
                     Log.d(TAG, "Timeout for fallback continuous updates, stopping them.");
                     fusedLocationClientPicker.removeLocationUpdates(locationCallbackPicker);
                 }
             }
         }, 15000);
     }
-
 
     private void performSearch(String query) {
         if (query.isEmpty()) {
@@ -276,28 +263,28 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
 
     @Override
     public void onSuggestionClick(Address address) {
-        isProcessingSuggestionClick = true; // Set flag before any action that might trigger TextWatcher
-
+        isProcessingSuggestionClick = true;
         hideKeyboard();
         binding.rvLocationSuggestions.setVisibility(View.GONE);
         suggestionAdapter.setSuggestions(null);
-        searchDebounceHandler.removeCallbacksAndMessages(null); // Cancel any pending searches immediately
+        searchDebounceHandler.removeCallbacksAndMessages(null);
 
         if (address.hasLatitude() && address.hasLongitude()) {
             GeoPoint resultPoint = new GeoPoint(address.getLatitude(), address.getLongitude());
             String displayName = Helper.getAddressDisplayName(address);
-            updateMarker(resultPoint, displayName); // Sets currentSelectedName
 
-            binding.etSearchLocation.setText(displayName); // This will trigger TextWatcher, but flag is set
+            currentSelectedPoint = resultPoint; // Store the selected point
+            currentSelectedName = displayName;  // Store the name
+
+            binding.etSearchLocation.setText(displayName);
             binding.etSearchLocation.setSelection(binding.etSearchLocation.getText().length());
+            Toast.makeText(this, "Selected: " + displayName, Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "Selected location does not have coordinates.", Toast.LENGTH_SHORT).show();
         }
-        // Reset flag after a short delay to allow TextWatcher to process the setText
-        // without triggering a new search for the just-selected item.
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             isProcessingSuggestionClick = false;
-        }, 100); // A small delay, adjust if needed
+        }, 100);
     }
 
     private void hideKeyboard() {
@@ -307,12 +294,14 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
             view = new View(this);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
-        binding.etSearchLocation.clearFocus();
+        if (binding.etSearchLocation != null) { // Check if binding is not null
+            binding.etSearchLocation.clearFocus();
+        }
     }
 
     private static class GeocodeFromNameTaskAndroid extends AsyncTask<String, Void, List<Address>> {
         private WeakReference<ManualLocationPickerActivity> activityReference;
-        private String originalQuery; // Store the query that initiated this task
+        private String originalQuery;
 
         GeocodeFromNameTaskAndroid(ManualLocationPickerActivity activity) {
             activityReference = new WeakReference<>(activity);
@@ -324,7 +313,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
             ManualLocationPickerActivity activity = activityReference.get();
             if (activity != null && !activity.isFinishing()) {
                 activity.hideKeyboard();
-                originalQuery = activity.binding.etSearchLocation.getText().toString().trim(); // Capture query at task start
+                originalQuery = activity.binding.etSearchLocation.getText().toString().trim();
             }
         }
 
@@ -334,16 +323,24 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
             if (activity == null || activity.isFinishing() || !Geocoder.isPresent()) {
                 return null;
             }
-            // Use the passed param as the query, not necessarily what's currently in EditText
             String queryForThisTask = params[0];
             Geocoder geocoder = new Geocoder(activity, Locale.getDefault());
             try {
+                // Using bounding box for PH if supported by device's Geocoder
                 return geocoder.getFromLocationName(queryForThisTask, 10,
                         PH_LOWER_LEFT_LAT, PH_LOWER_LEFT_LON,
                         PH_UPPER_RIGHT_LAT, PH_UPPER_RIGHT_LON);
             } catch (IOException e) {
                 Log.e(TAG, "Android Geocoder error for query: " + queryForThisTask, e);
                 return null;
+            } catch (IllegalArgumentException e) { // Catching potential illegal arg for bounds
+                Log.e(TAG, "Android Geocoder illegal argument for bounds with query: " + queryForThisTask, e);
+                try { // Fallback without bounds
+                    return geocoder.getFromLocationName(queryForThisTask, 10);
+                } catch (IOException ioe) {
+                    Log.e(TAG, "Android Geocoder fallback error for query: " + queryForThisTask, ioe);
+                    return null;
+                }
             }
         }
 
@@ -353,22 +350,14 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
             if (activity == null || activity.isFinishing()) {
                 return;
             }
-
-            // Only update suggestions if the EditText content hasn't significantly changed
-            // from the query that initiated THIS specific AsyncTask. This helps prevent
-            // stale results from overwriting newer ones if the user types fast.
             String currentTextInBox = activity.binding.etSearchLocation.getText().toString().trim();
             if (originalQuery != null && !originalQuery.equals(currentTextInBox) && !activity.isProcessingSuggestionClick) {
-                // User has typed something new while this task was running for an older query.
-                // Or a suggestion was just clicked. Don't show these stale results.
                 Log.d(TAG, "Stale results for query '" + originalQuery + "', current box is '" + currentTextInBox + "'. Discarding.");
                 return;
             }
 
-
             if (addresses == null || addresses.isEmpty()) {
                 activity.suggestionAdapter.setSuggestions(null);
-                // Only hide if not processing a click (click already hides it)
                 if (!activity.isProcessingSuggestionClick) {
                     activity.binding.rvLocationSuggestions.setVisibility(View.GONE);
                 }
@@ -380,31 +369,16 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
                     }
                 }
                 activity.suggestionAdapter.setSuggestions(validAddresses);
-
-                // Show suggestions if there are valid results, query is long enough,
-                // and we are not in the middle of processing a suggestion click (which handles its own hiding)
                 if (!validAddresses.isEmpty() && currentTextInBox.length() > 2 && !activity.isProcessingSuggestionClick) {
                     activity.binding.rvLocationSuggestions.setVisibility(View.VISIBLE);
-                } else if (!activity.isProcessingSuggestionClick) { // Ensure it's hidden if no valid results or query too short
+                } else if (!activity.isProcessingSuggestionClick) {
                     activity.binding.rvLocationSuggestions.setVisibility(View.GONE);
                 }
             }
         }
     }
 
-    private void setupOsmMapPicker() {
-        mapView.setTileSource(TileSourceFactory.MAPNIK);
-        mapView.setMultiTouchControls(true);
-        mapView.getZoomController().setVisibility(CustomZoomButtonsController.Visibility.SHOW_AND_FADEOUT);
-        IMapController mapController = mapView.getController();
-        mapController.setZoom(6.0);
-        mapController.setCenter(new GeoPoint(12.8797, 121.7740));
-
-
-        myLocationOverlayPicker = new MyLocationNewOverlay(new GpsMyLocationProvider(this), mapView);
-        myLocationOverlayPicker.disableFollowLocation();
-        mapView.getOverlays().add(myLocationOverlayPicker);
-    }
+    // setupOsmMapPicker() method removed entirely
 
     private void checkAndRequestPickerPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -412,8 +386,8 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                     REQUEST_LOCATION_PERMISSION_PICKER);
         } else {
-            myLocationOverlayPicker.enableMyLocation();
-            startPickerLocationUpdates();
+            // myLocationOverlayPicker.enableMyLocation(); // OSM Overlay removed
+            startPickerLocationUpdates(); // Still attempt to get current location data for other uses
         }
     }
 
@@ -422,31 +396,15 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_LOCATION_PERMISSION_PICKER) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                myLocationOverlayPicker.enableMyLocation();
+                // myLocationOverlayPicker.enableMyLocation(); // OSM Overlay removed
                 startPickerLocationUpdates();
             } else {
-                Toast.makeText(this, "Location permission denied. Cannot auto-center map.", Toast.LENGTH_LONG).show();
+                Toast.makeText(this, "Location permission denied. Cannot auto-get current location.", Toast.LENGTH_LONG).show();
             }
         }
     }
 
-    private void updateMarker(GeoPoint point, String title) {
-        currentSelectedName = title; // This is important for the logic in onPostExecute
-        currentSelectedPoint = point;
-
-        if (selectedLocationMarker == null) {
-            selectedLocationMarker = new Marker(mapView);
-            selectedLocationMarker.setAnchor(Marker.ANCHOR_CENTER, Marker.ANCHOR_BOTTOM);
-            mapView.getOverlays().add(selectedLocationMarker);
-        }
-        selectedLocationMarker.setPosition(point);
-        selectedLocationMarker.setTitle(title);
-        mapView.getController().animateTo(point);
-        if (mapView.getZoomLevelDouble() < 15.0) {
-            mapView.getController().setZoom(16.0);
-        }
-        mapView.invalidate();
-    }
+    // updateMarker() method removed entirely
 
     private static class ReverseGeocodeTask extends AsyncTask<GeoPoint, Void, String> {
         private WeakReference<ManualLocationPickerActivity> activityReference;
@@ -454,11 +412,12 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
         ReverseGeocodeTask(ManualLocationPickerActivity activity) {
             activityReference = new WeakReference<>(activity);
         }
+
         @Override
         protected String doInBackground(GeoPoint... params) {
             ManualLocationPickerActivity activity = activityReference.get();
             if (activity == null || activity.isFinishing() || !Geocoder.isPresent()) {
-                return "Pinned Location (Geocoder N/A)";
+                return "Pinned Location (Geocoder N/A)"; // Should not be called without map tap
             }
             GeoPoint pointToReverse = params[0];
             Geocoder geocoder = new Geocoder(activity, Locale.getDefault());
@@ -477,15 +436,18 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
         protected void onPostExecute(String addressName) {
             ManualLocationPickerActivity activity = activityReference.get();
             if (activity != null && !activity.isFinishing() && addressName != null) {
-                activity.isProcessingSuggestionClick = true; // To prevent TextWatcher interference
+                activity.isProcessingSuggestionClick = true;
                 activity.currentSelectedName = addressName;
-                if (activity.selectedLocationMarker != null && activity.currentSelectedPoint != null) {
-                    activity.selectedLocationMarker.setTitle(addressName);
-                    activity.mapView.invalidate();
-                }
+                // currentSelectedPoint would have been set by the (now removed) map tap
+
+                // No marker or map to update
+                // if (activity.selectedLocationMarker != null && activity.currentSelectedPoint != null) {
+                //    activity.selectedLocationMarker.setTitle(addressName);
+                //    activity.mapView.invalidate();
+                // }
                 activity.binding.etSearchLocation.setText(addressName);
                 activity.binding.etSearchLocation.setSelection(addressName.length());
-                // Reset flag after TextWatcher has processed
+                Toast.makeText(activity, "Location Updated (from tap): " + addressName, Toast.LENGTH_SHORT).show(); // Feedback
                 new Handler(Looper.getMainLooper()).postDelayed(() -> activity.isProcessingSuggestionClick = false, 100);
             }
         }
@@ -494,44 +456,85 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
     public static class Helper {
         public static String getAddressDisplayName(Address address) {
             if (address == null) return "Unknown Location";
+
             StringBuilder displayNameBuilder = new StringBuilder();
+
+            // Prioritize AddressLine(0) if available and seems reasonable
             String addressLine0 = address.getAddressLine(0);
             if (addressLine0 != null && !addressLine0.isEmpty()) {
-                return addressLine0;
+                // Basic check to avoid just "Latitude, Longitude"
+                if (!addressLine0.matches("^-?[0-9]+\\.[0-9]+, -?[0-9]+\\.[0-9]+$")) {
+                    return addressLine0;
+                }
             }
+
+            // Feature name (often the POI name)
             String featureName = address.getFeatureName();
-            if (featureName != null && !featureName.isEmpty() && !featureName.matches("\\d+.*")) {
+            if (featureName != null && !featureName.isEmpty() && !featureName.matches("\\d+.*") /* Avoid numbers like "123" */) {
                 displayNameBuilder.append(featureName);
             }
+
+            // Thoroughfare (Street Name)
             String thoroughfare = address.getThoroughfare();
-            if (thoroughfare != null) {
-                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(thoroughfare)) displayNameBuilder.append(", ");
-                if (!displayNameBuilder.toString().contains(thoroughfare)) displayNameBuilder.append(thoroughfare);
+            if (thoroughfare != null && !thoroughfare.isEmpty()) {
+                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(thoroughfare)) {
+                    displayNameBuilder.append(", ");
+                }
+                if (!displayNameBuilder.toString().contains(thoroughfare)) {
+                    displayNameBuilder.append(thoroughfare);
+                }
+                // SubThoroughfare (Street Number)
                 String subThoroughfare = address.getSubThoroughfare();
-                if (subThoroughfare != null) {
+                if (subThoroughfare != null && !subThoroughfare.isEmpty()) {
                     displayNameBuilder.append(" ").append(subThoroughfare);
                 }
             }
+
+            // SubLocality (Neighborhood/District)
             String subLocality = address.getSubLocality();
-            if (subLocality != null) {
-                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(subLocality)) displayNameBuilder.append(", ");
-                if(!displayNameBuilder.toString().contains(subLocality)) displayNameBuilder.append(subLocality);
+            if (subLocality != null && !subLocality.isEmpty()) {
+                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(subLocality)) {
+                    displayNameBuilder.append(", ");
+                }
+                if (!displayNameBuilder.toString().contains(subLocality)) {
+                    displayNameBuilder.append(subLocality);
+                }
             }
+
+            // Locality (City/Town)
             String locality = address.getLocality();
-            if (locality != null) {
-                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(locality)) displayNameBuilder.append(", ");
-                if(!displayNameBuilder.toString().contains(locality)) displayNameBuilder.append(locality);
+            if (locality != null && !locality.isEmpty()) {
+                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(locality)) {
+                    displayNameBuilder.append(", ");
+                }
+                if (!displayNameBuilder.toString().contains(locality)) {
+                    displayNameBuilder.append(locality);
+                }
             }
+
+            // AdminArea (State/Province)
             String adminArea = address.getAdminArea();
-            if (adminArea != null) {
-                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(adminArea)) displayNameBuilder.append(", ");
-                if(!displayNameBuilder.toString().contains(adminArea) && (locality == null || !locality.equals(adminArea))) displayNameBuilder.append(adminArea);
+            if (adminArea != null && !adminArea.isEmpty()) {
+                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(adminArea)) {
+                    displayNameBuilder.append(", ");
+                }
+                // Avoid appending if locality is same as adminArea (e.g. "Manila, Metro Manila")
+                if (!displayNameBuilder.toString().contains(adminArea) && (locality == null || !locality.equalsIgnoreCase(adminArea))) {
+                    displayNameBuilder.append(adminArea);
+                }
             }
+
+            // CountryName
             String countryName = address.getCountryName();
-            if (countryName != null) {
-                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(countryName)) displayNameBuilder.append(", ");
-                if(!displayNameBuilder.toString().contains(countryName)) displayNameBuilder.append(countryName);
+            if (countryName != null && !countryName.isEmpty()) {
+                if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(countryName)) {
+                    displayNameBuilder.append(", ");
+                }
+                if (!displayNameBuilder.toString().contains(countryName)) {
+                    displayNameBuilder.append(countryName);
+                }
             }
+
             if (displayNameBuilder.length() == 0) {
                 if (address.hasLatitude() && address.hasLongitude()) {
                     return "Location (Lat: " + String.format(Locale.US, "%.4f", address.getLatitude()) +
@@ -544,23 +547,25 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
         }
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
-        if (mapView != null) mapView.onResume();
+        // if (mapView != null) mapView.onResume(); // OSM MapView removed
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            if(myLocationOverlayPicker != null && !myLocationOverlayPicker.isMyLocationEnabled()){
-                myLocationOverlayPicker.enableMyLocation();
-            }
-            if(selectedLocationMarker == null && currentSelectedPoint == null) {
+            // if(myLocationOverlayPicker != null && !myLocationOverlayPicker.isMyLocationEnabled()){ // OSM Overlay removed
+            // myLocationOverlayPicker.enableMyLocation();
+            // }
+            if (currentSelectedPoint == null) { // Only start if no location is yet selected
                 startPickerLocationUpdates();
             }
         }
     }
+
     @Override
     protected void onPause() {
         super.onPause();
-        if (mapView != null) mapView.onPause();
+        // if (mapView != null) mapView.onPause(); // OSM MapView removed
         if (fusedLocationClientPicker != null ) {
             if (locationCallbackPicker != null) {
                 fusedLocationClientPicker.removeLocationUpdates(locationCallbackPicker);
@@ -569,12 +574,13 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements L
                 cancellationTokenSource.cancel();
             }
         }
-        if(myLocationOverlayPicker != null) myLocationOverlayPicker.disableMyLocation();
+        // if(myLocationOverlayPicker != null) myLocationOverlayPicker.disableMyLocation(); // OSM Overlay removed
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mapView != null) mapView.onDetach();
+        // if (mapView != null) mapView.onDetach(); // OSM MapView removed
         searchDebounceHandler.removeCallbacksAndMessages(null);
         if (cancellationTokenSource != null) {
             cancellationTokenSource.cancel();
