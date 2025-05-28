@@ -12,7 +12,7 @@
         android:id="@+id/cl_map_content_area"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="56dp">
+        android:paddingBottom="0dp"> <!-- Padding bottom might be handled by insets if bottom nav consumes them -->
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card_map_top_panel"
@@ -64,15 +64,17 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:text="Finding your location..."
+                        android:text="Loading map..."
                         android:textColor="@color/text_grey_dark"
                         android:textSize="15sp" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <org.osmdroid.views.MapView
-            android:id="@+id/map_view_osm"
+        <!-- Google Map Fragment -->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map_fragment_container"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -85,142 +87,27 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"
-            android:layout_marginBottom="120dp"
+            android:layout_marginBottom="16dp"
             android:contentDescription="My Location"
             android:src="@drawable/map"
             app:backgroundTint="@color/white"
             app:elevation="10dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@id/map_fragment_container"
+            app:layout_constraintEnd_toEndOf="@id/map_fragment_container"
             app:tint="@color/green_brand_primary" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-
-
-    <!-- 3. Bottom Sheet with proper behavior -->
-
-    <androidx.core.widget.NestedScrollView
-        android:id="@+id/bottom_sheet_maps_info"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="56dp"
-        android:background="@android:color/white"
-        android:elevation="16dp"
-        android:fillViewport="true"
-        app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-        app:behavior_peekHeight="130dp"
-        app:behavior_hideable="false">
-
-
-    <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingTop="8dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="90dp"> <!-- This padding is for content *inside* the sheet -->
-
-            <View
-                android:layout_width="40dp"
-                android:layout_height="4dp"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginBottom="16dp"
-                android:background="#CCCCCC" />
-
-            <!-- Main route info section -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:gravity="center_vertical"
-                android:orientation="horizontal"
-                android:paddingStart="4dp"
-                android:paddingEnd="4dp">
-
-                <ImageView
-                    android:id="@+id/iv_transport_mode_icon_bottom"
-                    android:layout_width="40dp"
-                    android:layout_height="40dp"
-                    android:background="#F0F0F0"
-                    android:contentDescription="Transport Mode"
-                    android:padding="8dp"
-                    android:src="@drawable/ic_taxi"
-                    app:tint="@android:color/black" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:id="@+id/tv_route_duration"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="57 min"
-                        android:textColor="@android:color/black"
-                        android:textSize="20sp"
-                        android:textStyle="bold" />
-
-                    <TextView
-                        android:id="@+id/tv_route_distance"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="23 km"
-                        android:textColor="#666666"
-                        android:textSize="14sp" />
-                </LinearLayout>
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="1dp"
-                    android:layout_weight="1" />
-
-                <LinearLayout
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:gravity="end"
-                    android:orientation="vertical">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="1st location"
-                        android:textColor="#999999"
-                        android:textSize="12sp" />
-
-                    <TextView
-                        android:id="@+id/tv_next_destination_bottom"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="2dp"
-                        android:maxLines="2"
-                        android:text="Baguio Cathedral"
-                        android:textColor="@android:color/black"
-                        android:textSize="16sp"
-                        android:textStyle="bold" />
-                </LinearLayout>
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </androidx.core.widget.NestedScrollView>
-
-
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation_maps_page"
-        style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
         android:layout_width="match_parent"
-        android:layout_height="85dp"
+        android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-
         android:background="?android:attr/windowBackground"
-        app:elevation="16dp"
+        app:elevation="8dp"
         app:itemIconTint="@color/bottom_nav_color_selector"
         app:itemTextColor="@color/bottom_nav_color_selector"
         app:labelVisibilityMode="labeled"
-        app:menu="@menu/bottom_nav_menu" />
-
-
+        app:menu="@menu/bottom_nav_menu"
+        app:itemActiveIndicatorStyle="@null" />
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

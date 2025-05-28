@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/bg_button_white_rounded"
+    android:padding="10dp"
+    android:elevation="4dp">
+
+    <ImageView
+        android:id="@+id/info_window_image"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/img_placeholder"
+        android:visibility="gone"
+        tools:visibility="visible"
+        android:layout_marginEnd="10dp"
+        android:contentDescription="Place Image" />
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:minWidth="180dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/info_window_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textColor="@color/textPrimary"
+            android:textSize="16sp"
+            tools:text="Place Name" />
+
+        <TextView
+            android:id="@+id/info_window_category"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textSecondary"
+            android:textSize="13sp"
+            tools:text="Category: Tourist Spot"
+            android:layout_marginTop="4dp"/>
+
+        <TextView
+            android:id="@+id/info_window_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textSecondary"
+            android:textSize="13sp"
+            tools:text="Rating: 4.5 ★"
+            android:layout_marginTop="2dp"/>
+
+        <TextView
+            android:id="@+id/info_window_open"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/textSecondary"
+            android:textSize="13sp"
+            tools:text="Open: 24 hours"
+            android:layout_marginTop="2dp"/>
+
+    </LinearLayout>
+</LinearLayout>

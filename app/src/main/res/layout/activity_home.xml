@@ -46,18 +46,18 @@
                 android:layout_marginTop="20dp"
                 android:background="@drawable/bg_rounded_light_gray"
                 android:drawableStart="@drawable/calendar"
-                android:drawablePadding="12dp"
-                android:fontFamily="@font/roboto_bold"
-                android:gravity="center_vertical|start"
-                android:paddingStart="14dp"
-                android:paddingTop="14dp"
-                android:paddingEnd="14dp"
-                android:paddingBottom="14dp"
-                android:text="When is your Trip?"
-                android:textAllCaps="false"
-                android:textColor="#101010"
-                android:textSize="16sp"
-                app:backgroundTint="@null" />
+            android:drawablePadding="12dp"
+            android:fontFamily="@font/roboto_bold"
+            android:gravity="center_vertical|start"
+            android:paddingStart="14dp"
+            android:paddingTop="14dp"
+            android:paddingEnd="14dp"
+            android:paddingBottom="14dp"
+            android:text="When is your Trip?"
+            android:textAllCaps="false"
+            android:textColor="#101010"
+            android:textSize="16sp"
+            app:backgroundTint="@null" />
 
             <!-- Current Location Title -->
             <TextView
@@ -92,19 +92,19 @@
 
                 <TextView
                     android:id="@+id/tv_location_city2"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="12dp"
-                android:layout_marginEnd="8dp"
-                tools:text="Tap to get current location"
-                android:text="Tap to get current location"
-                android:textColor="@color/textPrimary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                app:layout_constraintStart_toEndOf="@id/iv_location_icon_home"
-                app:layout_constraintEnd_toStartOf="@+id/ib_edit_location"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"/>
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="8dp"
+                    tools:text="Tap to get current location"
+                    android:text="Tap to get current location"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@id/iv_location_icon_home"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_edit_location"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
                 <ImageButton
                     android:id="@+id/ib_edit_location"
@@ -117,7 +117,6 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"/>
-
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- Direction/Status Text (from Code 1) -->
@@ -129,7 +128,6 @@
                 android:textSize="12sp"
                 android:textColor="@color/textSecondary"
                 tools:text="Location status will show here"/>
-
 
             <!-- Tourist and Food Spots Title -->
             <TextView
@@ -166,7 +164,6 @@
                 android:visibility="gone"
                 tools:visibility="gone"/>
 
-
             <!-- RecyclerView for displaying places (from Code 2) -->
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_places_list"
@@ -193,6 +190,7 @@
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/bottom_nav_color_selector"
         app:itemTextColor="@color/bottom_nav_color_selector"
-        app:labelVisibilityMode="labeled" />
+        app:labelVisibilityMode="labeled"
+        app:itemActiveIndicatorStyle="@null" /> <!-- MODIFIED: Added this line -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

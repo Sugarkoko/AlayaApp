@@ -194,7 +194,8 @@
                     android:textColor="@color/textPrimary"
                     android:textSize="16sp"
                     android:padding="4dp"/>
-                <!-- android:background="?attr/selectableItemBackground" --> <!-- Add if email edit implemented -->
+                <!-- android:background="?attr/selectableItemBackground" -->
+                <!-- Add if email edit implemented -->
 
                 <TextView
                     android:id="@+id/tvEditEmail"
@@ -364,6 +365,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:background="@color/colorPrimaryDarker" />
+
         </LinearLayout>
     </ScrollView>
 
@@ -380,6 +382,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+        app:menu="@menu/bottom_nav_menu"
+        app:itemActiveIndicatorStyle="@null" /> <!-- MODIFIED: Added this line -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

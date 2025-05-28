@@ -1,34 +1,25 @@
 package com.example.alayaapp;
 
 import com.google.firebase.firestore.Exclude;
-import com.google.firebase.firestore.GeoPoint; // <<< IMPORT THIS
+import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.IgnoreExtraProperties;
-// import java.util.List; // No longer needed for 'coordinates' if using GeoPoint
 
 @IgnoreExtraProperties
 public class Place {
-
-    // Fields directly matching your Firestore document screenshot
     private String about;
     private String best_time;
     private String category;
     private String city;
-    // private List<String> coordinates; // OLD: Was expecting a List of Strings
-    private GeoPoint coordinates;      // MODIFIED: Now expecting a GeoPoint object
+    private GeoPoint coordinates;
     private long id;
     private String image_url;
     private String name;
     private String open;
     private long price_range;
     private double rating;
-
-    // Fields used in UI but might be missing from some/all Firestore documents
-    // IMPORTANT: Add these to your Firestore documents if you want them displayed
     private String review_count_text;
     private String distance_text;
-
-    @Exclude
-    private String documentId; // Firestore's auto-generated document ID
+    @Exclude private String documentId;
 
     public Place() {}
 
@@ -37,35 +28,43 @@ public class Place {
     public String getBest_time() { return best_time; }
     public String getCategory() { return category; }
     public String getCity() { return city; }
-    // public List<String> getCoordinates() { return coordinates; } // OLD Getter
-    public GeoPoint getCoordinates() { return coordinates; }      // MODIFIED: Getter for GeoPoint
+    public GeoPoint getCoordinates() { return coordinates; }
     public long getId() { return id; }
     public String getImage_url() { return image_url; }
     public String getName() { return name; }
     public String getOpen() { return open; }
     public long getPrice_range() { return price_range; }
     public double getRating() { return rating; }
-
     public String getReview_count_text() { return review_count_text; }
     public String getDistance_text() { return distance_text; }
+    @Exclude public String getDocumentId() { return documentId; }
 
-    @Exclude
-    public String getDocumentId() { return documentId; }
+    // --- Setters ---
+    public void setAbout(String about) { this.about = about; }
+    public void setBest_time(String best_time) { this.best_time = best_time; }
+    public void setCategory(String category) { this.category = category; }
+    public void setCity(String city) { this.city = city; }
+    public void setCoordinates(GeoPoint coordinates) { this.coordinates = coordinates; }
+    public void setId(long id) { this.id = id; }
+    public void setImage_url(String image_url) { this.image_url = image_url; }
+    public void setName(String name) { this.name = name; } // <<< THIS WAS MISSING
+    public void setOpen(String open) { this.open = open; }
+    public void setPrice_range(long price_range) { this.price_range = price_range; }
+    public void setRating(double rating) { this.rating = rating; }
+    public void setReview_count_text(String review_count_text) { this.review_count_text = review_count_text; }
+    public void setDistance_text(String distance_text) { this.distance_text = distance_text; }
     public void setDocumentId(String documentId) { this.documentId = documentId; }
 
-    // MODIFIED: Convenience methods for lat/lng to use GeoPoint directly
-    @Exclude
-    public Double getLatitude() {
+
+    @Exclude public Double getLatitude() {
         if (coordinates != null) {
-            return coordinates.getLatitude(); // Directly get latitude from GeoPoint
+            return coordinates.getLatitude();
         }
         return null;
     }
-
-    @Exclude
-    public Double getLongitude() {
+    @Exclude public Double getLongitude() {
         if (coordinates != null) {
-            return coordinates.getLongitude(); // Directly get longitude from GeoPoint
+            return coordinates.getLongitude();
         }
         return null;
     }

@@ -18,11 +18,18 @@
         android:theme="@style/Theme.AlayaApp"
         tools:targetApi="34">
 
+        <!--
+             TODO: Add your Google Maps API Key here.
+             The key below is from your google-services.json.
+             Ensure "Maps SDK for Android" is enabled for this key in Google Cloud Console.
+        -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBTO_iqSF7ZI0KjHOStNId1k_8TymYjtK4" />
+
         <activity
             android:name=".MapsActivity"
             android:exported="false" />
-
-
         <activity
             android:name=".ManualLocationPickerActivity"
             android:exported="false"
@@ -32,7 +39,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".HomeActivity" />
         </activity>
-
         <activity
             android:name=".ItineraryLogDetailActivity"
             android:exported="false" />
@@ -81,6 +87,5 @@
         <activity
             android:name=".MainActivity"
             android:exported="false" />
-
     </application>
 </manifest>

@@ -40,7 +40,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
-    implementation("org.osmdroid:osmdroid-android:6.1.18")
+
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)

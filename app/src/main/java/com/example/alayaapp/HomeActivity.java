@@ -1,6 +1,7 @@
 package com.example.alayaapp;
 
 import android.Manifest;
+import android.app.DatePickerDialog; // Added
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -10,7 +11,8 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
-import android.view.View; // Added for View.VISIBLE/GONE
+import android.view.View;
+import android.widget.DatePicker; // Added
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -21,74 +23,77 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-// RecyclerView is already imported via binding, but good to have explicitly if referenced directly
-// import androidx.recyclerview.widget.RecyclerView;
 
-import com.example.alayaapp.databinding.ActivityHomeBinding; // From Location version
+import com.example.alayaapp.databinding.ActivityHomeBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
-import com.google.android.material.bottomnavigation.BottomNavigationView; // Keep for clarity
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
-import org.osmdroid.util.GeoPoint;
+import com.example.alayaapp.util.GeoPoint; // Assuming this is still used or remove if LatLng is preferred
 
 import java.io.IOException;
+import java.text.SimpleDateFormat; // Added
 import java.util.ArrayList;
+import java.util.Calendar; // Added
 import java.util.List;
 import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity {
-    private ActivityHomeBinding binding; // From Location version
+    private ActivityHomeBinding binding;
 
-    // --- Constants and Tags ---
     final int CURRENT_ITEM_ID = R.id.navigation_home;
     private static final int REQUEST_LOCATION_PERMISSION = 1;
-    private static final String TAG = "HomeActivity"; // Combined Tag, or use specific ones if preferred
+    private static final String TAG = "HomeActivity";
 
-    // --- Location Related Variables (from Location version) ---
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private boolean requestingLocationUpdates = false;
+
     private SharedPreferences sharedPreferences;
-    private static final String PREFS_NAME = "AlayaAppPrefs";
+    private static final String PREFS_NAME = "AlayaAppPrefs"; // Already exists
+    // Location Prefs (already exist)
     private static final String KEY_LOCATION_MODE = "location_mode";
     private static final String KEY_MANUAL_LOCATION_NAME = "manual_location_name";
     private static final String KEY_MANUAL_LATITUDE = "manual_latitude";
     private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
+    // Trip Date Prefs (NEW)
+    private static final String KEY_TRIP_DATE_YEAR = "trip_date_year";
+    private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
+    private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
+
+
     private String currentLocationNameToDisplay = "Tap to get current location";
     private GeoPoint manualGeoPoint = null;
 
-    // --- Firestore & RecyclerView Related Variables (from Firestore version) ---
     private PlaceAdapter placeAdapter;
     private List<Place> placesList;
     private FirebaseFirestore db;
 
-    // ActivityResultLauncher for ManualLocationPickerActivity (from Location version)
-    private final ActivityResultLauncher<Intent> manualLocationPickerLauncher =
-            registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), result -> {
+    private Calendar tripDateCalendar; // Added for DatePicker
+    private DatePickerDialog.OnDateSetListener dateSetListener; // Added
+
+    private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
                 if (result.getResultCode() == RESULT_OK && result.getData() != null) {
                     Intent data = result.getData();
                     String locationName = data.getStringExtra("selected_location_name");
                     double latitude = data.getDoubleExtra("selected_latitude", 0.0);
                     double longitude = data.getDoubleExtra("selected_longitude", 0.0);
-
                     if (locationName != null && !locationName.isEmpty()) {
                         currentLocationNameToDisplay = locationName;
-                        manualGeoPoint = new GeoPoint(latitude, longitude);
+                        manualGeoPoint = new GeoPoint(latitude, longitude); // Or use LatLng if preferred
                         binding.tvLocationCity2.setText(currentLocationNameToDisplay);
                         if (binding.tvDirectionText != null) {
                             binding.tvDirectionText.setText("Manually set: " + currentLocationNameToDisplay);
                         }
                         saveLocationPreference("manual", locationName, latitude, longitude);
                         stopLocationUpdates();
-                        // TODO: Consider re-fetching places if Firestore query depends on manualGeoPoint
-                        // fetchPlacesFromFirestore(manualGeoPoint); // Example if you modify fetchPlaces
                     }
                 }
             });
@@ -99,25 +104,24 @@ public class HomeActivity extends AppCompatActivity {
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // --- Initialize Location Services (from Location version) ---
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         setupLocationCallback();
 
-        // --- Initialize Firestore & RecyclerView (from Firestore version) ---
         db = FirebaseFirestore.getInstance();
         placesList = new ArrayList<>();
         binding.rvPlacesList.setLayoutManager(new LinearLayoutManager(this));
-        placeAdapter = new PlaceAdapter(this, placesList); // 'this' for context
+        placeAdapter = new PlaceAdapter(this, placesList);
         binding.rvPlacesList.setAdapter(placeAdapter);
 
-        // --- UI Setup and Listeners ---
-        binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
+        tripDateCalendar = Calendar.getInstance(); // Initialize calendar
 
-        // Listener for edit location button (from Location version)
+        setupTripDatePicker(); // NEW method call
+        loadSavedTripDate();   // NEW method call
+
+        binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
         binding.ibEditLocation.setOnClickListener(v -> showLocationChoiceDialog());
 
-        // Bottom Navigation Listener (common to both, structure from Location version is fine)
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == CURRENT_ITEM_ID) {
@@ -131,38 +135,83 @@ public class HomeActivity extends AppCompatActivity {
             } else if (itemId == R.id.navigation_profile) {
                 intent = new Intent(getApplicationContext(), ProfileActivity.class);
             }
-
             if (intent != null) {
                 startActivity(intent);
                 overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                finish(); // Assuming you want to finish HomeActivity when navigating away
+                finish();
                 return true;
             }
             return false;
         });
 
-        // --- Initial Data Loading ---
-        loadLocationPreferenceAndInitialize(); // Load location pref first
-        fetchPlacesFromFirestore(); // Then fetch places
+        loadLocationPreferenceAndInitialize();
+        fetchPlacesFromFirestore();
     }
 
-    // --- Firestore Data Fetching Method (from Firestore version, adapted for ViewBinding) ---
+    // --- NEW METHODS FOR TRIP DATE ---
+    private void setupTripDatePicker() {
+        dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
+            tripDateCalendar.set(Calendar.YEAR, year);
+            tripDateCalendar.set(Calendar.MONTH, monthOfYear);
+            tripDateCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            updateTripDateButtonText();
+            saveTripDate(year, monthOfYear, dayOfMonth);
+            Toast.makeText(HomeActivity.this, "Trip date set to: " + getFormattedDate(tripDateCalendar), Toast.LENGTH_SHORT).show();
+        };
+
+        binding.btnTripDate.setOnClickListener(v -> {
+            new DatePickerDialog(HomeActivity.this, dateSetListener,
+                    tripDateCalendar.get(Calendar.YEAR),
+                    tripDateCalendar.get(Calendar.MONTH),
+                    tripDateCalendar.get(Calendar.DAY_OF_MONTH))
+                    .show();
+        });
+    }
+
+    private void loadSavedTripDate() {
+        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
+            int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripDateCalendar.get(Calendar.YEAR));
+            int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripDateCalendar.get(Calendar.MONTH));
+            int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripDateCalendar.get(Calendar.DAY_OF_MONTH));
+            tripDateCalendar.set(year, month, day);
+        }
+        updateTripDateButtonText(); // Update text with saved or current date
+    }
+
+    private void updateTripDateButtonText() {
+        binding.btnTripDate.setText(getFormattedDate(tripDateCalendar));
+    }
+
+    private String getFormattedDate(Calendar calendar) {
+        // Example format: "Mon, Apr 22, 2024"
+        // Or if a date is saved "When is your trip? (Selected: Mon, Apr 22)"
+        SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
+        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) { // Check if a date was ever saved
+            return sdf.format(calendar.getTime());
+        } else {
+            return "When is your Trip?"; // Default text
+        }
+    }
+
+    private void saveTripDate(int year, int month, int day) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_TRIP_DATE_YEAR, year);
+        editor.putInt(KEY_TRIP_DATE_MONTH, month);
+        editor.putInt(KEY_TRIP_DATE_DAY, day);
+        editor.apply();
+    }
+    // --- END OF NEW METHODS ---
+
     private void fetchPlacesFromFirestore() {
         Log.d(TAG, "fetchPlacesFromFirestore: Method entered. Showing ProgressBar.");
         if (binding.progressBarHome != null) binding.progressBarHome.setVisibility(View.VISIBLE);
         if (binding.rvPlacesList != null) binding.rvPlacesList.setVisibility(View.GONE);
         if (binding.tvEmptyPlaces != null) binding.tvEmptyPlaces.setVisibility(View.GONE);
 
-        // TODO: If places should be fetched based on current location (GPS or manual),
-        // you'll need to modify this query. For now, it fetches all places.
-        // Example: if (manualGeoPoint != null) { query based on manualGeoPoint }
-        // else if (currentGpsLocation != null) { query based on currentGpsLocation }
-
-        db.collection("places") // Assuming "places" is your collection name
+        db.collection("places")
                 .get()
                 .addOnCompleteListener(task -> {
                     if (binding.progressBarHome != null) binding.progressBarHome.setVisibility(View.GONE);
-
                     if (task.isSuccessful()) {
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
                             placesList.clear();
@@ -170,24 +219,18 @@ public class HomeActivity extends AppCompatActivity {
                                 try {
                                     Place place = document.toObject(Place.class);
                                     if (place != null) {
-                                        place.setDocumentId(document.getId()); // Make sure Place class has setDocumentId
+                                        place.setDocumentId(document.getId());
                                         placesList.add(place);
-                                        Log.d(TAG, "Fetched and converted: " + (place.getName() != null ? place.getName() : "Unnamed Place") + " (ID: " + document.getId() + ")");
-                                    } else {
-                                        Log.e(TAG, "Failed to convert document to Place object (was null): " + document.getId());
                                     }
                                 } catch (Exception e) {
-                                    Log.e(TAG, "Error converting document: " + document.getId() + ". Check POJO and Firestore data types/field names.", e);
+                                    Log.e(TAG, "Error converting document: " + document.getId(), e);
                                 }
                             }
-
                             if (!placesList.isEmpty()) {
                                 placeAdapter.notifyDataSetChanged();
                                 if (binding.rvPlacesList != null) binding.rvPlacesList.setVisibility(View.VISIBLE);
                                 if (binding.tvEmptyPlaces != null) binding.tvEmptyPlaces.setVisibility(View.GONE);
-                                Log.d(TAG, "Places loaded and RecyclerView updated. Count: " + placesList.size());
                             } else {
-                                Log.d(TAG, "No valid places to display after processing documents. Displaying empty state.");
                                 if (binding.rvPlacesList != null) binding.rvPlacesList.setVisibility(View.GONE);
                                 if (binding.tvEmptyPlaces != null) {
                                     binding.tvEmptyPlaces.setText("No places to display or error in data.");
@@ -195,7 +238,6 @@ public class HomeActivity extends AppCompatActivity {
                                 }
                             }
                         } else {
-                            Log.d(TAG, "No places found in Firestore collection. Displaying empty state.");
                             if (binding.rvPlacesList != null) binding.rvPlacesList.setVisibility(View.GONE);
                             if (binding.tvEmptyPlaces != null) {
                                 binding.tvEmptyPlaces.setText("No places found nearby.");
@@ -210,30 +252,19 @@ public class HomeActivity extends AppCompatActivity {
                             binding.tvEmptyPlaces.setVisibility(View.VISIBLE);
                         }
                         Toast.makeText(HomeActivity.this, "Failed to load places.", Toast.LENGTH_LONG).show();
-                        if (task.getException() instanceof FirebaseFirestoreException) {
-                            FirebaseFirestoreException e = (FirebaseFirestoreException) task.getException();
-                            Log.e(TAG, "Firestore Exception Code: " + e.getCode().name());
-                        }
                     }
                 });
     }
 
-
-    // --- Location Related Methods (from Location version, ensure binding is used for UI) ---
     private void setupLocationCallback() {
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 if (locationResult == null) return;
                 if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
-
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
                         getAddressFromLocation(location.getLatitude(), location.getLongitude());
-                        // TODO: If places are location-dependent, re-fetch here:
-                        // fetchPlacesFromFirestore(new GeoPoint(location.getLatitude(), location.getLongitude()));
-                        // Consider stopping updates if only one good fix is needed.
-                        // stopLocationUpdates();
                         break;
                     }
                 }
@@ -268,21 +299,18 @@ public class HomeActivity extends AppCompatActivity {
             String name = sharedPreferences.getString(KEY_MANUAL_LOCATION_NAME, "");
             double lat = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LATITUDE, Double.doubleToRawLongBits(0.0)));
             double lon = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LONGITUDE, Double.doubleToRawLongBits(0.0)));
-
             if (!name.isEmpty() && lat != 0.0 && lon != 0.0) {
                 currentLocationNameToDisplay = name;
-                manualGeoPoint = new GeoPoint(lat, lon);
+                manualGeoPoint = new GeoPoint(lat, lon); // Or LatLng
                 binding.tvLocationCity2.setText(currentLocationNameToDisplay);
                 if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Manually set: " + currentLocationNameToDisplay);
                 stopLocationUpdates();
-                // TODO: If places depend on location, fetch here with manualGeoPoint
-                // fetchPlacesFromFirestore(manualGeoPoint);
             } else {
-                saveLocationPreference("auto", null, 0,0);
-                checkAndRequestLocationPermissions(); // Fallback to auto
+                saveLocationPreference("auto", null, 0,0); // Fallback
+                checkAndRequestLocationPermissions();
             }
-        } else { // "auto"
-            binding.tvLocationCity2.setText("Tap to get current location"); // Or "Fetching location..."
+        } else {
+            binding.tvLocationCity2.setText("Tap to get current location");
             if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Mode: GPS. Waiting for location...");
             checkAndRequestLocationPermissions();
         }
@@ -305,19 +333,17 @@ public class HomeActivity extends AppCompatActivity {
 
     private void getAddressFromLocation(double latitude, double longitude) {
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
-
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
             if (addresses != null && !addresses.isEmpty()) {
                 Address address = addresses.get(0);
-                // ... (rest of the address formatting logic from Location version)
                 String city = address.getLocality();
                 String subLocality = address.getSubLocality();
                 String thoroughfare = address.getThoroughfare();
                 String country = address.getCountryName();
                 StringBuilder addressTextBuilder = new StringBuilder();
-                // (Same address builder logic as in your original HomeActivity_Location)
+
                 if (city != null && !city.isEmpty()) addressTextBuilder.append(city);
                 else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
                 else if (thoroughfare != null && !thoroughfare.isEmpty()) addressTextBuilder.append(thoroughfare);
@@ -331,14 +357,11 @@ public class HomeActivity extends AppCompatActivity {
                     addressTextBuilder.replace(0, addressTextBuilder.length(), country);
                 }
                 currentLocationNameToDisplay = addressTextBuilder.length() == 0 ? "Location Name Not Found" : addressTextBuilder.toString();
-
                 binding.tvLocationCity2.setText(currentLocationNameToDisplay);
                 if (binding.tvDirectionText != null) binding.tvDirectionText.setText("GPS: " + currentLocationNameToDisplay);
-                Log.d(TAG, "Fetched Address (Auto): " + currentLocationNameToDisplay);
             } else {
                 binding.tvLocationCity2.setText("Location Name Not Found (Auto)");
                 if (binding.tvDirectionText != null) binding.tvDirectionText.setText("GPS: Location Name Not Found");
-                Log.w(TAG, "No address found for the location (Auto).");
             }
         } catch (IOException e) {
             Log.e(TAG, "Geocoder service not available or IO error (Auto)", e);
@@ -363,9 +386,10 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             stopLocationUpdates();
             String name = sharedPreferences.getString(KEY_MANUAL_LOCATION_NAME, "Not Set");
-            binding.tvLocationCity2.setText(name);
+            binding.tvLocationCity2.setText(name); // Ensure manual location is displayed on resume
             if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Manually set: " + name);
         }
+        loadSavedTripDate(); // Reload and display saved trip date on resume
     }
 
     @Override
@@ -424,14 +448,11 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
-
         if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Fetching last known location...");
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, location -> {
                     if (location != null) {
                         getAddressFromLocation(location.getLatitude(), location.getLongitude());
-                        // TODO: If places depend on location, re-fetch here
-                        // fetchPlacesFromFirestore(new GeoPoint(location.getLatitude(), location.getLongitude()));
                     } else {
                         Log.d(TAG, "Last known location is null. Waiting for updates.");
                         if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Last location null, waiting for live updates...");
@@ -449,28 +470,23 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) {
-            Log.d(TAG, "In manual mode, not starting GPS updates.");
             stopLocationUpdates();
             return;
         }
-        if (requestingLocationUpdates) {
-            Log.d(TAG, "startLocationUpdates: Already requesting.");
-            return;
-        }
+        if (requestingLocationUpdates) return;
+
         LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
                 .setMinUpdateIntervalMillis(5000)
                 .build();
         requestingLocationUpdates = true;
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
         if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Updating location (GPS)...");
-        Log.d(TAG, "Requested location updates.");
     }
 
     private void stopLocationUpdates() {
         if (requestingLocationUpdates) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
             requestingLocationUpdates = false;
-            Log.d(TAG, "Location updates stopped.");
         }
     }
 }

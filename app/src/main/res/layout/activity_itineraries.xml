@@ -38,7 +38,7 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tv_current_location_title"
+                android:id="@+id/tv_current_location_header"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
@@ -47,23 +47,66 @@
                 android:textSize="18sp"
                 android:textStyle="bold"/>
 
-            <TextView
-                android:id="@+id/tv_location_city"
+            <!-- MODIFIED Current Location Section -->
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/cl_location_container_itineraries"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:background="@drawable/bg_rounded_light_gray"
-                android:drawableStart="@drawable/location"
-                android:drawablePadding="12dp"
-                android:gravity="center_vertical|start"
-                android:padding="14dp"
-                tools:text="Baguio City"
-                android:textColor="@color/textPrimary"
-                android:textSize="16sp"
-                android:textStyle="bold"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground" />
+                android:padding="14dp">
+
+                <ImageView
+                    android:id="@+id/iv_location_icon_itineraries"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/location"
+                    app:tint="@color/textPrimary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:contentDescription="Location Icon"/>
+
+                <TextView
+                    android:id="@+id/tv_location_city_itineraries"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="12dp"
+                    android:layout_marginEnd="8dp"
+                    tools:text="Tap to get current location"
+                    android:text="Tap to get current location"
+                    android:textColor="@color/textPrimary"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    app:layout_constraintStart_toEndOf="@id/iv_location_icon_itineraries"
+                    app:layout_constraintEnd_toStartOf="@+id/ib_edit_location_itineraries"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+                <ImageButton
+                    android:id="@+id/ib_edit_location_itineraries"
+                    android:layout_width="36dp"
+                    android:layout_height="36dp"
+                    android:src="@drawable/edit"
+                    app:tint="@color/colorPrimary"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:contentDescription="Edit Location"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <!-- Location Status/Direction Text -->
+            <TextView
+                android:id="@+id/tv_location_status_itineraries"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:textSize="12sp"
+                android:textColor="@color/textSecondary"
+                tools:text="Location status will show here"/>
+            <!-- End of MODIFIED Current Location Section -->
+
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -110,7 +153,6 @@
                     android:focusable="true"
                     android:visibility="gone"
                     tools:visibility="visible"/>
-
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -144,7 +186,7 @@
                 android:layout_marginTop="16dp"
                 android:columnCount="2"
                 android:useDefaultMargins="true">
-
+                <!-- Your CardViews for recommended itineraries -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_recommended_1"
                     android:layout_width="0dp"
@@ -157,31 +199,15 @@
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
                     app:cardBackgroundColor="@color/lightGrayBackground">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Arca's Yard Cafe"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="4dp"/>
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Arca's Yard Cafe" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
                             <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(1K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_recommended_2"
                     android:layout_width="0dp"
@@ -194,31 +220,15 @@
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
                     app:cardBackgroundColor="@color/lightGrayBackground">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Wright Park Riding Center"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="4dp"/>
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Wright Park Riding Center" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
                             <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.3" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(4K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_recommended_3"
                     android:layout_width="0dp"
@@ -231,31 +241,15 @@
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
                     app:cardBackgroundColor="@color/lightGrayBackground">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Baguio Orchidarium"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="4dp"/>
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Baguio Orchidarium" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
                             <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.5" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(2K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_recommended_4"
                     android:layout_width="0dp"
@@ -268,31 +262,15 @@
                     android:focusable="true"
                     android:foreground="?android:attr/selectableItemBackground"
                     app:cardBackgroundColor="@color/lightGrayBackground">
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="12dp">
-                        <TextView
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:text="Camp John Hay Picnic Area"
-                            android:textColor="@color/textPrimary"
-                            android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:layout_marginBottom="4dp"/>
-                        <LinearLayout
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:orientation="horizontal"
-                            android:gravity="center_vertical">
+                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
+                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Camp John Hay Picnic Area" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
+                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
                             <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
                             <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(5K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-
             </GridLayout>
 
         </LinearLayout>
@@ -310,6 +288,7 @@
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/bottom_nav_color_selector"
         app:itemTextColor="@color/bottom_nav_color_selector"
-        app:labelVisibilityMode="labeled" />
+        app:labelVisibilityMode="labeled"
+        app:itemActiveIndicatorStyle="@null" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
