@@ -65,6 +65,7 @@
                 android:focusable="true"
                 android:foreground="?android:attr/selectableItemBackground" />
 
+
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -110,7 +111,6 @@
                     android:focusable="true"
                     android:visibility="gone"
                     tools:visibility="visible"/>
-
             </LinearLayout>
 
             <androidx.recyclerview.widget.RecyclerView
@@ -127,6 +127,7 @@
                 tools:itemCount="5"
                 android:minHeight="150dp"
                 android:nestedScrollingEnabled="false"/>
+
 
             <TextView
                 android:id="@+id/tv_recommended_title"
@@ -175,9 +176,26 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical">
-                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(1K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:src="@drawable/star"
+                                app:tint="@color/starColor"
+                                android:contentDescription="Rating Star"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3.0"
+                                android:textColor="@color/textSecondary"
+                                android:textSize="12sp"
+                                android:layout_marginStart="4dp"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="(1K)"
+                                android:textColor="@color/textSecondary"
+                                android:textSize="12sp"
+                                android:layout_marginStart="4dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -212,9 +230,26 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical">
-                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.3" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(4K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:src="@drawable/star"
+                                app:tint="@color/starColor"
+                                android:contentDescription="Rating Star"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3.3"
+                                android:textColor="@color/textSecondary"
+                                android:textSize="12sp"
+                                android:layout_marginStart="4dp"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="(4K)"
+                                android:textColor="@color/textSecondary"
+                                android:textSize="12sp"
+                                android:layout_marginStart="4dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -249,9 +284,26 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical">
-                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.5" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(2K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:src="@drawable/star"
+                                app:tint="@color/starColor"
+                                android:contentDescription="Rating Star"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="3.5"
+                                android:textColor="@color/textSecondary"
+                                android:textSize="12sp"
+                                android:layout_marginStart="4dp"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="(2K)"
+                                android:textColor="@color/textSecondary"
+                                android:textSize="12sp"
+                                android:layout_marginStart="4dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
@@ -286,15 +338,30 @@
                             android:layout_height="wrap_content"
                             android:orientation="horizontal"
                             android:gravity="center_vertical">
-                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(5K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
+                            <ImageView
+                                android:layout_width="14dp"
+                                android:layout_height="14dp"
+                                android:src="@drawable/star"
+                                app:tint="@color/starColor"
+                                android:contentDescription="Rating Star"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="4.0"
+                                android:textColor="@color/textSecondary"
+                                android:textSize="12sp"
+                                android:layout_marginStart="4dp"/>
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="(5K)"
+                                android:textColor="@color/textSecondary"
+                                android:textSize="12sp"
+                                android:layout_marginStart="4dp"/>
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
-
             </GridLayout>
-
         </LinearLayout>
     </ScrollView>
 
@@ -310,6 +377,7 @@
         app:menu="@menu/bottom_nav_menu"
         app:itemIconTint="@color/bottom_nav_color_selector"
         app:itemTextColor="@color/bottom_nav_color_selector"
-        app:labelVisibilityMode="labeled" />
+        app:labelVisibilityMode="labeled"
+        app:itemActiveIndicatorStyle="@null" /> <!-- MODIFIED: Added this line -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

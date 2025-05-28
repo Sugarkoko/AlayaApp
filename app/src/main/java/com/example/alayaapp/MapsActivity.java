@@ -41,7 +41,12 @@ public class MapsActivity extends AppCompatActivity {
         // Apply Window Insets for EdgeToEdge
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
+            // Adjust padding for the root view. The bottom padding of main_maps_coordinator_layout
+            // will be handled by the system if BottomNavigationView consumes insets.
+            // Or, if cl_map_content_area needs specific bottom padding to not go under nav bar,
+            // that would be set in XML or here.
+            // For now, just setting top, left, right for the root.
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, v.getPaddingBottom());
             return insets;
         });
 
@@ -56,20 +61,8 @@ public class MapsActivity extends AppCompatActivity {
             Log.w(TAG, "tvDirectionText is null in binding.");
         }
 
-        // If you need to manipulate content inside the bottom sheet that is NOT map dependent:
-        if (binding.llMapInfoContainer != null) {
-            // Example: if there was a title or static text in llMapInfoContainer
-            // binding.someTextViewInBottomSheet.setText("Details will appear here.");
-            // For now, we'll assume tvRouteDuration, tvRouteDistance, tvNextDestinationBottom
-            // are part of llMapInfoContainer and will show their XML default "N/A"
-            if (binding.tvRouteDuration != null) binding.tvRouteDuration.setText("N/A");
-            if (binding.tvRouteDistance != null) binding.tvRouteDistance.setText("N/A");
-            if (binding.tvNextDestinationBottom != null) binding.tvNextDestinationBottom.setText("Select Destination");
-
-        } else {
-            Log.w(TAG, "llMapInfoContainer is null in binding.");
-        }
-
+        // The block for setting placeholder text in the bottom sheet (llMapInfoContainer)
+        // has been removed as the bottom sheet itself is removed.
 
         // FAB click listener
         if (binding.fabMyLocation != null) {
@@ -79,7 +72,6 @@ public class MapsActivity extends AppCompatActivity {
         } else {
             Log.w(TAG, "fabMyLocation is null in binding.");
         }
-
     }
 
     private void setupBottomNavigation() {
