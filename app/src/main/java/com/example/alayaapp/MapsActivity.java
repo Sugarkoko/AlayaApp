@@ -1,122 +1,215 @@
 package com.example.alayaapp;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.util.Log; // For logging potential issues
-import android.widget.Toast; // For user feedback or placeholders
+import android.util.Log;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge; // Keeping this as it was in your original
+import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import com.example.alayaapp.databinding.ActivityMapsBinding; // Import ViewBinding
-
-// Google Maps imports
+import com.example.alayaapp.databinding.ActivityMapsBinding;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
 
     private static final String TAG = "MapsActivity";
-    private ActivityMapsBinding binding; // Use ViewBinding
-    private GoogleMap mMap; // Google Map object
+    private ActivityMapsBinding binding;
+    private GoogleMap mMap;
+    private FirebaseFirestore db;
+    private FusedLocationProviderClient fusedLocationClient;
 
-    // Define the current item ID for MapsActivity
     final int CURRENT_ITEM_ID = R.id.navigation_map;
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 101;
+
+    // Keys for receiving specific location data from PlaceDetailsActivity
+    public static final String EXTRA_TARGET_LATITUDE = "com.example.alayaapp.TARGET_LATITUDE";
+    public static final String EXTRA_TARGET_LONGITUDE = "com.example.alayaapp.TARGET_LONGITUDE";
+    public static final String EXTRA_TARGET_NAME = "com.example.alayaapp.TARGET_NAME";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this); // From your original code
+        EdgeToEdge.enable(this);
 
-        // Inflate layout using ViewBinding
         try {
             binding = ActivityMapsBinding.inflate(getLayoutInflater());
             setContentView(binding.getRoot());
         } catch (Exception e) {
             Log.e(TAG, "Error inflating layout: " + e.getMessage(), e);
             Toast.makeText(this, "Error loading page.", Toast.LENGTH_LONG).show();
-            finish(); // Can't proceed if layout is broken
+            finish();
             return;
         }
 
-        // Apply Window Insets for EdgeToEdge
         ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, v.getPaddingBottom());
             return insets;
         });
 
-        // --- Setup Bottom Navigation ---
+        db = FirebaseFirestore.getInstance();
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         setupBottomNavigation();
 
-        // --- Setup Google Map ---
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map_fragment_container); // Use the ID from your layout
+                .findFragmentById(R.id.map_fragment_container);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         } else {
-            Log.e(TAG, "SupportMapFragment not found! Check the ID in activity_maps.xml.");
+            Log.e(TAG, "SupportMapFragment not found!");
             Toast.makeText(this, "Error: Map Fragment not found.", Toast.LENGTH_LONG).show();
         }
 
-        // FAB click listener
-        if (binding.fabMyLocation != null) {
-            binding.fabMyLocation.setOnClickListener(v -> {
-                // TODO: Implement "My Location" functionality
-                // This would typically involve:
-                // 1. Checking for location permissions.
-                // 2. Requesting permissions if not granted.
-                // 3. Getting the current location using FusedLocationProviderClient.
-                // 4. Moving the map camera to the current location.
-                Toast.makeText(MapsActivity.this, "My Location TBD (Needs Permissions & Location API)", Toast.LENGTH_SHORT).show();
-                if (mMap != null) {
-                    // Example: Move to a default location if "My Location" is not yet implemented
-                    LatLng defaultLocation = new LatLng(14.5995, 120.9842); // Manila
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(defaultLocation, 10));
-                }
-            });
-        } else {
-            Log.w(TAG, "fabMyLocation is null in binding.");
-        }
+        binding.fabMyLocation.setOnClickListener(v -> {
+            if (mMap != null) {
+                enableMyLocation();
+            }
+        });
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.setOnInfoWindowClickListener(this); // Set listener for info window clicks
 
-        // Update UI text
         if (binding.tvDirectionText != null) {
-            binding.tvDirectionText.setText("Map is ready. Explore!");
+            binding.tvDirectionText.setText("Map is ready. Loading places...");
         }
 
-        // Example: Add a marker in Manila, Philippines and move the camera
-        LatLng manila = new LatLng(14.5995, 120.9842);
-        mMap.addMarker(new MarkerOptions().position(manila).title("Marker in Manila"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(manila, 10f)); // Zoom level 10
+        // Check if intent has specific location data
+        Intent intent = getIntent();
+        if (intent != null && intent.hasExtra(EXTRA_TARGET_LATITUDE) && intent.hasExtra(EXTRA_TARGET_LONGITUDE)) {
+            double targetLat = intent.getDoubleExtra(EXTRA_TARGET_LATITUDE, 0);
+            double targetLng = intent.getDoubleExtra(EXTRA_TARGET_LONGITUDE, 0);
+            String targetName = intent.getStringExtra(EXTRA_TARGET_NAME);
 
-        // You can customize the map's UI settings here
-        // mMap.getUiSettings().setZoomControlsEnabled(true);
-        // mMap.getUiSettings().setCompassEnabled(true);
-
-        // TODO: Add more map interactions, load markers for places, etc.
+            if (targetLat != 0 && targetLng != 0) {
+                LatLng targetLocation = new LatLng(targetLat, targetLng);
+                mMap.addMarker(new MarkerOptions().position(targetLocation).title(targetName != null ? targetName : "Selected Location"));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(targetLocation, 15f));
+            }
+            fetchAndDisplayAllPlaces(); // Still fetch all other places
+        } else {
+            // Default view (e.g., center on Philippines or try user's location)
+            LatLng philippines = new LatLng(12.8797, 121.7740); // General Philippines
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(philippines, 6f));
+            fetchAndDisplayAllPlaces();
+            enableMyLocation(); // Attempt to show user's location
+        }
     }
+
+    private void fetchAndDisplayAllPlaces() {
+        db.collection("places")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        if (mMap == null) return; // Map not ready
+                        // mMap.clear(); // Clear previous markers if you intend to refresh all
+
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Place place = document.toObject(Place.class);
+                            if (place != null && place.getLatitude() != null && place.getLongitude() != null) {
+                                LatLng placeLocation = new LatLng(place.getLatitude(), place.getLongitude());
+                                MarkerOptions markerOptions = new MarkerOptions()
+                                        .position(placeLocation)
+                                        .title(place.getName());
+                                Marker marker = mMap.addMarker(markerOptions);
+                                if (marker != null) {
+                                    marker.setTag(document.getId()); // Store Firestore document ID
+                                }
+                            }
+                        }
+                        if (binding.tvDirectionText != null) {
+                            binding.tvDirectionText.setText("Places loaded. Tap markers for details.");
+                        }
+                    } else {
+                        Log.w(TAG, "Error getting documents for map.", task.getException());
+                        if (binding.tvDirectionText != null) {
+                            binding.tvDirectionText.setText("Could not load places.");
+                        }
+                        Toast.makeText(MapsActivity.this, "Failed to load places on map.", Toast.LENGTH_SHORT).show();
+                    }
+                });
+    }
+
+    @Override
+    public void onInfoWindowClick(@NonNull Marker marker) {
+        String placeDocumentId = (String) marker.getTag();
+        if (placeDocumentId != null && !placeDocumentId.isEmpty()) {
+            Intent intent = new Intent(MapsActivity.this, PlaceDetailsActivity.class);
+            intent.putExtra(PlaceDetailsActivity.EXTRA_PLACE_DOCUMENT_ID, placeDocumentId);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, "Details not available for this marker.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+
+    private void enableMyLocation() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            if (mMap != null) {
+                mMap.setMyLocationEnabled(true);
+                mMap.getUiSettings().setMyLocationButtonEnabled(false); // We use our custom FAB
+
+                fusedLocationClient.getLastLocation()
+                        .addOnSuccessListener(this, location -> {
+                            if (location != null) {
+                                LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                                // Only move camera if not focusing on a specific target from intent
+                                if (getIntent() == null || !getIntent().hasExtra(EXTRA_TARGET_LATITUDE)) {
+                                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15f));
+                                }
+                            } else {
+                                Toast.makeText(this, "Current location not available.", Toast.LENGTH_SHORT).show();
+                            }
+                        })
+                        .addOnFailureListener(this, e -> {
+                            Toast.makeText(this, "Failed to get current location.", Toast.LENGTH_SHORT).show();
+                        });
+            }
+        } else {
+            // Permission to access the location is missing. Show rationale and request permission
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                enableMyLocation();
+            } else {
+                Toast.makeText(this, "Location permission denied.", Toast.LENGTH_LONG).show();
+            }
+        }
+    }
+
 
     private void setupBottomNavigation() {
         if (binding.bottomNavigationMapsPage == null) {
@@ -127,7 +220,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         binding.bottomNavigationMapsPage.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
             if (destinationItemId == CURRENT_ITEM_ID) {
-                return true; // Already on the Maps screen
+                return true;
             }
             Class<?> destinationActivityClass = null;
             boolean finishCurrent = true;
