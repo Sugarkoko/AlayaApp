@@ -7,12 +7,12 @@
     android:layout_height="match_parent"
     tools:context=".MapsActivity">
 
-    <!-- 1. Main Content Area (Map placeholder and Top Panel) -->
+    <!-- 1. Main Content Area (Map and Top Panel) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_map_content_area"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="0dp">
+        android:paddingBottom="0dp"> <!-- Padding bottom might be handled by insets if bottom nav consumes them -->
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card_map_top_panel"
@@ -64,60 +64,50 @@
                         android:layout_height="wrap_content"
                         android:layout_marginStart="12dp"
                         android:layout_weight="1"
-                        android:text="Map will be displayed here."
+                        android:text="Loading map..."
                         android:textColor="@color/text_grey_dark"
                         android:textSize="15sp" />
                 </LinearLayout>
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
-        <!-- Map Placeholder -->
-        <FrameLayout
-            android:id="@+id/map_placeholder_container"
+        <!-- Google Map Fragment -->
+        <androidx.fragment.app.FragmentContainerView
+            android:id="@+id/map_fragment_container"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="0dp"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/card_map_top_panel">
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/card_map_top_panel" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:gravity="center"
-            android:text="Map Area Placeholder"
-            android:textSize="18sp"
-            android:background="#E0E0E0"/>
-    </FrameLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_my_location"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="My Location"
+            android:src="@drawable/map"
+            app:backgroundTint="@color/white"
+            app:elevation="10dp"
+            app:layout_constraintBottom_toBottomOf="@id/map_fragment_container"
+            app:layout_constraintEnd_toEndOf="@id/map_fragment_container"
+            app:tint="@color/green_brand_primary" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_my_location"
-        android:layout_width="wrap_content"
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottom_navigation_maps_page"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-    android:contentDescription="My Location"
-    android:src="@drawable/map"
-    app:backgroundTint="@color/white"
-    app:elevation="10dp"
-    app:layout_constraintBottom_toBottomOf="parent"
-    app:layout_constraintEnd_toEndOf="parent"
-    app:tint="@color/green_brand_primary" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
-
-
-<com.google.android.material.bottomnavigation.BottomNavigationView
-android:id="@+id/bottom_navigation_maps_page"
-android:layout_width="match_parent"
-android:layout_height="wrap_content"
-android:layout_gravity="bottom"
-    android:background="?android:attr/windowBackground"
-    app:elevation="8dp"
-    app:itemIconTint="@color/bottom_nav_color_selector"
-    app:itemTextColor="@color/bottom_nav_color_selector"
-    app:labelVisibilityMode="labeled"
-    app:menu="@menu/bottom_nav_menu"
-    app:itemActiveIndicatorStyle="@null" />
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        android:layout_gravity="bottom"
+        android:background="?android:attr/windowBackground"
+        app:elevation="8dp"
+        app:itemIconTint="@color/bottom_nav_color_selector"
+        app:itemTextColor="@color/bottom_nav_color_selector"
+        app:labelVisibilityMode="labeled"
+        app:menu="@menu/bottom_nav_menu"
+        app:itemActiveIndicatorStyle="@null" />
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
