@@ -388,10 +388,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                     for(String markerId : markerPlaceMap.keySet()){
                                         Place existingPlace = markerPlaceMap.get(markerId);
                                         if(existingPlace != null && place.getDocumentId().equals(existingPlace.getDocumentId())){
-                                            // Check if the existing marker is one of the special route markers
-                                            // If so, we might not want to consider it "existing" for general POI addition
-                                            // to avoid duplicates if route markers are styled differently.
-                                            // This logic can get complex. For now, a simple docID check.
+
                                             markerExists = true;
                                             break;
                                         }
@@ -409,7 +406,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                             }
                         }
 
-                        // The problematic if (mMap.isInfoWindowShown()) block was removed from here.
+
 
                         if (binding.tvDirectionText != null && binding.tvDirectionText.getText().toString().contains("Determining view...")) {
                             binding.tvDirectionText.setText("Places loaded. Tap markers for details.");

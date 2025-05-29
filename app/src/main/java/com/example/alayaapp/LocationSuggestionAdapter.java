@@ -29,7 +29,7 @@ public class LocationSuggestionAdapter extends RecyclerView.Adapter<LocationSugg
         if (newSuggestions != null) {
             this.suggestions.addAll(newSuggestions);
         }
-        notifyDataSetChanged(); // Consider DiffUtil for better performance with large lists
+        notifyDataSetChanged();
     }
 
     @NonNull

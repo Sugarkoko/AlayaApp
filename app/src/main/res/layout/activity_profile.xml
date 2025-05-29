@@ -210,7 +210,7 @@
                     android:text="edit"
                     android:textColor="@color/colorPrimaryDarker"
                     android:textSize="14sp"
-                    android:visibility="gone" /> <!-- Hiding as per current Java implementation -->
+                    android:visibility="gone" />
             </RelativeLayout>
             <View
                 android:layout_width="match_parent"
@@ -383,6 +383,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_nav_menu"
-        app:itemActiveIndicatorStyle="@null" /> <!-- MODIFIED: Added this line -->
+        app:itemActiveIndicatorStyle="@null" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

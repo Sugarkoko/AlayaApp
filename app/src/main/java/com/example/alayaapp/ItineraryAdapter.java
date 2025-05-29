@@ -31,7 +31,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
     public ItineraryAdapter(List<ItineraryItem> itineraryList, OnStartDragListener dragStartListener) {
         this.itineraryList = itineraryList;
         this.dragStartListener = dragStartListener;
-        setHasStableIds(true); // Important for drag/drop performance/correctness
+        setHasStableIds(true);
     }
 
     @NonNull
@@ -52,7 +52,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
         // Show/hide drag handle based on edit mode
         holder.ivDragHandle.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
 
-        // Start drag on touching the handle *only* in edit mode
+
         if (isEditMode) {
             holder.ivDragHandle.setOnTouchListener((v, event) -> {
                 if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
@@ -81,7 +81,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
         isEditMode = editMode;
         if (needsUpdate) {
             // Use notifyItemRangeChanged instead of notifyDataSetChanged()
-            // This rebinds existing views without fully recreating them.
+
             notifyItemRangeChanged(0, getItemCount());
         }
     }
@@ -97,22 +97,17 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
             }
         }
         notifyItemMoved(fromPosition, toPosition);
-        // IMPORTANT: Recalculate times after moving
+
         recalculateTimes();
         return true;
     }
 
-    // Method to update times based on order
+
     public void recalculateTimes() {
         if (itineraryList.isEmpty()) return;
 
         Calendar currentTime = (Calendar) itineraryList.get(0).getTime().clone(); // Start with first item's time or a fixed start time
-        // Or set a fixed start time:
-        // Calendar currentTime = Calendar.getInstance();
-        // currentTime.set(Calendar.HOUR_OF_DAY, 9);
-        // currentTime.set(Calendar.MINUTE, 0);
-        // currentTime.set(Calendar.SECOND, 0);
-        // itineraryList.get(0).setTime(currentTime); // Set first item's time
+
 
         for (int i = 0; i < itineraryList.size(); i++) {
             ItineraryItem currentItem = itineraryList.get(i);
@@ -124,9 +119,9 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
             notifyItemChanged(i, "payload_time_update"); // Use payload to avoid full rebind if possible
 
             // Increment time for the *next* item (e.g., add 1 hour)
-            currentTime.add(Calendar.HOUR_OF_DAY, 1); // Adjust interval as needed
+            currentTime.add(Calendar.HOUR_OF_DAY, 1);
         }
-        // No need to call notifyDataSetChanged() if using notifyItemChanged()
+
     }
 
     public List<ItineraryItem> getCurrentList() {
@@ -134,7 +129,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.Itin
     }
 
 
-    // ViewHolder Class
+
     static class ItineraryViewHolder extends RecyclerView.ViewHolder {
         ImageView ivDragHandle;
         TextView tvTime, tvActivity, tvRating;

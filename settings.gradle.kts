@@ -19,7 +19,7 @@ dependencyResolutionManagement {
         google()
         mavenCentral()
         // Add JitPack repository for osmdroid-bonuspack and other libraries
-        maven { url = uri("https://jitpack.io") } // <<< ADD THIS LINE
+        maven { url = uri("https://jitpack.io") }
     }
 }
 rootProject.name = "AlayaApp"

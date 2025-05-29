@@ -14,12 +14,12 @@
     app:cardBackgroundColor="@color/lightGrayBackground"
     android:clickable="true"
     android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground"> <!-- Ripple effect for clicks -->
+    android:foreground="?android:attr/selectableItemBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="96dp"> <!-- Ensures a consistent minimum height based on image -->
+        android:minHeight="96dp">
 
         <ImageView
             android:id="@+id/iv_item_place_image"
@@ -94,7 +94,7 @@
             android:textSize="14sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@id/tv_item_place_name"
-            app:layout_constraintBottom_toBottomOf="@id/tv_item_place_name"/> <!-- Aligns better if name is short -->
+            app:layout_constraintBottom_toBottomOf="@id/tv_item_place_name"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

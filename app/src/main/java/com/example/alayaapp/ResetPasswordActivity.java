@@ -67,7 +67,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
                 binding.passwordLayout.setError(null);
             }
 
-            boolean resetSuccess = true; // Placeholder for actual reset logic
+            boolean resetSuccess = true;
 
             if (resetSuccess) {
                 showPasswordResetSuccessDialog();
@@ -80,10 +80,10 @@ public class ResetPasswordActivity extends AppCompatActivity {
     private void showPasswordResetSuccessDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
-        // **** UPDATED XML FILENAME FOR INFLATION ****
+
         View dialogView = inflater.inflate(R.layout.dialog_success_password_change, null);
         builder.setView(dialogView);
-        // builder.setCancelable(false);
+
 
         Button btnContinue = dialogView.findViewById(R.id.btn_dialog_continue);
 

@@ -7,7 +7,7 @@
     android:padding="32dp"
     android:gravity="center"
     android:background="@drawable/dialog_background_gradient_rounded">
-    <!-- All content below remains unchanged -->
+
     <TextView
         android:id="@+id/tv_dialog_message"
         android:layout_width="wrap_content"

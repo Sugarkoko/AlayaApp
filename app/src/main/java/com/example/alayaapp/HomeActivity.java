@@ -1,7 +1,7 @@
 package com.example.alayaapp;
 
 import android.Manifest;
-import android.app.DatePickerDialog; // Added
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -12,7 +12,7 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-import android.widget.DatePicker; // Added
+import android.widget.DatePicker;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -34,7 +34,7 @@ import com.google.android.gms.location.Priority;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.example.alayaapp.util.GeoPoint; // Assuming this is still used or remove if LatLng is preferred
+import com.example.alayaapp.util.GeoPoint;
 
 import java.io.IOException;
 import java.text.SimpleDateFormat; // Added
@@ -55,7 +55,7 @@ public class HomeActivity extends AppCompatActivity {
     private boolean requestingLocationUpdates = false;
 
     private SharedPreferences sharedPreferences;
-    private static final String PREFS_NAME = "AlayaAppPrefs"; // Already exists
+    private static final String PREFS_NAME = "AlayaAppPrefs";
     // Location Prefs (already exist)
     private static final String KEY_LOCATION_MODE = "location_mode";
     private static final String KEY_MANUAL_LOCATION_NAME = "manual_location_name";
@@ -74,8 +74,8 @@ public class HomeActivity extends AppCompatActivity {
     private List<Place> placesList;
     private FirebaseFirestore db;
 
-    private Calendar tripDateCalendar; // Added for DatePicker
-    private DatePickerDialog.OnDateSetListener dateSetListener; // Added
+    private Calendar tripDateCalendar;
+    private DatePickerDialog.OnDateSetListener dateSetListener;
 
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -87,7 +87,7 @@ public class HomeActivity extends AppCompatActivity {
                     double longitude = data.getDoubleExtra("selected_longitude", 0.0);
                     if (locationName != null && !locationName.isEmpty()) {
                         currentLocationNameToDisplay = locationName;
-                        manualGeoPoint = new GeoPoint(latitude, longitude); // Or use LatLng if preferred
+                        manualGeoPoint = new GeoPoint(latitude, longitude);
                         binding.tvLocationCity2.setText(currentLocationNameToDisplay);
                         if (binding.tvDirectionText != null) {
                             binding.tvDirectionText.setText("Manually set: " + currentLocationNameToDisplay);
@@ -116,8 +116,8 @@ public class HomeActivity extends AppCompatActivity {
 
         tripDateCalendar = Calendar.getInstance(); // Initialize calendar
 
-        setupTripDatePicker(); // NEW method call
-        loadSavedTripDate();   // NEW method call
+        setupTripDatePicker();
+        loadSavedTripDate();
 
         binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
         binding.ibEditLocation.setOnClickListener(v -> showLocationChoiceDialog());
@@ -148,7 +148,7 @@ public class HomeActivity extends AppCompatActivity {
         fetchPlacesFromFirestore();
     }
 
-    // --- NEW METHODS FOR TRIP DATE ---
+
     private void setupTripDatePicker() {
         dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
             tripDateCalendar.set(Calendar.YEAR, year);
@@ -175,7 +175,7 @@ public class HomeActivity extends AppCompatActivity {
             int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripDateCalendar.get(Calendar.DAY_OF_MONTH));
             tripDateCalendar.set(year, month, day);
         }
-        updateTripDateButtonText(); // Update text with saved or current date
+        updateTripDateButtonText();
     }
 
     private void updateTripDateButtonText() {
@@ -184,12 +184,12 @@ public class HomeActivity extends AppCompatActivity {
 
     private String getFormattedDate(Calendar calendar) {
         // Example format: "Mon, Apr 22, 2024"
-        // Or if a date is saved "When is your trip? (Selected: Mon, Apr 22)"
+
         SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
         if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) { // Check if a date was ever saved
             return sdf.format(calendar.getTime());
         } else {
-            return "When is your Trip?"; // Default text
+            return "When is your Trip?";
         }
     }
 
@@ -200,7 +200,7 @@ public class HomeActivity extends AppCompatActivity {
         editor.putInt(KEY_TRIP_DATE_DAY, day);
         editor.apply();
     }
-    // --- END OF NEW METHODS ---
+
 
     private void fetchPlacesFromFirestore() {
         Log.d(TAG, "fetchPlacesFromFirestore: Method entered. Showing ProgressBar.");
@@ -389,7 +389,7 @@ public class HomeActivity extends AppCompatActivity {
             binding.tvLocationCity2.setText(name); // Ensure manual location is displayed on resume
             if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Manually set: " + name);
         }
-        loadSavedTripDate(); // Reload and display saved trip date on resume
+        loadSavedTripDate();
     }
 
     @Override

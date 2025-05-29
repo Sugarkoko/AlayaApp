@@ -49,7 +49,7 @@ import com.example.alayaapp.util.GeoPoint; // If you use your custom GeoPoint
 public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.OnStartDragListener {
 
     BottomNavigationView bottomNavigationView;
-    View ivEditItineraryIcon; // Renamed from ivEditItinerary for clarity (it's an ImageView)
+    View ivEditItineraryIcon;
     TextView tvSaveChanges;
     RecyclerView rvSuggestedItinerary;
     ItineraryAdapter itineraryAdapter;
@@ -59,7 +59,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private boolean isEditMode = false;
     final int CURRENT_ITEM_ID = R.id.navigation_itineraries;
 
-    // --- Location Related Variables (copied from HomeActivity) ---
+
     private static final String TAG_LOCATION = "ItinerariesLocation"; // Specific tag
     private static final int REQUEST_LOCATION_PERMISSION_ITINERARIES = 2; // Different request code
     private FusedLocationProviderClient fusedLocationClient;
@@ -72,11 +72,11 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private static final String KEY_MANUAL_LATITUDE = "manual_latitude";
     private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
     private String currentLocationNameToDisplay = "Tap to get current location";
-    private GeoPoint manualGeoPoint = null; // Or use com.google.android.gms.maps.model.LatLng
+    private GeoPoint manualGeoPoint = null;
 
-    private TextView tvLocationCityItineraries; // For location name display
-    private TextView tvLocationStatusItineraries; // For status text
-    private ImageButton ibEditLocationItineraries; // The edit button
+    private TextView tvLocationCityItineraries;
+    private TextView tvLocationStatusItineraries;
+    private ImageButton ibEditLocationItineraries;
 
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -97,7 +97,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                     }
                 }
             });
-    // --- End of Location Variables ---
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -119,7 +119,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         setupLocationCallback(); // Call method to setup the callback
-        // --- End of Location Services Init ---
+
 
         setupRecyclerView();
         loadPlaceholderData(); // For suggested itinerary items
@@ -133,11 +133,11 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         // --- Location UI Setup ---
         ibEditLocationItineraries.setOnClickListener(v -> showLocationChoiceDialog());
         loadLocationPreferenceAndInitialize(); // Load and display current/manual location
-        // --- End of Location UI Setup ---
+
     }
 
     private void setupRecyclerView() {
-        // ... (your existing RecyclerView setup)
+
         itineraryAdapter = new ItineraryAdapter(suggestedList, this);
         rvSuggestedItinerary.setLayoutManager(new LinearLayoutManager(this));
         rvSuggestedItinerary.setAdapter(itineraryAdapter);
@@ -147,7 +147,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     }
 
     private void loadPlaceholderData() {
-        // ... (your existing placeholder data loading)
+
         Calendar cal = Calendar.getInstance();
         cal.set(Calendar.HOUR_OF_DAY, 9); cal.set(Calendar.MINUTE, 0);
         suggestedList.add(new ItineraryItem(1, (Calendar)cal.clone(), "Breakfast at Café by the Ruins", "4.5"));
@@ -167,7 +167,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     }
 
     private void enterEditMode() {
-        // ... (your existing edit mode logic)
+
         isEditMode = true;
         ivEditItineraryIcon.setVisibility(View.GONE);
         tvSaveChanges.setVisibility(View.VISIBLE);
@@ -177,7 +177,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     }
 
     private void exitEditModeAndSave() {
-        // ... (your existing save logic)
+
         isEditMode = false;
         ivEditItineraryIcon.setVisibility(View.VISIBLE);
         tvSaveChanges.setVisibility(View.GONE);
@@ -193,7 +193,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         }
     }
 
-    // --- Bottom Nav Logic (mostly unchanged) ---
+
     private void setupBottomNavListener() {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
@@ -224,7 +224,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         return -1;
     }
 
-    // --- LOCATION METHODS (Copied and adapted from HomeActivity) ---
+
     private void setupLocationCallback() {
         locationCallback = new LocationCallback() {
             @Override
@@ -361,7 +361,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 startLocationUpdates();
             } else {
                 // If permission wasn't granted or revoked, re-check.
-                // User might grant it from settings then come back.
+
                 checkAndRequestLocationPermissions();
             }
         } else { // Manual mode
@@ -489,5 +489,5 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             Log.d(TAG_LOCATION, "Location updates stopped.");
         }
     }
-    // --- END OF LOCATION METHODS ---
+
 }

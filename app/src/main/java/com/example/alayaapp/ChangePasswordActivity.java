@@ -96,11 +96,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                             if (task.isSuccessful()) {
                                 Log.d(TAG, "User password updated.");
                                 Toast.makeText(ChangePasswordActivity.this, "Password updated successfully!", Toast.LENGTH_LONG).show();
-                                // Optional: Sign the user out and redirect to login for security
-                                // mAuth.signOut();
-                                // Intent intent = new Intent(ChangePasswordActivity.this, LoginActivity.class);
-                                // intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                                // startActivity(intent);
+
                                 finish(); // Close this activity and return to profile
                             } else {
                                 Log.e(TAG, "Error updating password", task.getException());
@@ -122,10 +118,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
             // This shouldn't happen if the user reached this screen while logged in
             Toast.makeText(this, "No user signed in. Please sign in again.", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Cannot change password: No user is currently signed in.");
-            // Optionally navigate to Login screen
-            // Intent intent = new Intent(ChangePasswordActivity.this, LoginActivity.class);
-            // startActivity(intent);
-            // finishAffinity();
+
         }
     }
 }

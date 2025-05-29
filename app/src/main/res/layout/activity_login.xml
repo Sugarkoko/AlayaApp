@@ -8,7 +8,7 @@
     android:padding="24dp"
     tools:context=".LoginActivity">
 
-    <!-- Re-using IDs is fine as they are in different layout files -->
+
     <ImageView
         android:id="@+id/form_logo"
         android:layout_width="251dp"
@@ -70,9 +70,9 @@
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Confirm Password is NOT needed here -->
 
-    <!-- Or app:layout_constraintStart_toStartOf="parent" or center -->
+
+
 
 
     <Button

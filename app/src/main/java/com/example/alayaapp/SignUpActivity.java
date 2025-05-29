@@ -129,7 +129,7 @@ public class SignUpActivity extends AppCompatActivity {
     private void showWelcomeScreen(FirebaseUser firebaseUser) {
         welcomeScreenBinding = ActivityWelcomePageBinding.inflate(getLayoutInflater());
         setContentView(welcomeScreenBinding.getRoot());
-        // Ensure R.id.get_started_button is in the layout used by ActivityWelcomePageBinding
+
         welcomeScreenBinding.getStartedButton.setOnClickListener(v_welcome -> {
             showEnterNameDialog(firebaseUser); // Show name dialog first
         });
@@ -141,17 +141,17 @@ public class SignUpActivity extends AppCompatActivity {
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.TransparentDialog);
         LayoutInflater inflater = this.getLayoutInflater();
-        // Ensure res/layout/dialog_enter_name.xml exists
+
         View dialogView = inflater.inflate(R.layout.dialog_enter_name, null);
         builder.setView(dialogView);
 
-        // Ensure R.id.dialog_name_edit_text is in dialog_enter_name.xml
+
         final EditText nameEditText = dialogView.findViewById(R.id.dialog_name_edit_text);
-        // Ensure R.id.dialog_next_button is in dialog_enter_name.xml
+
         MaterialButton nextButton = dialogView.findViewById(R.id.dialog_next_button);
 
         nameEntryDialog = builder.create();
-        nameEntryDialog.setCancelable(false); // User must interact
+        nameEntryDialog.setCancelable(false);
 
         nextButton.setOnClickListener(v_name_dialog -> {
             String name = nameEditText.getText().toString().trim();
@@ -165,12 +165,12 @@ public class SignUpActivity extends AppCompatActivity {
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(SignUpActivity.this, "Name saved!", Toast.LENGTH_SHORT).show();
                         if (nameEntryDialog != null) nameEntryDialog.dismiss();
-                        showLocationPermissionDialog(); // Proceed to location permission
+                        showLocationPermissionDialog();
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(SignUpActivity.this, "Failed to save name: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         Log.e(TAG, "Failed to save name to Firebase", e);
-                        // Optionally, don't dismiss or allow retry
+
                     });
         });
 
@@ -183,18 +183,18 @@ public class SignUpActivity extends AppCompatActivity {
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
-        // Ensure res/layout/dialog_location_notification.xml exists
+
         View dialogView = inflater.inflate(R.layout.dialog_location_notification, null);
         builder.setView(dialogView);
 
-        // Ensure R.id.btn_turn_on is in dialog_location_notification.xml
+
         Button btnTurnOn = dialogView.findViewById(R.id.btn_turn_on);
         locationDialog = builder.create();
 
         if (locationDialog.getWindow() != null) {
             locationDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
-        locationDialog.setCancelable(false); // User must interact
+        locationDialog.setCancelable(false);
 
         btnTurnOn.setOnClickListener(v_dialog_button -> {
             if (locationDialog != null) locationDialog.dismiss();
@@ -209,7 +209,7 @@ public class SignUpActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        // Dismiss dialogs to prevent window leaks if activity is destroyed
+
         if (locationDialog != null && locationDialog.isShowing()) {
             locationDialog.dismiss();
         }

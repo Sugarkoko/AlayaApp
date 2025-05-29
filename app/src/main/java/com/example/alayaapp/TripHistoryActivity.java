@@ -24,30 +24,17 @@ public class TripHistoryActivity extends AppCompatActivity {
             });
         }
 
-        // --- Click Listener for the "Baguio City" Item (Using your provided snippet) ---
-        // This assumes your RelativeLayout for Baguio City in activity_trip_history.xml
-        // has the android:id="@+id/item_baguio_city"
+
         if (binding.itemBaguioCity != null) {
             binding.itemBaguioCity.setOnClickListener(v -> {
                 Intent intent = new Intent(TripHistoryActivity.this, ItineraryLogDetailActivity.class);
                 intent.putExtra("LOCATION_NAME", "Baguio City");
-                // intent.putExtra("LOCATION_ID", "placeholder_baguio_id"); // Commented out as per your snippet
+
                 startActivity(intent);
-                // Optional transition removed as per your snippet
+
             });
         }
-        // You would do similarly for other hardcoded items if you add their listeners:
-        // if (binding.itemTagaytayCity != null) {
-        //     binding.itemTagaytayCity.setOnClickListener(v -> {
-        //         Intent intent = new Intent(TripHistoryActivity.this, ItineraryLogDetailActivity.class);
-        //         intent.putExtra("LOCATION_NAME", "Tagaytay City");
-        //         startActivity(intent);
-        //     });
-        // }
 
-
-        // --- Basic Bottom Navigation Setup ---
-        // Set an initial selected item if relevant (e.g., Profile, if this is part of that flow)
         binding.bottomNavigationTripHistory.setSelectedItemId(R.id.navigation_profile);
 
         binding.bottomNavigationTripHistory.setOnItemSelectedListener(item -> {
@@ -62,29 +49,12 @@ public class TripHistoryActivity extends AppCompatActivity {
                 return true;
             }
 
-            // If the item clicked is the one already selected for this page's context, do nothing.
+
             if (itemId == binding.bottomNavigationTripHistory.getSelectedItemId()) {
                 return true;
             }
 
-            // Add other main navigation points as needed
-            // Example for navigating to ProfileActivity itself (if this screen is a sub-page of profile)
-            /*
-            else if (itemId == R.id.navigation_profile) {
-                // If already on ProfileActivity or a direct child considered "Profile",
-                // you might not want to navigate again or just ensure it's selected.
-                // If TripHistoryActivity IS NOT ProfileActivity:
-                if (!(this.getClass().getSimpleName().equals(ProfileActivity.class.getSimpleName()))) {
-                     Intent intent = new Intent(this, ProfileActivity.class);
-                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                     startActivity(intent);
-                     finish(); // Close this sub-page
-                     return true;
-                }
-                return true; // Already on Profile context
-            }
-            */
-            // Add cases for R.id.navigation_itineraries and R.id.navigation_map if needed
+
 
             return false; // Item not handled by this minimal setup
         });

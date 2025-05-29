@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">AlayaApp</string>
 
-    <!-- General & Auth -->
+
     <string name="app_logo_description">AlayaApp Logo</string>
     <string name="email_hint">Email</string>
     <string name="password_hint">Password</string>
@@ -18,7 +18,7 @@
     <string name="link_sign_up">Sign Up</string>
     <string name="link_sign_in">Sign In</string>
 
-    <!-- Bottom Navigation Titles -->
+
     <string name="title_home">Home</string>
     <string name="title_itineraries">Itineraries</string>
     <string name="title_map">Map</string>

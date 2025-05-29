@@ -7,13 +7,12 @@
     android:layout_height="match_parent"
     tools:context=".MapsActivity">
 
-    <!-- 1. Main Content Area (Map and Top Panel) -->
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_map_content_area"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="0dp"> <!-- Padding bottom might be handled by insets if bottom nav consumes them -->
-
+        android:paddingBottom="0dp">
         <androidx.cardview.widget.CardView
             android:id="@+id/card_map_top_panel"
             android:layout_width="0dp"

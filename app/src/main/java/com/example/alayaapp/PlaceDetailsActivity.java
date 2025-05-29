@@ -15,7 +15,7 @@ import java.util.Locale;
 
 public class PlaceDetailsActivity extends AppCompatActivity {
     private static final String TAG = "PlaceDetailsActivity";
-    public static final String EXTRA_PLACE_DOCUMENT_ID = "PLACE_DOCUMENT_ID"; // Make sure this matches MapsActivity
+    public static final String EXTRA_PLACE_DOCUMENT_ID = "PLACE_DOCUMENT_ID";
     private ActivityPlaceDetailsBinding binding;
     private FirebaseFirestore db;
     private Place currentPlace;

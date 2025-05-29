@@ -9,7 +9,7 @@
     android:background="@color/white"
     tools:context=".SignUpActivity">
 
-    <!-- You can reuse the same logo and title structure -->
+
     <ImageView
         android:id="@+id/form_logo"
         android:layout_width="251dp"
@@ -71,7 +71,7 @@
             android:inputType="textPassword" />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <!-- Confirm Password IS needed here and visible -->
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/confirm_password_layout"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
