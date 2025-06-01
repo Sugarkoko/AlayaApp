@@ -12,7 +12,7 @@
     android:paddingTop="32dp"
     android:paddingEnd="32dp"
     android:paddingBottom="32dp"
-    tools:context=".MainActivity"> <!-- Optional: Replace .MainActivity if needed -->
+    tools:context=".MainActivity">
 
     <!-- Title TextView -->
     <TextView

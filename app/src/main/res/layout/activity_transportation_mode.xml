@@ -103,8 +103,7 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- Map Fragment Container -->
-    <!-- The actual map fragment will be added programmatically -->
+
     <FrameLayout
         android:id="@+id/map_fragment_container_transport"
         android:layout_width="0dp"
@@ -115,11 +114,7 @@
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation_transport_page"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent" />
-    <!-- Note: Original had layout_marginBottom="60dp" and fixed width 377dp.
-         Adjusted marginBottom to 16dp for a tighter look similar to the image and made width responsive with margins.
-         If 60dp gap is specifically desired, revert layout_marginBottom.
-         Removed app:layout_constraintHeight_percent="0.4" as fixed height is given.
-    -->
+
 
     <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
@@ -136,9 +131,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:menu="@menu/bottom_nav_menu" />
 
-    <!--
-    The TextView tv_transportation_title and the LinearLayout previously here
-    are now moved inside the ScrollView.
-    -->
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -25,18 +25,17 @@ public class SplashActivity extends AppCompatActivity {
         binding = ActivitySplashBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Initialize Firebase Auth
+
         mAuth = FirebaseAuth.getInstance();
 
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
             FirebaseUser currentUser = mAuth.getCurrentUser();
             Intent intent;
             if (currentUser != null) {
-                // User is signed in, potentially check email verification if you implement it
-                // For now, directly go to HomeActivity
+
                 intent = new Intent(SplashActivity.this, HomeActivity.class);
             } else {
-                // No user is signed in, go to LoginActivity
+
                 intent = new Intent(SplashActivity.this, LoginActivity.class);
             }
             startActivity(intent);

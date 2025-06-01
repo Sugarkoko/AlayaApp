@@ -65,7 +65,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
         // Inside PlaceAdapter.java onBindViewHolder()
         holder.itemView.setOnClickListener(v -> {
             if (place.getDocumentId() != null && !place.getDocumentId().isEmpty()) {
-                // Assuming 'PlaceDetailsActivity' is the correct name of your details activity
+
                 Intent intent = new Intent(context, PlaceDetailsActivity.class);
                 // Assuming 'PlaceDetailsActivity.EXTRA_PLACE_DOCUMENT_ID' is the correct constant
                 intent.putExtra(PlaceDetailsActivity.EXTRA_PLACE_DOCUMENT_ID, place.getDocumentId());
@@ -82,7 +82,7 @@ public class PlaceAdapter extends RecyclerView.Adapter<PlaceAdapter.PlaceViewHol
         return placeList != null ? placeList.size() : 0;
     }
 
-    // NO setPlaces() method here. HomeActivity will call notifyDataSetChanged() on the adapter instance.
+
 
     static class PlaceViewHolder extends RecyclerView.ViewHolder {
         ImageView ivPlaceImage, ivStar;

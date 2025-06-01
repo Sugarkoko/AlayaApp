@@ -23,7 +23,7 @@ public class Place {
 
     public Place() {}
 
-    // --- Getters ---
+
     public String getAbout() { return about; }
     public String getBest_time() { return best_time; }
     public String getCategory() { return category; }
@@ -39,7 +39,7 @@ public class Place {
     public String getDistance_text() { return distance_text; }
     @Exclude public String getDocumentId() { return documentId; }
 
-    // --- Setters ---
+
     public void setAbout(String about) { this.about = about; }
     public void setBest_time(String best_time) { this.best_time = best_time; }
     public void setCategory(String category) { this.category = category; }

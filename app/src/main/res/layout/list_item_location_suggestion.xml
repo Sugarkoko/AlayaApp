@@ -26,5 +26,5 @@
         android:textColor="@android:color/darker_gray"
         android:maxLines="1"
         android:ellipsize="end"
-        android:visibility="gone"/> <!-- Show if secondary info exists -->
+        android:visibility="gone"/>
 </LinearLayout>

@@ -7,12 +7,11 @@
     android:layout_height="match_parent"
     tools:context=".MapsActivity">
 
-    <!-- 1. Main Content Area (Map and Top Panel) -->
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/cl_map_content_area"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="0dp"> <!-- Padding bottom might be handled by insets if bottom nav consumes them -->
+        android:paddingBottom="0dp">
 
         <androidx.cardview.widget.CardView
             android:id="@+id/card_map_top_panel"
@@ -71,6 +70,157 @@
             </LinearLayout>
         </androidx.cardview.widget.CardView>
 
+        <!-- Transportation Mode Selector -->
+        <LinearLayout
+            android:id="@+id/transport_mode_selector_container"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:paddingStart="4dp"
+            android:paddingEnd="4dp"
+            android:background="@color/white"
+            android:elevation="4dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/card_map_top_panel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:id="@+id/btn_mode_walk_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:id="@+id/iv_mode_walk"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_walk"
+                    app:tint="@color/colorPrimary"/>
+                <TextView
+                    android:id="@+id/tv_mode_walk"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Walk"
+                    android:textSize="12sp"
+                    android:textColor="@color/colorPrimary"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_mode_taxi_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:id="@+id/iv_mode_taxi"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_taxi"
+                    app:tint="@color/textSecondary"/>
+                <TextView
+                    android:id="@+id/tv_mode_taxi"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Taxi"
+                    android:textSize="12sp"
+                    android:textColor="@color/textSecondary"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_mode_bus_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:id="@+id/iv_mode_bus"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_bus"
+                    app:tint="@color/textSecondary"/>
+                <TextView
+                    android:id="@+id/tv_mode_bus"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bus"
+                    android:textSize="12sp"
+                    android:textColor="@color/textSecondary"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_mode_bike_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:id="@+id/iv_mode_bike"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_bike"
+                    app:tint="@color/textSecondary"/>
+                <TextView
+                    android:id="@+id/tv_mode_bike"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Bike"
+                    android:textSize="12sp"
+                    android:textColor="@color/textSecondary"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/btn_mode_motorcycle_card"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:gravity="center"
+                android:padding="8dp"
+                android:background="?attr/selectableItemBackground"
+                android:clickable="true"
+                android:focusable="true">
+                <ImageView
+                    android:id="@+id/iv_mode_motorcycle"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:src="@drawable/ic_motorcycle"
+                    app:tint="@color/textSecondary"/>
+                <TextView
+                    android:id="@+id/tv_mode_motorcycle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Motor"
+                    android:textSize="12sp"
+                    android:textColor="@color/textSecondary"/>
+            </LinearLayout>
+
+        </LinearLayout>
+
         <!-- Google Map Fragment -->
         <androidx.fragment.app.FragmentContainerView
             android:id="@+id/map_fragment_container"
@@ -80,7 +230,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/card_map_top_panel" />
+            app:layout_constraintTop_toBottomOf="@id/transport_mode_selector_container" />
+
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_my_location"
@@ -110,4 +261,5 @@
         app:labelVisibilityMode="labeled"
         app:menu="@menu/bottom_nav_menu"
         app:itemActiveIndicatorStyle="@null" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

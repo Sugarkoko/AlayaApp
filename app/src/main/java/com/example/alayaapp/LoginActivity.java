@@ -47,7 +47,7 @@ public class LoginActivity extends AppCompatActivity {
                 return;
             }
 
-            // --- Firebase Sign In ---
+
             binding.loginButton.setEnabled(false);
             Toast.makeText(LoginActivity.this, "Logging in...", Toast.LENGTH_SHORT).show();
 

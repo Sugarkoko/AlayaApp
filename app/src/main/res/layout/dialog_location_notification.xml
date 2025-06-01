@@ -13,7 +13,7 @@
     android:paddingTop="24dp"
     android:paddingEnd="24dp"
     android:paddingBottom="24dp"
-    tools:context=".SignUpActivity"> <!-- Changed tools:context to SignUpActivity or your relevant activity -->
+    tools:context=".SignUpActivity">
 
     <!-- Title TextView -->
     <TextView

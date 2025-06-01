@@ -52,7 +52,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         binding.bottomNavigationProfilePage.setSelectedItemId(CURRENT_ITEM_ID);
         setupBottomNavListener();
-        setupActionListeners(); // This will now include edit listeners
+        setupActionListeners();
         loadProfileData();
     }
 
@@ -84,18 +84,11 @@ public class ProfileActivity extends AppCompatActivity {
             finish();
         });
 
-        // Remove or repurpose tvEditEmail and tvEditPhone if making main TextViews clickable
-        // binding.tvEditEmail.setVisibility(View.GONE); // Example: Hide if not used
-        // binding.tvEditPhone.setVisibility(View.GONE); // Example: Hide if not used
 
-
-        // --- Make TextViews clickable for editing ---
         binding.tvProfileNameDetail.setOnClickListener(v -> showEditTextDialog("name", "Edit Name", binding.tvProfileNameDetail.getText().toString()));
         binding.tvProfileBirthday.setOnClickListener(v -> showBirthdayPickerDialog());
         binding.tvProfilePhone.setOnClickListener(v -> showEditTextDialog("contactNumber", "Edit Contact Number", binding.tvProfilePhone.getText().toString()));
-        // For email, editing typically requires re-authentication for security.
-        // For simplicity, I'm not implementing email editing here, but you could add it.
-        // binding.tvProfileEmail.setOnClickListener(v -> showEditTextDialog("email", "Edit Email", binding.tvProfileEmail.getText().toString()));
+
 
 
         binding.layoutChangePassword.setOnClickListener(v -> {
@@ -121,7 +114,7 @@ public class ProfileActivity extends AppCompatActivity {
             input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
         }
 
-        // Pre-fill with current value, but only if it's not the placeholder
+
         if (!currentValue.startsWith("Set ") && !currentValue.equals("N/A") && !currentValue.equals("Not Set")) {
             input.setText(currentValue);
             input.setSelection(currentValue.length()); // Move cursor to end
@@ -136,9 +129,7 @@ public class ProfileActivity extends AppCompatActivity {
             if (!TextUtils.isEmpty(newValue)) {
                 updateFirebaseField(fieldKey, newValue);
             } else {
-                // Optionally allow saving an empty string to clear a field,
-                // or enforce that a value must be entered.
-                // For now, let's allow clearing by saving an empty string.
+
                 updateFirebaseField(fieldKey, ""); // Or show a Toast "Field cannot be empty"
             }
         });
@@ -190,7 +181,7 @@ public class ProfileActivity extends AppCompatActivity {
                         } else if (fieldKey.equals("birthday")) {
                             binding.tvProfileBirthday.setText(!value.isEmpty() ? value : "Set birthday");
                         }
-                        // If you add email editing, handle it here too
+
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(ProfileActivity.this, "Failed to update " + fieldKey, Toast.LENGTH_SHORT).show();

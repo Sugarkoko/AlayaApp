@@ -7,7 +7,7 @@
     <color name="buttonTextColor">#FFFFFF</color>
     <color name="textColorPrimary">#DE000000</color>
     <color name="textColorSecondary">#8A000000</color>
-    <color name="myButtonColor">#D9D9D9</color> <!-- Example: Green color -->
+    <color name="myButtonColor">#D9D9D9</color>
     <color name="myButtonTextColor">#FFFFFF</color>
     <color name="colorPrimaryDarker">#00642C</color>
 
@@ -15,9 +15,9 @@
     <color name="textSecondary">#757575</color>
     <color name="lightGrayBackground">#F0F0F0</color>
     <color name="white">#FFFFFF</color>
-    <color name="starColor">#FFC107</color> <!-- Example Yellow/Gold -->
+    <color name="starColor">#FFC107</color>
 
-    <!-- Added missing color definitions -->
+
     <color name="your_primary_color">#3f9453</color>
     <color name="your_variant">#2E7D32</color>
 
@@ -35,7 +35,7 @@
     <color name="text_grey_dark">#424242</color>
     <color name="text_grey_medium">#757575</color>
    =
-    <color name="map_route_blue">#4285F4</color> <!-- Example for route polyline -->
+    <color name="map_route_blue">#4285F4</color>
 
 
 </resources>

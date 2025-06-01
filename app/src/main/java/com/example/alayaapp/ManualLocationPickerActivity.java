@@ -65,7 +65,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements
     private Runnable searchDebounceRunnable;
     private static final long SEARCH_DEBOUNCE_DELAY_MS = 700;
 
-    // Bounding box for PH geocoding (optional, Geocoder might ignore if not supported well by provider)
+
     private static final double PH_LOWER_LEFT_LAT = 4.0;
     private static final double PH_LOWER_LEFT_LON = 116.0;
     private static final double PH_UPPER_RIGHT_LAT = 22.0;
@@ -155,10 +155,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements
             if (!hasFocus) { // Hide suggestions if search loses focus and no suggestion clicked
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     if (binding.rvLocationSuggestions.getVisibility() == View.VISIBLE && !isFinishing()) {
-                        // Check if a suggestion was clicked or if it's just losing focus
-                        // This part can be tricky to get perfect without more complex state management
-                        // For now, simply hiding if not actively being typed into.
-                        // A better approach might involve tracking if a suggestion click is in progress.
+
                     }
                 }, 200); // Small delay
             } else {
@@ -236,9 +233,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements
         } else {
             binding.btnClearSearch.setVisibility(View.GONE);
         }
-        // It's important to reset this flag. If user starts typing after this, it should be true.
-        // The onFocusChangeListener helps manage this.
-        // For safety, if etSearchLocation has focus after this call, set it back to true
+
         if (binding.etSearchLocation.hasFocus()) {
             new Handler(Looper.getMainLooper()).postDelayed(() -> isUserInteractingWithSearch = true, 50);
         }
@@ -341,8 +336,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements
             String currentSearchText = activity.binding.etSearchLocation.getText().toString().trim();
             if (!activity.isUserInteractingWithSearch && !originalQueryForThisTask.equals(currentSearchText) && !currentSearchText.equals("Fetching address...")) {
                 if (activity.binding.rvLocationSuggestions.getVisibility() == View.VISIBLE) {
-                    // If suggestions are visible and query changed, could be due to suggestion click setting text
-                    // or user typed very fast. If it's "Fetching address...", it's a map click.
+
                 } else {
                     Log.d(TAG, "Geocode result for '" + originalQueryForThisTask + "' is stale. Current: '" + currentSearchText + "'. Discarding.");
                     return;
@@ -473,7 +467,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements
                 activity.setSearchText(addressName); // Update search text
                 if (activity.selectedLocationMarker != null) {
                     activity.selectedLocationMarker.setTitle(addressName);
-                    // activity.selectedLocationMarker.showInfoWindow(); // Optionally show info window
+
                 }
             }
         }
@@ -536,19 +530,19 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        // MapView's onResume is handled by SupportMapFragment lifecycle
+
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        // MapView's onPause is handled by SupportMapFragment lifecycle
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         searchDebounceHandler.removeCallbacksAndMessages(null);
-        // MapView's onDestroy is handled by SupportMapFragment lifecycle
+
     }
 }

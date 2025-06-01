@@ -40,5 +40,5 @@
         app:backgroundTint="@color/colorPrimary"
         app:cornerRadius="8dp"
         android:textSize="16sp"
-        android:fontFamily="@font/roboto_medium" /> <!-- Make sure roboto_medium.ttf is in res/font -->
+        android:fontFamily="@font/roboto_medium" />
 </LinearLayout>
