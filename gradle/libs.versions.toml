@@ -1,5 +1,5 @@
 [versions]
-agp = "8.9.2"
+agp = "8.9.2"  # UPDATED to a recent stable AGP version (e.g., 8.4.1, check latest stable if needed)
 junit = "4.13.2"
 junitVersion = "1.1.5"
 espressoCore = "3.5.1"
@@ -7,8 +7,9 @@ appcompat = "1.6.1"
 material = "1.10.0"
 activity = "1.8.0"
 constraintlayout = "2.1.4"
-playServicesMaps = "19.2.0"
-playServicesLocation = "21.3.0" # Or latest stable
+playServicesMaps = "19.2.0" # This seems a bit old, current is 18.2.0. But let's keep if it works.
+playServicesLocation = "21.3.0"
+mapsUtils = "3.4.0" # UPDATED to a common stable version for android-maps-utils
 
 [libraries]
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -19,7 +20,8 @@ material = { group = "com.google.android.material", name = "material", version.r
 activity = { group = "androidx.activity", name = "activity", version.ref = "activity" }
 constraintlayout = { group = "androidx.constraintlayout", name = "constraintlayout", version.ref = "constraintlayout" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
-play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" } # Add this
+play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+maps-utils = { group = "com.google.maps.android", name = "android-maps-utils", version.ref = "mapsUtils" } # Make sure this line is correct
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

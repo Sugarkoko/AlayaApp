@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace = "com.example.alayaapp"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.alayaapp"
@@ -34,6 +34,8 @@ android {
     buildFeatures {
         viewBinding = true
     }
+    buildToolsVersion = "35.0.1"
+    ndkVersion = "26.3.11579264"
 }
 
 dependencies {
@@ -49,6 +51,7 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(libs.play.services.location)
     testImplementation(libs.junit)
+    implementation(libs.maps.utils)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation("com.google.firebase:firebase-auth-ktx")

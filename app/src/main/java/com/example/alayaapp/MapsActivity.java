@@ -3,13 +3,15 @@ package com.example.alayaapp;
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
-import android.graphics.Color; // For Polyline
+import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
-
+import android.view.ViewGroup;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,6 +30,8 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
+import com.google.android.gms.maps.model.Dash;
+import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
@@ -36,8 +40,22 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.maps.android.PolyUtil; // Import PolyUtil
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.lang.ref.WeakReference;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
@@ -66,8 +84,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private HashMap<String, Place> markerPlaceMap;
     private CustomInfoWindowAdapter customInfoWindowAdapter;
-    private Marker manualHomeMarker = null;
 
+    private Marker manualHomeMarker = null;
     private Marker routeOriginMarker;
     private Marker routeDestinationMarker;
     private Polyline currentRoutePolyline;
@@ -77,6 +95,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String pendingRouteDestDocId;
     private boolean awaitingPermissionsForRoute = false;
 
+    private String directionsApiKey;
+
+    private static class DirectionsResult {
+        List<LatLng> polylinePoints;
+        LatLngBounds routeBounds;
+
+        DirectionsResult(List<LatLng> polylinePoints, LatLngBounds routeBounds) {
+            this.polylinePoints = polylinePoints;
+            this.routeBounds = routeBounds;
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,18 +121,43 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return;
         }
 
-        ViewCompat.setOnApplyWindowInsetsListener(binding.getRoot(), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(binding.mainMapsCoordinatorLayout, (v, insets) -> { // Use the CoordinatorLayout ID
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, v.getPaddingBottom());
+            // Apply padding to the CoordinatorLayout itself or a direct child that holds the map and top panel
+            // For this layout, cl_map_content_area is a direct child.
+            // Or, adjust margins of the top panel and bottom navigation.
+            // For simplicity, let's assume binding.getRoot() which is main_maps_coordinator_layout needs padding.
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0); // Don't pad bottom for bottom nav
+            // Adjust BottomNavigationView's bottom margin if needed
+            if (binding.bottomNavigationMapsPage != null) {
+                ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) binding.bottomNavigationMapsPage.getLayoutParams();
+                params.bottomMargin = systemBars.bottom;
+                binding.bottomNavigationMapsPage.setLayoutParams(params);
+            }
+
             return insets;
         });
+
 
         markerPlaceMap = new HashMap<>();
         db = FirebaseFirestore.getInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        setupBottomNavigation();
+        try {
+            ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
+            Bundle bundle = ai.metaData;
+            directionsApiKey = bundle.getString("com.google.android.geo.API_KEY");
+            if (directionsApiKey == null || directionsApiKey.isEmpty()) {
+                Log.e(TAG, "Directions API Key not found in AndroidManifest.xml");
+                Toast.makeText(this, "API Key for directions is missing.", Toast.LENGTH_LONG).show();
+            }
+        } catch (PackageManager.NameNotFoundException e) {
+            Log.e(TAG, "Failed to load meta-data, NameNotFound: " + e.getMessage());
+        } catch (NullPointerException e) {
+            Log.e(TAG, "Failed to load meta-data, NullPointer: " + e.getMessage());
+        }
 
+        setupBottomNavigation();
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_fragment_container);
         if (mapFragment != null) {
@@ -201,14 +255,17 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void addManualHomeMarkerToMap() {
         if (mMap == null || manualHomeLocation == null) return;
+
         if (manualHomeMarker != null && manualHomeMarker.getId() != null) {
             markerPlaceMap.remove(manualHomeMarker.getId());
             manualHomeMarker.remove();
         }
+
         manualHomeMarker = mMap.addMarker(new MarkerOptions()
                 .position(manualHomeLocation)
                 .title(manualHomeLocationName)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+
         Place manualPlaceStub = new Place();
         manualPlaceStub.setName(manualHomeLocationName);
         manualPlaceStub.setCategory("Your Set Location");
@@ -227,6 +284,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void fetchCurrentLocationForRoute(final LatLng destLatLng, final String destName, final String destDocId) {
         if (mMap == null) return;
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             try {
                 mMap.setMyLocationEnabled(true);
@@ -234,6 +292,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             } catch (SecurityException e) {
                 Log.e(TAG, "Security Exception enabling my location layer: " + e.getMessage());
             }
+
             binding.tvDirectionText.setText("Fetching current location for route...");
             fusedLocationClient.getLastLocation()
                     .addOnSuccessListener(this, location -> {
@@ -260,21 +319,28 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void clearRouteElements() {
-        if (routeOriginMarker != null) {
-            if(!routeOriginMarker.equals(manualHomeMarker)) {
-                markerPlaceMap.remove(routeOriginMarker.getId());
-            }
-            routeOriginMarker.remove();
-            routeOriginMarker = null;
-        }
-        if (routeDestinationMarker != null) {
-            markerPlaceMap.remove(routeDestinationMarker.getId());
-            routeDestinationMarker.remove();
-            routeDestinationMarker = null;
-        }
         if (currentRoutePolyline != null) {
             currentRoutePolyline.remove();
             currentRoutePolyline = null;
+        }
+        if (routeOriginMarker != null) {
+            if (manualHomeMarker == null || !routeOriginMarker.getId().equals(manualHomeMarker.getId())) {
+                if (routeOriginMarker.getId() != null) markerPlaceMap.remove(routeOriginMarker.getId());
+                routeOriginMarker.remove();
+            }
+            routeOriginMarker = null;
+        }
+        if (routeDestinationMarker != null) {
+            if (routeDestinationMarker.getId() != null) markerPlaceMap.remove(routeDestinationMarker.getId());
+            routeDestinationMarker.remove();
+            routeDestinationMarker = null;
+        }
+        if (manualHomeMarker != null && manualHomeMarker.getId() != null && manualHomeLocation != null) {
+            Place manualPlaceStub = new Place();
+            manualPlaceStub.setName(manualHomeLocationName);
+            manualPlaceStub.setCategory("Your Set Location");
+            markerPlaceMap.put(manualHomeMarker.getId(), manualPlaceStub);
+            manualHomeMarker.setTitle(manualHomeLocationName);
         }
     }
 
@@ -284,75 +350,172 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Toast.makeText(this, "Error preparing route.", Toast.LENGTH_SHORT).show();
             return;
         }
+
+        if (directionsApiKey == null || directionsApiKey.isEmpty()) {
+            Toast.makeText(this, "API Key for directions is missing. Cannot draw road route.", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Directions API key is null or empty. Drawing straight line fallback.");
+            drawStraightLineFallback(originLatLng, originName, destLatLng, destName, destDocId);
+            return;
+        }
+
         clearRouteElements();
 
-        if (manualHomeMarker != null && manualHomeMarker.getPosition().equals(originLatLng)) {
+        // Add origin marker
+        if (manualHomeLocation != null && manualHomeLocation.equals(originLatLng)) {
             routeOriginMarker = manualHomeMarker;
-            routeOriginMarker.setTitle(originName);
-            Place originPlaceData = markerPlaceMap.get(routeOriginMarker.getId());
-            if (originPlaceData != null) {
-                originPlaceData.setName(originName);
-                if (originName.equals(manualHomeLocationName)) originPlaceData.setCategory("Manually Set Home");
+            if (routeOriginMarker != null) {
+                routeOriginMarker.setTitle(originName);
+                Place originPlaceData = markerPlaceMap.get(routeOriginMarker.getId());
+                if (originPlaceData != null) {
+                    originPlaceData.setName(originName);
+                    if (originName.equals(manualHomeLocationName)) originPlaceData.setCategory("Manually Set Home");
+                } else if (routeOriginMarker.getId() != null) {
+                    Place stub = new Place(); stub.setName(originName);
+                    stub.setCategory(originName.equals(manualHomeLocationName) ? "Manually Set Home" : "Route Origin");
+                    markerPlaceMap.put(routeOriginMarker.getId(), stub);
+                }
+            } else {
+                addManualHomeMarkerToMap();
+                routeOriginMarker = manualHomeMarker;
+                if (routeOriginMarker != null) routeOriginMarker.setTitle(originName);
+                else {
+                    routeOriginMarker = mMap.addMarker(new MarkerOptions()
+                            .position(originLatLng).title(originName)
+                            .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)));
+                    if (routeOriginMarker != null && routeOriginMarker.getId() != null) {
+                        Place stub = new Place(); stub.setName(originName);
+                        markerPlaceMap.put(routeOriginMarker.getId(), stub);
+                    }
+                }
             }
         } else {
             routeOriginMarker = mMap.addMarker(new MarkerOptions()
-                    .position(originLatLng)
-                    .title(originName)
+                    .position(originLatLng).title(originName)
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-            Place originStub = new Place();
-            originStub.setName(originName);
-            if (originName.equals("Your Current Location")) originStub.setCategory("Current GPS Location");
-            if (routeOriginMarker != null) markerPlaceMap.put(routeOriginMarker.getId(), originStub);
+            if (routeOriginMarker != null && routeOriginMarker.getId() != null) {
+                Place originStub = new Place(); originStub.setName(originName);
+                if (originName.equals("Your Current Location")) originStub.setCategory("Current GPS Location");
+                markerPlaceMap.put(routeOriginMarker.getId(), originStub);
+            }
         }
 
+        // Add destination marker
         Place fullDestinationPlace = null;
-        if (destDocId != null) {
+        if (destDocId != null && !destDocId.isEmpty()) {
             for (Place p : markerPlaceMap.values()) {
-                if (destDocId.equals(p.getDocumentId())) {
+                if (p.getDocumentId() != null && destDocId.equals(p.getDocumentId())) {
                     fullDestinationPlace = p;
                     break;
                 }
             }
         }
         routeDestinationMarker = mMap.addMarker(new MarkerOptions()
-                .position(destLatLng)
-                .title(destName)
+                .position(destLatLng).title(destName)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-        if (routeDestinationMarker != null) {
+        if (routeDestinationMarker != null && routeDestinationMarker.getId() != null) {
             if (fullDestinationPlace != null) {
                 markerPlaceMap.put(routeDestinationMarker.getId(), fullDestinationPlace);
             } else {
-                Place destStub = new Place();
-                destStub.setName(destName);
+                Place destStub = new Place(); destStub.setName(destName);
                 destStub.setCategory("Route Destination");
                 markerPlaceMap.put(routeDestinationMarker.getId(), destStub);
             }
         }
 
+        if (binding.tvDirectionText != null) {
+            binding.tvDirectionText.setText("Calculating route from " + originName + " to " + destName + "...");
+        }
+        new FetchDirectionsTask(this, directionsApiKey).execute(originLatLng, destLatLng);
+    }
+
+    private void drawStraightLineFallback(LatLng originLatLng, String originName, LatLng destLatLng, String destName, String destDocId) {
+        Log.w(TAG, "Drawing straight line as fallback for route from " + originName + " to " + destName);
+        if (mMap == null || originLatLng == null || destLatLng == null) return;
+
+        if (currentRoutePolyline != null) {
+            currentRoutePolyline.remove();
+        }
+
         PolylineOptions polylineOptions = new PolylineOptions()
                 .add(originLatLng, destLatLng)
-                .color(Color.parseColor("#3F51B5"))
-                .width(12);
+                .color(Color.parseColor("#FFA500")) // Orange for fallback
+                .width(10)
+                .pattern(Arrays.asList(new Dash(20), new Gap(10)));
         currentRoutePolyline = mMap.addPolyline(polylineOptions);
 
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(originLatLng);
         builder.include(destLatLng);
         LatLngBounds bounds = builder.build();
-        int padding = 100;
-        if (getResources().getDisplayMetrics().widthPixels > 0) {
-            padding = (int) (getResources().getDisplayMetrics().widthPixels * 0.20);
-        }
+        int padding = (int) (getResources().getDisplayMetrics().widthPixels * 0.20);
+
         try {
             CameraUpdate cu = CameraUpdateFactory.newLatLngBounds(bounds, padding);
             mMap.animateCamera(cu);
         } catch (IllegalStateException e) {
-            Log.e(TAG, "IllegalStateException for newLatLngBounds. Map not ready for bounds.", e);
+            Log.e(TAG, "IllegalStateException for newLatLngBounds (Fallback). Map not ready.", e);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destLatLng, 12f));
         }
-
         if (binding.tvDirectionText != null) {
-            binding.tvDirectionText.setText("Route: " + originName + " to " + destName);
+            binding.tvDirectionText.setText("Showing straight line to " + destName + " (Directions API unavailable)");
+        }
+    }
+
+    public void drawActualRoute(DirectionsResult directionsResult) {
+        if (mMap == null || directionsResult == null || directionsResult.polylinePoints == null || directionsResult.polylinePoints.isEmpty()) {
+            Toast.makeText(this, "Could not draw route.", Toast.LENGTH_SHORT).show();
+            if (binding.tvDirectionText != null) {
+                binding.tvDirectionText.setText("Failed to calculate route path.");
+            }
+            if (routeOriginMarker != null && routeDestinationMarker != null) {
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                builder.include(routeOriginMarker.getPosition());
+                builder.include(routeDestinationMarker.getPosition());
+                int padding = (int) (getResources().getDisplayMetrics().widthPixels * 0.20);
+                try {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding));
+                } catch (Exception e) {
+                    Log.e(TAG, "Error animating camera to fallback bounds: " + e.getMessage());
+                }
+            }
+            return;
+        }
+
+        if (currentRoutePolyline != null) {
+            currentRoutePolyline.remove();
+        }
+
+        PolylineOptions polylineOptions = new PolylineOptions()
+                .addAll(directionsResult.polylinePoints)
+                .color(Color.parseColor("#3F51B5")) // AlayaApp Blue/Primary
+                .width(15);
+        currentRoutePolyline = mMap.addPolyline(polylineOptions);
+
+        if (directionsResult.routeBounds != null) {
+            int padding = (int) (getResources().getDisplayMetrics().widthPixels * 0.15);
+            try {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(directionsResult.routeBounds, padding));
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "Cannot animate camera to route bounds yet: " + e.getMessage());
+                if (routeDestinationMarker != null) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(routeDestinationMarker.getPosition(), 12f));
+                }
+            }
+        } else if (routeOriginMarker != null && routeDestinationMarker != null) {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(routeOriginMarker.getPosition());
+            builder.include(routeDestinationMarker.getPosition());
+            int padding = (int) (getResources().getDisplayMetrics().widthPixels * 0.20);
+            try {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding));
+            } catch (Exception e) {
+                Log.e(TAG, "Error animating camera to origin/dest bounds: " + e.getMessage());
+            }
+        }
+        if (binding.tvDirectionText != null && routeOriginMarker != null && routeDestinationMarker != null) {
+            binding.tvDirectionText.setText("Route: " + routeOriginMarker.getTitle() + " to " + routeDestinationMarker.getTitle());
+        } else if (binding.tvDirectionText != null) {
+            binding.tvDirectionText.setText("Route calculated.");
         }
     }
 
@@ -369,58 +532,55 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 place.setDocumentId(document.getId());
                                 LatLng placeLocation = new LatLng(place.getLatitude(), place.getLongitude());
 
-                                boolean isManualHomePoi = manualHomeLocation != null && manualHomeLocation.equals(placeLocation);
-                                boolean isRouteDestPoi = routeDestinationMarker != null && routeDestinationMarker.getPosition().equals(placeLocation) && place.getDocumentId().equals(getIntent().getStringExtra(PlaceDetailsActivity.EXTRA_PLACE_DOCUMENT_ID));
-                                boolean isRouteOriginGpsPoi = routeOriginMarker != null && !routeOriginMarker.equals(manualHomeMarker) && routeOriginMarker.getPosition().equals(placeLocation);
+                                boolean isManualHomePoi = manualHomeMarker != null && manualHomeMarker.getPosition().equals(placeLocation);
+                                boolean isRouteOriginPoi = routeOriginMarker != null && routeOriginMarker.getPosition().equals(placeLocation);
+                                boolean isRouteDestPoi = routeDestinationMarker != null && routeDestinationMarker.getPosition().equals(placeLocation);
 
-                                if (isManualHomePoi && manualHomeMarker != null) {
+                                if (isManualHomePoi) {
                                     markerPlaceMap.put(manualHomeMarker.getId(), place);
                                     manualHomeMarker.setTitle(place.getName());
-                                } else if (isRouteDestPoi && routeDestinationMarker != null) {
-                                    markerPlaceMap.put(routeDestinationMarker.getId(), place);
-                                    routeDestinationMarker.setTitle(place.getName());
-                                } else if (isRouteOriginGpsPoi && routeOriginMarker != null) {
+                                } else if (isRouteOriginPoi && (manualHomeMarker == null || !routeOriginMarker.getId().equals(manualHomeMarker.getId()))) {
                                     markerPlaceMap.put(routeOriginMarker.getId(), place);
                                     routeOriginMarker.setTitle(place.getName());
-                                }
-                                else {
-                                    boolean markerExists = false;
-                                    for(String markerId : markerPlaceMap.keySet()){
-                                        Place existingPlace = markerPlaceMap.get(markerId);
-                                        if(existingPlace != null && place.getDocumentId().equals(existingPlace.getDocumentId())){
-
-                                            markerExists = true;
+                                } else if (isRouteDestPoi) {
+                                    markerPlaceMap.put(routeDestinationMarker.getId(), place);
+                                    routeDestinationMarker.setTitle(place.getName());
+                                } else {
+                                    boolean markerExistsForThisPoi = false;
+                                    for (Map.Entry<String, Place> entry : markerPlaceMap.entrySet()) {
+                                        if (entry.getValue() != null && place.getDocumentId().equals(entry.getValue().getDocumentId())) {
+                                            markerExistsForThisPoi = true;
                                             break;
                                         }
                                     }
-                                    if (!markerExists) {
+                                    if (!markerExistsForThisPoi) {
                                         MarkerOptions markerOptions = new MarkerOptions()
                                                 .position(placeLocation)
                                                 .title(place.getName());
                                         Marker marker = mMap.addMarker(markerOptions);
-                                        if (marker != null) {
+                                        if (marker != null && marker.getId() != null) {
                                             markerPlaceMap.put(marker.getId(), place);
                                         }
                                     }
                                 }
                             }
                         }
-
-
-
-                        if (binding.tvDirectionText != null && binding.tvDirectionText.getText().toString().contains("Determining view...")) {
-                            binding.tvDirectionText.setText("Places loaded. Tap markers for details.");
+                        if (binding.tvDirectionText != null) {
+                            String currentText = binding.tvDirectionText.getText().toString();
+                            if (currentText.contains("Determining view...") || currentText.equals("Explore the map.") ||
+                                    (!currentText.toLowerCase().contains("route") && !currentText.toLowerCase().contains("showing:"))) {
+                                binding.tvDirectionText.setText("Places loaded. Tap markers for details.");
+                            }
                         }
                     } else {
                         Log.w(TAG, "Error getting POI documents.", task.getException());
-                        if (binding.tvDirectionText != null) {
+                        if (binding.tvDirectionText != null && !binding.tvDirectionText.getText().toString().toLowerCase().contains("route")) {
                             binding.tvDirectionText.setText("Could not load points of interest.");
                         }
                         Toast.makeText(MapsActivity.this, "Failed to load points of interest.", Toast.LENGTH_SHORT).show();
                     }
                 });
     }
-
 
     @Override
     public void onInfoWindowClick(@NonNull Marker marker) {
@@ -433,7 +593,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Toast.makeText(this, "Details for: " + place.getName(), Toast.LENGTH_SHORT).show();
         } else {
             Toast.makeText(this, "No further details available.", Toast.LENGTH_SHORT).show();
-            Log.d(TAG, "Info window clicked, but no Place data for marker: " + marker.getTitle());
+            Log.d(TAG, "Info window clicked, but no Place data for marker: " + marker.getTitle() + " ID: " + marker.getId());
         }
     }
 
@@ -446,6 +606,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } catch (SecurityException e) {
                     Log.e(TAG, "SecurityException on setMyLocationEnabled: " + e.getMessage());
                 }
+
                 fusedLocationClient.getLastLocation()
                         .addOnSuccessListener(this, location -> {
                             if (location != null) {
@@ -491,19 +652,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     pendingRouteDestLatLng = null;
                     pendingRouteDestName = null;
                     pendingRouteDestDocId = null;
-                } else if ("auto".equals(currentLocationMode)) {
+                } else if ("auto".equals(currentLocationMode)){
                     centerOnActualGPSLocation(true);
                 }
             } else {
                 awaitingPermissionsForRoute = false;
                 Toast.makeText(this, "Location permission denied.", Toast.LENGTH_LONG).show();
-                if (mMap != null) {
-                    try {
-                        mMap.setMyLocationEnabled(false);
-                    } catch (SecurityException se) {
-                        Log.e(TAG, "SecurityException on setMyLocationEnabled(false)");
-                    }
-                }
+                try {
+                    if (mMap != null) mMap.setMyLocationEnabled(false);
+                } catch (SecurityException se) {Log.e(TAG, "SecurityException on setMyLocationEnabled(false)");}
+
                 if (pendingRouteDestLatLng != null) {
                     centerMapOnLocation(pendingRouteDestLatLng, pendingRouteDestName, 15f);
                     pendingRouteDestLatLng = null;
@@ -523,6 +681,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         binding.bottomNavigationMapsPage.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
             if (destinationItemId == CURRENT_ITEM_ID) return true;
+
             Class<?> destinationActivityClass = null;
             if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
             else if (destinationItemId == R.id.navigation_itineraries) destinationActivityClass = ItinerariesActivity.class;
@@ -532,9 +691,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Intent intent = new Intent(MapsActivity.this, destinationActivityClass);
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
                 startActivity(intent);
+
                 boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
-                if (slideRightToLeft) overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                else overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                if (slideRightToLeft) {
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                } else {
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                }
                 finish();
                 return true;
             }
@@ -556,6 +719,139 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         setIntent(intent);
         if (mMap != null && mMap.getUiSettings() != null) {
             onMapReady(mMap);
+        }
+    }
+
+    private static class FetchDirectionsTask extends AsyncTask<LatLng, Void, DirectionsResult> {
+        private WeakReference<MapsActivity> activityReference;
+        private String apiKey;
+
+        FetchDirectionsTask(MapsActivity context, String apiKey) {
+            this.activityReference = new WeakReference<>(context);
+            this.apiKey = apiKey;
+        }
+
+        @Override
+        protected DirectionsResult doInBackground(LatLng... params) {
+            MapsActivity activity = activityReference.get();
+            if (activity == null || activity.isFinishing()) return null;
+
+            LatLng origin = params[0];
+            LatLng dest = params[1];
+
+            String urlString = getDirectionsUrl(origin, dest, apiKey);
+            String jsonData = "";
+            try {
+                jsonData = downloadUrl(urlString);
+            } catch (IOException e) {
+                Log.e("FetchDirectionsTask", "Error downloading URL: " + e.getMessage());
+                return null;
+            }
+
+            if (jsonData.isEmpty()) {
+                Log.e("FetchDirectionsTask", "Downloaded JSON data is empty.");
+                return null;
+            }
+            return parseDirections(jsonData);
+        }
+
+        @Override
+        protected void onPostExecute(DirectionsResult result) {
+            MapsActivity activity = activityReference.get();
+            if (activity == null || activity.isFinishing()) return;
+
+            if (result != null && result.polylinePoints != null && !result.polylinePoints.isEmpty()) {
+                activity.drawActualRoute(result);
+                if (activity.binding.tvDirectionText != null && activity.routeOriginMarker != null && activity.routeDestinationMarker != null) {
+                    activity.binding.tvDirectionText.setText("Route: " + activity.routeOriginMarker.getTitle() + " to " + activity.routeDestinationMarker.getTitle());
+                }
+            } else {
+                Toast.makeText(activity, "Could not calculate directions.", Toast.LENGTH_LONG).show();
+                if (activity.binding.tvDirectionText != null) {
+                    activity.binding.tvDirectionText.setText("Failed to get directions. Showing straight line.");
+                }
+                if (activity.routeOriginMarker != null && activity.routeDestinationMarker != null) {
+                    activity.drawStraightLineFallback(
+                            activity.routeOriginMarker.getPosition(), activity.routeOriginMarker.getTitle(),
+                            activity.routeDestinationMarker.getPosition(), activity.routeDestinationMarker.getTitle(),
+                            null
+                    );
+                }
+            }
+        }
+
+        private String getDirectionsUrl(LatLng origin, LatLng dest, String key) {
+            String strOrigin = "origin=" + origin.latitude + "," + origin.longitude;
+            String strDest = "destination=" + dest.latitude + "," + dest.longitude;
+            String mode = "mode=driving";
+            String apiKeyParam = "key=" + key;
+            String parameters = strOrigin + "&" + strDest + "&" + mode + "&" + apiKeyParam;
+            String output = "json";
+            return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
+        }
+
+        private String downloadUrl(String strUrl) throws IOException {
+            String data = "";
+            InputStream iStream = null;
+            HttpURLConnection urlConnection = null;
+            try {
+                URL url = new URL(strUrl);
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.connect();
+
+                iStream = urlConnection.getInputStream();
+                BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                data = sb.toString();
+                br.close();
+            } catch (Exception e) {
+                Log.e("FetchDirectionsTask", "Exception downloading URL: " + e.toString());
+                throw new IOException("Error downloading URL", e);
+            } finally {
+                if (iStream != null) {
+                    try { iStream.close(); } catch (IOException e) { /* ignore */ }
+                }
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+            }
+            return data;
+        }
+
+        private DirectionsResult parseDirections(String jsonData) {
+            List<LatLng> polylinePoints = new ArrayList<>();
+            LatLngBounds routeBounds = null;
+            try {
+                JSONObject jsonObject = new JSONObject(jsonData);
+                String status = jsonObject.optString("status");
+                if (!"OK".equals(status)) {
+                    Log.e("FetchDirectionsTask", "Directions API non-OK status: " + status + " - " + jsonObject.optString("error_message"));
+                    return null;
+                }
+                JSONArray routesArray = jsonObject.getJSONArray("routes");
+                if (routesArray.length() > 0) {
+                    JSONObject route = routesArray.getJSONObject(0);
+                    JSONObject overviewPolyline = route.getJSONObject("overview_polyline");
+                    String encodedPolyline = overviewPolyline.getString("points");
+                    polylinePoints = PolyUtil.decode(encodedPolyline);
+
+                    JSONObject boundsJson = route.getJSONObject("bounds");
+                    JSONObject northeastJson = boundsJson.getJSONObject("northeast");
+                    JSONObject southwestJson = boundsJson.getJSONObject("southwest");
+                    LatLng northeast = new LatLng(northeastJson.getDouble("lat"), northeastJson.getDouble("lng"));
+                    LatLng southwest = new LatLng(southwestJson.getDouble("lat"), southwestJson.getDouble("lng"));
+                    routeBounds = new LatLngBounds(southwest, northeast);
+                }
+            } catch (Exception e) {
+                Log.e("FetchDirectionsTask", "Error parsing directions JSON: " + e.getMessage());
+                return null;
+            }
+            if (polylinePoints.isEmpty()) return null;
+            return new DirectionsResult(polylinePoints, routeBounds);
         }
     }
 }
