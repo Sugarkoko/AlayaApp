@@ -2,7 +2,7 @@ package com.example.alayaapp;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog; // +++ IMPORT TIME PICKER +++
+import android.app.TimePickerDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -57,10 +57,12 @@ public class HomeActivity extends AppCompatActivity {
     private static final String KEY_TRIP_DATE_YEAR = "trip_date_year";
     private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
     private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
-
-    // +++ NEW KEYS FOR SAVING TIME +++
     private static final String KEY_TRIP_TIME_HOUR = "trip_time_hour";
     private static final String KEY_TRIP_TIME_MINUTE = "trip_time_minute";
+
+    // +++ NEW KEYS FOR SAVING END TIME +++
+    private static final String KEY_TRIP_END_TIME_HOUR = "trip_end_time_hour";
+    private static final String KEY_TRIP_END_TIME_MINUTE = "trip_end_time_minute";
 
     private String currentLocationNameToDisplay = "Tap to get current location";
     private GeoPoint manualGeoPoint = null;
@@ -69,6 +71,9 @@ public class HomeActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private Calendar tripDateCalendar;
     private DatePickerDialog.OnDateSetListener dateSetListener;
+
+    // +++ NEW CALENDAR INSTANCE FOR END TIME +++
+    private Calendar tripEndCalendar;
 
     private static final double BAGUIO_REGION_MIN_LAT = 16.35;
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
@@ -110,6 +115,7 @@ public class HomeActivity extends AppCompatActivity {
         placeAdapter = new PlaceAdapter(this, placesList);
         binding.rvPlacesList.setAdapter(placeAdapter);
         tripDateCalendar = Calendar.getInstance();
+        tripEndCalendar = Calendar.getInstance(); // +++ INITIALIZE END CALENDAR +++
         setupTripDatePicker();
         loadSavedTripDate();
         binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
@@ -139,44 +145,60 @@ public class HomeActivity extends AppCompatActivity {
         fetchPlacesFromFirestore();
     }
 
-    // +++ NEW METHOD TO SHOW THE TIME PICKER DIALOG +++
-    private void showTimePickerDialog() {
-        // Use the time currently in the calendar as the default
+    private void showStartTimePickerDialog() {
         int hour = tripDateCalendar.get(Calendar.HOUR_OF_DAY);
         int minute = tripDateCalendar.get(Calendar.MINUTE);
 
-        // Create a new TimePickerDialog
         TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view, hourOfDay, minuteOfHour) -> {
-            // This code runs when the user clicks "OK"
             tripDateCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
             tripDateCalendar.set(Calendar.MINUTE, minuteOfHour);
-
-            // Save the selected time
             saveTripTime(hourOfDay, minuteOfHour);
-
-            // Update the button text to show the new date and time
-            updateTripDateButtonText();
-            Toast.makeText(HomeActivity.this, "Trip start time set!", Toast.LENGTH_SHORT).show();
-
-        }, hour, minute, false); // false for 24-hour view
+            // +++ CHAIN THE END TIME PICKER +++
+            showEndTimePickerDialog();
+        }, hour, minute, false);
 
         timePickerDialog.setTitle("Select Trip Start Time");
         timePickerDialog.show();
     }
 
-    // +++ MODIFIED METHOD: Now triggers the time picker after a date is set +++
+    // +++ NEW METHOD FOR END TIME PICKER +++
+    private void showEndTimePickerDialog() {
+        // Default the end time to 1 hour after the start time
+        int hour = tripDateCalendar.get(Calendar.HOUR_OF_DAY) + 1;
+        int minute = tripDateCalendar.get(Calendar.MINUTE);
+
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view, hourOfDay, minuteOfHour) -> {
+            // Create a temporary calendar to validate the end time
+            Calendar tempEndCal = (Calendar) tripDateCalendar.clone();
+            tempEndCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            tempEndCal.set(Calendar.MINUTE, minuteOfHour);
+
+            // Validate that end time is after start time
+            if (tempEndCal.before(tripDateCalendar)) {
+                Toast.makeText(this, "End time must be after start time.", Toast.LENGTH_LONG).show();
+                return; // Don't save or update UI
+            }
+
+            // If valid, update the main end calendar and save
+            tripEndCalendar.setTime(tempEndCal.getTime());
+            saveTripEndTime(hourOfDay, minuteOfHour);
+            updateTripDateButtonText();
+            Toast.makeText(HomeActivity.this, "Trip end time set!", Toast.LENGTH_SHORT).show();
+
+        }, hour, minute, false);
+
+        timePickerDialog.setTitle("Select Trip End Time");
+        timePickerDialog.show();
+    }
+
     private void setupTripDatePicker() {
         dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
-            // Set the date on our calendar instance
             tripDateCalendar.set(Calendar.YEAR, year);
             tripDateCalendar.set(Calendar.MONTH, monthOfYear);
             tripDateCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-            // Save the date part
             saveTripDate(year, monthOfYear, dayOfMonth);
-
-            // Immediately show the time picker dialog
-            showTimePickerDialog();
+            // +++ CALL START TIME PICKER, WHICH WILL THEN CALL END TIME PICKER +++
+            showStartTimePickerDialog();
         };
 
         binding.btnTripDate.setOnClickListener(v -> {
@@ -188,46 +210,60 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    // +++ MODIFIED METHOD: Now loads the saved time as well +++
+    // +++ MODIFIED METHOD: Now loads both start and end times +++
     private void loadSavedTripDate() {
-        // Check if a date has ever been saved
         if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
             int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripDateCalendar.get(Calendar.YEAR));
             int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripDateCalendar.get(Calendar.MONTH));
             int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripDateCalendar.get(Calendar.DAY_OF_MONTH));
             tripDateCalendar.set(year, month, day);
+            tripEndCalendar.set(year, month, day); // Ensure end calendar has the same date
 
-            // Also check if a time has been saved
             if (sharedPreferences.contains(KEY_TRIP_TIME_HOUR)) {
-                int hour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9); // Default to 9 AM
+                int hour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
                 int minute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
                 tripDateCalendar.set(Calendar.HOUR_OF_DAY, hour);
                 tripDateCalendar.set(Calendar.MINUTE, minute);
             }
+
+            // Load end time
+            if (sharedPreferences.contains(KEY_TRIP_END_TIME_HOUR)) {
+                int hour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18); // Default to 6 PM
+                int minute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
+                tripEndCalendar.set(Calendar.HOUR_OF_DAY, hour);
+                tripEndCalendar.set(Calendar.MINUTE, minute);
+            }
         }
-        // Update the button text with whatever was loaded
         updateTripDateButtonText();
     }
 
     private void updateTripDateButtonText() {
-        binding.btnTripDate.setText(getFormattedDate(tripDateCalendar));
+        binding.btnTripDate.setText(getFormattedTripString());
     }
 
-    // +++ MODIFIED METHOD: Now formats with time if available +++
-    private String getFormattedDate(Calendar calendar) {
-        // If a date has never been set, show the default prompt.
+    // +++ RENAMED AND MODIFIED METHOD: Handles all display formats +++
+    private String getFormattedTripString() {
         if (!sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
             return "When is your Trip?";
         }
 
-        // If a time has also been set, show the full format with date and time.
-        if (sharedPreferences.contains(KEY_TRIP_TIME_HOUR)) {
+        // Format for Date, Start Time, and End Time
+        if (sharedPreferences.contains(KEY_TRIP_END_TIME_HOUR)) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
+            SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+            return dateFormat.format(tripDateCalendar.getTime()) + " from " +
+                    timeFormat.format(tripDateCalendar.getTime()) + " to " +
+                    timeFormat.format(tripEndCalendar.getTime());
+        }
+        // Format for Date and Start Time only
+        else if (sharedPreferences.contains(KEY_TRIP_TIME_HOUR)) {
             SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' h:mm a", Locale.getDefault());
-            return sdf.format(calendar.getTime());
-        } else {
-            // Fallback: if only a date is set, show just the date.
+            return sdf.format(tripDateCalendar.getTime());
+        }
+        // Fallback for just Date
+        else {
             SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
-            return sdf.format(calendar.getTime());
+            return sdf.format(tripDateCalendar.getTime());
         }
     }
 
@@ -239,11 +275,18 @@ public class HomeActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    // +++ NEW METHOD TO SAVE THE TIME +++
     private void saveTripTime(int hour, int minute) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(KEY_TRIP_TIME_HOUR, hour);
         editor.putInt(KEY_TRIP_TIME_MINUTE, minute);
+        editor.apply();
+    }
+
+    // +++ NEW METHOD TO SAVE THE END TIME +++
+    private void saveTripEndTime(int hour, int minute) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_TRIP_END_TIME_HOUR, hour);
+        editor.putInt(KEY_TRIP_END_TIME_MINUTE, minute);
         editor.apply();
     }
 
