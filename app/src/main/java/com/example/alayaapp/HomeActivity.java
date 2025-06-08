@@ -14,7 +14,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.DatePicker;
 import android.widget.Toast;
-
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -23,7 +22,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-
 import com.example.alayaapp.databinding.ActivityHomeBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -32,50 +30,45 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.example.alayaapp.util.GeoPoint;
-
+import com.google.firebase.firestore.GeoPoint;
 import java.io.IOException;
-import java.text.SimpleDateFormat; // Added
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar; // Added
+import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
 
 public class HomeActivity extends AppCompatActivity {
     private ActivityHomeBinding binding;
-
     final int CURRENT_ITEM_ID = R.id.navigation_home;
     private static final int REQUEST_LOCATION_PERMISSION = 1;
     private static final String TAG = "HomeActivity";
-
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private boolean requestingLocationUpdates = false;
-
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "AlayaAppPrefs";
-    // Location Prefs (already exist)
     private static final String KEY_LOCATION_MODE = "location_mode";
     private static final String KEY_MANUAL_LOCATION_NAME = "manual_location_name";
     private static final String KEY_MANUAL_LATITUDE = "manual_latitude";
     private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
-    // Trip Date Prefs (NEW)
     private static final String KEY_TRIP_DATE_YEAR = "trip_date_year";
     private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
     private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
-
-
     private String currentLocationNameToDisplay = "Tap to get current location";
     private GeoPoint manualGeoPoint = null;
-
     private PlaceAdapter placeAdapter;
     private List<Place> placesList;
     private FirebaseFirestore db;
-
     private Calendar tripDateCalendar;
     private DatePickerDialog.OnDateSetListener dateSetListener;
+
+    // +++ DEFINE THE ALLOWED REGION BOUNDING BOX +++
+    private static final double BAGUIO_REGION_MIN_LAT = 16.35;
+    private static final double BAGUIO_REGION_MAX_LAT = 16.50;
+    private static final double BAGUIO_REGION_MIN_LON = 120.55;
+    private static final double BAGUIO_REGION_MAX_LON = 120.65;
 
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -103,25 +96,19 @@ public class HomeActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityHomeBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         setupLocationCallback();
-
         db = FirebaseFirestore.getInstance();
         placesList = new ArrayList<>();
         binding.rvPlacesList.setLayoutManager(new LinearLayoutManager(this));
         placeAdapter = new PlaceAdapter(this, placesList);
         binding.rvPlacesList.setAdapter(placeAdapter);
-
-        tripDateCalendar = Calendar.getInstance(); // Initialize calendar
-
+        tripDateCalendar = Calendar.getInstance();
         setupTripDatePicker();
         loadSavedTripDate();
-
         binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
         binding.ibEditLocation.setOnClickListener(v -> showLocationChoiceDialog());
-
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
             int itemId = item.getItemId();
             if (itemId == CURRENT_ITEM_ID) {
@@ -143,11 +130,84 @@ public class HomeActivity extends AppCompatActivity {
             }
             return false;
         });
-
         loadLocationPreferenceAndInitialize();
         fetchPlacesFromFirestore();
     }
 
+    // +++ NEW HELPER METHOD TO CHECK BOUNDS +++
+    private boolean isLocationInAllowedRegion(double latitude, double longitude) {
+        return latitude >= BAGUIO_REGION_MIN_LAT &&
+                latitude <= BAGUIO_REGION_MAX_LAT &&
+                longitude >= BAGUIO_REGION_MIN_LON &&
+                longitude <= BAGUIO_REGION_MAX_LON;
+    }
+
+    // +++ NEW DIALOG METHOD +++
+    private void showOutsideRegionDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle("Outside Baguio Region")
+                .setMessage("Your current location is outside the supported region. Please set a location within Baguio to get recommendations.")
+                .setPositiveButton("Set Manually", (dialog, which) -> {
+                    Intent intent = new Intent(HomeActivity.this, ManualLocationPickerActivity.class);
+                    manualLocationPickerLauncher.launch(intent);
+                })
+                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
+                .show();
+    }
+
+    // +++ MODIFIED METHOD +++
+    private void getAddressFromLocation(double latitude, double longitude) {
+        if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
+
+        // --- ADDED CHECK ---
+        if (!isLocationInAllowedRegion(latitude, longitude)) {
+            stopLocationUpdates(); // Stop trying to get a bad location
+            binding.tvLocationCity2.setText("Outside supported region");
+            binding.tvDirectionText.setText("Please set a location in Baguio.");
+            showOutsideRegionDialog();
+            return; // Exit the method
+        }
+        // --- END OF CHECK ---
+
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                String city = address.getLocality();
+                String subLocality = address.getSubLocality();
+                String thoroughfare = address.getThoroughfare();
+                String country = address.getCountryName();
+                StringBuilder addressTextBuilder = new StringBuilder();
+                if (city != null && !city.isEmpty()) addressTextBuilder.append(city);
+                else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
+                else if (thoroughfare != null && !thoroughfare.isEmpty()) addressTextBuilder.append(thoroughfare);
+                else addressTextBuilder.append("Unknown Area");
+                if (country != null && !country.isEmpty() && addressTextBuilder.length() > 0 && !addressTextBuilder.toString().equals("Unknown Area")) {
+                    if (!addressTextBuilder.toString().equalsIgnoreCase(country) && (city == null || !city.equalsIgnoreCase(country))) {
+                        addressTextBuilder.append(", ").append(country);
+                    }
+                } else if (country != null && !country.isEmpty() && addressTextBuilder.toString().equals("Unknown Area")) {
+                    addressTextBuilder.replace(0, addressTextBuilder.length(), country);
+                }
+                currentLocationNameToDisplay = addressTextBuilder.length() == 0 ? "Location Name Not Found" : addressTextBuilder.toString();
+                binding.tvLocationCity2.setText(currentLocationNameToDisplay);
+                if (binding.tvDirectionText != null) binding.tvDirectionText.setText("GPS: " + currentLocationNameToDisplay);
+            } else {
+                binding.tvLocationCity2.setText("Location Name Not Found (Auto)");
+                if (binding.tvDirectionText != null) binding.tvDirectionText.setText("GPS: Location Name Not Found");
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Geocoder service not available or IO error (Auto)", e);
+            binding.tvLocationCity2.setText("Service to get address unavailable (Auto)");
+        } catch (IllegalArgumentException e) {
+            Log.e(TAG, "Invalid latitude or longitude values (Auto).", e);
+            binding.tvLocationCity2.setText("Invalid location data (Auto)");
+        }
+    }
+
+    // --- All other methods remain unchanged ---
+    // (Included for completeness)
 
     private void setupTripDatePicker() {
         dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
@@ -158,12 +218,8 @@ public class HomeActivity extends AppCompatActivity {
             saveTripDate(year, monthOfYear, dayOfMonth);
             Toast.makeText(HomeActivity.this, "Trip date set to: " + getFormattedDate(tripDateCalendar), Toast.LENGTH_SHORT).show();
         };
-
         binding.btnTripDate.setOnClickListener(v -> {
-            new DatePickerDialog(HomeActivity.this, dateSetListener,
-                    tripDateCalendar.get(Calendar.YEAR),
-                    tripDateCalendar.get(Calendar.MONTH),
-                    tripDateCalendar.get(Calendar.DAY_OF_MONTH))
+            new DatePickerDialog(HomeActivity.this, dateSetListener, tripDateCalendar.get(Calendar.YEAR), tripDateCalendar.get(Calendar.MONTH), tripDateCalendar.get(Calendar.DAY_OF_MONTH))
                     .show();
         });
     }
@@ -183,10 +239,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private String getFormattedDate(Calendar calendar) {
-        // Example format: "Mon, Apr 22, 2024"
-
         SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
-        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) { // Check if a date was ever saved
+        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
             return sdf.format(calendar.getTime());
         } else {
             return "When is your Trip?";
@@ -201,13 +255,11 @@ public class HomeActivity extends AppCompatActivity {
         editor.apply();
     }
 
-
     private void fetchPlacesFromFirestore() {
         Log.d(TAG, "fetchPlacesFromFirestore: Method entered. Showing ProgressBar.");
         if (binding.progressBarHome != null) binding.progressBarHome.setVisibility(View.VISIBLE);
         if (binding.rvPlacesList != null) binding.rvPlacesList.setVisibility(View.GONE);
         if (binding.tvEmptyPlaces != null) binding.tvEmptyPlaces.setVisibility(View.GONE);
-
         db.collection("places")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -301,12 +353,12 @@ public class HomeActivity extends AppCompatActivity {
             double lon = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LONGITUDE, Double.doubleToRawLongBits(0.0)));
             if (!name.isEmpty() && lat != 0.0 && lon != 0.0) {
                 currentLocationNameToDisplay = name;
-                manualGeoPoint = new GeoPoint(lat, lon); // Or LatLng
+                manualGeoPoint = new GeoPoint(lat, lon);
                 binding.tvLocationCity2.setText(currentLocationNameToDisplay);
                 if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Manually set: " + currentLocationNameToDisplay);
                 stopLocationUpdates();
             } else {
-                saveLocationPreference("auto", null, 0,0); // Fallback
+                saveLocationPreference("auto", null, 0,0);
                 checkAndRequestLocationPermissions();
             }
         } else {
@@ -331,47 +383,6 @@ public class HomeActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    private void getAddressFromLocation(double latitude, double longitude) {
-        if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                Address address = addresses.get(0);
-                String city = address.getLocality();
-                String subLocality = address.getSubLocality();
-                String thoroughfare = address.getThoroughfare();
-                String country = address.getCountryName();
-                StringBuilder addressTextBuilder = new StringBuilder();
-
-                if (city != null && !city.isEmpty()) addressTextBuilder.append(city);
-                else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
-                else if (thoroughfare != null && !thoroughfare.isEmpty()) addressTextBuilder.append(thoroughfare);
-                else addressTextBuilder.append("Unknown Area");
-
-                if (country != null && !country.isEmpty() && addressTextBuilder.length() > 0 && !addressTextBuilder.toString().equals("Unknown Area")) {
-                    if (!addressTextBuilder.toString().equalsIgnoreCase(country) && (city == null || !city.equalsIgnoreCase(country))) {
-                        addressTextBuilder.append(", ").append(country);
-                    }
-                } else if (country != null && !country.isEmpty() && addressTextBuilder.toString().equals("Unknown Area")) {
-                    addressTextBuilder.replace(0, addressTextBuilder.length(), country);
-                }
-                currentLocationNameToDisplay = addressTextBuilder.length() == 0 ? "Location Name Not Found" : addressTextBuilder.toString();
-                binding.tvLocationCity2.setText(currentLocationNameToDisplay);
-                if (binding.tvDirectionText != null) binding.tvDirectionText.setText("GPS: " + currentLocationNameToDisplay);
-            } else {
-                binding.tvLocationCity2.setText("Location Name Not Found (Auto)");
-                if (binding.tvDirectionText != null) binding.tvDirectionText.setText("GPS: Location Name Not Found");
-            }
-        } catch (IOException e) {
-            Log.e(TAG, "Geocoder service not available or IO error (Auto)", e);
-            binding.tvLocationCity2.setText("Service to get address unavailable (Auto)");
-        } catch (IllegalArgumentException e) {
-            Log.e(TAG, "Invalid latitude or longitude values (Auto).", e);
-            binding.tvLocationCity2.setText("Invalid location data (Auto)");
-        }
-    }
-
     @Override
     protected void onResume() {
         super.onResume();
@@ -386,7 +397,7 @@ public class HomeActivity extends AppCompatActivity {
         } else {
             stopLocationUpdates();
             String name = sharedPreferences.getString(KEY_MANUAL_LOCATION_NAME, "Not Set");
-            binding.tvLocationCity2.setText(name); // Ensure manual location is displayed on resume
+            binding.tvLocationCity2.setText(name);
             if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Manually set: " + name);
         }
         loadSavedTripDate();
@@ -474,7 +485,6 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
         if (requestingLocationUpdates) return;
-
         LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
                 .setMinUpdateIntervalMillis(5000)
                 .build();
