@@ -45,7 +45,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.maps.android.PolyUtil; // Import PolyUtil
+import com.google.maps.android.PolyUtil;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -101,16 +101,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private String directionsApiKey;
 
     // Transportation Mode Variables
-    private String apiTravelMode = "walking"; // Mode for Google API: walking, driving, bicycling, transit
-    private String selectedUIMode = "walk";   // Mode for UI tracking: walk, taxi, bus, bike, motorcycle
+    private String apiTravelMode = "walking"; // API: walking, driving
+    private String selectedUIMode = "walk";   // UI: walk, taxi, two_wheels
 
     private LatLng currentRouteOriginLatLng;
     private String currentRouteOriginName;
 
     private LinearLayout transportModeContainer;
-    private LinearLayout btnModeWalkCard, btnModeTaxiCard, btnModeBusCard, btnModeBikeCard, btnModeMotorcycleCard;
-    private ImageView ivModeWalk, ivModeTaxi, ivModeBus, ivModeBike, ivModeMotorcycle;
-    private TextView tvModeWalk, tvModeTaxi, tvModeBus, tvModeBike, tvModeMotorcycle;
+    private LinearLayout btnModeWalkCard, btnModeTaxiCard, btnModeTwoWheelsCard;
+    private ImageView ivModeWalk, ivModeTaxi, ivModeTwoWheels;
+    private TextView tvModeWalk, tvModeTaxi, tvModeTwoWheels;
 
     private static class DirectionsResult {
         List<LatLng> polylinePoints;
@@ -164,7 +164,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.e(TAG, "Failed to load meta-data, NullPointer: " + e.getMessage());
         }
 
-        // Initialize transport mode UI elements
         transportModeContainer = binding.transportModeSelectorContainer;
 
         btnModeWalkCard = binding.btnModeWalkCard;
@@ -175,17 +174,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ivModeTaxi = binding.ivModeTaxi;
         tvModeTaxi = binding.tvModeTaxi;
 
-        btnModeBusCard = binding.btnModeBusCard;
-        ivModeBus = binding.ivModeBus;
-        tvModeBus = binding.tvModeBus;
-
-        btnModeBikeCard = binding.btnModeBikeCard;
-        ivModeBike = binding.ivModeBike;
-        tvModeBike = binding.tvModeBike;
-
-        btnModeMotorcycleCard = binding.btnModeMotorcycleCard;
-        ivModeMotorcycle = binding.ivModeMotorcycle;
-        tvModeMotorcycle = binding.tvModeMotorcycle;
+        btnModeTwoWheelsCard = binding.btnModeTwoWheelsCard;
+        ivModeTwoWheels = binding.ivModeTwoWheels;
+        tvModeTwoWheels = binding.tvModeTwoWheels;
 
         setupTransportModeButtons();
         setupBottomNavigation();
@@ -217,25 +208,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private void setupTransportModeButtons() {
         btnModeWalkCard.setOnClickListener(v -> selectTravelMode("walk"));
         btnModeTaxiCard.setOnClickListener(v -> selectTravelMode("taxi"));
-        btnModeBusCard.setOnClickListener(v -> selectTravelMode("bus"));
-        btnModeBikeCard.setOnClickListener(v -> selectTravelMode("bike"));
-        btnModeMotorcycleCard.setOnClickListener(v -> selectTravelMode("motorcycle"));
-
-        updateTransportModeUI(); // To set initial selected state (walk)
+        btnModeTwoWheelsCard.setOnClickListener(v -> selectTravelMode("two_wheels"));
+        updateTransportModeUI();
     }
 
     private void selectTravelMode(String uiMode) {
         String newApiMode;
         switch (uiMode) {
             case "taxi":
-            case "motorcycle":
+            case "two_wheels": // "Two Wheels" will now use "driving" mode
                 newApiMode = "driving";
-                break;
-            case "bus":
-                newApiMode = "transit";
-                break;
-            case "bike":
-                newApiMode = "bicycling";
                 break;
             case "walk":
             default:
@@ -244,7 +226,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
 
         boolean UImodeChanged = !this.selectedUIMode.equals(uiMode);
-        // boolean APImodeChanged = !this.apiTravelMode.equals(newApiMode); // We always redraw if UI mode changes for now
 
         if (!UImodeChanged && currentRoutePolyline != null) {
             Log.d(TAG, "UI Mode " + uiMode + " already selected and route shown.");
@@ -268,9 +249,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void updateTransportModeUI() {
-        ImageView[] icons = {ivModeWalk, ivModeTaxi, ivModeBus, ivModeBike, ivModeMotorcycle};
-        TextView[] texts = {tvModeWalk, tvModeTaxi, tvModeBus, tvModeBike, tvModeMotorcycle};
-        String[] modes = {"walk", "taxi", "bus", "bike", "motorcycle"};
+        ImageView[] icons = {ivModeWalk, ivModeTaxi, ivModeTwoWheels};
+        TextView[] texts = {tvModeWalk, tvModeTaxi, tvModeTwoWheels};
+        String[] modes = {"walk", "taxi", "two_wheels"};
 
         for (int i = 0; i < modes.length; i++) {
             boolean isSelected = modes[i].equals(selectedUIMode);
@@ -303,7 +284,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         customInfoWindowAdapter = new CustomInfoWindowAdapter(MapsActivity.this, markerPlaceMap);
         mMap.setInfoWindowAdapter(customInfoWindowAdapter);
         mMap.setOnInfoWindowClickListener(this);
-        clearRouteElements(); // This will also hide transportModeContainer initially
+        clearRouteElements();
 
         Intent intent = getIntent();
         boolean drawRouteFlag = intent.getBooleanExtra(EXTRA_DRAW_ROUTE, false);
@@ -319,7 +300,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         if (drawRouteFlag && pendingRouteDestLatLng != null) {
             transportModeContainer.setVisibility(View.VISIBLE);
-            selectTravelMode("walk"); // Default to walk and update UI
+            selectTravelMode("walk");
 
             binding.tvDirectionText.setText("Preparing route to " + (pendingRouteDestName != null ? pendingRouteDestName : "destination") + "...");
             if ("auto".equals(currentLocationMode)) {
@@ -446,10 +427,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         currentRouteOriginLatLng = null;
         currentRouteOriginName = null;
-        // Don't clear pendingRouteDest... here as they might be from intent for next route.
-        // If you want to fully reset after a route is done, you might clear them.
 
-        // Reset selected mode to walk when route is cleared and update UI for it
         selectedUIMode = "walk";
         apiTravelMode = "walking";
         updateTransportModeUI();
@@ -466,11 +444,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Toast.makeText(this, "API Key for directions is missing. Cannot draw road route.", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Directions API key is null or empty. Drawing straight line fallback.");
             drawStraightLineFallback(originLatLng, originName, destLatLng, destName, destDocId);
-            transportModeContainer.setVisibility(View.VISIBLE); // Still show selector, maybe user can fix API key issue later or it's temporary
+            transportModeContainer.setVisibility(View.VISIBLE);
             return;
         }
 
-        // Clear previous markers except manual home if it's the origin
         if (currentRoutePolyline != null) currentRoutePolyline.remove();
         if (routeOriginMarker != null && (manualHomeMarker == null || !routeOriginMarker.getId().equals(manualHomeMarker.getId()))) {
             if(routeOriginMarker.getId() != null) markerPlaceMap.remove(routeOriginMarker.getId());
@@ -483,19 +460,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             routeDestinationMarker = null;
         }
 
-
-        // Store current route details for re-routing
         this.currentRouteOriginLatLng = originLatLng;
         this.currentRouteOriginName = originName;
-        // Destination details are already in pendingRouteDestLatLng, pendingRouteDestName, pendingRouteDestDocId
-        // Or passed directly as destLatLng, destName, destDocId
 
         transportModeContainer.setVisibility(View.VISIBLE);
-        updateTransportModeUI(); // Ensure UI reflects current selectedUIMode
+        updateTransportModeUI();
 
-        // Add origin marker
         if (manualHomeLocation != null && manualHomeLocation.equals(originLatLng)) {
-            routeOriginMarker = manualHomeMarker; // Use existing manual home marker
+            routeOriginMarker = manualHomeMarker;
             if (routeOriginMarker != null) {
                 routeOriginMarker.setTitle(originName);
                 Place originPlaceData = markerPlaceMap.get(routeOriginMarker.getId());
@@ -507,8 +479,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                     stub.setCategory(originName.equals(manualHomeLocationName) ? "Manually Set Home" : "Route Origin");
                     markerPlaceMap.put(routeOriginMarker.getId(), stub);
                 }
-            } else { // If manualHomeMarker was null for some reason but location matches
-                addManualHomeMarkerToMap(); // This creates manualHomeMarker
+            } else {
+                addManualHomeMarkerToMap();
                 routeOriginMarker = manualHomeMarker;
                 if(routeOriginMarker != null) routeOriginMarker.setTitle(originName);
             }
@@ -523,10 +495,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         }
 
-        // Add destination marker
         Place fullDestinationPlace = null;
         if (destDocId != null && !destDocId.isEmpty()) {
-            for (Place p : markerPlaceMap.values()) { // Check existing POIs
+            for (Place p : markerPlaceMap.values()) {
                 if (p.getDocumentId() != null && destDocId.equals(p.getDocumentId())) {
                     fullDestinationPlace = p;
                     break;
@@ -546,9 +517,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 markerPlaceMap.put(routeDestinationMarker.getId(), destStub);
             }
         }
-
+        String modeDisplayName = selectedUIMode.equals("two_wheels") ? "2-Wheels" : selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1);
         if (binding.tvDirectionText != null) {
-            binding.tvDirectionText.setText("Calculating " + selectedUIMode + " route from " + originName + " to " + destName + "...");
+            binding.tvDirectionText.setText("Calculating " + modeDisplayName + " route from " + originName + " to " + destName + "...");
         }
         new FetchDirectionsTask(this, directionsApiKey, this.apiTravelMode).execute(originLatLng, destLatLng);
     }
@@ -562,7 +533,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         PolylineOptions polylineOptions = new PolylineOptions()
                 .add(originLatLng, destLatLng)
-                .color(Color.parseColor("#FFA500")) // Orange for fallback
+                .color(Color.parseColor("#FFA500"))
                 .width(10)
                 .pattern(Arrays.asList(new Dash(20), new Gap(10)));
         currentRoutePolyline = mMap.addPolyline(polylineOptions);
@@ -585,9 +556,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     public void drawActualRoute(DirectionsResult directionsResult) {
         if (mMap == null || directionsResult == null || directionsResult.polylinePoints == null || directionsResult.polylinePoints.isEmpty()) {
-            Toast.makeText(this, "Could not draw route.", Toast.LENGTH_SHORT).show();
+            String failedModeDisplay = selectedUIMode.equals("two_wheels") ? "2-Wheels" : selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1);
+            Toast.makeText(this, "Could not draw " + failedModeDisplay + " route.", Toast.LENGTH_SHORT).show();
             if (binding.tvDirectionText != null) {
-                binding.tvDirectionText.setText("Failed to calculate route path.");
+                binding.tvDirectionText.setText("Failed to calculate " + failedModeDisplay + " route path.");
             }
             if (routeOriginMarker != null && routeDestinationMarker != null) {
                 LatLngBounds.Builder builder = new LatLngBounds.Builder();
@@ -607,7 +579,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         PolylineOptions polylineOptions = new PolylineOptions()
                 .addAll(directionsResult.polylinePoints)
-                .color(Color.parseColor("#3F51B5")) // AlayaApp Blue/Primary
+                .color(Color.parseColor("#3F51B5"))
                 .width(15);
         currentRoutePolyline = mMap.addPolyline(polylineOptions);
         if (directionsResult.routeBounds != null) {
@@ -631,10 +603,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 Log.e(TAG, "Error animating camera to origin/dest bounds: " + e.getMessage());
             }
         }
+        String modeDisplayName = selectedUIMode.equals("two_wheels") ? "2-Wheels" : selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1);
         if (binding.tvDirectionText != null && routeOriginMarker != null && routeDestinationMarker != null) {
-            binding.tvDirectionText.setText(selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1) + " Route: " + routeOriginMarker.getTitle() + " to " + routeDestinationMarker.getTitle());
+            binding.tvDirectionText.setText(modeDisplayName + " Route: " + routeOriginMarker.getTitle() + " to " + routeDestinationMarker.getTitle());
         } else if (binding.tvDirectionText != null) {
-            binding.tvDirectionText.setText(selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1) + " route calculated.");
+            binding.tvDirectionText.setText(modeDisplayName + " route calculated.");
         }
     }
 
@@ -654,23 +627,19 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 boolean isRouteOriginPoi = routeOriginMarker != null && routeOriginMarker.getPosition().equals(placeLocation);
                                 boolean isRouteDestPoi = routeDestinationMarker != null && routeDestinationMarker.getPosition().equals(placeLocation);
 
-                                if (isManualHomePoi) { // If this POI is the manual home marker
+                                if (isManualHomePoi) {
                                     markerPlaceMap.put(manualHomeMarker.getId(), place);
                                     manualHomeMarker.setTitle(place.getName());
                                 } else if (isRouteOriginPoi && (manualHomeMarker == null || !routeOriginMarker.getId().equals(manualHomeMarker.getId()))) {
-                                    // If this POI is the route origin (and not the manual home marker)
                                     markerPlaceMap.put(routeOriginMarker.getId(), place);
                                     routeOriginMarker.setTitle(place.getName());
-                                } else if (isRouteDestPoi) { // If this POI is the route destination
+                                } else if (isRouteDestPoi) {
                                     markerPlaceMap.put(routeDestinationMarker.getId(), place);
                                     routeDestinationMarker.setTitle(place.getName());
-                                } else { // For other POIs not part of the active route ends or manual home
+                                } else {
                                     boolean markerExistsForThisPoi = false;
-                                    // Check if a generic marker already exists for this POI (that isn't an endpoint)
                                     for (Map.Entry<String, Place> entry : markerPlaceMap.entrySet()) {
                                         if (entry.getValue() != null && place.getDocumentId().equals(entry.getValue().getDocumentId())) {
-                                            // Avoid re-adding if it's already a known marker (could be a generic one)
-                                            // And it's not one of the special markers we just handled
                                             if ( (manualHomeMarker == null || !entry.getKey().equals(manualHomeMarker.getId())) &&
                                                     (routeOriginMarker == null || !entry.getKey().equals(routeOriginMarker.getId())) &&
                                                     (routeDestinationMarker == null || !entry.getKey().equals(routeDestinationMarker.getId())) ) {
@@ -693,7 +662,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                         if (binding.tvDirectionText != null) {
                             String currentText = binding.tvDirectionText.getText().toString();
-                            if (currentText.contains("Determining view...") || currentText.equals("Explore the map.") || (!currentText.toLowerCase().contains("route") && !currentText.toLowerCase().contains("showing:"))) {
+                            if (currentText.contains("Loading map...") || currentText.equals("Explore the map.") ||
+                                    (!currentText.toLowerCase().contains("route") && !currentText.toLowerCase().contains("showing:"))) {
                                 binding.tvDirectionText.setText("Places loaded. Tap markers for details.");
                             }
                         }
@@ -744,7 +714,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                                 if (binding.tvDirectionText != null && "auto".equals(currentLocationMode)) {
                                     boolean drawingRoute = getIntent().getBooleanExtra(EXTRA_DRAW_ROUTE, false);
                                     boolean hasTarget = getIntent().hasExtra(EXTRA_TARGET_LATITUDE);
-                                    if (!drawingRoute && !hasTarget) { // Only update if not in route/target mode
+                                    if (!drawingRoute && !hasTarget) {
                                         binding.tvDirectionText.setText("Centered on your current GPS location.");
                                     }
                                 }
@@ -757,7 +727,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         });
             }
         } else {
-            awaitingPermissionsForRoute = false; // Reset flag if it was for a route
+            awaitingPermissionsForRoute = false;
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
@@ -775,7 +745,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 if (awaitingPermissionsForRoute && pendingRouteDestLatLng != null) {
                     awaitingPermissionsForRoute = false;
                     fetchCurrentLocationForRoute(pendingRouteDestLatLng, pendingRouteDestName, pendingRouteDestDocId);
-                    // pendingRouteDestLatLng, Name, DocId are kept for potential mode changes
                 } else if ("auto".equals(currentLocationMode)) {
                     centerOnActualGPSLocation(true);
                 }
@@ -787,10 +756,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } catch (SecurityException se) {
                     Log.e(TAG, "SecurityException on setMyLocationEnabled(false)");
                 }
-                if (pendingRouteDestLatLng != null) { // If permission was for route and denied, just show destination
+                if (pendingRouteDestLatLng != null) {
                     centerMapOnLocation(pendingRouteDestLatLng, pendingRouteDestName, 15f);
-                    transportModeContainer.setVisibility(View.GONE); // Hide selector as route cannot be drawn from current loc
-                    // pendingRouteDestLatLng, Name, DocId might be cleared or kept depending on desired flow
+                    transportModeContainer.setVisibility(View.GONE);
                 }
             }
         }
@@ -822,7 +790,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } else {
                     overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 }
-                finish(); // Close MapsActivity when navigating away to a main tab
+                finish();
                 return true;
             }
             return false;
@@ -840,25 +808,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        setIntent(intent); // Update the activity's intent
-        if (mMap != null && mMap.getUiSettings() != null) { // Check if map is ready
-            clearRouteElements(); // Clear old route if any
-            // pendingRouteDestLatLng etc will be updated from the new intent by onMapReady
-            onMapReady(mMap); // Re-process the map with the new intent
-        } else {
-            // If map is not ready, onMapReady will eventually be called and use the new intent.
+        setIntent(intent);
+        if (mMap != null && mMap.getUiSettings() != null) {
+            clearRouteElements();
+            onMapReady(mMap);
         }
     }
 
     private static class FetchDirectionsTask extends AsyncTask<LatLng, Void, DirectionsResult> {
         private WeakReference<MapsActivity> activityReference;
         private String apiKey;
-        private String travelMode; // Added travelMode
+        private String travelMode;
 
-        FetchDirectionsTask(MapsActivity context, String apiKey, String travelMode) { // Added travelMode
+        FetchDirectionsTask(MapsActivity context, String apiKey, String travelMode) {
             this.activityReference = new WeakReference<>(context);
             this.apiKey = apiKey;
-            this.travelMode = travelMode; // Store it
+            this.travelMode = travelMode;
         }
 
         @Override
@@ -867,7 +832,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (activity == null || activity.isFinishing()) return null;
             LatLng origin = params[0];
             LatLng dest = params[1];
-            String urlString = getDirectionsUrl(origin, dest, apiKey, this.travelMode); // Use this.travelMode
+            String urlString = getDirectionsUrl(origin, dest, apiKey, this.travelMode);
+            Log.d("FetchDirectionsTask", "Request URL: " + urlString);
             String jsonData = "";
             try {
                 jsonData = downloadUrl(urlString);
@@ -889,15 +855,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (result != null && result.polylinePoints != null && !result.polylinePoints.isEmpty()) {
                 activity.drawActualRoute(result);
             } else {
-                Toast.makeText(activity, "Could not calculate directions.", Toast.LENGTH_LONG).show();
+                String failedMode = activity.selectedUIMode.equals("two_wheels") ? "2-Wheels" : activity.selectedUIMode.substring(0, 1).toUpperCase() + activity.selectedUIMode.substring(1);
+                Toast.makeText(activity, "Could not calculate directions for " + failedMode + ".", Toast.LENGTH_LONG).show();
                 if (activity.binding.tvDirectionText != null) {
-                    activity.binding.tvDirectionText.setText("Failed to get directions. Showing straight line.");
+                    activity.binding.tvDirectionText.setText("Failed to get directions for "+ failedMode +". Showing straight line.");
                 }
                 if (activity.routeOriginMarker != null && activity.routeDestinationMarker != null) {
                     activity.drawStraightLineFallback(
                             activity.routeOriginMarker.getPosition(), activity.routeOriginMarker.getTitle(),
                             activity.routeDestinationMarker.getPosition(), activity.routeDestinationMarker.getTitle(),
-                            null // destDocId not strictly needed for fallback drawing
+                            activity.pendingRouteDestDocId
                     );
                 }
             }
@@ -907,14 +874,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             String strOrigin = "origin=" + origin.latitude + "," + origin.longitude;
             String strDest = "destination=" + dest.latitude + "," + dest.longitude;
             String modeQueryParam = "mode=" + modeParam;
-            String apiKeyParam = "key=" + key;
-            // Ensure API key is part of the parameters
-            String parameters = strOrigin + "&" + strDest + "&" + modeQueryParam + "&" + apiKeyParam;
-
-            if ("transit".equals(modeParam)) {
-                // parameters += "&departure_time=now"; // Example: for current departures
-                // parameters += "&transit_mode=bus"; // Example: prefer bus
-            }
+            String parameters = strOrigin + "&" + strDest + "&" + modeQueryParam;
+            parameters += "&key=" + key; // Ensure API key is always included
 
             String output = "json";
             return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
@@ -962,7 +923,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 String status = jsonObject.optString("status");
                 if (!"OK".equals(status)) {
                     Log.e("FetchDirectionsTask", "Directions API non-OK status: " + status + " - " + jsonObject.optString("error_message"));
-                    return null; // Return null if status is not OK
+                    return null;
                 }
                 JSONArray routesArray = jsonObject.getJSONArray("routes");
                 if (routesArray.length() > 0) {
@@ -980,9 +941,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             } catch (Exception e) {
                 Log.e("FetchDirectionsTask", "Error parsing directions JSON: " + e.getMessage());
-                return null; // Return null on parsing error
+                return null;
             }
-            if (polylinePoints.isEmpty()) return null;
+            // Check if polylinePoints is empty AFTER attempting to parse,
+            // especially if the status was "OK" but no route was found (e.g., ZERO_RESULTS for bicycling/transit).
+            if (polylinePoints.isEmpty() && jsonData.contains("\"status\" : \"OK\"") && jsonData.contains("\"routes\" : [ ]")) {
+                Log.w("FetchDirectionsTask", "Polyline points are empty even though status was OK. This implies no route for the mode (ZERO_RESULTS).");
+                return null; // Explicitly return null to trigger fallback or error message.
+            }
+            // If polylinePoints has data, or if status wasn't OK (handled above), this is fine.
+            // If status was OK but routes array was present but empty (or other parsing failed to populate points),
+            // an empty list would be returned, leading to the "Could not draw route" toast.
+            // This ensures we distinguish between "no route found" and "parsing error".
             return new DirectionsResult(polylinePoints, routeBounds);
         }
     }

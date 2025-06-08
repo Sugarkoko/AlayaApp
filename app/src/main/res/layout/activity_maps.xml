@@ -79,8 +79,8 @@
             android:gravity="center_vertical"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
-            android:paddingStart="4dp"
-            android:paddingEnd="4dp"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
             android:background="@color/white"
             android:elevation="4dp"
             android:visibility="gone"
@@ -142,7 +142,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/btn_mode_bus_card"
+                android:id="@+id/btn_mode_two_wheels_card"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -153,68 +153,16 @@
                 android:clickable="true"
                 android:focusable="true">
                 <ImageView
-                    android:id="@+id/iv_mode_bus"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_bus"
-                    app:tint="@color/textSecondary"/>
-                <TextView
-                    android:id="@+id/tv_mode_bus"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Bus"
-                    android:textSize="12sp"
-                    android:textColor="@color/textSecondary"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/btn_mode_bike_card"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="8dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-                <ImageView
-                    android:id="@+id/iv_mode_bike"
+                    android:id="@+id/iv_mode_two_wheels"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:src="@drawable/ic_bike"
                     app:tint="@color/textSecondary"/>
                 <TextView
-                    android:id="@+id/tv_mode_bike"
+                    android:id="@+id/tv_mode_two_wheels"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Bike"
-                    android:textSize="12sp"
-                    android:textColor="@color/textSecondary"/>
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/btn_mode_motorcycle_card"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:padding="8dp"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true">
-                <ImageView
-                    android:id="@+id/iv_mode_motorcycle"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_motorcycle"
-                    app:tint="@color/textSecondary"/>
-                <TextView
-                    android:id="@+id/tv_mode_motorcycle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Motor"
+                    android:text="2-Wheels"
                     android:textSize="12sp"
                     android:textColor="@color/textSecondary"/>
             </LinearLayout>
