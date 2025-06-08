@@ -2,6 +2,7 @@ package com.example.alayaapp;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
+import android.app.TimePickerDialog; // +++ IMPORT TIME PICKER +++
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -56,6 +57,11 @@ public class HomeActivity extends AppCompatActivity {
     private static final String KEY_TRIP_DATE_YEAR = "trip_date_year";
     private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
     private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
+
+    // +++ NEW KEYS FOR SAVING TIME +++
+    private static final String KEY_TRIP_TIME_HOUR = "trip_time_hour";
+    private static final String KEY_TRIP_TIME_MINUTE = "trip_time_minute";
+
     private String currentLocationNameToDisplay = "Tap to get current location";
     private GeoPoint manualGeoPoint = null;
     private PlaceAdapter placeAdapter;
@@ -64,7 +70,6 @@ public class HomeActivity extends AppCompatActivity {
     private Calendar tripDateCalendar;
     private DatePickerDialog.OnDateSetListener dateSetListener;
 
-    // +++ DEFINE THE ALLOWED REGION BOUNDING BOX +++
     private static final double BAGUIO_REGION_MIN_LAT = 16.35;
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
     private static final double BAGUIO_REGION_MIN_LON = 120.55;
@@ -134,7 +139,116 @@ public class HomeActivity extends AppCompatActivity {
         fetchPlacesFromFirestore();
     }
 
-    // +++ NEW HELPER METHOD TO CHECK BOUNDS +++
+    // +++ NEW METHOD TO SHOW THE TIME PICKER DIALOG +++
+    private void showTimePickerDialog() {
+        // Use the time currently in the calendar as the default
+        int hour = tripDateCalendar.get(Calendar.HOUR_OF_DAY);
+        int minute = tripDateCalendar.get(Calendar.MINUTE);
+
+        // Create a new TimePickerDialog
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view, hourOfDay, minuteOfHour) -> {
+            // This code runs when the user clicks "OK"
+            tripDateCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            tripDateCalendar.set(Calendar.MINUTE, minuteOfHour);
+
+            // Save the selected time
+            saveTripTime(hourOfDay, minuteOfHour);
+
+            // Update the button text to show the new date and time
+            updateTripDateButtonText();
+            Toast.makeText(HomeActivity.this, "Trip start time set!", Toast.LENGTH_SHORT).show();
+
+        }, hour, minute, false); // false for 24-hour view
+
+        timePickerDialog.setTitle("Select Trip Start Time");
+        timePickerDialog.show();
+    }
+
+    // +++ MODIFIED METHOD: Now triggers the time picker after a date is set +++
+    private void setupTripDatePicker() {
+        dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
+            // Set the date on our calendar instance
+            tripDateCalendar.set(Calendar.YEAR, year);
+            tripDateCalendar.set(Calendar.MONTH, monthOfYear);
+            tripDateCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+            // Save the date part
+            saveTripDate(year, monthOfYear, dayOfMonth);
+
+            // Immediately show the time picker dialog
+            showTimePickerDialog();
+        };
+
+        binding.btnTripDate.setOnClickListener(v -> {
+            new DatePickerDialog(HomeActivity.this, dateSetListener,
+                    tripDateCalendar.get(Calendar.YEAR),
+                    tripDateCalendar.get(Calendar.MONTH),
+                    tripDateCalendar.get(Calendar.DAY_OF_MONTH))
+                    .show();
+        });
+    }
+
+    // +++ MODIFIED METHOD: Now loads the saved time as well +++
+    private void loadSavedTripDate() {
+        // Check if a date has ever been saved
+        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
+            int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripDateCalendar.get(Calendar.YEAR));
+            int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripDateCalendar.get(Calendar.MONTH));
+            int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripDateCalendar.get(Calendar.DAY_OF_MONTH));
+            tripDateCalendar.set(year, month, day);
+
+            // Also check if a time has been saved
+            if (sharedPreferences.contains(KEY_TRIP_TIME_HOUR)) {
+                int hour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9); // Default to 9 AM
+                int minute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
+                tripDateCalendar.set(Calendar.HOUR_OF_DAY, hour);
+                tripDateCalendar.set(Calendar.MINUTE, minute);
+            }
+        }
+        // Update the button text with whatever was loaded
+        updateTripDateButtonText();
+    }
+
+    private void updateTripDateButtonText() {
+        binding.btnTripDate.setText(getFormattedDate(tripDateCalendar));
+    }
+
+    // +++ MODIFIED METHOD: Now formats with time if available +++
+    private String getFormattedDate(Calendar calendar) {
+        // If a date has never been set, show the default prompt.
+        if (!sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
+            return "When is your Trip?";
+        }
+
+        // If a time has also been set, show the full format with date and time.
+        if (sharedPreferences.contains(KEY_TRIP_TIME_HOUR)) {
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' h:mm a", Locale.getDefault());
+            return sdf.format(calendar.getTime());
+        } else {
+            // Fallback: if only a date is set, show just the date.
+            SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
+            return sdf.format(calendar.getTime());
+        }
+    }
+
+    private void saveTripDate(int year, int month, int day) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_TRIP_DATE_YEAR, year);
+        editor.putInt(KEY_TRIP_DATE_MONTH, month);
+        editor.putInt(KEY_TRIP_DATE_DAY, day);
+        editor.apply();
+    }
+
+    // +++ NEW METHOD TO SAVE THE TIME +++
+    private void saveTripTime(int hour, int minute) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt(KEY_TRIP_TIME_HOUR, hour);
+        editor.putInt(KEY_TRIP_TIME_MINUTE, minute);
+        editor.apply();
+    }
+
+    // --- The rest of the file remains unchanged ---
+
     private boolean isLocationInAllowedRegion(double latitude, double longitude) {
         return latitude >= BAGUIO_REGION_MIN_LAT &&
                 latitude <= BAGUIO_REGION_MAX_LAT &&
@@ -142,7 +256,6 @@ public class HomeActivity extends AppCompatActivity {
                 longitude <= BAGUIO_REGION_MAX_LON;
     }
 
-    // +++ NEW DIALOG METHOD +++
     private void showOutsideRegionDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Outside Baguio Region")
@@ -155,19 +268,16 @@ public class HomeActivity extends AppCompatActivity {
                 .show();
     }
 
-    // +++ MODIFIED METHOD +++
     private void getAddressFromLocation(double latitude, double longitude) {
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
 
-        // --- ADDED CHECK ---
         if (!isLocationInAllowedRegion(latitude, longitude)) {
-            stopLocationUpdates(); // Stop trying to get a bad location
+            stopLocationUpdates();
             binding.tvLocationCity2.setText("Outside supported region");
             binding.tvDirectionText.setText("Please set a location in Baguio.");
             showOutsideRegionDialog();
-            return; // Exit the method
+            return;
         }
-        // --- END OF CHECK ---
 
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
@@ -204,55 +314,6 @@ public class HomeActivity extends AppCompatActivity {
             Log.e(TAG, "Invalid latitude or longitude values (Auto).", e);
             binding.tvLocationCity2.setText("Invalid location data (Auto)");
         }
-    }
-
-    // --- All other methods remain unchanged ---
-    // (Included for completeness)
-
-    private void setupTripDatePicker() {
-        dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
-            tripDateCalendar.set(Calendar.YEAR, year);
-            tripDateCalendar.set(Calendar.MONTH, monthOfYear);
-            tripDateCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            updateTripDateButtonText();
-            saveTripDate(year, monthOfYear, dayOfMonth);
-            Toast.makeText(HomeActivity.this, "Trip date set to: " + getFormattedDate(tripDateCalendar), Toast.LENGTH_SHORT).show();
-        };
-        binding.btnTripDate.setOnClickListener(v -> {
-            new DatePickerDialog(HomeActivity.this, dateSetListener, tripDateCalendar.get(Calendar.YEAR), tripDateCalendar.get(Calendar.MONTH), tripDateCalendar.get(Calendar.DAY_OF_MONTH))
-                    .show();
-        });
-    }
-
-    private void loadSavedTripDate() {
-        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
-            int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripDateCalendar.get(Calendar.YEAR));
-            int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripDateCalendar.get(Calendar.MONTH));
-            int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripDateCalendar.get(Calendar.DAY_OF_MONTH));
-            tripDateCalendar.set(year, month, day);
-        }
-        updateTripDateButtonText();
-    }
-
-    private void updateTripDateButtonText() {
-        binding.btnTripDate.setText(getFormattedDate(tripDateCalendar));
-    }
-
-    private String getFormattedDate(Calendar calendar) {
-        SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
-        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
-            return sdf.format(calendar.getTime());
-        } else {
-            return "When is your Trip?";
-        }
-    }
-
-    private void saveTripDate(int year, int month, int day) {
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putInt(KEY_TRIP_DATE_YEAR, year);
-        editor.putInt(KEY_TRIP_DATE_MONTH, month);
-        editor.putInt(KEY_TRIP_DATE_DAY, day);
-        editor.apply();
     }
 
     private void fetchPlacesFromFirestore() {
