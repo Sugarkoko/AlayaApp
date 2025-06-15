@@ -8,138 +8,229 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.bumptech.glide.Glide;
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class ItineraryAdapter extends RecyclerView.Adapter<ItineraryAdapter.ItineraryViewHolder> {
+// This adapter now handles multiple view types
+public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
-    private List<ItineraryItem> itineraryList;
-    private boolean isEditMode = false;
+    // View Type constants
+    private static final int VIEW_TYPE_HEADER = 0;
+    private static final int VIEW_TYPE_ITINERARY_CARD = 1;
+    private static final int VIEW_TYPE_HORIZONTAL_LIST = 2;
+
+    private List<Object> displayItems; // Can hold Headers, ItineraryItems, etc.
     private final OnStartDragListener dragStartListener;
-    private final SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+    private Context context;
+    private boolean isEditMode = false;
 
-    // Interface to signal drag start to the Activity/Fragment
     public interface OnStartDragListener {
         void onStartDrag(RecyclerView.ViewHolder viewHolder);
     }
 
-    public ItineraryAdapter(List<ItineraryItem> itineraryList, OnStartDragListener dragStartListener) {
-        this.itineraryList = itineraryList;
+    public ItineraryAdapter(List<Object> displayItems, OnStartDragListener dragStartListener) {
+        this.displayItems = displayItems;
         this.dragStartListener = dragStartListener;
         setHasStableIds(true);
     }
 
-    @NonNull
     @Override
-    public ItineraryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_itinerary, parent, false);
-        return new ItineraryViewHolder(view);
+    public int getItemViewType(int position) {
+        Object item = displayItems.get(position);
+        if (item instanceof String) {
+            return VIEW_TYPE_HEADER;
+        } else if (item instanceof ItineraryItem) {
+            return VIEW_TYPE_ITINERARY_CARD;
+        } else if (item instanceof HorizontalListContainer) {
+            return VIEW_TYPE_HORIZONTAL_LIST;
+        }
+        return super.getItemViewType(position);
     }
 
-    @SuppressLint("ClickableViewAccessibility")
+    @NonNull
     @Override
-    public void onBindViewHolder(@NonNull ItineraryViewHolder holder, int position) {
-        ItineraryItem item = itineraryList.get(position);
-        holder.tvTime.setText(timeFormat.format(item.getTime().getTime()));
-        holder.tvActivity.setText(item.getActivity());
-        holder.tvRating.setText(item.getRating());
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        this.context = parent.getContext();
+        LayoutInflater inflater = LayoutInflater.from(context);
+        switch (viewType) {
+            case VIEW_TYPE_HEADER:
+                View headerView = inflater.inflate(R.layout.item_itinerary_header, parent, false);
+                return new HeaderViewHolder(headerView);
+            case VIEW_TYPE_ITINERARY_CARD:
+                View cardView = inflater.inflate(R.layout.list_item_itinerary, parent, false);
+                return new CardViewHolder(cardView);
+            case VIEW_TYPE_HORIZONTAL_LIST:
+                View horizontalView = inflater.inflate(R.layout.item_itinerary_horizontal_list, parent, false);
+                return new HorizontalListViewHolder(horizontalView);
+            default:
+                // Should not happen
+                throw new IllegalArgumentException("Invalid view type");
+        }
+    }
 
-        // Show/hide drag handle based on edit mode
-        holder.ivDragHandle.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
-
-
-        if (isEditMode) {
-            holder.ivDragHandle.setOnTouchListener((v, event) -> {
-                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
-                    dragStartListener.onStartDrag(holder);
-                }
-                return false; // Let the touch event propagate if needed
-            });
-        } else {
-            holder.ivDragHandle.setOnTouchListener(null); // Remove listener when not editing
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
+        switch (holder.getItemViewType()) {
+            case VIEW_TYPE_HEADER:
+                HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
+                headerViewHolder.bind((String) displayItems.get(position));
+                break;
+            case VIEW_TYPE_ITINERARY_CARD:
+                CardViewHolder cardViewHolder = (CardViewHolder) holder;
+                cardViewHolder.bind((ItineraryItem) displayItems.get(position));
+                break;
+            case VIEW_TYPE_HORIZONTAL_LIST:
+                HorizontalListViewHolder horizontalViewHolder = (HorizontalListViewHolder) holder;
+                horizontalViewHolder.bind((HorizontalListContainer) displayItems.get(position));
+                break;
         }
     }
 
     @Override
     public int getItemCount() {
-        return itineraryList.size();
+        return displayItems.size();
     }
 
     @Override
     public long getItemId(int position) {
-        // Return a unique and stable ID for the item
-        return itineraryList.get(position).getId();
+        Object item = displayItems.get(position);
+        if (item instanceof ItineraryItem) {
+            return ((ItineraryItem) item).getId();
+        }
+        // For other types, use their position as a stable ID.
+        // Add a large offset to avoid collision with ItineraryItem IDs.
+        return position + 10000;
     }
 
     public void setEditMode(boolean editMode) {
-        boolean needsUpdate = isEditMode != editMode; // Check if mode actually changed
+        boolean needsUpdate = isEditMode != editMode;
         isEditMode = editMode;
         if (needsUpdate) {
-            // Use notifyItemRangeChanged instead of notifyDataSetChanged()
-
-            notifyItemRangeChanged(0, getItemCount());
+            notifyDataSetChanged(); // A full redraw is needed to show/hide all handles
         }
     }
-    // Method called by ItemTouchHelper when an item is moved
+
     public boolean onItemMove(int fromPosition, int toPosition) {
-        if (fromPosition < toPosition) {
-            for (int i = fromPosition; i < toPosition; i++) {
-                Collections.swap(itineraryList, i, i + 1);
-            }
-        } else {
-            for (int i = fromPosition; i > toPosition; i--) {
-                Collections.swap(itineraryList, i, i - 1);
-            }
+        // Ensure we are only moving ItineraryItem objects
+        if (displayItems.get(fromPosition) instanceof ItineraryItem && displayItems.get(toPosition) instanceof ItineraryItem) {
+            Collections.swap(displayItems, fromPosition, toPosition);
+            notifyItemMoved(fromPosition, toPosition);
+            recalculateTimes();
+            return true;
         }
-        notifyItemMoved(fromPosition, toPosition);
-
-        recalculateTimes();
-        return true;
+        return false;
     }
-
 
     public void recalculateTimes() {
-        if (itineraryList.isEmpty()) return;
-
-        Calendar currentTime = (Calendar) itineraryList.get(0).getTime().clone(); // Start with first item's time or a fixed start time
-
-
-        for (int i = 0; i < itineraryList.size(); i++) {
-            ItineraryItem currentItem = itineraryList.get(i);
-            // Clone calendar to avoid modifying previous item's time reference
-            Calendar itemTime = (Calendar) currentTime.clone();
-            currentItem.setTime(itemTime);
-
-            // Notify change for this specific item to update view
-            notifyItemChanged(i, "payload_time_update"); // Use payload to avoid full rebind if possible
-
-            // Increment time for the *next* item (e.g., add 1 hour)
-            currentTime.add(Calendar.HOUR_OF_DAY, 1);
+        // Find the first ItineraryItem to start recalculating from
+        int firstItemIndex = -1;
+        for (int i = 0; i < displayItems.size(); i++) {
+            if (displayItems.get(i) instanceof ItineraryItem) {
+                firstItemIndex = i;
+                break;
+            }
         }
 
+        if (firstItemIndex == -1) return; // No items to recalculate
+
+        Calendar currentTime = (Calendar) ((ItineraryItem) displayItems.get(firstItemIndex)).getTime().clone();
+        for (int i = firstItemIndex; i < displayItems.size(); i++) {
+            if (displayItems.get(i) instanceof ItineraryItem) {
+                ItineraryItem currentItem = (ItineraryItem) displayItems.get(i);
+                Calendar itemTime = (Calendar) currentTime.clone();
+                currentItem.setTime(itemTime);
+                notifyItemChanged(i);
+                currentTime.add(Calendar.HOUR_OF_DAY, 1); // Or use your fixed duration logic
+            }
+        }
     }
 
-    public List<ItineraryItem> getCurrentList() {
-        return itineraryList;
+    // --- ViewHolder for Section Headers ---
+    class HeaderViewHolder extends RecyclerView.ViewHolder {
+        TextView tvHeader;
+        HeaderViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvHeader = itemView.findViewById(R.id.tv_section_header);
+        }
+        void bind(String title) {
+            tvHeader.setText(title);
+        }
     }
 
-
-
-    static class ItineraryViewHolder extends RecyclerView.ViewHolder {
-        ImageView ivDragHandle;
+    // --- ViewHolder for Itinerary Cards ---
+    class CardViewHolder extends RecyclerView.ViewHolder {
+        ImageView ivDragHandle, ivImage;
         TextView tvTime, tvActivity, tvRating;
+        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
 
-        ItineraryViewHolder(@NonNull View itemView) {
+        @SuppressLint("ClickableViewAccessibility")
+        CardViewHolder(@NonNull View itemView) {
             super(itemView);
             ivDragHandle = itemView.findViewById(R.id.iv_drag_handle);
             tvTime = itemView.findViewById(R.id.tv_item_time);
             tvActivity = itemView.findViewById(R.id.tv_item_activity);
             tvRating = itemView.findViewById(R.id.tv_item_rating);
+            ivImage = itemView.findViewById(R.id.iv_item_image);
+
+            ivDragHandle.setOnTouchListener((v, event) -> {
+                if (event.getActionMasked() == MotionEvent.ACTION_DOWN) {
+                    dragStartListener.onStartDrag(this);
+                }
+                return false;
+            });
+        }
+
+        void bind(ItineraryItem item) {
+            tvTime.setText(timeFormat.format(item.getTime().getTime()));
+            tvActivity.setText(item.getActivity());
+            tvRating.setText(item.getRating());
+
+            if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
+                Glide.with(context)
+                        .load(item.getImageUrl())
+                        .placeholder(R.drawable.img_placeholder)
+                        .error(R.drawable.img_error)
+                        .into(ivImage);
+            } else {
+                ivImage.setImageResource(R.drawable.img_placeholder);
+            }
+            ivDragHandle.setVisibility(isEditMode ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    // --- ViewHolder for the Horizontal RecyclerView ---
+    class HorizontalListViewHolder extends RecyclerView.ViewHolder {
+        RecyclerView rvHorizontal;
+        HorizontalListViewHolder(@NonNull View itemView) {
+            super(itemView);
+            rvHorizontal = itemView.findViewById(R.id.rv_horizontal);
+        }
+        void bind(HorizontalListContainer container) {
+            RecommendedItineraryAdapter adapter = new RecommendedItineraryAdapter(context, container.getRecommendedPlaces());
+            rvHorizontal.setLayoutManager(new LinearLayoutManager(context, LinearLayoutManager.HORIZONTAL, false));
+            rvHorizontal.setAdapter(adapter);
+        }
+    }
+
+    // --- Data container for the horizontal list ---
+    public static class HorizontalListContainer {
+        private final List<RecommendedItineraryAdapter.RecommendedPlace> recommendedPlaces;
+        public HorizontalListContainer(List<RecommendedItineraryAdapter.RecommendedPlace> places) {
+            this.recommendedPlaces = places;
+        }
+        public List<RecommendedItineraryAdapter.RecommendedPlace> getRecommendedPlaces() {
+            return recommendedPlaces;
         }
     }
 }

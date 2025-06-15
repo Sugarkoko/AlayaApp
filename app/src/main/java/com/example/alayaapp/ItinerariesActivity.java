@@ -26,7 +26,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.alayaapp.logic.ItineraryGenerator;
+import com.example.alayaapp.ItineraryGenerator;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -53,7 +53,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     ItineraryAdapter itineraryAdapter;
     ItemTouchHelper itemTouchHelper;
     ItineraryItemTouchHelperCallback touchHelperCallback;
-    List<ItineraryItem> suggestedList = new ArrayList<>();
     private boolean isEditMode = false;
     final int CURRENT_ITEM_ID = R.id.navigation_itineraries;
     private static final String TAG_LOCATION = "ItinerariesActivity";
@@ -79,12 +78,13 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
     private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
     private Calendar tripDateCalendar;
-
-    // +++ DEFINE THE ALLOWED REGION BOUNDING BOX +++
     private static final double BAGUIO_REGION_MIN_LAT = 16.35;
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
     private static final double BAGUIO_REGION_MIN_LON = 120.55;
     private static final double BAGUIO_REGION_MAX_LON = 120.65;
+
+    // A single list to hold all items for the main RecyclerView
+    private List<Object> displayItems = new ArrayList<>();
 
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -110,6 +110,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itineraries);
+
         ivEditItineraryIcon = findViewById(R.id.iv_edit_itinerary);
         tvSaveChanges = findViewById(R.id.tv_save_changes);
         rvSuggestedItinerary = findViewById(R.id.rv_suggested_itinerary);
@@ -117,29 +118,62 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         tvLocationCityItineraries = findViewById(R.id.tv_location_city_itineraries);
         tvLocationStatusItineraries = findViewById(R.id.tv_location_status_itineraries);
         ibEditLocationItineraries = findViewById(R.id.ib_edit_location_itineraries);
+
         db = FirebaseFirestore.getInstance();
         itineraryGenerator = new ItineraryGenerator();
         tripDateCalendar = Calendar.getInstance();
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         setupLocationCallback();
         setupRecyclerView();
         bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
         setupBottomNavListener();
+
         ivEditItineraryIcon.setOnClickListener(v -> enterEditMode());
         tvSaveChanges.setOnClickListener(v -> exitEditModeAndSave());
         ibEditLocationItineraries.setOnClickListener(v -> showLocationChoiceDialog());
+
         loadLocationPreferenceAndInitialize();
     }
 
     private void setupRecyclerView() {
-        itineraryAdapter = new ItineraryAdapter(suggestedList, this);
+        // The adapter now takes a List<Object>
+        itineraryAdapter = new ItineraryAdapter(displayItems, this);
         rvSuggestedItinerary.setLayoutManager(new LinearLayoutManager(this));
         rvSuggestedItinerary.setAdapter(itineraryAdapter);
         touchHelperCallback = new ItineraryItemTouchHelperCallback(itineraryAdapter);
         itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(rvSuggestedItinerary);
     }
+
+    private void buildDisplayList(List<ItineraryItem> generatedItems) {
+        displayItems.clear();
+
+        // Add the main itinerary items
+        if (generatedItems != null && !generatedItems.isEmpty()) {
+            displayItems.add("Suggested Itinerary"); // Header
+            displayItems.addAll(generatedItems);
+            ivEditItineraryIcon.setVisibility(View.VISIBLE);
+        } else {
+            ivEditItineraryIcon.setVisibility(View.GONE);
+        }
+
+        // Add the recommended items section
+        List<RecommendedItineraryAdapter.RecommendedPlace> recommendedPlaces = new ArrayList<>();
+        recommendedPlaces.add(new RecommendedItineraryAdapter.RecommendedPlace("Arca's Yard Cafe", "3.0", "(1K)"));
+        recommendedPlaces.add(new RecommendedItineraryAdapter.RecommendedPlace("Wright Park Riding Center", "3.3", "(4K)"));
+        recommendedPlaces.add(new RecommendedItineraryAdapter.RecommendedPlace("Baguio Orchidarium", "3.5", "(2K)"));
+        recommendedPlaces.add(new RecommendedItineraryAdapter.RecommendedPlace("Camp John Hay Picnic Area", "4.0", "(5K)"));
+
+        if (!recommendedPlaces.isEmpty()) {
+            displayItems.add("Recommended Other Itineraries"); // Header
+            displayItems.add(new ItineraryAdapter.HorizontalListContainer(recommendedPlaces));
+        }
+
+        itineraryAdapter.notifyDataSetChanged();
+    }
+
 
     private void loadTripDate() {
         if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
@@ -153,16 +187,12 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private void fetchPlacesAndGenerateItinerary(GeoPoint startLocation) {
         if (startLocation == null) {
             Toast.makeText(this, "Cannot generate itinerary without a start location.", Toast.LENGTH_LONG).show();
+            buildDisplayList(new ArrayList<>()); // Build list with no items
             return;
         }
         loadTripDate();
         Toast.makeText(this, "Generating itinerary...", Toast.LENGTH_SHORT).show();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
-        String dayOfWeek = tripDateCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
-        Log.d(TAG_LOCATION, "--- STARTING ITINERARY GENERATION ---");
-        Log.d(TAG_LOCATION, "Trip Date: " + sdf.format(tripDateCalendar.getTime()));
-        Log.d(TAG_LOCATION, "Day of Week Key: '" + dayOfWeek + "'");
-        Log.d(TAG_LOCATION, "Start Location: " + startLocation.getLatitude() + ", " + startLocation.getLongitude());
+
         db.collection("places")
                 .get()
                 .addOnCompleteListener(task -> {
@@ -174,27 +204,24 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                                 if (place != null && place.getCoordinates() != null && place.getOpeningHours() != null) {
                                     place.setDocumentId(document.getId());
                                     allPlacesList.add(place);
-                                } else {
-                                    Log.w(TAG_LOCATION, "Skipping place '" + place.getName() + "' due to missing coordinates or opening hours.");
                                 }
                             } catch (Exception e) {
                                 Log.e(TAG_LOCATION, "Error converting document to Place object: " + document.getId(), e);
                             }
                         }
-                        Log.d(TAG_LOCATION, "Total places fetched from Firestore: " + allPlacesList.size());
+
                         List<ItineraryItem> generatedItems = itineraryGenerator.generate(startLocation, allPlacesList, tripDateCalendar);
-                        Log.d(TAG_LOCATION, "Generator returned " + generatedItems.size() + " items.");
-                        suggestedList.clear();
-                        if (generatedItems != null && !generatedItems.isEmpty()) {
-                            suggestedList.addAll(generatedItems);
+                        if (!generatedItems.isEmpty()) {
                             Toast.makeText(this, "Itinerary generated!", Toast.LENGTH_SHORT).show();
                         } else {
                             Toast.makeText(this, "Could not generate an itinerary for this date/location.", Toast.LENGTH_LONG).show();
                         }
-                        itineraryAdapter.notifyDataSetChanged();
+                        buildDisplayList(generatedItems); // Build the final list for the adapter
+
                     } else {
                         Log.w(TAG_LOCATION, "Error getting documents from Firestore.", task.getException());
                         Toast.makeText(ItinerariesActivity.this, "Failed to load places for itinerary.", Toast.LENGTH_LONG).show();
+                        buildDisplayList(new ArrayList<>()); // Build empty list on failure
                     }
                 });
     }
@@ -224,6 +251,8 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         }
     }
 
+    // --- Other methods (BottomNav, Permissions, Location logic) remain unchanged ---
+    // ... (paste the rest of your ItinerariesActivity methods here, they don't need to change)
     private void setupBottomNavListener() {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
@@ -232,6 +261,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
             else if (destinationItemId == R.id.navigation_map) destinationActivityClass = MapsActivity.class;
             else if (destinationItemId == R.id.navigation_profile) destinationActivityClass = ProfileActivity.class;
+
             if (destinationActivityClass != null) {
                 Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
                 startActivity(intent);
@@ -332,15 +362,11 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         editor.apply();
     }
 
-    // +++ NEW HELPER METHOD TO CHECK BOUNDS +++
     private boolean isLocationInAllowedRegion(double latitude, double longitude) {
-        return latitude >= BAGUIO_REGION_MIN_LAT &&
-                latitude <= BAGUIO_REGION_MAX_LAT &&
-                longitude >= BAGUIO_REGION_MIN_LON &&
-                longitude <= BAGUIO_REGION_MAX_LON;
+        return latitude >= BAGUIO_REGION_MIN_LAT && latitude <= BAGUIO_REGION_MAX_LAT &&
+                longitude >= BAGUIO_REGION_MIN_LON && longitude <= BAGUIO_REGION_MAX_LON;
     }
 
-    // +++ NEW DIALOG METHOD +++
     private void showOutsideRegionDialog() {
         new AlertDialog.Builder(this)
                 .setTitle("Outside Baguio Region")
@@ -353,19 +379,16 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 .show();
     }
 
-    // +++ MODIFIED METHOD +++
     private void getAddressFromLocation(double latitude, double longitude) {
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
 
-        // --- ADDED CHECK ---
         if (!isLocationInAllowedRegion(latitude, longitude)) {
             stopLocationUpdates();
             tvLocationCityItineraries.setText("Outside supported region");
             tvLocationStatusItineraries.setText("Please set a location in Baguio.");
             showOutsideRegionDialog();
-            return; // Exit the method
+            return;
         }
-        // --- END OF CHECK ---
 
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
@@ -381,6 +404,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
                 else if (thoroughfare != null && !thoroughfare.isEmpty()) addressTextBuilder.append(thoroughfare);
                 else addressTextBuilder.append("Unknown Area");
+
                 if (country != null && !country.isEmpty() && addressTextBuilder.length() > 0 && !addressTextBuilder.toString().equals("Unknown Area")) {
                     if (!addressTextBuilder.toString().equalsIgnoreCase(country) && (city == null || !city.equalsIgnoreCase(country))) {
                         addressTextBuilder.append(", ").append(country);
@@ -391,13 +415,11 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 currentLocationNameToDisplay = addressTextBuilder.length() == 0 ? "Location Name Not Found" : addressTextBuilder.toString();
                 tvLocationCityItineraries.setText(currentLocationNameToDisplay);
                 tvLocationStatusItineraries.setText("GPS: " + currentLocationNameToDisplay);
-                Log.d(TAG_LOCATION, "Fetched Address (Auto): " + currentLocationNameToDisplay);
                 GeoPoint startPoint = new GeoPoint(latitude, longitude);
                 fetchPlacesAndGenerateItinerary(startPoint);
             } else {
                 tvLocationCityItineraries.setText("Location Name Not Found (Auto)");
                 tvLocationStatusItineraries.setText("GPS: Location Name Not Found");
-                Log.w(TAG_LOCATION, "No address found for the location (Auto).");
             }
         } catch (IOException e) {
             Log.e(TAG_LOCATION, "Geocoder service not available or IO error (Auto)", e);
@@ -507,12 +529,10 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             return;
         }
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) {
-            Log.d(TAG_LOCATION, "In manual mode, not starting GPS updates.");
             stopLocationUpdates();
             return;
         }
         if (requestingLocationUpdates) {
-            Log.d(TAG_LOCATION, "startLocationUpdates: Already requesting.");
             return;
         }
         LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
@@ -521,14 +541,12 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         requestingLocationUpdates = true;
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
         tvLocationStatusItineraries.setText("Updating location (GPS)...");
-        Log.d(TAG_LOCATION, "Requested location updates.");
     }
 
     private void stopLocationUpdates() {
         if (requestingLocationUpdates) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
             requestingLocationUpdates = false;
-            Log.d(TAG_LOCATION, "Location updates stopped.");
         }
     }
 }

@@ -7,274 +7,149 @@
     android:background="@color/white"
     tools:context=".ItinerariesActivity">
 
-    <ScrollView
-        android:id="@+id/scrollView"
+    <!-- Header Section -->
+    <LinearLayout
+        android:id="@+id/ll_header_container"
         android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
-        app:layout_constraintStart_toStartOf="parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingStart="20dp"
+        android:paddingTop="24dp"
+        android:paddingEnd="20dp"
+        android:paddingBottom="16dp"
         app:layout_constraintEnd_toEndOf="parent"
-        android:fillViewport="true"
-        android:scrollbars="none">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/tv_itineraries_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/title_itineraries"
+            android:textColor="@color/colorPrimary"
+            android:textSize="34sp"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/tv_current_location_header"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Current Location:"
+            android:textColor="@color/textPrimary"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/cl_location_container_itineraries"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="20dp"
-            android:paddingEnd="20dp"
-            android:paddingTop="24dp"
-            android:paddingBottom="24dp"
-            android:descendantFocusability="blocksDescendants">
+            android:layout_marginTop="8dp"
+            android:background="@drawable/bg_rounded_light_gray"
+            android:padding="14dp">
+
+            <ImageView
+                android:id="@+id/iv_location_icon_itineraries"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="Location Icon"
+                android:src="@drawable/location"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/textPrimary" />
 
             <TextView
-                android:id="@+id/tv_itineraries_title"
-                android:layout_width="wrap_content"
+                android:id="@+id/tv_location_city_itineraries"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@string/title_itineraries"
-                android:textColor="@color/colorPrimary"
-                android:textSize="34sp"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tv_current_location_header"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="24dp"
-                android:text="Current Location:"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="8dp"
+                android:text="Tap to get current location"
                 android:textColor="@color/textPrimary"
-                android:textSize="18sp"
-                android:textStyle="bold"/>
+                android:textSize="16sp"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/ib_edit_location_itineraries"
+                app:layout_constraintStart_toEndOf="@id/iv_location_icon_itineraries"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- MODIFIED Current Location Section -->
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/cl_location_container_itineraries"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:background="@drawable/bg_rounded_light_gray"
-                android:padding="14dp">
+            <ImageButton
+                android:id="@+id/ib_edit_location_itineraries"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Edit Location"
+                android:src="@drawable/edit"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/colorPrimary" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-                <ImageView
-                    android:id="@+id/iv_location_icon_itineraries"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/location"
-                    app:tint="@color/textPrimary"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:contentDescription="Location Icon"/>
+        <TextView
+            android:id="@+id/tv_location_status_itineraries"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:textColor="@color/textSecondary"
+            android:textSize="12sp"
+            tools:text="Location status will show here" />
 
-                <TextView
-                    android:id="@+id/tv_location_city_itineraries"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="12dp"
-                    android:layout_marginEnd="8dp"
-                    tools:text="Tap to get current location"
-                    android:text="Tap to get current location"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toEndOf="@id/iv_location_icon_itineraries"
-                    app:layout_constraintEnd_toStartOf="@+id/ib_edit_location_itineraries"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+    </LinearLayout>
 
-                <ImageButton
-                    android:id="@+id/ib_edit_location_itineraries"
-                    android:layout_width="36dp"
-                    android:layout_height="36dp"
-                    android:src="@drawable/edit"
-                    app:tint="@color/colorPrimary"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Edit Location"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
-            </androidx.constraintlayout.widget.ConstraintLayout>
+    <!-- Edit/Save Controls - Placed above the RecyclerView -->
+    <ImageView
+        android:id="@+id/iv_edit_itinerary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:clickable="true"
+        android:contentDescription="Edit Itinerary"
+        android:focusable="true"
+        android:padding="8dp"
+        android:src="@drawable/edit"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/rv_suggested_itinerary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ll_header_container"
+        app:tint="@color/colorPrimary" />
 
-            <!-- Location Status/Direction Text -->
-            <TextView
-                android:id="@+id/tv_location_status_itineraries"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:textSize="12sp"
-                android:textColor="@color/textSecondary"
-                tools:text="Location status will show here"/>
+    <TextView
+        android:id="@+id/tv_save_changes"
+        android:layout_width="wrap_content"
+        android:layout_height="0dp"
+        android:layout_marginEnd="20dp"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center"
+        android:paddingStart="8dp"
+        android:paddingEnd="8dp"
+        android:text="Save changes"
+        android:textColor="@color/colorPrimary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintBottom_toBottomOf="@id/iv_edit_itinerary"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@id/iv_edit_itinerary"
+        tools:visibility="visible" />
 
-
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginTop="24dp">
-
-                <TextView
-                    android:id="@+id/tv_suggested_title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="Suggested Itinerary"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="20sp"
-                    android:textStyle="bold"/>
-
-                <ImageView
-                    android:id="@+id/iv_edit_itinerary"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_marginStart="8dp"
-                    android:src="@drawable/edit"
-                    app:tint="@color/colorPrimary"
-                    android:contentDescription="Edit Itinerary"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:visibility="visible"/>
-
-                <TextView
-                    android:id="@+id/tv_save_changes"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:text="Save changes"
-                    android:textColor="@color/colorPrimary"
-                    android:textSize="14sp"
-                    android:textStyle="bold"
-                    android:background="?attr/selectableItemBackground"
-                    android:padding="4dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:visibility="gone"
-                    tools:visibility="visible"/>
-            </LinearLayout>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/rv_suggested_itinerary"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:paddingTop="4dp"
-                android:paddingBottom="4dp"
-                android:background="@drawable/bg_rounded_light_gray"
-                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                android:orientation="vertical"
-                tools:listitem="@layout/list_item_itinerary"
-                tools:itemCount="5"
-                android:minHeight="150dp"
-                android:nestedScrollingEnabled="false"/>
-
-            <TextView
-                android:id="@+id/tv_recommended_title"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="32dp"
-                android:text="Recommended Other Itineraries"
-                android:textColor="@color/textPrimary"
-                android:textSize="20sp"
-                android:textStyle="bold"/>
-
-            <GridLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:columnCount="2"
-                android:useDefaultMargins="true">
-
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_recommended_1"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_gravity="fill_vertical"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="3dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/lightGrayBackground">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
-                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Arca's Yard Cafe" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(1K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                        </LinearLayout>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_recommended_2"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_gravity="fill_vertical"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="3dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/lightGrayBackground">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
-                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Wright Park Riding Center" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.3" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(4K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                        </LinearLayout>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_recommended_3"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_gravity="fill_vertical"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="3dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/lightGrayBackground">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
-                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Baguio Orchidarium" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3.5" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(2K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                        </LinearLayout>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-                <androidx.cardview.widget.CardView
-                    android:id="@+id/card_recommended_4"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_columnWeight="1"
-                    android:layout_gravity="fill_vertical"
-                    app:cardCornerRadius="12dp"
-                    app:cardElevation="3dp"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:foreground="?android:attr/selectableItemBackground"
-                    app:cardBackgroundColor="@color/lightGrayBackground">
-                    <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="12dp">
-                        <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="Camp John Hay Picnic Area" android:textColor="@color/textPrimary" android:textSize="14sp" android:textStyle="bold" android:layout_marginBottom="4dp"/>
-                        <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal" android:gravity="center_vertical">
-                            <ImageView android:layout_width="14dp" android:layout_height="14dp" android:src="@drawable/star" app:tint="@color/starColor" android:contentDescription="Rating Star"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="4.0" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                            <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="(5K)" android:textColor="@color/textSecondary" android:textSize="12sp" android:layout_marginStart="4dp"/>
-                        </LinearLayout>
-                    </LinearLayout>
-                </androidx.cardview.widget.CardView>
-            </GridLayout>
-
-        </LinearLayout>
-    </ScrollView>
+    <!-- The ONE RecyclerView that controls the whole scrolling body -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_suggested_itinerary"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:paddingBottom="16dp"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/ll_header_container"
+        tools:listitem="@layout/list_item_itinerary" />
 
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation"
@@ -282,13 +157,13 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
         app:elevation="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:menu="@menu/bottom_nav_menu"
+        app:itemActiveIndicatorStyle="@null"
         app:itemIconTint="@color/bottom_nav_color_selector"
         app:itemTextColor="@color/bottom_nav_color_selector"
         app:labelVisibilityMode="labeled"
-        app:itemActiveIndicatorStyle="@null" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

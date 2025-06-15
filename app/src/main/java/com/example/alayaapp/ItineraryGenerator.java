@@ -1,11 +1,10 @@
-package com.example.alayaapp.logic;
+// app/src/main/java/com/example/alayaapp/logic/ItineraryGenerator.java
+package com.example.alayaapp;
 
 import android.util.Log;
-
 import com.example.alayaapp.ItineraryItem;
 import com.example.alayaapp.Place;
 import com.google.firebase.firestore.GeoPoint;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,11 +17,14 @@ import java.util.Map;
  * Generates a daily itinerary based on a greedy nearest-neighbor algorithm with constraints.
  */
 public class ItineraryGenerator {
-
     private static final String TAG = "ItineraryGenerator";
     private static final String ITINERARY_START_TIME = "09:00";
     private static final String ITINERARY_END_TIME = "18:00";
     private static final double AVERAGE_SPEED_KMH = 15.0; // Average travel speed in Baguio
+    private static final double CATEGORY_REPETITION_PENALTY_KM = 50.0;
+    // +++ ADDED: A fixed duration for each visit to ensure a full itinerary +++
+    private static final int DEFAULT_VISIT_DURATION_MINUTES = 90;
+
 
     /**
      * Main method to generate the itinerary.
@@ -38,7 +40,6 @@ public class ItineraryGenerator {
         // 1. Initialization
         Calendar currentTime = (Calendar) tripDate.clone();
         setCalendarTime(currentTime, ITINERARY_START_TIME);
-
         Calendar endTime = (Calendar) tripDate.clone();
         setCalendarTime(endTime, ITINERARY_END_TIME);
 
@@ -60,41 +61,42 @@ public class ItineraryGenerator {
         long itineraryItemIdCounter = 1;
         while (currentTime.before(endTime) && !availablePlaces.isEmpty()) {
             Place bestNextPlace = null;
-            double minDistance = Double.MAX_VALUE;
+            double bestScore = Double.MAX_VALUE;
 
-            // A. Find Best Next Place (avoiding same category if possible)
-            for (Place place : availablePlaces) {
-                if (place.getCategory() != null && place.getCategory().equals(lastCategory)) {
-                    continue; // Skip if it's the same category as the last one
-                }
-                double distance = calculateDistance(currentLocation, place.getCoordinates());
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    bestNextPlace = place;
-                }
-            }
+            for (Place candidatePlace : availablePlaces) {
+                double distance = calculateDistance(currentLocation, candidatePlace.getCoordinates());
+                double score = distance;
 
-            // Fallback: If all remaining places are of the same category, just find the closest one.
-            if (bestNextPlace == null) {
-                minDistance = Double.MAX_VALUE;
-                for (Place place : availablePlaces) {
-                    double distance = calculateDistance(currentLocation, place.getCoordinates());
-                    if (distance < minDistance) {
-                        minDistance = distance;
-                        bestNextPlace = place;
-                    }
+                if (candidatePlace.getCategory() != null && candidatePlace.getCategory().equals(lastCategory)) {
+                    score += CATEGORY_REPETITION_PENALTY_KM;
+                }
+
+                if (score < bestScore) {
+                    bestScore = score;
+                    bestNextPlace = candidatePlace;
                 }
             }
 
             if (bestNextPlace == null) {
                 Log.d(TAG, "No suitable places found. Ending generation.");
-                break; // No places left to visit
+                break;
             }
 
-            // B. Check Feasibility of the Closest Place
-            int travelTimeMinutes = (int) ((minDistance / AVERAGE_SPEED_KMH) * 60);
+            // B. Check Feasibility of the Best Place
+            double actualTravelDistance = calculateDistance(currentLocation, bestNextPlace.getCoordinates());
+            int travelTimeMinutes = (int) ((actualTravelDistance / AVERAGE_SPEED_KMH) * 60);
             Calendar arrivalTime = (Calendar) currentTime.clone();
             arrivalTime.add(Calendar.MINUTE, travelTimeMinutes);
+
+            // +++ MODIFIED: Check if there's enough time for the visit itself +++
+            Calendar departureTime = (Calendar) arrivalTime.clone();
+            departureTime.add(Calendar.MINUTE, DEFAULT_VISIT_DURATION_MINUTES);
+            if (departureTime.after(endTime)) {
+                Log.d(TAG, "Not enough time to visit " + bestNextPlace.getName() + ". Removing and continuing.");
+                availablePlaces.remove(bestNextPlace);
+                continue;
+            }
+            // +++ END OF MODIFICATION +++
 
             if (!isPlaceOpenAtTime(bestNextPlace, arrivalTime, dayOfWeek)) {
                 Log.d(TAG, bestNextPlace.getName() + " is not open upon estimated arrival. Removing and continuing.");
@@ -106,12 +108,12 @@ public class ItineraryGenerator {
             Log.d(TAG, "Adding " + bestNextPlace.getName() + " to itinerary.");
             Calendar itemTime = (Calendar) arrivalTime.clone();
             String rating = String.format(Locale.getDefault(), "%.1f", bestNextPlace.getRating());
-            generatedItinerary.add(new ItineraryItem(itineraryItemIdCounter++, itemTime, bestNextPlace.getName(), rating));
+            generatedItinerary.add(new ItineraryItem(itineraryItemIdCounter++, itemTime, bestNextPlace.getName(), rating, bestNextPlace.getImage_url()));
 
             // Update algorithm state for the next iteration
             currentTime.setTime(arrivalTime.getTime());
-            currentTime.add(Calendar.MINUTE, bestNextPlace.getAverageVisitDuration());
-
+            // +++ MODIFIED: Use the fixed duration instead of the one from the database +++
+            currentTime.add(Calendar.MINUTE, DEFAULT_VISIT_DURATION_MINUTES);
             currentLocation = bestNextPlace.getCoordinates();
             lastCategory = bestNextPlace.getCategory();
             availablePlaces.remove(bestNextPlace);
@@ -144,7 +146,6 @@ public class ItineraryGenerator {
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.US);
             Calendar openTimeCal = Calendar.getInstance();
             openTimeCal.setTime(sdf.parse(hours.get("open")));
-
             Calendar closeTimeCal = Calendar.getInstance();
             closeTimeCal.setTime(sdf.parse(hours.get("close")));
 
@@ -154,7 +155,6 @@ public class ItineraryGenerator {
             int closeTimeInMinutes = closeTimeCal.get(Calendar.HOUR_OF_DAY) * 60 + closeTimeCal.get(Calendar.MINUTE);
 
             return arrivalTimeInMinutes >= openTimeInMinutes && arrivalTimeInMinutes < closeTimeInMinutes;
-
         } catch (ParseException e) {
             Log.e(TAG, "Failed to parse opening hours for " + place.getName(), e);
             return false;
