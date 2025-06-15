@@ -26,7 +26,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_HORIZONTAL_LIST = 3;
 
     private final List<Object> displayItems;
-    private final ItinerariesActivity activity; // Reference to the activity
+    private final ItinerariesActivity activity;
 
     public ItineraryAdapter(ItinerariesActivity activity, List<Object> displayItems) {
         this.activity = activity;
@@ -81,7 +81,14 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 ((HeaderViewHolder) holder).bind((String) displayItems.get(position));
                 break;
             case VIEW_TYPE_ITINERARY_CARD:
-                ((CardViewHolder) holder).bind((ItineraryItem) displayItems.get(position));
+                // Calculate the sequence number for itinerary cards
+                int sequenceNumber = 1;
+                for (int i = 0; i < position; i++) {
+                    if (displayItems.get(i) instanceof ItineraryItem) {
+                        sequenceNumber++;
+                    }
+                }
+                ((CardViewHolder) holder).bind((ItineraryItem) displayItems.get(position), sequenceNumber);
                 break;
             case VIEW_TYPE_HORIZONTAL_LIST:
                 ((HorizontalListViewHolder) holder).bind((HorizontalListContainer) displayItems.get(position));
@@ -137,7 +144,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     // --- ViewHolder for Itinerary Cards ---
     class CardViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
-        TextView tvTime, tvActivity, tvRating;
+        TextView tvTime, tvActivity, tvRating, tvItemNumber; // Added tvItemNumber
         SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
 
         CardViewHolder(@NonNull View itemView) {
@@ -146,12 +153,14 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvActivity = itemView.findViewById(R.id.tv_item_activity);
             tvRating = itemView.findViewById(R.id.tv_item_rating);
             ivImage = itemView.findViewById(R.id.iv_item_image);
+            tvItemNumber = itemView.findViewById(R.id.tv_item_number); // Find the new TextView
         }
 
-        void bind(ItineraryItem item) {
+        void bind(ItineraryItem item, int sequenceNumber) {
             tvTime.setText(timeFormat.format(item.getTime().getTime()));
             tvActivity.setText(item.getActivity());
             tvRating.setText(item.getRating());
+            tvItemNumber.setText(String.valueOf(sequenceNumber)); // Set the number
 
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
                 Glide.with(activity)
