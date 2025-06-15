@@ -1,6 +1,8 @@
 // app/src/main/java/com/example/alayaapp/ItineraryItem.java
 package com.example.alayaapp;
 
+import com.google.firebase.firestore.GeoPoint;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
@@ -9,15 +11,18 @@ public class ItineraryItem {
     private Calendar time;
     private String activity;
     private String rating;
-    private String imageUrl; // +++ ADDED +++
+    private String imageUrl;
+    private GeoPoint coordinates;
+    private String placeDocumentId;
 
-    // +++ MODIFIED CONSTRUCTOR +++
-    public ItineraryItem(long id, Calendar time, String activity, String rating, String imageUrl) {
+    public ItineraryItem(long id, Calendar time, String activity, String rating, String imageUrl, GeoPoint coordinates, String placeDocumentId) {
         this.id = id;
         this.time = time;
         this.activity = activity;
         this.rating = rating;
-        this.imageUrl = imageUrl; // +++ ADDED +++
+        this.imageUrl = imageUrl;
+        this.coordinates = coordinates;
+        this.placeDocumentId = placeDocumentId;
     }
 
     public long getId() {
@@ -36,9 +41,16 @@ public class ItineraryItem {
         return rating;
     }
 
-    // +++ ADDED GETTER +++
     public String getImageUrl() {
         return imageUrl;
+    }
+
+    public GeoPoint getCoordinates() {
+        return coordinates;
+    }
+
+    public String getPlaceDocumentId() {
+        return placeDocumentId;
     }
 
     public void setTime(Calendar time) {

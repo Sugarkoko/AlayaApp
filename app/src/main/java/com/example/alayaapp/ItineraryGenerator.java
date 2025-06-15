@@ -2,9 +2,9 @@
 package com.example.alayaapp;
 
 import android.util.Log;
-import com.example.alayaapp.ItineraryItem;
-import com.example.alayaapp.Place;
+
 import com.google.firebase.firestore.GeoPoint;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -22,9 +22,7 @@ public class ItineraryGenerator {
     private static final String ITINERARY_END_TIME = "18:00";
     private static final double AVERAGE_SPEED_KMH = 15.0; // Average travel speed in Baguio
     private static final double CATEGORY_REPETITION_PENALTY_KM = 50.0;
-    // +++ ADDED: A fixed duration for each visit to ensure a full itinerary +++
     private static final int DEFAULT_VISIT_DURATION_MINUTES = 90;
-
 
     /**
      * Main method to generate the itinerary.
@@ -66,11 +64,9 @@ public class ItineraryGenerator {
             for (Place candidatePlace : availablePlaces) {
                 double distance = calculateDistance(currentLocation, candidatePlace.getCoordinates());
                 double score = distance;
-
                 if (candidatePlace.getCategory() != null && candidatePlace.getCategory().equals(lastCategory)) {
                     score += CATEGORY_REPETITION_PENALTY_KM;
                 }
-
                 if (score < bestScore) {
                     bestScore = score;
                     bestNextPlace = candidatePlace;
@@ -88,15 +84,14 @@ public class ItineraryGenerator {
             Calendar arrivalTime = (Calendar) currentTime.clone();
             arrivalTime.add(Calendar.MINUTE, travelTimeMinutes);
 
-            // +++ MODIFIED: Check if there's enough time for the visit itself +++
             Calendar departureTime = (Calendar) arrivalTime.clone();
             departureTime.add(Calendar.MINUTE, DEFAULT_VISIT_DURATION_MINUTES);
+
             if (departureTime.after(endTime)) {
                 Log.d(TAG, "Not enough time to visit " + bestNextPlace.getName() + ". Removing and continuing.");
                 availablePlaces.remove(bestNextPlace);
                 continue;
             }
-            // +++ END OF MODIFICATION +++
 
             if (!isPlaceOpenAtTime(bestNextPlace, arrivalTime, dayOfWeek)) {
                 Log.d(TAG, bestNextPlace.getName() + " is not open upon estimated arrival. Removing and continuing.");
@@ -108,17 +103,23 @@ public class ItineraryGenerator {
             Log.d(TAG, "Adding " + bestNextPlace.getName() + " to itinerary.");
             Calendar itemTime = (Calendar) arrivalTime.clone();
             String rating = String.format(Locale.getDefault(), "%.1f", bestNextPlace.getRating());
-            generatedItinerary.add(new ItineraryItem(itineraryItemIdCounter++, itemTime, bestNextPlace.getName(), rating, bestNextPlace.getImage_url()));
+            generatedItinerary.add(new ItineraryItem(
+                    itineraryItemIdCounter++,
+                    itemTime,
+                    bestNextPlace.getName(),
+                    rating,
+                    bestNextPlace.getImage_url(),
+                    bestNextPlace.getCoordinates(),
+                    bestNextPlace.getDocumentId()
+            ));
 
             // Update algorithm state for the next iteration
             currentTime.setTime(arrivalTime.getTime());
-            // +++ MODIFIED: Use the fixed duration instead of the one from the database +++
             currentTime.add(Calendar.MINUTE, DEFAULT_VISIT_DURATION_MINUTES);
             currentLocation = bestNextPlace.getCoordinates();
             lastCategory = bestNextPlace.getCategory();
             availablePlaces.remove(bestNextPlace);
         }
-
         return generatedItinerary;
     }
 
@@ -141,7 +142,6 @@ public class ItineraryGenerator {
         if (hours == null || hours.get("open") == null || hours.get("close") == null) {
             return false; // No opening hours data for this day
         }
-
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.US);
             Calendar openTimeCal = Calendar.getInstance();
@@ -171,11 +171,9 @@ public class ItineraryGenerator {
 
         double latDistance = Math.toRadians(end.getLatitude() - start.getLatitude());
         double lonDistance = Math.toRadians(end.getLongitude() - start.getLongitude());
-
         double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
                 + Math.cos(Math.toRadians(start.getLatitude())) * Math.cos(Math.toRadians(end.getLatitude()))
                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
-
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
         return R * c;
