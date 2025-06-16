@@ -1,7 +1,22 @@
+// Import necessary for reading properties file
+import java.util.Properties
+import java.io.FileInputStream
+
 plugins {
     alias(libs.plugins.android.application)
     id("com.google.gms.google-services")
 }
+
+// --- NEW: Code to read from local.properties ---
+val localProperties = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProperties.load(FileInputStream(localPropertiesFile))
+}
+// Get the API key, or an empty string if it's not found
+val mapsApiKey = localProperties.getProperty("MAPS_API_KEY") ?: ""
+// --- END NEW CODE ---
+
 
 android {
     namespace = "com.example.alayaapp"
@@ -15,6 +30,9 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // --- NEW: Inject the key as a manifest placeholder ---
+        manifestPlaceholders["mapsApiKey"] = mapsApiKey
     }
 
     buildTypes {
@@ -30,7 +48,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
-
     buildFeatures {
         viewBinding = true
     }
@@ -42,13 +59,12 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.play.services.maps)
-    implementation(libs.play.services.maps)
+    implementation(libs.play.services.maps) // This is a duplicate, but we'll leave it for now as requested
     implementation(libs.play.services.location)
     testImplementation(libs.junit)
     implementation(libs.maps.utils)
@@ -60,5 +76,5 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation("de.hdodenhof:circleimageview:3.1.0")
+    implementation("de.hdodenhof:circleimageview:3.1.0") // This is also a duplicate
 }
