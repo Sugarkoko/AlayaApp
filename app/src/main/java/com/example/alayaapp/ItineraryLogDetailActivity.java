@@ -2,14 +2,17 @@ package com.example.alayaapp;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
+
 import com.example.alayaapp.databinding.ActivityItineraryLogDetailBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -32,9 +35,10 @@ public class ItineraryLogDetailActivity extends AppCompatActivity {
         String tripId = getIntent().getStringExtra("TRIP_ID");
 
         setupRecyclerView();
-
         binding.ivBackArrowLogDetail.setOnClickListener(v -> finish());
-        binding.bottomNavigationLogDetail.setSelectedItemId(R.id.navigation_profile);
+
+        // The line referencing the bottom navigation has been removed.
+        // binding.bottomNavigationLogDetail.setSelectedItemId(R.id.navigation_profile);
 
         if (tripId != null && !tripId.isEmpty()) {
             loadTripDetails(tripId);
