@@ -13,8 +13,8 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-import android.widget.DatePicker;
 import android.widget.Toast;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.example.alayaapp.databinding.ActivityHomeBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -33,6 +34,7 @@ import com.google.android.gms.location.Priority;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.GeoPoint;
+
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -59,27 +61,19 @@ public class HomeActivity extends AppCompatActivity {
     private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
     private static final String KEY_TRIP_TIME_HOUR = "trip_time_hour";
     private static final String KEY_TRIP_TIME_MINUTE = "trip_time_minute";
-
-    // +++ NEW KEYS FOR SAVING END TIME +++
     private static final String KEY_TRIP_END_TIME_HOUR = "trip_end_time_hour";
     private static final String KEY_TRIP_END_TIME_MINUTE = "trip_end_time_minute";
-
     private String currentLocationNameToDisplay = "Tap to get current location";
     private GeoPoint manualGeoPoint = null;
     private PlaceAdapter placeAdapter;
     private List<Place> placesList;
     private FirebaseFirestore db;
     private Calendar tripDateCalendar;
-    private DatePickerDialog.OnDateSetListener dateSetListener;
-
-    // +++ NEW CALENDAR INSTANCE FOR END TIME +++
     private Calendar tripEndCalendar;
-
     private static final double BAGUIO_REGION_MIN_LAT = 16.35;
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
     private static final double BAGUIO_REGION_MIN_LON = 120.55;
     private static final double BAGUIO_REGION_MAX_LON = 120.65;
-
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -115,9 +109,11 @@ public class HomeActivity extends AppCompatActivity {
         placeAdapter = new PlaceAdapter(this, placesList);
         binding.rvPlacesList.setAdapter(placeAdapter);
         tripDateCalendar = Calendar.getInstance();
-        tripEndCalendar = Calendar.getInstance(); // +++ INITIALIZE END CALENDAR +++
-        setupTripDatePicker();
-        loadSavedTripDate();
+        tripEndCalendar = Calendar.getInstance();
+
+        setupDateTimePickers();
+        loadSavedTripDateTime();
+
         binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
         binding.ibEditLocation.setOnClickListener(v -> showLocationChoiceDialog());
         binding.bottomNavigation.setOnItemSelectedListener(item -> {
@@ -145,125 +141,110 @@ public class HomeActivity extends AppCompatActivity {
         fetchPlacesFromFirestore();
     }
 
-    private void showStartTimePickerDialog() {
-        int hour = tripDateCalendar.get(Calendar.HOUR_OF_DAY);
-        int minute = tripDateCalendar.get(Calendar.MINUTE);
-
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view, hourOfDay, minuteOfHour) -> {
-            tripDateCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            tripDateCalendar.set(Calendar.MINUTE, minuteOfHour);
-            saveTripTime(hourOfDay, minuteOfHour);
-            // +++ CHAIN THE END TIME PICKER +++
-            showEndTimePickerDialog();
-        }, hour, minute, false);
-
-        timePickerDialog.setTitle("Select Trip Start Time");
-        timePickerDialog.show();
-    }
-
-    // +++ NEW METHOD FOR END TIME PICKER +++
-    private void showEndTimePickerDialog() {
-        // Default the end time to 1 hour after the start time
-        int hour = tripDateCalendar.get(Calendar.HOUR_OF_DAY) + 1;
-        int minute = tripDateCalendar.get(Calendar.MINUTE);
-
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, (view, hourOfDay, minuteOfHour) -> {
-            // Create a temporary calendar to validate the end time
-            Calendar tempEndCal = (Calendar) tripDateCalendar.clone();
-            tempEndCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            tempEndCal.set(Calendar.MINUTE, minuteOfHour);
-
-            // Validate that end time is after start time
-            if (tempEndCal.before(tripDateCalendar)) {
-                Toast.makeText(this, "End time must be after start time.", Toast.LENGTH_LONG).show();
-                return; // Don't save or update UI
-            }
-
-            // If valid, update the main end calendar and save
-            tripEndCalendar.setTime(tempEndCal.getTime());
-            saveTripEndTime(hourOfDay, minuteOfHour);
-            updateTripDateButtonText();
-            Toast.makeText(HomeActivity.this, "Trip end time set!", Toast.LENGTH_SHORT).show();
-
-        }, hour, minute, false);
-
-        timePickerDialog.setTitle("Select Trip End Time");
-        timePickerDialog.show();
-    }
-
-    private void setupTripDatePicker() {
-        dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
-            tripDateCalendar.set(Calendar.YEAR, year);
-            tripDateCalendar.set(Calendar.MONTH, monthOfYear);
-            tripDateCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-            saveTripDate(year, monthOfYear, dayOfMonth);
-            // +++ CALL START TIME PICKER, WHICH WILL THEN CALL END TIME PICKER +++
-            showStartTimePickerDialog();
-        };
-
-        binding.btnTripDate.setOnClickListener(v -> {
+    private void setupDateTimePickers() {
+        // Date Picker
+        binding.rlTripDate.setOnClickListener(v -> {
+            DatePickerDialog.OnDateSetListener dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
+                tripDateCalendar.set(Calendar.YEAR, year);
+                tripDateCalendar.set(Calendar.MONTH, monthOfYear);
+                tripDateCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                tripEndCalendar.set(Calendar.YEAR, year);
+                tripEndCalendar.set(Calendar.MONTH, monthOfYear);
+                tripEndCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                saveTripDate(year, monthOfYear, dayOfMonth);
+                updateDateTimeUI();
+            };
             new DatePickerDialog(HomeActivity.this, dateSetListener,
                     tripDateCalendar.get(Calendar.YEAR),
                     tripDateCalendar.get(Calendar.MONTH),
                     tripDateCalendar.get(Calendar.DAY_OF_MONTH))
                     .show();
         });
+
+        // Time Picker (for both start and end)
+        binding.rlTripTime.setOnClickListener(v -> showStartTimePickerDialog());
     }
 
-    // +++ MODIFIED METHOD: Now loads both start and end times +++
-    private void loadSavedTripDate() {
+    private void showStartTimePickerDialog() {
+        TimePickerDialog.OnTimeSetListener timeSetListener = (view, hourOfDay, minute) -> {
+            tripDateCalendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            tripDateCalendar.set(Calendar.MINUTE, minute);
+            saveTripTime(hourOfDay, minute);
+            updateDateTimeUI();
+            // Chain the end time picker for a smooth flow
+            showEndTimePickerDialog();
+        };
+        // THE FIX: Create the dialog first, then set the title and show it.
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, timeSetListener,
+                tripDateCalendar.get(Calendar.HOUR_OF_DAY),
+                tripDateCalendar.get(Calendar.MINUTE), false);
+        timePickerDialog.setTitle("Select Start Time");
+        timePickerDialog.show();
+    }
+
+    private void showEndTimePickerDialog() {
+        TimePickerDialog.OnTimeSetListener timeSetListener = (view, hourOfDay, minute) -> {
+            Calendar tempEndCal = (Calendar) tripEndCalendar.clone();
+            tempEndCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            tempEndCal.set(Calendar.MINUTE, minute);
+
+            if (tempEndCal.before(tripDateCalendar)) {
+                Toast.makeText(this, "End time must be after start time.", Toast.LENGTH_LONG).show();
+                return;
+            }
+            tripEndCalendar.setTime(tempEndCal.getTime());
+            saveTripEndTime(hourOfDay, minute);
+            updateDateTimeUI();
+        };
+        // THE FIX: Create the dialog first, then set the title and show it.
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, timeSetListener,
+                tripEndCalendar.get(Calendar.HOUR_OF_DAY),
+                tripEndCalendar.get(Calendar.MINUTE), false);
+        timePickerDialog.setTitle("Select End Time");
+        timePickerDialog.show();
+    }
+
+    private void loadSavedTripDateTime() {
         if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
             int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripDateCalendar.get(Calendar.YEAR));
             int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripDateCalendar.get(Calendar.MONTH));
             int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripDateCalendar.get(Calendar.DAY_OF_MONTH));
             tripDateCalendar.set(year, month, day);
-            tripEndCalendar.set(year, month, day); // Ensure end calendar has the same date
-
-            if (sharedPreferences.contains(KEY_TRIP_TIME_HOUR)) {
-                int hour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
-                int minute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
-                tripDateCalendar.set(Calendar.HOUR_OF_DAY, hour);
-                tripDateCalendar.set(Calendar.MINUTE, minute);
-            }
-
-            // Load end time
-            if (sharedPreferences.contains(KEY_TRIP_END_TIME_HOUR)) {
-                int hour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18); // Default to 6 PM
-                int minute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
-                tripEndCalendar.set(Calendar.HOUR_OF_DAY, hour);
-                tripEndCalendar.set(Calendar.MINUTE, minute);
-            }
+            tripEndCalendar.set(year, month, day);
         }
-        updateTripDateButtonText();
-    }
-
-    private void updateTripDateButtonText() {
-        binding.btnTripDate.setText(getFormattedTripString());
-    }
-
-    // +++ RENAMED AND MODIFIED METHOD: Handles all display formats +++
-    private String getFormattedTripString() {
-        if (!sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
-            return "When is your Trip?";
+        if (sharedPreferences.contains(KEY_TRIP_TIME_HOUR)) {
+            int hour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
+            int minute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
+            tripDateCalendar.set(Calendar.HOUR_OF_DAY, hour);
+            tripDateCalendar.set(Calendar.MINUTE, minute);
         }
-
-        // Format for Date, Start Time, and End Time
         if (sharedPreferences.contains(KEY_TRIP_END_TIME_HOUR)) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
-            SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
-            return dateFormat.format(tripDateCalendar.getTime()) + " from " +
-                    timeFormat.format(tripDateCalendar.getTime()) + " to " +
-                    timeFormat.format(tripEndCalendar.getTime());
+            int hour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
+            int minute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
+            tripEndCalendar.set(Calendar.HOUR_OF_DAY, hour);
+            tripEndCalendar.set(Calendar.MINUTE, minute);
         }
-        // Format for Date and Start Time only
-        else if (sharedPreferences.contains(KEY_TRIP_TIME_HOUR)) {
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy 'at' h:mm a", Locale.getDefault());
-            return sdf.format(tripDateCalendar.getTime());
+        updateDateTimeUI();
+    }
+
+    private void updateDateTimeUI() {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
+        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
+
+        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
+            binding.tvTripDate.setText(dateFormat.format(tripDateCalendar.getTime()));
+        } else {
+            binding.tvTripDate.setText("Set Trip Date");
         }
-        // Fallback for just Date
-        else {
-            SimpleDateFormat sdf = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
-            return sdf.format(tripDateCalendar.getTime());
+
+        boolean hasStartTime = sharedPreferences.contains(KEY_TRIP_TIME_HOUR);
+        boolean hasEndTime = sharedPreferences.contains(KEY_TRIP_END_TIME_HOUR);
+
+        if (hasStartTime && hasEndTime) {
+            String timeRange = timeFormat.format(tripDateCalendar.getTime()) + " - " + timeFormat.format(tripEndCalendar.getTime());
+            binding.tvTripTime.setText(timeRange);
+        } else {
+            binding.tvTripTime.setText("Set Start & End Time");
         }
     }
 
@@ -282,7 +263,6 @@ public class HomeActivity extends AppCompatActivity {
         editor.apply();
     }
 
-    // +++ NEW METHOD TO SAVE THE END TIME +++
     private void saveTripEndTime(int hour, int minute) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putInt(KEY_TRIP_END_TIME_HOUR, hour);
@@ -291,12 +271,9 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     // --- The rest of the file remains unchanged ---
-
     private boolean isLocationInAllowedRegion(double latitude, double longitude) {
-        return latitude >= BAGUIO_REGION_MIN_LAT &&
-                latitude <= BAGUIO_REGION_MAX_LAT &&
-                longitude >= BAGUIO_REGION_MIN_LON &&
-                longitude <= BAGUIO_REGION_MAX_LON;
+        return latitude >= BAGUIO_REGION_MIN_LAT && latitude <= BAGUIO_REGION_MAX_LAT &&
+                longitude >= BAGUIO_REGION_MIN_LON && longitude <= BAGUIO_REGION_MAX_LON;
     }
 
     private void showOutsideRegionDialog() {
@@ -313,7 +290,6 @@ public class HomeActivity extends AppCompatActivity {
 
     private void getAddressFromLocation(double latitude, double longitude) {
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
-
         if (!isLocationInAllowedRegion(latitude, longitude)) {
             stopLocationUpdates();
             binding.tvLocationCity2.setText("Outside supported region");
@@ -321,7 +297,6 @@ public class HomeActivity extends AppCompatActivity {
             showOutsideRegionDialog();
             return;
         }
-
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
@@ -345,10 +320,12 @@ public class HomeActivity extends AppCompatActivity {
                 }
                 currentLocationNameToDisplay = addressTextBuilder.length() == 0 ? "Location Name Not Found" : addressTextBuilder.toString();
                 binding.tvLocationCity2.setText(currentLocationNameToDisplay);
-                if (binding.tvDirectionText != null) binding.tvDirectionText.setText("GPS: " + currentLocationNameToDisplay);
+                if (binding.tvDirectionText != null)
+                    binding.tvDirectionText.setText("GPS: " + currentLocationNameToDisplay);
             } else {
                 binding.tvLocationCity2.setText("Location Name Not Found (Auto)");
-                if (binding.tvDirectionText != null) binding.tvDirectionText.setText("GPS: Location Name Not Found");
+                if (binding.tvDirectionText != null)
+                    binding.tvDirectionText.setText("GPS: Location Name Not Found");
             }
         } catch (IOException e) {
             Log.e(TAG, "Geocoder service not available or IO error (Auto)", e);
@@ -367,7 +344,8 @@ public class HomeActivity extends AppCompatActivity {
         db.collection("places")
                 .get()
                 .addOnCompleteListener(task -> {
-                    if (binding.progressBarHome != null) binding.progressBarHome.setVisibility(View.GONE);
+                    if (binding.progressBarHome != null)
+                        binding.progressBarHome.setVisibility(View.GONE);
                     if (task.isSuccessful()) {
                         if (task.getResult() != null && !task.getResult().isEmpty()) {
                             placesList.clear();
@@ -384,17 +362,21 @@ public class HomeActivity extends AppCompatActivity {
                             }
                             if (!placesList.isEmpty()) {
                                 placeAdapter.notifyDataSetChanged();
-                                if (binding.rvPlacesList != null) binding.rvPlacesList.setVisibility(View.VISIBLE);
-                                if (binding.tvEmptyPlaces != null) binding.tvEmptyPlaces.setVisibility(View.GONE);
+                                if (binding.rvPlacesList != null)
+                                    binding.rvPlacesList.setVisibility(View.VISIBLE);
+                                if (binding.tvEmptyPlaces != null)
+                                    binding.tvEmptyPlaces.setVisibility(View.GONE);
                             } else {
-                                if (binding.rvPlacesList != null) binding.rvPlacesList.setVisibility(View.GONE);
+                                if (binding.rvPlacesList != null)
+                                    binding.rvPlacesList.setVisibility(View.GONE);
                                 if (binding.tvEmptyPlaces != null) {
                                     binding.tvEmptyPlaces.setText("No places to display or error in data.");
                                     binding.tvEmptyPlaces.setVisibility(View.VISIBLE);
                                 }
                             }
                         } else {
-                            if (binding.rvPlacesList != null) binding.rvPlacesList.setVisibility(View.GONE);
+                            if (binding.rvPlacesList != null)
+                                binding.rvPlacesList.setVisibility(View.GONE);
                             if (binding.tvEmptyPlaces != null) {
                                 binding.tvEmptyPlaces.setText("No places found nearby.");
                                 binding.tvEmptyPlaces.setVisibility(View.VISIBLE);
@@ -402,7 +384,8 @@ public class HomeActivity extends AppCompatActivity {
                         }
                     } else {
                         Log.w(TAG, "Error getting documents from Firestore.", task.getException());
-                        if (binding.rvPlacesList != null) binding.rvPlacesList.setVisibility(View.GONE);
+                        if (binding.rvPlacesList != null)
+                            binding.rvPlacesList.setVisibility(View.GONE);
                         if (binding.tvEmptyPlaces != null) {
                             binding.tvEmptyPlaces.setText("Failed to load places. Please check connection.");
                             binding.tvEmptyPlaces.setVisibility(View.VISIBLE);
@@ -459,15 +442,17 @@ public class HomeActivity extends AppCompatActivity {
                 currentLocationNameToDisplay = name;
                 manualGeoPoint = new GeoPoint(lat, lon);
                 binding.tvLocationCity2.setText(currentLocationNameToDisplay);
-                if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Manually set: " + currentLocationNameToDisplay);
+                if (binding.tvDirectionText != null)
+                    binding.tvDirectionText.setText("Manually set: " + currentLocationNameToDisplay);
                 stopLocationUpdates();
             } else {
-                saveLocationPreference("auto", null, 0,0);
+                saveLocationPreference("auto", null, 0, 0);
                 checkAndRequestLocationPermissions();
             }
         } else {
             binding.tvLocationCity2.setText("Tap to get current location");
-            if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Mode: GPS. Waiting for location...");
+            if (binding.tvDirectionText != null)
+                binding.tvDirectionText.setText("Mode: GPS. Waiting for location...");
             checkAndRequestLocationPermissions();
         }
     }
@@ -502,9 +487,10 @@ public class HomeActivity extends AppCompatActivity {
             stopLocationUpdates();
             String name = sharedPreferences.getString(KEY_MANUAL_LOCATION_NAME, "Not Set");
             binding.tvLocationCity2.setText(name);
-            if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Manually set: " + name);
+            if (binding.tvDirectionText != null)
+                binding.tvDirectionText.setText("Manually set: " + name);
         }
-        loadSavedTripDate();
+        loadSavedTripDateTime();
     }
 
     @Override
@@ -522,7 +508,8 @@ public class HomeActivity extends AppCompatActivity {
                         .setPositiveButton("OK", (dialogInterface, i) -> ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION))
                         .setNegativeButton("Cancel", (dialog, which) -> {
                             binding.tvLocationCity2.setText("Permission needed");
-                            if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Location permission denied.");
+                            if (binding.tvDirectionText != null)
+                                binding.tvDirectionText.setText("Location permission denied.");
                         })
                         .create()
                         .show();
@@ -552,7 +539,8 @@ public class HomeActivity extends AppCompatActivity {
                 }
             } else {
                 binding.tvLocationCity2.setText("Location permission denied");
-                if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Location permission denied.");
+                if (binding.tvDirectionText != null)
+                    binding.tvDirectionText.setText("Location permission denied.");
                 Toast.makeText(this, "Location permission denied.", Toast.LENGTH_LONG).show();
             }
         }
@@ -563,20 +551,23 @@ public class HomeActivity extends AppCompatActivity {
             return;
         }
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
-        if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Fetching last known location...");
+        if (binding.tvDirectionText != null)
+            binding.tvDirectionText.setText("Fetching last known location...");
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, location -> {
                     if (location != null) {
                         getAddressFromLocation(location.getLatitude(), location.getLongitude());
                     } else {
                         Log.d(TAG, "Last known location is null. Waiting for updates.");
-                        if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Last location null, waiting for live updates...");
+                        if (binding.tvDirectionText != null)
+                            binding.tvDirectionText.setText("Last location null, waiting for live updates...");
                     }
                 })
                 .addOnFailureListener(this, e -> {
                     Log.e(TAG, "Error trying to get last GPS location", e);
                     binding.tvLocationCity2.setText("Failed to get location");
-                    if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Failed to get last location.");
+                    if (binding.tvDirectionText != null)
+                        binding.tvDirectionText.setText("Failed to get last location.");
                 });
     }
 
@@ -594,7 +585,8 @@ public class HomeActivity extends AppCompatActivity {
                 .build();
         requestingLocationUpdates = true;
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-        if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Updating location (GPS)...");
+        if (binding.tvDirectionText != null)
+            binding.tvDirectionText.setText("Updating location (GPS)...");
     }
 
     private void stopLocationUpdates() {
