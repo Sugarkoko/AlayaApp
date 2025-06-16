@@ -20,7 +20,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import java.util.ArrayList;
 import java.util.List;
 
-// Implement the new listener interface
 public class TripHistoryActivity extends AppCompatActivity implements TripHistoryAdapter.OnTripInteractionListener {
     private ActivityTripHistoryBinding binding;
     private FirebaseFirestore db;
@@ -40,27 +39,16 @@ public class TripHistoryActivity extends AppCompatActivity implements TripHistor
         setupRecyclerView();
 
         binding.ivBackArrowTripHistory.setOnClickListener(v -> finish());
-        binding.bottomNavigationTripHistory.setSelectedItemId(R.id.navigation_profile);
 
-        binding.bottomNavigationTripHistory.setOnItemSelectedListener(item -> {
-            int itemId = item.getItemId();
-            if (itemId == R.id.navigation_home) {
-                Intent intent = new Intent(this, HomeActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-                startActivity(intent);
-                finish();
-                return true;
-            }
-            // Add other navigation cases if needed
-            return false;
-        });
+        // The code related to the bottom navigation has been removed.
+        // binding.bottomNavigationTripHistory.setSelectedItemId(...);
+        // binding.bottomNavigationTripHistory.setOnItemSelectedListener(...);
 
         loadTripHistory();
     }
 
     private void setupRecyclerView() {
         tripList = new ArrayList<>();
-        // Pass 'this' as the listener when creating the adapter
         adapter = new TripHistoryAdapter(this, tripList, this);
         binding.rvTripHistory.setLayoutManager(new LinearLayoutManager(this));
         binding.rvTripHistory.setAdapter(adapter);
@@ -106,8 +94,6 @@ public class TripHistoryActivity extends AppCompatActivity implements TripHistor
                 });
     }
 
-    // --- NEW METHODS FOR DELETION ---
-
     @Override
     public void onTripLongPressed(Trip trip, int position) {
         new AlertDialog.Builder(this)
@@ -132,15 +118,12 @@ public class TripHistoryActivity extends AppCompatActivity implements TripHistor
                 .collection("tripHistory").document(trip.getDocumentId())
                 .delete()
                 .addOnSuccessListener(aVoid -> {
-                    // On success, update the UI
                     tripList.remove(position);
                     adapter.notifyItemRemoved(position);
-                    // This is important to fix headers if the first item of a month is deleted
                     adapter.notifyItemRangeChanged(position, tripList.size());
 
                     Toast.makeText(this, "Trip deleted successfully.", Toast.LENGTH_SHORT).show();
 
-                    // Check if the list is now empty
                     if (tripList.isEmpty()) {
                         binding.tvNoHistoryMessage.setVisibility(View.VISIBLE);
                         binding.rvTripHistory.setVisibility(View.GONE);

@@ -31,7 +31,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_back_arrow_trip_history" />
 
-    <!-- This RecyclerView replaces the old static content. Padding has been removed. -->
+    <!-- RecyclerView is now constrained to the bottom of the parent -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_trip_history"
         android:layout_width="0dp"
@@ -40,13 +40,12 @@
         android:clipToPadding="false"
         android:paddingBottom="8dp"
         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintBottom_toTopOf="@id/bottom_navigation_trip_history"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/tv_trip_history_title"
         tools:listitem="@layout/item_trip_history" />
 
-    <!-- This TextView is for showing messages like "No trips saved yet." -->
     <TextView
         android:id="@+id/tv_no_history_message"
         android:layout_width="wrap_content"
@@ -61,19 +60,6 @@
         app:layout_constraintTop_toTopOf="@id/rv_trip_history"
         tools:visibility="visible" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
-        android:id="@+id/bottom_navigation_trip_history"
-        style="@style/Widget.MaterialComponents.BottomNavigationView.Colored"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/windowBackground"
-        app:elevation="8dp"
-        app:itemIconTint="@color/bottom_nav_color_selector"
-        app:itemTextColor="@color/bottom_nav_color_selector"
-        app:labelVisibilityMode="labeled"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu" />
+    <!-- The BottomNavigationView has been completely removed from this file. -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>
