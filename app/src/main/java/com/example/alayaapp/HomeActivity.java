@@ -474,6 +474,12 @@ public class HomeActivity extends AppCompatActivity {
                 checkAndRequestLocationPermissions();
             } else if (options[item].equals("Set Location Manually")) {
                 Intent intent = new Intent(HomeActivity.this, ManualLocationPickerActivity.class);
+                // MODIFIED: Pass current manual location if it exists
+                if (manualGeoPoint != null) {
+                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_LAT, manualGeoPoint.getLatitude());
+                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_LON, manualGeoPoint.getLongitude());
+                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_NAME, currentLocationNameToDisplay);
+                }
                 manualLocationPickerLauncher.launch(intent);
             } else if (options[item].equals("Cancel")) {
                 dialog.dismiss();

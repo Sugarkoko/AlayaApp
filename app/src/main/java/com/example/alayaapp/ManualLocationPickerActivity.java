@@ -43,7 +43,13 @@ import java.util.List;
 import java.util.Locale;
 
 public class ManualLocationPickerActivity extends AppCompatActivity implements OnMapReadyCallback, LocationSuggestionAdapter.OnSuggestionClickListener, GoogleMap.OnMapClickListener {
+
     private static final String TAG = "ManualLocationPicker";
+    // NEW: Constants for intent extras
+    public static final String EXTRA_INITIAL_LAT = "initial_latitude";
+    public static final String EXTRA_INITIAL_LON = "initial_longitude";
+    public static final String EXTRA_INITIAL_NAME = "initial_location_name";
+
     private ActivityManualLocationPickerBinding binding;
     private GoogleMap mMap;
     private Marker selectedLocationMarker;
@@ -51,15 +57,21 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
     private String currentSelectedName = "";
     private FusedLocationProviderClient fusedLocationClientPicker;
     private static final int REQUEST_LOCATION_PERMISSION_PICKER = 3;
+
     private LocationSuggestionAdapter suggestionAdapter;
     private Handler searchDebounceHandler = new Handler(Looper.getMainLooper());
     private Runnable searchDebounceRunnable;
     private static final long SEARCH_DEBOUNCE_DELAY_MS = 700;
     private boolean isUserInteractingWithSearch = false;
+
     private Geocoder geocoder; // Geocoder instance
 
     // --- NEW: ViewModel instance ---
     private LocationPickerViewModel viewModel;
+
+    // --- NEW: Variables to hold initial data from intent ---
+    private LatLng initialPoint = null;
+    private String initialName = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +82,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
 
         binding = ActivityManualLocationPickerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         Toolbar toolbar = binding.toolbarManualLocation;
         setSupportActionBar(toolbar);
         if (getSupportActionBar() != null) {
@@ -77,18 +90,32 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
             getSupportActionBar().setTitle("Set Location Manually");
         }
         toolbar.setNavigationOnClickListener(v -> finish());
+
+        // --- NEW: Read initial location data from intent ---
+        if (getIntent().hasExtra(EXTRA_INITIAL_LAT)) {
+            double lat = getIntent().getDoubleExtra(EXTRA_INITIAL_LAT, 0.0);
+            double lon = getIntent().getDoubleExtra(EXTRA_INITIAL_LON, 0.0);
+            initialName = getIntent().getStringExtra(EXTRA_INITIAL_NAME);
+            if (lat != 0.0 && lon != 0.0) {
+                initialPoint = new LatLng(lat, lon);
+            }
+        }
+
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_fragment_picker_container);
         if (mapFragment != null) {
             mapFragment.getMapAsync(this);
         }
+
         setupSuggestionRecyclerView();
         fusedLocationClientPicker = LocationServices.getFusedLocationProviderClient(this);
+
         if (Geocoder.isPresent()) {
             geocoder = new Geocoder(this, Locale.getDefault());
         } else {
             Toast.makeText(this, "Geocoder service not available.", Toast.LENGTH_LONG).show();
         }
+
         setupSearchFunctionality();
         binding.btnConfirmLocation.setOnClickListener(v -> {
             if (currentSelectedPoint != null && !TextUtils.isEmpty(currentSelectedName)) {
@@ -102,6 +129,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
                 Toast.makeText(this, "Please select a location by tapping the map or searching.", Toast.LENGTH_LONG).show();
             }
         });
+
         binding.fabPickerMyLocation.setOnClickListener(v -> goToMyCurrentLocation());
 
         // --- NEW: Set up observers ---
@@ -157,17 +185,21 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
 
     private void updateSelectedLocation(LatLng point, String name, boolean performReverseGeocode) {
         currentSelectedPoint = point;
+
         if (selectedLocationMarker != null) {
             selectedLocationMarker.remove();
         }
+
         MarkerOptions markerOptions = new MarkerOptions().position(point);
         if (name != null && !name.isEmpty()) {
             markerOptions.title(name);
             currentSelectedName = name;
             setSearchText(name);
         }
+
         selectedLocationMarker = mMap.addMarker(markerOptions);
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 15f));
+
         if (performReverseGeocode && name == null) {
             setSearchText("Fetching address...");
             // --- REFACTORED: Call ViewModel ---
@@ -178,11 +210,6 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         binding.btnConfirmLocation.setEnabled(true);
     }
 
-    // --- The AsyncTask inner classes have been completely removed. ---
-    // --- All other methods remain the same. ---
-
-    // ... (Keep all other methods like onMapReady, onMapClick, setupSearchFunctionality, etc. exactly as they were)
-    // ...
     private void setupSearchFunctionality() {
         binding.etSearchLocation.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -193,6 +220,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
             }
             return false;
         });
+
         binding.etSearchLocation.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
@@ -200,6 +228,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!isUserInteractingWithSearch) return;
+
                 searchDebounceHandler.removeCallbacks(searchDebounceRunnable);
                 String query = s.toString().trim();
                 if (query.length() > 2) {
@@ -216,17 +245,20 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
             @Override
             public void afterTextChanged(Editable s) {}
         });
+
         binding.etSearchLocation.setOnFocusChangeListener((v, hasFocus) -> {
             isUserInteractingWithSearch = hasFocus;
             if (!hasFocus) {
                 new Handler(Looper.getMainLooper()).postDelayed(() -> {
                     if (binding.rvLocationSuggestions.getVisibility() == View.VISIBLE && !isFinishing()) {
+                        // binding.rvLocationSuggestions.setVisibility(View.GONE);
                     }
                 }, 200);
             } else {
                 isUserInteractingWithSearch = true;
             }
         });
+
         binding.btnClearSearch.setOnClickListener(v -> {
             isUserInteractingWithSearch = true;
             binding.etSearchLocation.setText("");
@@ -248,9 +280,19 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         mMap = googleMap;
         mMap.setOnMapClickListener(this);
         mMap.getUiSettings().setZoomControlsEnabled(true);
-        LatLng philippinesCenter = new LatLng(12.8797, 121.7740);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(philippinesCenter, 5.5f));
-        checkAndRequestPickerPermissions(true);
+
+        // --- MODIFIED LOGIC ---
+        if (initialPoint != null) {
+            // A previous manual location was passed in, so we use it.
+            updateSelectedLocation(initialPoint, initialName, false); // false = don't reverse geocode
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(initialPoint, 15f));
+            checkAndRequestPickerPermissions(false); // Enable location layer but don't center on it
+        } else {
+            // No previous location, so use the default behavior
+            LatLng philippinesCenter = new LatLng(12.8797, 121.7740);
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(philippinesCenter, 5.5f));
+            checkAndRequestPickerPermissions(true); // Center on GPS if permission is granted
+        }
     }
 
     @Override
@@ -279,6 +321,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         hideKeyboard();
         binding.rvLocationSuggestions.setVisibility(View.GONE);
         isUserInteractingWithSearch = false;
+
         if (address.hasLatitude() && address.hasLongitude()) {
             LatLng resultPoint = new LatLng(address.getLatitude(), address.getLongitude());
             String displayName = ManualLocationPickerActivity.Helper.getAddressDisplayName(address);
@@ -286,6 +329,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         } else {
             Toast.makeText(this, "Selected location does not have coordinates.", Toast.LENGTH_SHORT).show();
         }
+
         if (binding.etSearchLocation.hasFocus()) {
             new Handler(Looper.getMainLooper()).postDelayed(() -> isUserInteractingWithSearch = true, 50);
         }
@@ -305,7 +349,9 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
 
     private void checkAndRequestPickerPermissions(boolean centerOnMapIfGranted) {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION_PICKER);
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION_PICKER);
         } else {
             if (mMap != null) {
                 try {
@@ -329,7 +375,9 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
                 mMap.getUiSettings().setMyLocationButtonEnabled(false);
             } catch (SecurityException e) {
                 Log.e(TAG, "SecurityException: " + e.getMessage());
-                return;}
+                return;
+            }
+
             fusedLocationClientPicker.getLastLocation()
                     .addOnSuccessListener(this, location -> {
                         if (location != null) {
@@ -355,9 +403,14 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
                     try {
                         mMap.setMyLocationEnabled(true);
                         mMap.getUiSettings().setMyLocationButtonEnabled(false);
-                    } catch (SecurityException e) {Log.e(TAG, "Security Exception after permission grant: " + e.getMessage());}
+                    } catch (SecurityException e) {
+                        Log.e(TAG, "Security Exception after permission grant: " + e.getMessage());
+                    }
                 }
-                goToMyCurrentLocation();
+                // Only go to current location if an initial point wasn't already set
+                if (initialPoint == null) {
+                    goToMyCurrentLocation();
+                }
             } else {
                 Toast.makeText(this, "Location permission denied.", Toast.LENGTH_LONG).show();
             }
@@ -367,32 +420,39 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
     public static class Helper {
         public static String getAddressDisplayName(Address address) {
             if (address == null) return "Unknown Location";
+
             StringBuilder displayNameBuilder = new StringBuilder();
             String addressLine0 = address.getAddressLine(0);
             if (addressLine0 != null && !addressLine0.isEmpty() && !addressLine0.matches("^-?[0-9]+\\.[0-9]+, -?[0-9]+\\.[0-9]+$")) {
                 return addressLine0;
             }
+
             String featureName = address.getFeatureName();
             if (featureName != null && !featureName.isEmpty() && !featureName.matches("\\d+.*")) {
                 displayNameBuilder.append(featureName);
             }
+
             String thoroughfare = address.getThoroughfare();
             if (thoroughfare != null && !thoroughfare.isEmpty()) {
                 if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(thoroughfare)) displayNameBuilder.append(", ");
                 if (!displayNameBuilder.toString().contains(thoroughfare)) displayNameBuilder.append(thoroughfare);
                 String subThoroughfare = address.getSubThoroughfare();
-                if (subThoroughfare != null && !subThoroughfare.isEmpty()) displayNameBuilder.append(" ").append(subThoroughfare);
+                if (subThoroughfare != null && !subThoroughfare.isEmpty())
+                    displayNameBuilder.append(" ").append(subThoroughfare);
             }
+
             String subLocality = address.getSubLocality();
             if (subLocality != null && !subLocality.isEmpty()) {
                 if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(subLocality)) displayNameBuilder.append(", ");
                 if (!displayNameBuilder.toString().contains(subLocality)) displayNameBuilder.append(subLocality);
             }
+
             String locality = address.getLocality();
             if (locality != null && !locality.isEmpty()) {
                 if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(locality)) displayNameBuilder.append(", ");
                 if (!displayNameBuilder.toString().contains(locality)) displayNameBuilder.append(locality);
             }
+
             String adminArea = address.getAdminArea();
             if (adminArea != null && !adminArea.isEmpty()) {
                 if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(adminArea)) displayNameBuilder.append(", ");
@@ -400,11 +460,13 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
                     displayNameBuilder.append(adminArea);
                 }
             }
+
             String countryName = address.getCountryName();
             if (countryName != null && !countryName.isEmpty()) {
                 if (displayNameBuilder.length() > 0 && !displayNameBuilder.toString().contains(countryName)) displayNameBuilder.append(", ");
                 if (!displayNameBuilder.toString().contains(countryName)) displayNameBuilder.append(countryName);
             }
+
             if (displayNameBuilder.length() == 0) {
                 if (address.hasLatitude() && address.hasLongitude()) {
                     return "Location (Lat: " + String.format(Locale.US, "%.4f", address.getLatitude()) + ", Lon: " + String.format(Locale.US, "%.4f", address.getLongitude()) + ")";

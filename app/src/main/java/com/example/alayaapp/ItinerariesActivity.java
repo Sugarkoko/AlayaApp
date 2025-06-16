@@ -50,22 +50,27 @@ import java.util.Locale;
 import java.util.Map;
 
 public class ItinerariesActivity extends AppCompatActivity {
+
     BottomNavigationView bottomNavigationView;
     RecyclerView rvMain;
     ItineraryAdapter itineraryAdapter;
     FloatingActionButton fabSaveTrip;
     final int CURRENT_ITEM_ID = R.id.navigation_itineraries;
+
     private static final String TAG_LOCATION = "ItinerariesActivity";
     private static final int REQUEST_LOCATION_PERMISSION_ITINERARIES = 2;
+
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private boolean requestingLocationUpdates = false;
+
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "AlayaAppPrefs";
     private static final String KEY_LOCATION_MODE = "location_mode";
     private static final String KEY_MANUAL_LOCATION_NAME = "manual_location_name";
     private static final String KEY_MANUAL_LATITUDE = "manual_latitude";
     private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
+
     private GeoPoint manualGeoPoint = null;
     private FirebaseFirestore db;
     private List<Place> allPlacesList = new ArrayList<>();
@@ -86,6 +91,7 @@ public class ItinerariesActivity extends AppCompatActivity {
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
     private static final double BAGUIO_REGION_MIN_LON = 120.55;
     private static final double BAGUIO_REGION_MAX_LON = 120.65;
+
     private List<Object> displayItems = new ArrayList<>();
     private String currentLocationName = "Tap to get current location";
     private String currentLocationStatus = "Set your location to begin";
@@ -100,6 +106,7 @@ public class ItinerariesActivity extends AppCompatActivity {
                     String locationName = data.getStringExtra("selected_location_name");
                     double latitude = data.getDoubleExtra("selected_latitude", 0.0);
                     double longitude = data.getDoubleExtra("selected_longitude", 0.0);
+
                     if (locationName != null && !locationName.isEmpty()) {
                         manualGeoPoint = new GeoPoint(latitude, longitude);
                         currentLocationName = locationName;
@@ -115,12 +122,13 @@ public class ItinerariesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itineraries);
+
         rvMain = findViewById(R.id.rv_itineraries_main);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         fabSaveTrip = findViewById(R.id.fab_save_trip);
-
         db = FirebaseFirestore.getInstance();
         itineraryGenerator = new ItineraryGenerator();
+
         tripStartCalendar = Calendar.getInstance();
         tripEndCalendar = Calendar.getInstance();
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
@@ -129,6 +137,7 @@ public class ItinerariesActivity extends AppCompatActivity {
         setupRecyclerView();
         setupBottomNavListener();
         setupActionListeners();
+        setupLocationCallback();
         loadLocationPreferenceAndInitialize();
     }
 
@@ -169,6 +178,7 @@ public class ItinerariesActivity extends AppCompatActivity {
 
         itineraryAdapter.notifyDataSetChanged();
     }
+
 
     private void saveCurrentTrip() {
         FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
@@ -256,6 +266,7 @@ public class ItinerariesActivity extends AppCompatActivity {
                 });
     }
 
+
     private void updateSaveButtonState() {
         fabSaveTrip.setVisibility(View.VISIBLE);
         if (isCurrentItinerarySaved) {
@@ -266,6 +277,7 @@ public class ItinerariesActivity extends AppCompatActivity {
             fabSaveTrip.setEnabled(true);
         }
     }
+
 
     private void fetchRecommendationsAndBuildFinalList(final List<ItineraryItem> mainItinerary, final String message) {
         List<String> excludedIds = new ArrayList<>();
@@ -300,12 +312,14 @@ public class ItinerariesActivity extends AppCompatActivity {
         });
     }
 
+
     private void fetchPlacesAndGenerateItinerary(GeoPoint startLocation) {
         if (startLocation == null) {
             Toast.makeText(this, "Cannot generate itinerary without a start location.", Toast.LENGTH_LONG).show();
             buildFinalList(new ArrayList<>(), new ArrayList<>(), "Please set your start location.");
             return;
         }
+
         loadTripDateTime();
         Toast.makeText(this, "Generating itinerary for your selected time...", Toast.LENGTH_SHORT).show();
 
@@ -343,6 +357,7 @@ public class ItinerariesActivity extends AppCompatActivity {
                 });
     }
 
+
     private void showInteractiveFallbackDialog(GeoPoint startLocation) {
         new AlertDialog.Builder(this)
                 .setTitle("No Itinerary Found")
@@ -359,12 +374,11 @@ public class ItinerariesActivity extends AppCompatActivity {
 
     private void generateFallbackItinerary(GeoPoint startLocation) {
         Toast.makeText(this, "Finding best times and creating a new plan...", Toast.LENGTH_SHORT).show();
-
         String dayOfWeek = tripStartCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
         int earliestOpen = 24 * 60;
         int latestClose = 0;
-
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.US);
+
         for (Place place : allPlacesList) {
             if (place.getOpeningHours() != null && place.getOpeningHours().containsKey(dayOfWeek)) {
                 Map<String, String> hours = place.getOpeningHours().get(dayOfWeek);
@@ -379,7 +393,7 @@ public class ItinerariesActivity extends AppCompatActivity {
                         Calendar closeCal = Calendar.getInstance();
                         closeCal.setTime(sdf.parse(hours.get("close")));
                         int closeMinutes = closeCal.get(Calendar.HOUR_OF_DAY) * 60 + closeCal.get(Calendar.MINUTE);
-                        if (closeMinutes < earliestOpen) closeMinutes += 24 * 60;
+                        if (closeMinutes < earliestOpen) closeMinutes += 24 * 60; // For overnight
                         if (closeMinutes > latestClose) latestClose = closeMinutes;
                     }
                 } catch (ParseException e) {
@@ -401,7 +415,6 @@ public class ItinerariesActivity extends AppCompatActivity {
         fallbackEnd.set(Calendar.MINUTE, latestClose % 60);
 
         List<ItineraryItem> fallbackItems = itineraryGenerator.generate(startLocation, allPlacesList, fallbackStart, fallbackEnd);
-
         String message;
         if (fallbackItems.size() < 3) {
             message = "There are very few attractions open on this day. Here is what we could find.";
@@ -410,6 +423,7 @@ public class ItinerariesActivity extends AppCompatActivity {
         }
         fetchRecommendationsAndBuildFinalList(fallbackItems, message);
     }
+
 
     private void loadTripDateTime() {
         if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
@@ -445,6 +459,12 @@ public class ItinerariesActivity extends AppCompatActivity {
                 checkAndRequestLocationPermissions();
             } else if (options[item].equals("Set Location Manually")) {
                 Intent intent = new Intent(ItinerariesActivity.this, ManualLocationPickerActivity.class);
+                // MODIFIED: Pass current manual location if it exists
+                if (manualGeoPoint != null) {
+                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_LAT, manualGeoPoint.getLatitude());
+                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_LON, manualGeoPoint.getLongitude());
+                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_NAME, currentLocationName);
+                }
                 manualLocationPickerLauncher.launch(intent);
             } else if (options[item].equals("Cancel")) {
                 dialog.dismiss();
@@ -452,6 +472,7 @@ public class ItinerariesActivity extends AppCompatActivity {
         });
         builder.show();
     }
+
 
     private void loadLocationPreferenceAndInitialize() {
         String mode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
@@ -478,6 +499,7 @@ public class ItinerariesActivity extends AppCompatActivity {
         }
     }
 
+
     private void getAddressFromLocation(double latitude, double longitude) {
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
 
@@ -498,6 +520,7 @@ public class ItinerariesActivity extends AppCompatActivity {
                 String city = address.getLocality();
                 String subLocality = address.getSubLocality();
                 String thoroughfare = address.getThoroughfare();
+
                 StringBuilder addressTextBuilder = new StringBuilder();
                 if (city != null && !city.isEmpty()) addressTextBuilder.append(city);
                 else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
@@ -519,6 +542,7 @@ public class ItinerariesActivity extends AppCompatActivity {
         }
     }
 
+
     public String getCurrentLocationNameToDisplay() {
         return currentLocationName;
     }
@@ -527,9 +551,7 @@ public class ItinerariesActivity extends AppCompatActivity {
         return currentLocationStatus;
     }
 
-    public String getHeaderMessage() {
-        return headerMessage;
-    }
+    public String getHeaderMessage() { return headerMessage; }
 
     private void setupBottomNavListener() {
         bottomNavigationView.setOnItemSelectedListener(item -> {
@@ -537,16 +559,21 @@ public class ItinerariesActivity extends AppCompatActivity {
             if (destinationItemId == CURRENT_ITEM_ID) return true;
 
             Class<?> destinationActivityClass = null;
-            if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
-            else if (destinationItemId == R.id.navigation_map) destinationActivityClass = MapsActivity.class;
-            else if (destinationItemId == R.id.navigation_profile) destinationActivityClass = ProfileActivity.class;
+            if (destinationItemId == R.id.navigation_home)
+                destinationActivityClass = HomeActivity.class;
+            else if (destinationItemId == R.id.navigation_map)
+                destinationActivityClass = MapsActivity.class;
+            else if (destinationItemId == R.id.navigation_profile)
+                destinationActivityClass = ProfileActivity.class;
 
             if (destinationActivityClass != null) {
                 Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
                 startActivity(intent);
                 boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
-                if (slideRightToLeft) overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                else overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                if (slideRightToLeft)
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                else
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 finish();
                 return true;
             }
@@ -562,15 +589,18 @@ public class ItinerariesActivity extends AppCompatActivity {
         return -1;
     }
 
+
     private void setupLocationCallback() {
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
-                if (locationResult == null || !sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
+                if (locationResult == null || !sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto"))
+                    return;
+
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
                         getAddressFromLocation(location.getLatitude(), location.getLongitude());
-                        stopLocationUpdates();
+                        stopLocationUpdates(); // Got a location, stop for now.
                         break;
                     }
                 }
@@ -592,6 +622,7 @@ public class ItinerariesActivity extends AppCompatActivity {
         }
         editor.apply();
     }
+
 
     private boolean isLocationInAllowedRegion(double latitude, double longitude) {
         return latitude >= BAGUIO_REGION_MIN_LAT && latitude <= BAGUIO_REGION_MAX_LAT &&
@@ -635,13 +666,17 @@ public class ItinerariesActivity extends AppCompatActivity {
         stopLocationUpdates();
     }
 
+
     private void checkAndRequestLocationPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 new AlertDialog.Builder(this)
                         .setTitle("Location Permission Needed")
                         .setMessage("This app needs the Location permission to show your current location for itineraries. Please allow.")
-                        .setPositiveButton("OK", (dialogInterface, i) -> ActivityCompat.requestPermissions(ItinerariesActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION_ITINERARIES))
+                        .setPositiveButton("OK", (dialogInterface, i) ->
+                                ActivityCompat.requestPermissions(ItinerariesActivity.this,
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                                        REQUEST_LOCATION_PERMISSION_ITINERARIES))
                         .setNegativeButton("Cancel", (dialog, which) -> {
                             currentLocationName = "Permission needed";
                             currentLocationStatus = "Location permission denied.";
@@ -650,7 +685,9 @@ public class ItinerariesActivity extends AppCompatActivity {
                         .create()
                         .show();
             } else {
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION_ITINERARIES);
+                ActivityCompat.requestPermissions(this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
+                        REQUEST_LOCATION_PERMISSION_ITINERARIES);
             }
         } else {
             String mode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
@@ -662,6 +699,7 @@ public class ItinerariesActivity extends AppCompatActivity {
             }
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -683,13 +721,15 @@ public class ItinerariesActivity extends AppCompatActivity {
     }
 
     private void fetchLastLocation() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
 
         currentLocationStatus = "Fetching last known location...";
         itineraryAdapter.notifyItemChanged(0);
+
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, location -> {
                     if (location != null) {
@@ -709,7 +749,8 @@ public class ItinerariesActivity extends AppCompatActivity {
     }
 
     private void startLocationUpdates() {
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) {
@@ -719,9 +760,11 @@ public class ItinerariesActivity extends AppCompatActivity {
         if (requestingLocationUpdates) {
             return;
         }
+
         LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
                 .setMinUpdateIntervalMillis(5000)
                 .build();
+
         requestingLocationUpdates = true;
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
         currentLocationStatus = "Updating location (GPS)...";
