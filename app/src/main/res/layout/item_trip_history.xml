@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <!-- This header is only for visual grouping; logic will be in adapter -->
+    <TextView
+        android:id="@+id/tv_month_year_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:textAllCaps="true"
+        android:textColor="@color/text_secondary_dark"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        tools:text="APRIL 2024" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/bg_location_history_item"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:padding="16dp">
+
+        <ImageView
+            android:id="@+id/iv_icon_trip"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignParentStart="true"
+            android:layout_centerVertical="true"
+            android:contentDescription="Location"
+            android:src="@drawable/location"
+            app:tint="@color/black" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="12dp"
+            android:layout_toStartOf="@+id/tv_view_trip"
+            android:layout_toEndOf="@id/iv_icon_trip"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tv_name_trip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="Trip to Baguio City" />
+
+            <TextView
+                android:id="@+id/tv_date_trip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/textSecondary"
+                android:textSize="14sp"
+                tools:text="April 23, 2024" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_view_trip"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentEnd="true"
+            android:layout_centerVertical="true"
+            android:drawablePadding="4dp"
+            android:text="view"
+            android:textColor="@color/text_secondary_dark"
+            android:textSize="14sp"
+            app:drawableTint="@color/text_secondary_dark" />
+
+    </RelativeLayout>
+</LinearLayout>

@@ -20,6 +20,7 @@ import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
+import android.view.View;
 import android.widget.Toast;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -29,16 +30,21 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.Priority;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.IOException;
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -47,6 +53,7 @@ public class ItinerariesActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
     RecyclerView rvMain;
     ItineraryAdapter itineraryAdapter;
+    FloatingActionButton fabSaveTrip;
     final int CURRENT_ITEM_ID = R.id.navigation_itineraries;
     private static final String TAG_LOCATION = "ItinerariesActivity";
     private static final int REQUEST_LOCATION_PERMISSION_ITINERARIES = 2;
@@ -64,7 +71,6 @@ public class ItinerariesActivity extends AppCompatActivity {
     private List<Place> allPlacesList = new ArrayList<>();
     private ItineraryGenerator itineraryGenerator;
 
-    // Keys for trip date and time
     private static final String KEY_TRIP_DATE_YEAR = "trip_date_year";
     private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
     private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
@@ -83,7 +89,7 @@ public class ItinerariesActivity extends AppCompatActivity {
     private List<Object> displayItems = new ArrayList<>();
     private String currentLocationName = "Tap to get current location";
     private String currentLocationStatus = "Set your location to begin";
-    private String headerMessage = ""; // For disclaimers and explanations
+    private String headerMessage = "";
 
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -110,16 +116,18 @@ public class ItinerariesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_itineraries);
         rvMain = findViewById(R.id.rv_itineraries_main);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+        fabSaveTrip = findViewById(R.id.fab_save_trip);
+
         db = FirebaseFirestore.getInstance();
         itineraryGenerator = new ItineraryGenerator();
         tripStartCalendar = Calendar.getInstance();
         tripEndCalendar = Calendar.getInstance();
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        setupLocationCallback();
+
         setupRecyclerView();
-        bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
         setupBottomNavListener();
+        setupActionListeners();
         loadLocationPreferenceAndInitialize();
     }
 
@@ -129,32 +137,93 @@ public class ItinerariesActivity extends AppCompatActivity {
         rvMain.setAdapter(itineraryAdapter);
     }
 
-    // --- CORRECTED buildDisplayList METHOD ---
-    private void buildDisplayList(List<ItineraryItem> generatedItems, String message) {
+    private void setupActionListeners() {
+        bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
+        fabSaveTrip.setOnClickListener(v -> saveCurrentTrip());
+    }
+
+    private void buildFinalList(List<ItineraryItem> mainItinerary, List<Place> topRatedPlaces, String message) {
         displayItems.clear();
         this.headerMessage = message;
         displayItems.add(new ItineraryAdapter.LocationHeaderData());
 
-        if (generatedItems != null && !generatedItems.isEmpty()) {
+        if (mainItinerary != null && !mainItinerary.isEmpty()) {
             displayItems.add("Suggested Itinerary");
-            displayItems.addAll(generatedItems);
+            displayItems.addAll(mainItinerary);
         }
 
-        // The old hardcoded block that created the duplicate list has been REMOVED.
-        // Now we only call the new, dynamic method.
-        fetchRecommendedSections(generatedItems);
+        if (topRatedPlaces != null && !topRatedPlaces.isEmpty()) {
+            displayItems.add(new ItineraryAdapter.HorizontalListContainer("Top Rated", topRatedPlaces));
+        }
 
-        if (generatedItems != null && !generatedItems.isEmpty()) {
+        if (mainItinerary != null && !mainItinerary.isEmpty()) {
             displayItems.add("Hours are based on standard schedules. We recommend checking ahead for holidays or special events.");
+        }
+
+        if (mainItinerary != null && mainItinerary.size() >= 2) {
+            fabSaveTrip.setVisibility(View.VISIBLE);
+        } else {
+            fabSaveTrip.setVisibility(View.GONE);
         }
 
         itineraryAdapter.notifyDataSetChanged();
     }
 
-    private void fetchRecommendedSections(List<ItineraryItem> generatedItems) {
+    private void saveCurrentTrip() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, "You must be signed in to save a trip.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        fabSaveTrip.setEnabled(false);
+        Toast.makeText(this, "Saving trip...", Toast.LENGTH_SHORT).show();
+
+        List<ItineraryItem> currentItinerary = new ArrayList<>();
+        for (Object item : displayItems) {
+            if (item instanceof ItineraryItem) {
+                currentItinerary.add((ItineraryItem) item);
+            }
+        }
+
+        if (currentItinerary.isEmpty()) {
+            Toast.makeText(this, "No itinerary to save.", Toast.LENGTH_SHORT).show();
+            fabSaveTrip.setEnabled(true);
+            return;
+        }
+
+        String tripTitle = "Trip to " + currentLocationName;
+        String tripDate = DateFormat.getDateInstance(DateFormat.MEDIUM).format(tripStartCalendar.getTime());
+
+        List<Map<String, String>> itineraryForDb = new ArrayList<>();
+        for (ItineraryItem item : currentItinerary) {
+            Map<String, String> itemMap = new HashMap<>();
+            itemMap.put("activity", item.getActivity());
+            itemMap.put("time", item.getFormattedTime());
+            itemMap.put("rating", item.getRating());
+            itineraryForDb.add(itemMap);
+        }
+
+        Trip tripToSave = new Trip(tripTitle, tripDate, itineraryForDb);
+
+        db.collection("users").document(currentUser.getUid())
+                .collection("tripHistory")
+                .add(tripToSave)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(this, "Trip saved successfully!", Toast.LENGTH_SHORT).show();
+                    fabSaveTrip.setEnabled(true);
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error saving trip: " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    Log.w(TAG_LOCATION, "Error adding document", e);
+                    fabSaveTrip.setEnabled(true);
+                });
+    }
+
+    private void fetchRecommendationsAndBuildFinalList(final List<ItineraryItem> mainItinerary, final String message) {
         List<String> excludedIds = new ArrayList<>();
-        if (generatedItems != null && !generatedItems.isEmpty()) {
-            for (ItineraryItem item : generatedItems) {
+        if (mainItinerary != null && !mainItinerary.isEmpty()) {
+            for (ItineraryItem item : mainItinerary) {
                 if (item.getPlaceDocumentId() != null && !item.getPlaceDocumentId().isEmpty()) {
                     excludedIds.add(item.getPlaceDocumentId());
                 }
@@ -170,48 +239,24 @@ public class ItinerariesActivity extends AppCompatActivity {
         }
 
         topRatedQuery.get().addOnCompleteListener(task -> {
+            List<Place> topRatedPlaces = new ArrayList<>();
             if (task.isSuccessful() && task.getResult() != null) {
-                List<Place> topRatedPlaces = new ArrayList<>();
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     Place place = document.toObject(Place.class);
                     place.setDocumentId(document.getId());
                     topRatedPlaces.add(place);
                 }
-
-                if (!topRatedPlaces.isEmpty()) {
-                    displayItems.add(new ItineraryAdapter.HorizontalListContainer("Top Rated", topRatedPlaces));
-                    itineraryAdapter.notifyDataSetChanged();
-                }
             } else {
                 Log.w(TAG_LOCATION, "Error getting documents for recommended section.", task.getException());
             }
+            buildFinalList(mainItinerary, topRatedPlaces, message);
         });
-    }
-
-    private void loadTripDateTime() {
-        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
-            int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripStartCalendar.get(Calendar.YEAR));
-            int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripStartCalendar.get(Calendar.MONTH));
-            int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripStartCalendar.get(Calendar.DAY_OF_MONTH));
-            tripStartCalendar.set(year, month, day);
-            tripEndCalendar.set(year, month, day);
-        }
-
-        int startHour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
-        int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
-        tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
-        tripStartCalendar.set(Calendar.MINUTE, startMinute);
-
-        int endHour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
-        int endMinute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
-        tripEndCalendar.set(Calendar.HOUR_OF_DAY, endHour);
-        tripEndCalendar.set(Calendar.MINUTE, endMinute);
     }
 
     private void fetchPlacesAndGenerateItinerary(GeoPoint startLocation) {
         if (startLocation == null) {
             Toast.makeText(this, "Cannot generate itinerary without a start location.", Toast.LENGTH_LONG).show();
-            buildDisplayList(new ArrayList<>(), "Please set your start location.");
+            buildFinalList(new ArrayList<>(), new ArrayList<>(), "Please set your start location.");
             return;
         }
         loadTripDateTime();
@@ -240,13 +285,13 @@ public class ItinerariesActivity extends AppCompatActivity {
                             showInteractiveFallbackDialog(startLocation);
                         } else {
                             Toast.makeText(this, "Itinerary generated!", Toast.LENGTH_SHORT).show();
-                            buildDisplayList(generatedItems, "");
+                            fetchRecommendationsAndBuildFinalList(generatedItems, "");
                         }
 
                     } else {
                         Log.w(TAG_LOCATION, "Error getting documents from Firestore.", task.getException());
                         Toast.makeText(ItinerariesActivity.this, "Failed to load places for itinerary.", Toast.LENGTH_LONG).show();
-                        buildDisplayList(new ArrayList<>(), "Failed to load places data.");
+                        buildFinalList(new ArrayList<>(), new ArrayList<>(), "Failed to load places data.");
                     }
                 });
     }
@@ -259,7 +304,7 @@ public class ItinerariesActivity extends AppCompatActivity {
                     generateFallbackItinerary(startLocation);
                 })
                 .setNegativeButton("No, Thanks", (dialog, which) -> {
-                    buildDisplayList(new ArrayList<>(), "No itinerary found for your selected time.");
+                    buildFinalList(new ArrayList<>(), new ArrayList<>(), "No itinerary found for your selected time.");
                     dialog.dismiss();
                 })
                 .show();
@@ -281,20 +326,14 @@ public class ItinerariesActivity extends AppCompatActivity {
                         Calendar openCal = Calendar.getInstance();
                         openCal.setTime(sdf.parse(hours.get("open")));
                         int openMinutes = openCal.get(Calendar.HOUR_OF_DAY) * 60 + openCal.get(Calendar.MINUTE);
-                        if (openMinutes < earliestOpen) {
-                            earliestOpen = openMinutes;
-                        }
+                        if (openMinutes < earliestOpen) earliestOpen = openMinutes;
                     }
                     if (hours.get("close") != null) {
                         Calendar closeCal = Calendar.getInstance();
                         closeCal.setTime(sdf.parse(hours.get("close")));
                         int closeMinutes = closeCal.get(Calendar.HOUR_OF_DAY) * 60 + closeCal.get(Calendar.MINUTE);
-                        if (closeMinutes < earliestOpen) {
-                            closeMinutes += 24 * 60;
-                        }
-                        if (closeMinutes > latestClose) {
-                            latestClose = closeMinutes;
-                        }
+                        if (closeMinutes < earliestOpen) closeMinutes += 24 * 60;
+                        if (closeMinutes > latestClose) latestClose = closeMinutes;
                     }
                 } catch (ParseException e) {
                     Log.e(TAG_LOCATION, "Could not parse hours for fallback: " + place.getName(), e);
@@ -322,9 +361,28 @@ public class ItinerariesActivity extends AppCompatActivity {
         } else {
             message = "We couldn't find attractions for your time, so here's a plan for the day's optimal hours instead.";
         }
-        buildDisplayList(fallbackItems, message);
+        fetchRecommendationsAndBuildFinalList(fallbackItems, message);
     }
 
+    private void loadTripDateTime() {
+        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
+            int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripStartCalendar.get(Calendar.YEAR));
+            int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripStartCalendar.get(Calendar.MONTH));
+            int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripStartCalendar.get(Calendar.DAY_OF_MONTH));
+            tripStartCalendar.set(year, month, day);
+            tripEndCalendar.set(year, month, day);
+        }
+
+        int startHour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
+        int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
+        tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
+        tripStartCalendar.set(Calendar.MINUTE, startMinute);
+
+        int endHour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
+        int endMinute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
+        tripEndCalendar.set(Calendar.HOUR_OF_DAY, endHour);
+        tripEndCalendar.set(Calendar.MINUTE, endMinute);
+    }
 
     public void showLocationChoiceDialog() {
         final CharSequence[] options = {"Use My Current GPS Location", "Set Location Manually", "Cancel"};
@@ -371,7 +429,6 @@ public class ItinerariesActivity extends AppCompatActivity {
             currentLocationStatus = "Mode: GPS. Waiting for location...";
             checkAndRequestLocationPermissions();
         }
-        buildDisplayList(new ArrayList<>(), "");
     }
 
     private void getAddressFromLocation(double latitude, double longitude) {

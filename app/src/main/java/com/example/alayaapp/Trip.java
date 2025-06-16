@@ -1,0 +1,68 @@
+package com.example.alayaapp;
+
+import com.google.firebase.firestore.Exclude;
+import com.google.firebase.firestore.ServerTimestamp;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+// This is the model class for documents in the tripHistory collection.
+public class Trip {
+
+    @Exclude private String documentId;
+
+    private String tripTitle;
+    private String tripDate;
+    @ServerTimestamp private Date savedAt; // For sorting
+    private List<Map<String, String>> itinerary;
+
+    public Trip() {
+        // Public no-arg constructor needed for Firestore
+    }
+
+    public Trip(String tripTitle, String tripDate, List<Map<String, String>> itinerary) {
+        this.tripTitle = tripTitle;
+        this.tripDate = tripDate;
+        this.itinerary = itinerary;
+    }
+
+    public String getDocumentId() {
+        return documentId;
+    }
+
+    public void setDocumentId(String documentId) {
+        this.documentId = documentId;
+    }
+
+    public String getTripTitle() {
+        return tripTitle;
+    }
+
+    public void setTripTitle(String tripTitle) {
+        this.tripTitle = tripTitle;
+    }
+
+    public String getTripDate() {
+        return tripDate;
+    }
+
+    public void setTripDate(String tripDate) {
+        this.tripDate = tripDate;
+    }
+
+    public Date getSavedAt() {
+        return savedAt;
+    }
+
+    public void setSavedAt(Date savedAt) {
+        this.savedAt = savedAt;
+    }
+
+    public List<Map<String, String>> getItinerary() {
+        return itinerary;
+    }
+
+    public void setItinerary(List<Map<String, String>> itinerary) {
+        this.itinerary = itinerary;
+    }
+}
