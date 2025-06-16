@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingHorizontal="16dp">
+
+    <TextView
+        android:id="@+id/tv_month_year_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:layout_marginBottom="8dp"
+        android:textAllCaps="true"
+        android:textColor="@color/textSecondary"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        tools:text="APRIL 2024" />
+
+    <!-- THE FIX IS HERE: The ID has no space after the slash -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_trip_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="3dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp">
+
+            <ImageView
+                android:id="@+id/iv_icon_trip"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="Location"
+                android:src="@drawable/location"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/textPrimary" />
+
+            <TextView
+                android:id="@+id/tv_name_trip"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="8dp"
+                android:textColor="@color/textPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toStartOf="@+id/iv_view_arrow"
+                app:layout_constraintStart_toEndOf="@id/iv_icon_trip"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Trip to Baguio City" />
+
+            <TextView
+                android:id="@+id/tv_date_trip"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
+                android:textColor="@color/textSecondary"
+                android:textSize="14sp"
+                app:layout_constraintEnd_toEndOf="@id/tv_name_trip"
+                app:layout_constraintStart_toStartOf="@id/tv_name_trip"
+                app:layout_constraintTop_toBottomOf="@id/tv_name_trip"
+                tools:text="April 23, 2024" />
+
+            <TextView
+                android:id="@+id/tv_itinerary_preview"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textColor="@color/textSecondary"
+                android:textSize="12sp"
+                android:textStyle="italic"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@id/tv_date_trip"
+                app:layout_constraintStart_toStartOf="@id/tv_date_trip"
+                app:layout_constraintTop_toBottomOf="@id/tv_date_trip"
+                tools:text="Starts with: Burnham Park, Café by the Ruins..." />
+
+            <ImageView
+                android:id="@+id/iv_view_arrow"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:src="@drawable/right_proceed_button"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:tint="@color/text_secondary_dark" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
+</LinearLayout>

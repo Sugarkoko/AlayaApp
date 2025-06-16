@@ -1,82 +1,102 @@
 package com.example.alayaapp;
 
-import androidx.activity.result.ActivityResultLauncher; // Added
-import androidx.activity.result.contract.ActivityResultContracts; // Added
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog; // Added
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat; // Added
-import androidx.core.content.ContextCompat; // Added
-import androidx.recyclerview.widget.ItemTouchHelper;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.Manifest; // Added
+import android.Manifest;
 import android.content.Intent;
-import android.content.SharedPreferences; // Added
-import android.content.pm.PackageManager; // Added
-import android.location.Address; // Added
-import android.location.Geocoder; // Added
-import android.location.Location; // Added
+import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
+import android.location.Location;
 import android.os.Bundle;
-import android.os.Looper; // Added
-import android.util.Log; // Added
-import android.view.MenuItem;
+import android.os.Looper;
+import android.util.Log;
 import android.view.View;
-import android.widget.ImageButton; // Added
-import android.widget.ImageView;
-import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.location.FusedLocationProviderClient; // Added
-import com.google.android.gms.location.LocationCallback; // Added
-import com.google.android.gms.location.LocationRequest; // Added
-import com.google.android.gms.location.LocationResult; // Added
-import com.google.android.gms.location.LocationServices; // Added
-import com.google.android.gms.location.Priority; // Added
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.Priority;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
-// import com.google.android.material.navigation.NavigationBarView; // Not strictly needed if using setOnItemSelectedListener
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
-import java.io.IOException; // Added
+import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
 import java.util.List;
-import java.util.Locale; // Added
+import java.util.Locale;
+import java.util.Map;
 
-// Assuming you have a GeoPoint utility or use LatLng directly
-import com.example.alayaapp.util.GeoPoint; // If you use your custom GeoPoint
-
-public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.OnStartDragListener {
+public class ItinerariesActivity extends AppCompatActivity {
 
     BottomNavigationView bottomNavigationView;
-    View ivEditItineraryIcon;
-    TextView tvSaveChanges;
-    RecyclerView rvSuggestedItinerary;
+    RecyclerView rvMain;
     ItineraryAdapter itineraryAdapter;
-    ItemTouchHelper itemTouchHelper;
-    ItineraryItemTouchHelperCallback touchHelperCallback;
-    List<ItineraryItem> suggestedList = new ArrayList<>();
-    private boolean isEditMode = false;
+    FloatingActionButton fabSaveTrip;
     final int CURRENT_ITEM_ID = R.id.navigation_itineraries;
 
+    private static final String TAG_LOCATION = "ItinerariesActivity";
+    private static final int REQUEST_LOCATION_PERMISSION_ITINERARIES = 2;
 
-    private static final String TAG_LOCATION = "ItinerariesLocation"; // Specific tag
-    private static final int REQUEST_LOCATION_PERMISSION_ITINERARIES = 2; // Different request code
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private boolean requestingLocationUpdates = false;
+
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "AlayaAppPrefs";
     private static final String KEY_LOCATION_MODE = "location_mode";
     private static final String KEY_MANUAL_LOCATION_NAME = "manual_location_name";
     private static final String KEY_MANUAL_LATITUDE = "manual_latitude";
     private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
-    private String currentLocationNameToDisplay = "Tap to get current location";
-    private GeoPoint manualGeoPoint = null;
 
-    private TextView tvLocationCityItineraries;
-    private TextView tvLocationStatusItineraries;
-    private ImageButton ibEditLocationItineraries;
+    private GeoPoint manualGeoPoint = null;
+    private FirebaseFirestore db;
+    private List<Place> allPlacesList = new ArrayList<>();
+    private ItineraryGenerator itineraryGenerator;
+
+    private static final String KEY_TRIP_DATE_YEAR = "trip_date_year";
+    private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
+    private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
+    private static final String KEY_TRIP_TIME_HOUR = "trip_time_hour";
+    private static final String KEY_TRIP_TIME_MINUTE = "trip_time_minute";
+    private static final String KEY_TRIP_END_TIME_HOUR = "trip_end_time_hour";
+    private static final String KEY_TRIP_END_TIME_MINUTE = "trip_end_time_minute";
+
+    private Calendar tripStartCalendar;
+    private Calendar tripEndCalendar;
+
+    private static final double BAGUIO_REGION_MIN_LAT = 16.35;
+    private static final double BAGUIO_REGION_MAX_LAT = 16.50;
+    private static final double BAGUIO_REGION_MIN_LON = 120.55;
+    private static final double BAGUIO_REGION_MAX_LON = 120.65;
+
+    private List<Object> displayItems = new ArrayList<>();
+    private String currentLocationName = "Tap to get current location";
+    private String currentLocationStatus = "Set your location to begin";
+    private String headerMessage = "";
+    private boolean isCurrentItinerarySaved = false;
 
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -86,129 +106,477 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                     String locationName = data.getStringExtra("selected_location_name");
                     double latitude = data.getDoubleExtra("selected_latitude", 0.0);
                     double longitude = data.getDoubleExtra("selected_longitude", 0.0);
+
                     if (locationName != null && !locationName.isEmpty()) {
-                        currentLocationNameToDisplay = locationName;
-                        manualGeoPoint = new GeoPoint(latitude, longitude); // Or LatLng
-                        tvLocationCityItineraries.setText(currentLocationNameToDisplay);
-                        tvLocationStatusItineraries.setText("Manually set: " + currentLocationNameToDisplay);
+                        manualGeoPoint = new GeoPoint(latitude, longitude);
+                        currentLocationName = locationName;
+                        currentLocationStatus = "Manually set: " + locationName;
                         saveLocationPreference("manual", locationName, latitude, longitude);
                         stopLocationUpdates();
-                        // TODO: Optionally, re-filter or update itineraries based on new location
+                        fetchPlacesAndGenerateItinerary(manualGeoPoint);
                     }
                 }
             });
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itineraries);
 
-        // Find Views for Itinerary specific elements
-        ivEditItineraryIcon = findViewById(R.id.iv_edit_itinerary);
-        tvSaveChanges = findViewById(R.id.tv_save_changes);
-        rvSuggestedItinerary = findViewById(R.id.rv_suggested_itinerary);
+        rvMain = findViewById(R.id.rv_itineraries_main);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
+        fabSaveTrip = findViewById(R.id.fab_save_trip);
+        db = FirebaseFirestore.getInstance();
+        itineraryGenerator = new ItineraryGenerator();
 
-        // Find Views for new Location section elements
-        tvLocationCityItineraries = findViewById(R.id.tv_location_city_itineraries);
-        tvLocationStatusItineraries = findViewById(R.id.tv_location_status_itineraries);
-        ibEditLocationItineraries = findViewById(R.id.ib_edit_location_itineraries);
-
-        // --- Initialize Location Services ---
+        tripStartCalendar = Calendar.getInstance();
+        tripEndCalendar = Calendar.getInstance();
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        setupLocationCallback(); // Call method to setup the callback
-
 
         setupRecyclerView();
-        loadPlaceholderData(); // For suggested itinerary items
-
-        bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
         setupBottomNavListener();
-
-        ivEditItineraryIcon.setOnClickListener(v -> enterEditMode());
-        tvSaveChanges.setOnClickListener(v -> exitEditModeAndSave());
-
-        // --- Location UI Setup ---
-        ibEditLocationItineraries.setOnClickListener(v -> showLocationChoiceDialog());
-        loadLocationPreferenceAndInitialize(); // Load and display current/manual location
-
+        setupActionListeners();
+        setupLocationCallback();
+        loadLocationPreferenceAndInitialize();
     }
 
     private void setupRecyclerView() {
-
-        itineraryAdapter = new ItineraryAdapter(suggestedList, this);
-        rvSuggestedItinerary.setLayoutManager(new LinearLayoutManager(this));
-        rvSuggestedItinerary.setAdapter(itineraryAdapter);
-        touchHelperCallback = new ItineraryItemTouchHelperCallback(itineraryAdapter);
-        itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
-        itemTouchHelper.attachToRecyclerView(rvSuggestedItinerary);
+        itineraryAdapter = new ItineraryAdapter(this, displayItems);
+        rvMain.setLayoutManager(new LinearLayoutManager(this));
+        rvMain.setAdapter(itineraryAdapter);
     }
 
-    private void loadPlaceholderData() {
+    private void setupActionListeners() {
+        bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
+        fabSaveTrip.setOnClickListener(v -> saveCurrentTrip());
+    }
 
-        Calendar cal = Calendar.getInstance();
-        cal.set(Calendar.HOUR_OF_DAY, 9); cal.set(Calendar.MINUTE, 0);
-        suggestedList.add(new ItineraryItem(1, (Calendar)cal.clone(), "Breakfast at Café by the Ruins", "4.5"));
-        cal.add(Calendar.HOUR_OF_DAY, 1);
-        suggestedList.add(new ItineraryItem(2, (Calendar)cal.clone(), "Burnham Park", "4.5"));
-        cal.add(Calendar.HOUR_OF_DAY, 2);
-        suggestedList.add(new ItineraryItem(3, (Calendar)cal.clone(), "Lunch at Choco-late de Batirol", "4.5"));
-        cal.add(Calendar.HOUR_OF_DAY, 2);
-        suggestedList.add(new ItineraryItem(4, (Calendar)cal.clone(), "Mines View Park", "4.5"));
-        cal.add(Calendar.HOUR_OF_DAY, 1);
-        suggestedList.add(new ItineraryItem(5, (Calendar)cal.clone(), "Baguio Cathedral", "4.5"));
-        cal.add(Calendar.HOUR_OF_DAY, 1);
-        suggestedList.add(new ItineraryItem(6, (Calendar)cal.clone(), "Lemon and Olives", "4.5"));
-        cal.add(Calendar.HOUR_OF_DAY, 1);
-        suggestedList.add(new ItineraryItem(7, (Calendar)cal.clone(), "Dinner at Café Yagam", "4.5"));
+    private void buildFinalList(List<ItineraryItem> mainItinerary, List<Place> topRatedPlaces, String message) {
+        displayItems.clear();
+        this.headerMessage = message;
+        displayItems.add(new ItineraryAdapter.LocationHeaderData());
+
+        if (mainItinerary != null && !mainItinerary.isEmpty()) {
+            displayItems.add("Suggested Itinerary");
+            displayItems.addAll(mainItinerary);
+        }
+
+        if (topRatedPlaces != null && !topRatedPlaces.isEmpty()) {
+            displayItems.add(new ItineraryAdapter.HorizontalListContainer("Top Rated", topRatedPlaces));
+        }
+
+        if (mainItinerary != null && !mainItinerary.isEmpty()) {
+            displayItems.add("Hours are based on standard schedules. We recommend checking ahead for holidays or special events.");
+        }
+
+        if (mainItinerary != null && mainItinerary.size() >= 2) {
+            checkIfTripIsAlreadySaved(mainItinerary);
+        } else {
+            fabSaveTrip.setVisibility(View.GONE);
+        }
+
         itineraryAdapter.notifyDataSetChanged();
     }
 
-    private void enterEditMode() {
 
-        isEditMode = true;
-        ivEditItineraryIcon.setVisibility(View.GONE);
-        tvSaveChanges.setVisibility(View.VISIBLE);
-        itineraryAdapter.setEditMode(true);
-        if(touchHelperCallback != null) touchHelperCallback.setEditMode(true);
-        Toast.makeText(this, "Edit mode enabled. Drag handles to reorder.", Toast.LENGTH_SHORT).show();
+    private void saveCurrentTrip() {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            Toast.makeText(this, "You must be signed in to save a trip.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        isCurrentItinerarySaved = true;
+        updateSaveButtonState();
+        Toast.makeText(this, "Saving trip...", Toast.LENGTH_SHORT).show();
+
+        List<ItineraryItem> currentItinerary = new ArrayList<>();
+        for (Object item : displayItems) {
+            if (item instanceof ItineraryItem) {
+                currentItinerary.add((ItineraryItem) item);
+            }
+        }
+
+        if (currentItinerary.isEmpty()) {
+            Toast.makeText(this, "No itinerary to save.", Toast.LENGTH_SHORT).show();
+            isCurrentItinerarySaved = false;
+            updateSaveButtonState();
+            return;
+        }
+
+        String tripTitle = "Trip to " + currentLocationName;
+        String tripDate = DateFormat.getDateInstance(DateFormat.MEDIUM).format(tripStartCalendar.getTime());
+        String signature = generateTripSignature(currentItinerary);
+
+        List<Map<String, String>> itineraryForDb = new ArrayList<>();
+        for (ItineraryItem item : currentItinerary) {
+            Map<String, String> itemMap = new HashMap<>();
+            itemMap.put("activity", item.getActivity());
+            itemMap.put("time", item.getFormattedTime());
+            itemMap.put("rating", item.getRating());
+            itineraryForDb.add(itemMap);
+        }
+
+        Trip tripToSave = new Trip(tripTitle, tripDate, signature, itineraryForDb);
+
+        db.collection("users").document(currentUser.getUid())
+                .collection("tripHistory")
+                .add(tripToSave)
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(this, "Trip saved successfully!", Toast.LENGTH_SHORT).show();
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Error saving trip. It will be saved when you're online.", Toast.LENGTH_LONG).show();
+                    Log.w(TAG_LOCATION, "Error adding document, will be retried by Firestore offline persistence.", e);
+                });
     }
 
-    private void exitEditModeAndSave() {
-
-        isEditMode = false;
-        ivEditItineraryIcon.setVisibility(View.VISIBLE);
-        tvSaveChanges.setVisibility(View.GONE);
-        itineraryAdapter.setEditMode(false);
-        if(touchHelperCallback != null) touchHelperCallback.setEditMode(false);
-        Toast.makeText(this, "Changes Saved (Placeholder)", Toast.LENGTH_SHORT).show();
+    private String generateTripSignature(List<ItineraryItem> itinerary) {
+        if (itinerary == null || itinerary.isEmpty()) {
+            return "";
+        }
+        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(tripStartCalendar.getTime());
+        String firstActivity = itinerary.get(0).getActivity();
+        String secondActivity = itinerary.size() > 1 ? itinerary.get(1).getActivity() : "";
+        return currentLocationName + "_" + date + "_" + firstActivity + "_" + secondActivity;
     }
 
-    @Override
-    public void onStartDrag(RecyclerView.ViewHolder viewHolder) {
-        if (itemTouchHelper != null && isEditMode) {
-            itemTouchHelper.startDrag(viewHolder);
+    private void checkIfTripIsAlreadySaved(List<ItineraryItem> itinerary) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            fabSaveTrip.setVisibility(View.GONE);
+            return;
+        }
+
+        String signature = generateTripSignature(itinerary);
+
+        db.collection("users").document(currentUser.getUid())
+                .collection("tripHistory")
+                .whereEqualTo("tripSignature", signature)
+                .limit(1)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                        isCurrentItinerarySaved = true;
+                    } else {
+                        isCurrentItinerarySaved = false;
+                    }
+                    updateSaveButtonState();
+                });
+    }
+
+
+    private void updateSaveButtonState() {
+        fabSaveTrip.setVisibility(View.VISIBLE);
+        if (isCurrentItinerarySaved) {
+            fabSaveTrip.setImageResource(android.R.drawable.ic_menu_myplaces); // Using a checkmark-like icon
+            fabSaveTrip.setEnabled(false);
+        } else {
+            fabSaveTrip.setImageResource(android.R.drawable.ic_menu_save);
+            fabSaveTrip.setEnabled(true);
         }
     }
 
+
+    private void fetchRecommendationsAndBuildFinalList(final List<ItineraryItem> mainItinerary, final String message) {
+        List<String> excludedIds = new ArrayList<>();
+        if (mainItinerary != null && !mainItinerary.isEmpty()) {
+            for (ItineraryItem item : mainItinerary) {
+                if (item.getPlaceDocumentId() != null && !item.getPlaceDocumentId().isEmpty()) {
+                    excludedIds.add(item.getPlaceDocumentId());
+                }
+            }
+        }
+
+        Query topRatedQuery = db.collection("places")
+                .orderBy("rating", Query.Direction.DESCENDING)
+                .limit(10);
+
+        if (!excludedIds.isEmpty()) {
+            topRatedQuery = topRatedQuery.whereNotIn(com.google.firebase.firestore.FieldPath.documentId(), excludedIds);
+        }
+
+        topRatedQuery.get().addOnCompleteListener(task -> {
+            List<Place> topRatedPlaces = new ArrayList<>();
+            if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Place place = document.toObject(Place.class);
+                    place.setDocumentId(document.getId());
+                    topRatedPlaces.add(place);
+                }
+            } else {
+                Log.w(TAG_LOCATION, "Error getting documents for recommended section.", task.getException());
+            }
+            buildFinalList(mainItinerary, topRatedPlaces, message);
+        });
+    }
+
+
+    private void fetchPlacesAndGenerateItinerary(GeoPoint startLocation) {
+        if (startLocation == null) {
+            Toast.makeText(this, "Cannot generate itinerary without a start location.", Toast.LENGTH_LONG).show();
+            buildFinalList(new ArrayList<>(), new ArrayList<>(), "Please set your start location.");
+            return;
+        }
+
+        // NEW: Check region before fetching
+        if (!isLocationInAllowedRegion(startLocation.getLatitude(), startLocation.getLongitude())) {
+            redirectToHomeWithDialog();
+            return;
+        }
+
+        loadTripDateTime();
+        Toast.makeText(this, "Generating itinerary for your selected time...", Toast.LENGTH_SHORT).show();
+
+        db.collection("places")
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null) {
+                        allPlacesList.clear();
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            try {
+                                Place place = document.toObject(Place.class);
+                                if (place != null && place.getCoordinates() != null && place.getOpeningHours() != null) {
+                                    place.setDocumentId(document.getId());
+                                    allPlacesList.add(place);
+                                }
+                            } catch (Exception e) {
+                                Log.e(TAG_LOCATION, "Error converting document to Place object: " + document.getId(), e);
+                            }
+                        }
+
+                        List<ItineraryItem> generatedItems = itineraryGenerator.generate(startLocation, allPlacesList, tripStartCalendar, tripEndCalendar);
+
+                        if (generatedItems.size() < 2) {
+                            showInteractiveFallbackDialog(startLocation);
+                        } else {
+                            Toast.makeText(this, "Itinerary generated!", Toast.LENGTH_SHORT).show();
+                            fetchRecommendationsAndBuildFinalList(generatedItems, "");
+                        }
+
+                    } else {
+                        Log.w(TAG_LOCATION, "Error getting documents from Firestore.", task.getException());
+                        Toast.makeText(ItinerariesActivity.this, "Failed to load places for itinerary.", Toast.LENGTH_LONG).show();
+                        buildFinalList(new ArrayList<>(), new ArrayList<>(), "Failed to load places data.");
+                    }
+                });
+    }
+
+
+    private void showInteractiveFallbackDialog(GeoPoint startLocation) {
+        new AlertDialog.Builder(this)
+                .setTitle("No Itinerary Found")
+                .setMessage("We couldn't find many open attractions for your selected time. Would you like us to generate a suggested plan based on the optimal hours for that day?")
+                .setPositiveButton("Yes, Suggest a Plan", (dialog, which) -> {
+                    generateFallbackItinerary(startLocation);
+                })
+                .setNegativeButton("No, Thanks", (dialog, which) -> {
+                    buildFinalList(new ArrayList<>(), new ArrayList<>(), "No itinerary found for your selected time.");
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    private void generateFallbackItinerary(GeoPoint startLocation) {
+        Toast.makeText(this, "Finding best times and creating a new plan...", Toast.LENGTH_SHORT).show();
+        String dayOfWeek = tripStartCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
+        int earliestOpen = 24 * 60;
+        int latestClose = 0;
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.US);
+
+        for (Place place : allPlacesList) {
+            if (place.getOpeningHours() != null && place.getOpeningHours().containsKey(dayOfWeek)) {
+                Map<String, String> hours = place.getOpeningHours().get(dayOfWeek);
+                try {
+                    if (hours.get("open") != null) {
+                        Calendar openCal = Calendar.getInstance();
+                        openCal.setTime(sdf.parse(hours.get("open")));
+                        int openMinutes = openCal.get(Calendar.HOUR_OF_DAY) * 60 + openCal.get(Calendar.MINUTE);
+                        if (openMinutes < earliestOpen) earliestOpen = openMinutes;
+                    }
+                    if (hours.get("close") != null) {
+                        Calendar closeCal = Calendar.getInstance();
+                        closeCal.setTime(sdf.parse(hours.get("close")));
+                        int closeMinutes = closeCal.get(Calendar.HOUR_OF_DAY) * 60 + closeCal.get(Calendar.MINUTE);
+                        if (closeMinutes < earliestOpen) closeMinutes += 24 * 60; // For overnight
+                        if (closeMinutes > latestClose) latestClose = closeMinutes;
+                    }
+                } catch (ParseException e) {
+                    Log.e(TAG_LOCATION, "Could not parse hours for fallback: " + place.getName(), e);
+                }
+            }
+        }
+
+        Calendar fallbackStart = (Calendar) tripStartCalendar.clone();
+        fallbackStart.set(Calendar.HOUR_OF_DAY, earliestOpen / 60);
+        fallbackStart.set(Calendar.MINUTE, earliestOpen % 60);
+
+        Calendar fallbackEnd = (Calendar) tripStartCalendar.clone();
+        if (latestClose >= 24 * 60) {
+            fallbackEnd.add(Calendar.DAY_OF_YEAR, 1);
+            latestClose -= 24*60;
+        }
+        fallbackEnd.set(Calendar.HOUR_OF_DAY, latestClose / 60);
+        fallbackEnd.set(Calendar.MINUTE, latestClose % 60);
+
+        List<ItineraryItem> fallbackItems = itineraryGenerator.generate(startLocation, allPlacesList, fallbackStart, fallbackEnd);
+        String message;
+        if (fallbackItems.size() < 3) {
+            message = "There are very few attractions open on this day. Here is what we could find.";
+        } else {
+            message = "We couldn't find attractions for your time, so here's a plan for the day's optimal hours instead.";
+        }
+        fetchRecommendationsAndBuildFinalList(fallbackItems, message);
+    }
+
+
+    private void loadTripDateTime() {
+        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
+            int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripStartCalendar.get(Calendar.YEAR));
+            int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripStartCalendar.get(Calendar.MONTH));
+            int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripStartCalendar.get(Calendar.DAY_OF_MONTH));
+            tripStartCalendar.set(year, month, day);
+            tripEndCalendar.set(year, month, day);
+        }
+
+        int startHour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
+        int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
+        tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
+        tripStartCalendar.set(Calendar.MINUTE, startMinute);
+
+        int endHour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
+        int endMinute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
+        tripEndCalendar.set(Calendar.HOUR_OF_DAY, endHour);
+        tripEndCalendar.set(Calendar.MINUTE, endMinute);
+    }
+
+    public void showLocationChoiceDialog() {
+        final CharSequence[] options = {"Use My Current GPS Location", "Set Location Manually", "Cancel"};
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Choose Location Method");
+        builder.setItems(options, (dialog, item) -> {
+            if (options[item].equals("Use My Current GPS Location")) {
+                saveLocationPreference("auto", null, 0, 0);
+                manualGeoPoint = null;
+                currentLocationName = "Fetching GPS location...";
+                currentLocationStatus = "Mode: GPS";
+                itineraryAdapter.notifyItemChanged(0);
+                checkAndRequestLocationPermissions();
+            } else if (options[item].equals("Set Location Manually")) {
+                Intent intent = new Intent(ItinerariesActivity.this, ManualLocationPickerActivity.class);
+                // MODIFIED: Pass current manual location if it exists
+                if (manualGeoPoint != null) {
+                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_LAT, manualGeoPoint.getLatitude());
+                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_LON, manualGeoPoint.getLongitude());
+                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_NAME, currentLocationName);
+                }
+                manualLocationPickerLauncher.launch(intent);
+            } else if (options[item].equals("Cancel")) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
+    }
+
+
+    private void loadLocationPreferenceAndInitialize() {
+        String mode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
+        if (mode.equals("manual")) {
+            String name = sharedPreferences.getString(KEY_MANUAL_LOCATION_NAME, "");
+            double lat = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LATITUDE, Double.doubleToRawLongBits(0.0)));
+            double lon = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LONGITUDE, Double.doubleToRawLongBits(0.0)));
+            if (!name.isEmpty() && lat != 0.0 && lon != 0.0) {
+                manualGeoPoint = new GeoPoint(lat, lon);
+                currentLocationName = name;
+                currentLocationStatus = "Manually set: " + name;
+                stopLocationUpdates();
+                if (manualGeoPoint != null) {
+                    fetchPlacesAndGenerateItinerary(manualGeoPoint);
+                }
+            } else {
+                saveLocationPreference("auto", null, 0,0);
+                checkAndRequestLocationPermissions();
+            }
+        } else {
+            currentLocationName = "Tap to get current location";
+            currentLocationStatus = "Mode: GPS. Waiting for location...";
+            checkAndRequestLocationPermissions();
+        }
+    }
+
+
+    private void getAddressFromLocation(double latitude, double longitude) {
+        if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
+
+        if (!isLocationInAllowedRegion(latitude, longitude)) {
+            stopLocationUpdates();
+            redirectToHomeWithDialog();
+            return;
+        }
+
+        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+        try {
+            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address address = addresses.get(0);
+                String city = address.getLocality();
+                String subLocality = address.getSubLocality();
+                String thoroughfare = address.getThoroughfare();
+
+                StringBuilder addressTextBuilder = new StringBuilder();
+                if (city != null && !city.isEmpty()) addressTextBuilder.append(city);
+                else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
+                else if (thoroughfare != null && !thoroughfare.isEmpty()) addressTextBuilder.append(thoroughfare);
+                else addressTextBuilder.append("Unknown Area");
+
+                currentLocationName = addressTextBuilder.toString();
+                currentLocationStatus = "GPS: " + currentLocationName;
+                GeoPoint startPoint = new GeoPoint(latitude, longitude);
+                fetchPlacesAndGenerateItinerary(startPoint);
+            } else {
+                currentLocationName = "Location Name Not Found (Auto)";
+                currentLocationStatus = "GPS: Location Name Not Found";
+                itineraryAdapter.notifyItemChanged(0);
+            }
+        } catch (IOException e) {
+            currentLocationName = "Service to get address unavailable (Auto)";
+            itineraryAdapter.notifyItemChanged(0);
+        }
+    }
+
+
+    public String getCurrentLocationNameToDisplay() {
+        return currentLocationName;
+    }
+
+    public String getCurrentLocationStatusToDisplay() {
+        return currentLocationStatus;
+    }
+
+    public String getHeaderMessage() { return headerMessage; }
 
     private void setupBottomNavListener() {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
             if (destinationItemId == CURRENT_ITEM_ID) return true;
+
             Class<?> destinationActivityClass = null;
-            if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
-            else if (destinationItemId == R.id.navigation_map) destinationActivityClass = MapsActivity.class;
-            else if (destinationItemId == R.id.navigation_profile) destinationActivityClass = ProfileActivity.class;
+            if (destinationItemId == R.id.navigation_home)
+                destinationActivityClass = HomeActivity.class;
+            else if (destinationItemId == R.id.navigation_map)
+                destinationActivityClass = MapsActivity.class;
+            else if (destinationItemId == R.id.navigation_profile)
+                destinationActivityClass = ProfileActivity.class;
 
             if (destinationActivityClass != null) {
                 Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
                 startActivity(intent);
                 boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
-                if (slideRightToLeft) overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                else overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                if (slideRightToLeft)
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                else
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 finish();
                 return true;
             }
@@ -229,63 +597,18 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
-                if (locationResult == null) return;
-                if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
+                if (locationResult == null || !sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto"))
+                    return;
+
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
                         getAddressFromLocation(location.getLatitude(), location.getLongitude());
-                        // TODO: If itineraries depend on location, re-fetch or filter here.
-                        // stopLocationUpdates(); // Optional: Stop if only one good fix is needed
+                        stopLocationUpdates(); // Got a location, stop for now.
                         break;
                     }
                 }
             }
         };
-    }
-
-    private void showLocationChoiceDialog() {
-        final CharSequence[] options = {"Use My Current GPS Location", "Set Location Manually", "Cancel"};
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Choose Location Method");
-        builder.setItems(options, (dialog, item) -> {
-            if (options[item].equals("Use My Current GPS Location")) {
-                saveLocationPreference("auto", null, 0, 0);
-                manualGeoPoint = null;
-                tvLocationCityItineraries.setText("Fetching GPS location...");
-                tvLocationStatusItineraries.setText("Mode: GPS");
-                checkAndRequestLocationPermissions();
-            } else if (options[item].equals("Set Location Manually")) {
-                Intent intent = new Intent(ItinerariesActivity.this, ManualLocationPickerActivity.class);
-                manualLocationPickerLauncher.launch(intent);
-            } else if (options[item].equals("Cancel")) {
-                dialog.dismiss();
-            }
-        });
-        builder.show();
-    }
-
-    private void loadLocationPreferenceAndInitialize() {
-        String mode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
-        if (mode.equals("manual")) {
-            String name = sharedPreferences.getString(KEY_MANUAL_LOCATION_NAME, "");
-            double lat = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LATITUDE, Double.doubleToRawLongBits(0.0)));
-            double lon = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LONGITUDE, Double.doubleToRawLongBits(0.0)));
-            if (!name.isEmpty() && lat != 0.0 && lon != 0.0) {
-                currentLocationNameToDisplay = name;
-                manualGeoPoint = new GeoPoint(lat, lon); // Or LatLng
-                tvLocationCityItineraries.setText(currentLocationNameToDisplay);
-                tvLocationStatusItineraries.setText("Manually set: " + currentLocationNameToDisplay);
-                stopLocationUpdates();
-            } else {
-                // Fallback to auto if manual data is incomplete
-                saveLocationPreference("auto", null, 0,0);
-                checkAndRequestLocationPermissions();
-            }
-        } else { // "auto" mode
-            tvLocationCityItineraries.setText("Tap to get current location");
-            tvLocationStatusItineraries.setText("Mode: GPS. Waiting for location...");
-            checkAndRequestLocationPermissions();
-        }
     }
 
     private void saveLocationPreference(String mode, String name, double lat, double lon) {
@@ -303,73 +626,36 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         editor.apply();
     }
 
-    private void getAddressFromLocation(double latitude, double longitude) {
-        // Ensure we only update if in "auto" mode and location is for this activity
-        if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
 
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        try {
-            List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
-            if (addresses != null && !addresses.isEmpty()) {
-                Address address = addresses.get(0);
-                String city = address.getLocality();
-                String subLocality = address.getSubLocality();
-                String thoroughfare = address.getThoroughfare();
-                String country = address.getCountryName();
-                StringBuilder addressTextBuilder = new StringBuilder();
+    private boolean isLocationInAllowedRegion(double latitude, double longitude) {
+        return latitude >= BAGUIO_REGION_MIN_LAT && latitude <= BAGUIO_REGION_MAX_LAT &&
+                longitude >= BAGUIO_REGION_MIN_LON && longitude <= BAGUIO_REGION_MAX_LON;
+    }
 
-                if (city != null && !city.isEmpty()) addressTextBuilder.append(city);
-                else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
-                else if (thoroughfare != null && !thoroughfare.isEmpty()) addressTextBuilder.append(thoroughfare);
-                else addressTextBuilder.append("Unknown Area");
-
-                if (country != null && !country.isEmpty() && addressTextBuilder.length() > 0 && !addressTextBuilder.toString().equals("Unknown Area")) {
-                    if (!addressTextBuilder.toString().equalsIgnoreCase(country) && (city == null || !city.equalsIgnoreCase(country))) {
-                        addressTextBuilder.append(", ").append(country);
-                    }
-                } else if (country != null && !country.isEmpty() && addressTextBuilder.toString().equals("Unknown Area")) {
-                    addressTextBuilder.replace(0, addressTextBuilder.length(), country);
-                }
-                currentLocationNameToDisplay = addressTextBuilder.length() == 0 ? "Location Name Not Found" : addressTextBuilder.toString();
-                tvLocationCityItineraries.setText(currentLocationNameToDisplay);
-                tvLocationStatusItineraries.setText("GPS: " + currentLocationNameToDisplay);
-                Log.d(TAG_LOCATION, "Fetched Address (Auto): " + currentLocationNameToDisplay);
-            } else {
-                tvLocationCityItineraries.setText("Location Name Not Found (Auto)");
-                tvLocationStatusItineraries.setText("GPS: Location Name Not Found");
-                Log.w(TAG_LOCATION, "No address found for the location (Auto).");
-            }
-        } catch (IOException e) {
-            Log.e(TAG_LOCATION, "Geocoder service not available or IO error (Auto)", e);
-            tvLocationCityItineraries.setText("Service to get address unavailable (Auto)");
-        } catch (IllegalArgumentException e) {
-            Log.e(TAG_LOCATION, "Invalid latitude or longitude values (Auto).", e);
-            tvLocationCityItineraries.setText("Invalid location data (Auto)");
-        }
+    private void redirectToHomeWithDialog() {
+        Intent intent = new Intent(ItinerariesActivity.this, HomeActivity.class);
+        intent.putExtra(HomeActivity.EXTRA_SHOW_OUTSIDE_REGION_DIALOG, true);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        // Re-set selected item in bottom nav in case of back navigation
         bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
-
-        // Location updates
         String mode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
         if (mode.equals("auto")) {
             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 startLocationUpdates();
             } else {
-                // If permission wasn't granted or revoked, re-check.
-
                 checkAndRequestLocationPermissions();
             }
-        } else { // Manual mode
+        } else {
             stopLocationUpdates();
-            // Ensure manual location is displayed correctly
-            String name = sharedPreferences.getString(KEY_MANUAL_LOCATION_NAME, "Not Set");
-            tvLocationCityItineraries.setText(name);
-            tvLocationStatusItineraries.setText("Manually set: " + name);
+            currentLocationName = sharedPreferences.getString(KEY_MANUAL_LOCATION_NAME, "Not Set");
+            currentLocationStatus = "Manually set: " + currentLocationName;
+            itineraryAdapter.notifyItemChanged(0);
         }
     }
 
@@ -378,6 +664,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         super.onPause();
         stopLocationUpdates();
     }
+
 
     private void checkAndRequestLocationPermissions() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -390,8 +677,9 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                                         new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
                                         REQUEST_LOCATION_PERMISSION_ITINERARIES))
                         .setNegativeButton("Cancel", (dialog, which) -> {
-                            tvLocationCityItineraries.setText("Permission needed");
-                            tvLocationStatusItineraries.setText("Location permission denied.");
+                            currentLocationName = "Permission needed";
+                            currentLocationStatus = "Location permission denied.";
+                            itineraryAdapter.notifyItemChanged(0);
                         })
                         .create()
                         .show();
@@ -401,32 +689,31 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                         REQUEST_LOCATION_PERMISSION_ITINERARIES);
             }
         } else {
-            // Permission already granted
             String mode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
             if (mode.equals("auto")) {
-                fetchLastLocation(); // Attempt to get a quick last location
-                startLocationUpdates(); // Start continuous updates
+                fetchLastLocation();
+                startLocationUpdates();
             } else {
-                stopLocationUpdates(); // Ensure updates are stopped in manual mode
+                stopLocationUpdates();
             }
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == REQUEST_LOCATION_PERMISSION_ITINERARIES) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // Permission was granted
                 String mode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
                 if (mode.equals("auto")) {
                     fetchLastLocation();
                     startLocationUpdates();
                 }
             } else {
-                // Permission denied
-                tvLocationCityItineraries.setText("Location permission denied");
-                tvLocationStatusItineraries.setText("Location permission denied.");
+                currentLocationName = "Location permission denied";
+                currentLocationStatus = "Location permission denied.";
+                itineraryAdapter.notifyItemChanged(0);
                 Toast.makeText(this, "Location permission denied.", Toast.LENGTH_LONG).show();
             }
         }
@@ -439,55 +726,54 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         }
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
 
-        tvLocationStatusItineraries.setText("Fetching last known location...");
+        currentLocationStatus = "Fetching last known location...";
+        itineraryAdapter.notifyItemChanged(0);
+
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, location -> {
                     if (location != null) {
                         getAddressFromLocation(location.getLatitude(), location.getLongitude());
                     } else {
-                        Log.d(TAG_LOCATION, "Last known location is null. Waiting for updates.");
-                        if (sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) { // Only if still in auto
-                            tvLocationStatusItineraries.setText("Last location null, waiting for live updates...");
+                        if (sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) {
+                            currentLocationStatus = "Last location null, waiting for live updates...";
+                            itineraryAdapter.notifyItemChanged(0);
                         }
                     }
                 })
                 .addOnFailureListener(this, e -> {
-                    Log.e(TAG_LOCATION, "Error trying to get last GPS location", e);
-                    tvLocationCityItineraries.setText("Failed to get location");
-                    tvLocationStatusItineraries.setText("Failed to get last location.");
+                    currentLocationName = "Failed to get location";
+                    currentLocationStatus = "Failed to get last location.";
+                    itineraryAdapter.notifyItemChanged(0);
                 });
     }
 
     private void startLocationUpdates() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            return; // Permissions not granted
+            return;
         }
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) {
-            Log.d(TAG_LOCATION, "In manual mode, not starting GPS updates.");
-            stopLocationUpdates(); // Ensure updates are stopped
+            stopLocationUpdates();
             return;
         }
         if (requestingLocationUpdates) {
-            Log.d(TAG_LOCATION, "startLocationUpdates: Already requesting.");
             return;
         }
 
-        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000) // 10 seconds
-                .setMinUpdateIntervalMillis(5000) // 5 seconds
+        LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
+                .setMinUpdateIntervalMillis(5000)
                 .build();
+
         requestingLocationUpdates = true;
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
-        tvLocationStatusItineraries.setText("Updating location (GPS)...");
-        Log.d(TAG_LOCATION, "Requested location updates.");
+        currentLocationStatus = "Updating location (GPS)...";
+        itineraryAdapter.notifyItemChanged(0);
     }
 
     private void stopLocationUpdates() {
         if (requestingLocationUpdates) {
             fusedLocationClient.removeLocationUpdates(locationCallback);
             requestingLocationUpdates = false;
-            Log.d(TAG_LOCATION, "Location updates stopped.");
         }
     }
-
 }

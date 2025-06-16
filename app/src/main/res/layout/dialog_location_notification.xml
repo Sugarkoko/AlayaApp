@@ -5,9 +5,9 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:minWidth="300dp"
     android:background="@drawable/dialog_background_gradient_rounded"
     android:gravity="start|center_horizontal"
+    android:minWidth="300dp"
     android:orientation="vertical"
     android:paddingStart="24dp"
     android:paddingTop="24dp"
@@ -69,5 +69,17 @@
         android:textColor="@color/colorPrimaryDarker"
         android:textSize="14sp"
         app:backgroundTint="@null" />
+
+    <!-- NEW: Skip Button -->
+    <Button
+        android:id="@+id/btn_skip_location"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:alpha="0.8"
+        android:text="Skip for now"
+        android:textColor="@color/white" />
 
 </LinearLayout>

@@ -1,46 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
     android:padding="24dp"
-    android:background="@drawable/dialog_background_gradient_rounded" >
+    android:background="@drawable/dialog_background_gradient_rounded">
 
     <TextView
-        android:id="@+id/dialog_title_text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="What do you want us to call you?"
+        android:text="When is your birthday?"
         android:textSize="20sp"
         android:fontFamily="@font/poppins_bold"
         android:textColor="@color/white"
-        android:layout_marginBottom="20dp"/>
+        android:layout_marginBottom="8dp"/>
 
-    <EditText
-        android:id="@+id/dialog_name_edit_text"
+    <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Name"
-        android:inputType="textCapWords"
-        android:background="@drawable/edittext_border_dialog"
-        android:padding="12dp"
-        android:textColor="@android:color/black"
-        android:textColorHint="#888888"
+        android:text="(Optional, for a personalized experience)"
+        android:textColor="@color/white"
+        android:alpha="0.8"
+        android:textSize="14sp"
         android:layout_marginBottom="24dp"/>
 
     <Button
-        android:id="@+id/dialog_next_button"
+        android:id="@+id/btn_select_date"
         style="@style/Widget.AppCompat.Button.Borderless"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:minHeight="48dp"
-        android:text="Next"
+        android:text="Select Date"
         android:textAllCaps="false"
         android:textColor="@color/colorPrimaryDarker"
         android:background="@drawable/bg_button_white_rounded"
         app:backgroundTint="@null"
         android:textSize="16sp"
         android:textStyle="bold" />
+
+    <Button
+        android:id="@+id/btn_skip_birthday"
+        style="@style/Widget.AppCompat.Button.Borderless"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="8dp"
+        android:text="Skip"
+        android:textColor="@color/white"
+        android:alpha="0.9" />
 
 </LinearLayout>

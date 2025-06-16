@@ -11,12 +11,12 @@
         android:id="@+id/scrollView"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         android:fillViewport="true"
-        android:scrollbars="none">
+        android:scrollbars="none"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -37,27 +37,108 @@
                 android:textSize="34sp"
                 android:textStyle="bold" />
 
-            <!-- When is your trip Button -->
-            <Button
-                android:id="@+id/btn_trip_date"
-                style="@style/Widget.AppCompat.Button.Borderless"
-                android:layout_width="match_parent"
+            <!-- NEW: Redesigned Trip Schedule Section -->
+            <TextView
+                android:id="@+id/tv_trip_schedule_title"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
+                android:text="Trip Schedule"
+                android:textColor="@color/textPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="12dp"
                 android:background="@drawable/bg_rounded_light_gray"
-                android:drawableStart="@drawable/calendar"
-            android:drawablePadding="12dp"
-            android:fontFamily="@font/roboto_bold"
-            android:gravity="center_vertical|start"
-            android:paddingStart="14dp"
-            android:paddingTop="14dp"
-            android:paddingEnd="14dp"
-            android:paddingBottom="14dp"
-            android:text="When is your Trip?"
-            android:textAllCaps="false"
-            android:textColor="#101010"
-            android:textSize="16sp"
-            app:backgroundTint="@null" />
+                android:orientation="vertical"
+                android:paddingHorizontal="14dp">
+
+                <!-- Date Row -->
+                <RelativeLayout
+                    android:id="@+id/rl_trip_date"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingVertical="14dp">
+
+                    <ImageView
+                        android:id="@+id/iv_date_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/calendar"
+                        app:tint="@color/textPrimary" />
+
+                    <TextView
+                        android:id="@+id/tv_trip_date"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="12dp"
+                        android:layout_toEndOf="@id/iv_date_icon"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp"
+                        tools:text="Mon, Jul 29, 2024" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/right_proceed_button"
+                        app:tint="@color/textSecondary" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="#DADADA" />
+
+                <!-- Time Row -->
+                <RelativeLayout
+                    android:id="@+id/rl_trip_time"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingVertical="14dp">
+
+                    <ImageView
+                        android:id="@+id/iv_time_icon"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentStart="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/ic_calendar_today"
+                        app:tint="@color/textPrimary" />
+
+                    <TextView
+                        android:id="@+id/tv_trip_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_marginStart="12dp"
+                        android:layout_toEndOf="@id/iv_time_icon"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp"
+                        tools:text="9:00 AM - 6:00 PM" />
+
+                    <ImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:src="@drawable/right_proceed_button"
+                        app:tint="@color/textSecondary" />
+                </RelativeLayout>
+            </LinearLayout>
 
             <!-- Current Location Title -->
             <TextView
@@ -68,9 +149,9 @@
                 android:text="Current Location"
                 android:textColor="@color/textPrimary"
                 android:textSize="18sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
-            <!-- Location Display Box with Edit Button (from Code 1) -->
+            <!-- Location Display Box with Edit Button -->
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/cl_location_container"
                 android:layout_width="match_parent"
@@ -83,12 +164,12 @@
                     android:id="@+id/iv_location_icon_home"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
+                    android:contentDescription="Location Icon"
                     android:src="@drawable/location"
-                    app:tint="@color/textPrimary"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:contentDescription="Location Icon"/>
+                    app:tint="@color/textPrimary" />
 
                 <TextView
                     android:id="@+id/tv_location_city2"
@@ -96,38 +177,38 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:layout_marginEnd="8dp"
-                    tools:text="Tap to get current location"
                     android:text="Tap to get current location"
                     android:textColor="@color/textPrimary"
                     android:textSize="16sp"
                     android:textStyle="bold"
-                    app:layout_constraintStart_toEndOf="@id/iv_location_icon_home"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/ib_edit_location"
+                    app:layout_constraintStart_toEndOf="@id/iv_location_icon_home"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                    tools:text="Tap to get current location" />
 
                 <ImageButton
                     android:id="@+id/ib_edit_location"
                     android:layout_width="36dp"
                     android:layout_height="36dp"
-                    android:src="@drawable/edit"
-                    app:tint="@color/colorPrimary"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:contentDescription="Edit Location"
+                    android:src="@drawable/edit"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                    app:tint="@color/colorPrimary" />
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <!-- Direction/Status Text (from Code 1) -->
+            <!-- Direction/Status Text -->
             <TextView
                 android:id="@+id/tv_direction_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:textSize="12sp"
                 android:textColor="@color/textSecondary"
-                tools:text="Location status will show here"/>
+                android:textSize="12sp"
+                tools:text="Location status will show here" />
 
             <!-- Tourist and Food Spots Title -->
             <TextView
@@ -138,9 +219,9 @@
                 android:text="Tourist and Food Spots Near You"
                 android:textColor="@color/textPrimary"
                 android:textSize="18sp"
-                android:textStyle="bold"/>
+                android:textStyle="bold" />
 
-            <!-- Loading Indicator (from Code 2) -->
+            <!-- Loading Indicator -->
             <ProgressBar
                 android:id="@+id/progressBar_home"
                 style="?android:attr/progressBarStyle"
@@ -149,8 +230,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="24dp"
                 android:visibility="gone"
-                tools:visibility="visible"/>
-
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/tv_empty_places"
@@ -162,8 +242,7 @@
                 android:textColor="@color/textSecondary"
                 android:textSize="16sp"
                 android:visibility="gone"
-                tools:visibility="gone"/>
-
+                tools:visibility="gone" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_places_list"
@@ -171,8 +250,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_place_card"
-                tools:itemCount="3" /> <!-- Example item count for preview -->
+                tools:itemCount="3"
+                tools:listitem="@layout/item_place_card" />
 
         </LinearLayout>
     </ScrollView>
@@ -184,13 +263,13 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
         app:elevation="8dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:menu="@menu/bottom_nav_menu"
+        app:itemActiveIndicatorStyle="@null"
         app:itemIconTint="@color/bottom_nav_color_selector"
         app:itemTextColor="@color/bottom_nav_color_selector"
         app:labelVisibilityMode="labeled"
-        app:itemActiveIndicatorStyle="@null" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:menu="@menu/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

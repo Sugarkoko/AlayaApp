@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/ll_header_container"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingStart="20dp"
+    android:paddingTop="24dp"
+    android:paddingEnd="20dp"
+    android:paddingBottom="16dp">
+
+    <TextView
+        android:id="@+id/tv_itineraries_title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/title_itineraries"
+        android:textColor="@color/colorPrimary"
+        android:textSize="34sp"
+        android:textStyle="bold" />
+
+    <!-- NEW: Message/Disclaimer TextView -->
+    <TextView
+        android:id="@+id/tv_header_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_rounded_light_gray"
+        android:padding="12dp"
+        android:textColor="@color/text_secondary_dark"
+        android:textSize="14sp"
+        android:visibility="gone"
+        tools:text="This is a sample message explaining why the itinerary was changed."
+        tools:visibility="visible" />
+
+    <TextView
+        android:id="@+id/tv_current_location_header"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="Current Location:"
+        android:textColor="@color/textPrimary"
+        android:textSize="18sp"
+        android:textStyle="bold" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/cl_location_container_itineraries"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/bg_rounded_light_gray"
+        android:padding="14dp">
+
+        <ImageView
+            android:id="@+id/iv_location_icon_itineraries"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:contentDescription="Location Icon"
+            android:src="@drawable/location"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/textPrimary" />
+
+        <TextView
+            android:id="@+id/tv_location_city_itineraries"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="8dp"
+            android:textColor="@color/textPrimary"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ib_edit_location_itineraries"
+            app:layout_constraintStart_toEndOf="@id/iv_location_icon_itineraries"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Tap to get current location" />
+
+        <ImageButton
+            android:id="@+id/ib_edit_location_itineraries"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Edit Location"
+            android:src="@drawable/edit"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:tint="@color/colorPrimary" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:id="@+id/tv_location_status_itineraries"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/textSecondary"
+        android:textSize="12sp"
+        tools:text="Location status will show here" />
+
+</LinearLayout>

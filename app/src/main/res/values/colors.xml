@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
-
     <color name="colorPrimary">#3f9453</color>
     <color name="colorPrimaryDark">#2E7D32</color>
     <color name="buttonTextColor">#FFFFFF</color>
@@ -10,32 +9,26 @@
     <color name="myButtonColor">#D9D9D9</color>
     <color name="myButtonTextColor">#FFFFFF</color>
     <color name="colorPrimaryDarker">#00642C</color>
-
     <color name="textPrimary">#212121</color>
     <color name="textSecondary">#757575</color>
     <color name="lightGrayBackground">#F0F0F0</color>
     <color name="white">#FFFFFF</color>
     <color name="starColor">#FFC107</color>
-
-
     <color name="your_primary_color">#3f9453</color>
     <color name="your_variant">#2E7D32</color>
-
     <color name="green_brand_primary">#4F7942</color>
-
-
     <color name="text_secondary_dark">#424242</color>
     <color name="badge_best_text">#00796B</color>
     <color name="badge_fastest_text">#1E88E5</color>
     <color name="light_grey_background">#F5F5F5</color>
     <color name="light_teal_background">#E0F2F1</color>
     <color name="light_blue_background">#E3F2FD</color>
-
     <color name="text_black_primary">#212121</color>
     <color name="text_grey_dark">#424242</color>
     <color name="text_grey_medium">#757575</color>
-   =
     <color name="map_route_blue">#4285F4</color>
-
-
+    <color name="map_overlay_color">#99808080</color>
+    <color name="colorErrorRed">#D32F2F</color>
+    <!-- ADDED FOR THE DISABLED PREVIOUS BUTTON -->
+    <color name="button_disabled_grey">#BDBDBD</color>
 </resources>

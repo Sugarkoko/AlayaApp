@@ -7,366 +7,419 @@
     android:background="@color/white"
     tools:context=".ProfileActivity">
 
-    <!-- Header Section -->
-    <View
-        android:id="@+id/viewHeaderBackground"
-        android:layout_width="0dp"
-        android:layout_height="249dp"
-        android:background="@drawable/profile_header_background"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvProfileNameHeader"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="32dp"
-        android:text="Alice Go"
-        android:textColor="@android:color/white"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@id/viewHeaderBackground" />
-
-    <!-- Profile Image Container -->
-    <FrameLayout
-        android:id="@+id/flProfileImageContainer"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
-        android:elevation="8dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvProfileNameHeader"
-        android:layout_marginTop="50dp">
-
-        <ImageView
-            android:id="@+id/ivProfileBackground"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:src="@drawable/circle_gradient_background"
-            android:scaleType="fitXY"/>
-
-        <ImageView
-            android:id="@+id/ivProfileBorder"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <ImageView
-            android:id="@+id/ivProfileIcon"
-            android:layout_width="100dp"
-            android:layout_height="100dp"
-            android:layout_gravity="center"
-            android:scaleType="fitCenter"
-            android:src="@drawable/ic_profile_placeholder"
-            android:contentDescription="Profile Picture" />
-    </FrameLayout>
-
+    <!-- The main ScrollView that wraps everything -->
     <ScrollView
         android:id="@+id/scrollViewProfile"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginTop="-80dp"
-        android:clipToPadding="false"
-        android:paddingTop="90dp"
+        android:fillViewport="true"
+        android:scrollbars="none"
         app:layout_constraintBottom_toTopOf="@id/bottom_navigation_profile_page"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/flProfileImageContainer">
+        app:layout_constraintTop_toTopOf="parent">
 
-        <LinearLayout
+        <!-- A ConstraintLayout to hold all the scrolling content -->
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingStart="16dp"
-            android:paddingTop="16dp"
-            android:paddingEnd="16dp"
             android:paddingBottom="16dp">
 
-            <!-- Name Row -->
-            <RelativeLayout
-                android:id="@+id/layoutName"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="12dp">
-
-                <ImageView
-                    android:id="@+id/iconName"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_profile"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Name Icon"/>
-
-                <TextView
-                    android:id="@+id/tvProfileNameDetail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toStartOf="@id/ivLogout"
-                    android:layout_toEndOf="@id/iconName"
-                    android:text="Alice Go"
-                    android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:background="?attr/selectableItemBackground"
-                    android:padding="4dp"/>
-
-                <ImageView
-                    android:id="@+id/ivLogout"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:src="@drawable/ic_logout"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Logout"/>
-            </RelativeLayout>
+            <!-- Header Section -->
             <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/colorPrimaryDarker" />
+                android:id="@+id/viewHeaderBackground"
+                android:layout_width="0dp"
+                android:layout_height="249dp"
+                android:background="@drawable/profile_header_background"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Birthday Row -->
-            <RelativeLayout
-                android:id="@+id/layoutBirthday"
-                android:layout_width="match_parent"
+            <TextView
+                android:id="@+id/tvProfileNameHeader"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:paddingVertical="12dp">
+                android:layout_marginTop="32dp"
+                android:textColor="@android:color/white"
+                android:textSize="28sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@id/viewHeaderBackground"
+                tools:text="Alice Go" />
+
+            <!-- Profile Image Container -->
+            <FrameLayout
+                android:id="@+id/flProfileImageContainer"
+                android:layout_width="200dp"
+                android:layout_height="200dp"
+                android:layout_marginTop="50dp"
+                android:elevation="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tvProfileNameHeader">
 
                 <ImageView
-                    android:id="@+id/iconBirthday"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_calendar_today"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Birthday Icon"/>
+                    android:id="@+id/ivProfileBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:scaleType="fitXY"
+                    android:src="@drawable/circle_gradient_background" />
 
-                <TextView
-                    android:id="@+id/tvProfileBirthday"
+                <ImageView
+                    android:id="@+id/ivProfileBorder"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+
+                <ImageView
+                    android:id="@+id/ivProfileIcon"
+                    android:layout_width="100dp"
+                    android:layout_height="100dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Profile Picture"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_profile_placeholder" />
+            </FrameLayout>
+
+            <!-- THE FIX: This LinearLayout now correctly starts BELOW the profile image -->
+            <LinearLayout
+                android:id="@+id/details_container"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:orientation="vertical"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/flProfileImageContainer">
+
+                <!-- The "Complete Profile" prompt card will now appear correctly -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/card_complete_profile_prompt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toEndOf="@id/iconBirthday"
-                    android:text="January 1, 2000"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:background="?attr/selectableItemBackground"
-                    android:padding="4dp"/>
-            </RelativeLayout>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/colorPrimaryDarker" />
+                    android:layout_marginBottom="16dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/light_teal_background"
+                    app:cardCornerRadius="8dp"
+                    app:cardElevation="2dp"
+                    tools:visibility="visible">
 
-            <!-- Email Row -->
-            <RelativeLayout
-                android:id="@+id/layoutEmail"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="12dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-                <ImageView
-                    android:id="@+id/iconEmail"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_email"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Email Icon"/>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Complete Your Profile"
+                            android:textColor="@color/colorPrimaryDarker"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
 
-                <TextView
-                    android:id="@+id/tvProfileEmail"
-                    android:layout_width="wrap_content"
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="@string/profile_completion_prompt"
+                            android:textColor="@color/text_secondary_dark"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
+
+                <!-- Name Row -->
+                <RelativeLayout
+                    android:id="@+id/layoutName"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toStartOf="@+id/tvEditEmail"
-                    android:layout_toEndOf="@id/iconEmail"
-                    android:text="alicego@gmail.com"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:padding="4dp"/>
-                <!-- android:background="?attr/selectableItemBackground" -->
-                <!-- Add if email edit implemented -->
-
-                <TextView
-                    android:id="@+id/tvEditEmail"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:padding="4dp"
-                    android:text="edit"
-                    android:textColor="@color/colorPrimaryDarker"
-                    android:textSize="14sp"
-                    android:visibility="gone" />
-            </RelativeLayout>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/colorPrimaryDarker" />
-
-            <!-- Phone Row -->
-            <RelativeLayout
-                android:id="@+id/layoutPhone"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="12dp">
-
-                <ImageView
-                    android:id="@+id/iconPhone"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_phone"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Phone Icon"/>
-
-                <TextView
-                    android:id="@+id/tvProfilePhone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toStartOf="@+id/tvEditPhone"
-                    android:layout_toEndOf="@id/iconPhone"
-                    android:text="09215687102"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:background="?attr/selectableItemBackground"
-                    android:padding="4dp"/>
-
-                <TextView
-                    android:id="@+id/tvEditPhone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:padding="4dp"
-                    android:text="edit"
-                    android:textColor="@color/colorPrimaryDarker"
-                    android:textSize="14sp"
-                    android:visibility="gone" /> <!-- Hiding -->
-            </RelativeLayout>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/colorPrimaryDarker" />
-
-            <!-- Password Row -->
-            <RelativeLayout
-                android:id="@+id/layoutPassword"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingVertical="12dp">
-
-                <ImageView
-                    android:id="@+id/iconPassword"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_visibility_on"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Password Icon"/>
-
-                <TextView
-                    android:id="@+id/tvProfilePassword"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toEndOf="@id/iconPassword"
-                    android:text="************"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:padding="4dp"/>
-
-                <LinearLayout
-                    android:id="@+id/layoutChangePassword"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:clickable="true"
-                    android:focusable="true"
-                    android:orientation="horizontal"
-                    android:padding="4dp">
+                    android:paddingVertical="12dp">
 
                     <ImageView
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:layout_gravity="center_vertical"
-                        android:layout_marginEnd="4dp"
-                        android:src="@drawable/ic_visibility_on"
-                        app:tint="@color/colorPrimaryDarker"
-                        android:contentDescription="Change Password Icon"/>
+                        android:id="@+id/iconName"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="Name Icon"
+                        android:src="@drawable/ic_profile"
+                        app:tint="@color/colorPrimaryDarker" />
 
                     <TextView
-                        android:id="@+id/tvChangePassword"
+                        android:id="@+id/tvProfileNameDetail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="change"
-                        android:textColor="@color/colorPrimary"
-                        android:textSize="14sp" />
-                </LinearLayout>
-            </RelativeLayout>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/colorPrimaryDarker" />
+                        android:layout_centerVertical="true"
+                        android:layout_toStartOf="@id/ivLogout"
+                        android:layout_toEndOf="@id/iconName"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="4dp"
+                        android:text="Alice Go"
+                        android:textColor="@color/black"
+                        android:textSize="16sp" />
 
-            <!-- History Row -->
-            <RelativeLayout
-                android:id="@+id/layoutHistory"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:clickable="true"
-                android:focusable="true"
-                android:paddingVertical="12dp">
+                    <ImageView
+                        android:id="@+id/ivLogout"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:contentDescription="Logout"
+                        android:focusable="true"
+                        android:src="@drawable/ic_logout"
+                        app:tint="@color/colorPrimaryDarker" />
+                </RelativeLayout>
 
-                <ImageView
-                    android:id="@+id/iconHistory"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:src="@drawable/ic_history"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="History Icon"/>
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorPrimaryDarker" />
 
-                <TextView
-                    android:id="@+id/tvProfileHistory"
-                    android:layout_width="wrap_content"
+                <!-- Birthday Row -->
+                <RelativeLayout
+                    android:id="@+id/layoutBirthday"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_toEndOf="@id/iconHistory"
-                    android:text="Location and Itinerary History"
-                    android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:padding="4dp"/>
-            </RelativeLayout>
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/colorPrimaryDarker" />
+                    android:paddingVertical="12dp">
 
-        </LinearLayout>
+                    <ImageView
+                        android:id="@+id/iconBirthday"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="Birthday Icon"
+                        android:src="@drawable/ic_calendar_today"
+                        app:tint="@color/colorPrimaryDarker" />
+
+                    <TextView
+                        android:id="@+id/tvProfileBirthday"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toEndOf="@id/iconBirthday"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="4dp"
+                        android:text="January 1, 2000"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorPrimaryDarker" />
+
+                <!-- Email Row -->
+                <RelativeLayout
+                    android:id="@+id/layoutEmail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="12dp">
+
+                    <ImageView
+                        android:id="@+id/iconEmail"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="Email Icon"
+                        android:src="@drawable/ic_email"
+                        app:tint="@color/colorPrimaryDarker" />
+
+                    <TextView
+                        android:id="@+id/tvProfileEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toStartOf="@+id/tvEditEmail"
+                        android:layout_toEndOf="@id/iconEmail"
+                        android:padding="4dp"
+                        android:text="alicego@gmail.com"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvEditEmail"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="4dp"
+                        android:text="edit"
+                        android:textColor="@color/colorPrimaryDarker"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorPrimaryDarker" />
+
+                <!-- Phone Row -->
+                <RelativeLayout
+                    android:id="@+id/layoutPhone"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="12dp">
+
+                    <ImageView
+                        android:id="@+id/iconPhone"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="Phone Icon"
+                        android:src="@drawable/ic_phone"
+                        app:tint="@color/colorPrimaryDarker" />
+
+                    <TextView
+                        android:id="@+id/tvProfilePhone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toStartOf="@+id/tvEditPhone"
+                        android:layout_toEndOf="@id/iconPhone"
+                        android:background="?attr/selectableItemBackground"
+                        android:padding="4dp"
+                        android:text="09215687102"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp" />
+
+                    <TextView
+                        android:id="@+id/tvEditPhone"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:padding="4dp"
+                        android:text="edit"
+                        android:textColor="@color/colorPrimaryDarker"
+                        android:textSize="14sp"
+                        android:visibility="gone" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorPrimaryDarker" />
+
+                <!-- Password Row -->
+                <RelativeLayout
+                    android:id="@+id/layoutPassword"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingVertical="12dp">
+
+                    <ImageView
+                        android:id="@+id/iconPassword"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="Password Icon"
+                        android:src="@drawable/ic_visibility_on"
+                        app:tint="@color/colorPrimaryDarker" />
+
+                    <TextView
+                        android:id="@+id/tvProfilePassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toEndOf="@id/iconPassword"
+                        android:padding="4dp"
+                        android:text="************"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp" />
+
+                    <LinearLayout
+                        android:id="@+id/layoutChangePassword"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:orientation="horizontal"
+                        android:padding="4dp">
+
+                        <ImageView
+                            android:layout_width="18dp"
+                            android:layout_height="18dp"
+                            android:layout_gravity="center_vertical"
+                            android:layout_marginEnd="4dp"
+                            android:contentDescription="Change Password Icon"
+                            android:src="@drawable/ic_visibility_on"
+                            app:tint="@color/colorPrimaryDarker" />
+
+                        <TextView
+                            android:id="@+id/tvChangePassword"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="change"
+                            android:textColor="@color/colorPrimary"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorPrimaryDarker" />
+
+                <!-- History Row -->
+                <RelativeLayout
+                    android:id="@+id/layoutHistory"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="?attr/selectableItemBackground"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:paddingVertical="12dp">
+
+                    <ImageView
+                        android:id="@+id/iconHistory"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_centerVertical="true"
+                        android:layout_marginEnd="16dp"
+                        android:contentDescription="History Icon"
+                        android:src="@drawable/ic_history"
+                        app:tint="@color/colorPrimaryDarker" />
+
+                    <TextView
+                        android:id="@+id/tvProfileHistory"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toEndOf="@id/iconHistory"
+                        android:padding="4dp"
+                        android:text="Location and Itinerary History"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="16sp" />
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:background="@color/colorPrimaryDarker" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </ScrollView>
 
     <!-- Bottom Navigation -->
@@ -376,13 +429,13 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
         app:elevation="8dp"
+        app:itemActiveIndicatorStyle="@null"
         app:itemIconTint="@color/bottom_nav_color_selector"
         app:itemTextColor="@color/bottom_nav_color_selector"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu"
-        app:itemActiveIndicatorStyle="@null" />
+        app:menu="@menu/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

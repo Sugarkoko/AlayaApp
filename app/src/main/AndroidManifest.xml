@@ -18,14 +18,9 @@
         android:theme="@style/Theme.AlayaApp"
         tools:targetApi="34">
 
-        <!--
-             TODO: Add your Google Maps API Key here.
-             The key below is from your google-services.json.
-             Ensure "Maps SDK for Android" is enabled for this key in Google Cloud Console.
-        -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBTO_iqSF7ZI0KjHOStNId1k_8TymYjtK4" />
+            android:value="${mapsApiKey}" />
 
         <activity
             android:name=".MapsActivity"
@@ -51,6 +46,7 @@
             android:theme="@style/Theme.AlayaApp.SplashImitation">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -72,9 +68,11 @@
         <activity
             android:name=".PlaceDetailsActivity"
             android:exported="false" />
+
         <meta-data
             android:name="preloaded_fonts"
             android:resource="@array/preloaded_fonts" />
+
         <activity
             android:name=".ChangePasswordActivity"
             android:exported="false" />
@@ -84,8 +82,9 @@
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
+
+        <!-- The declaration for .MainActivity has been removed from here. -->
+
     </application>
+
 </manifest>
