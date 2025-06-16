@@ -7,23 +7,20 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
 public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
-
     private static final int VIEW_TYPE_LOCATION_HEADER = 0;
     private static final int VIEW_TYPE_HEADER = 1;
     private static final int VIEW_TYPE_ITINERARY_CARD = 2;
     private static final int VIEW_TYPE_HORIZONTAL_LIST = 3;
+    private static final int VIEW_TYPE_FOOTER_MESSAGE = 4; // For disclaimer
 
     private final List<Object> displayItems;
     private final ItinerariesActivity activity;
@@ -39,12 +36,18 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         Object item = displayItems.get(position);
         if (item instanceof LocationHeaderData) {
             return VIEW_TYPE_LOCATION_HEADER;
-        } else if (item instanceof String) {
-            return VIEW_TYPE_HEADER;
         } else if (item instanceof ItineraryItem) {
             return VIEW_TYPE_ITINERARY_CARD;
         } else if (item instanceof HorizontalListContainer) {
             return VIEW_TYPE_HORIZONTAL_LIST;
+        } else if (item instanceof String) {
+            // Check if it's a header or a footer message
+            String text = (String) item;
+            if (text.equals("Suggested Itinerary") || text.equals("Recommended Other Itineraries")) {
+                return VIEW_TYPE_HEADER;
+            } else {
+                return VIEW_TYPE_FOOTER_MESSAGE; // Assume other strings are footers/disclaimers
+            }
         }
         return super.getItemViewType(position);
     }
@@ -66,6 +69,9 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case VIEW_TYPE_HORIZONTAL_LIST:
                 View horizontalView = inflater.inflate(R.layout.item_itinerary_horizontal_list, parent, false);
                 return new HorizontalListViewHolder(horizontalView);
+            case VIEW_TYPE_FOOTER_MESSAGE:
+                View footerView = inflater.inflate(R.layout.item_itinerary_footer_message, parent, false);
+                return new FooterMessageViewHolder(footerView);
             default:
                 throw new IllegalArgumentException("Invalid view type");
         }
@@ -81,7 +87,6 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 ((HeaderViewHolder) holder).bind((String) displayItems.get(position));
                 break;
             case VIEW_TYPE_ITINERARY_CARD:
-                // Calculate the sequence number for itinerary cards
                 int sequenceNumber = 1;
                 for (int i = 0; i < position; i++) {
                     if (displayItems.get(i) instanceof ItineraryItem) {
@@ -92,6 +97,9 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 break;
             case VIEW_TYPE_HORIZONTAL_LIST:
                 ((HorizontalListViewHolder) holder).bind((HorizontalListContainer) displayItems.get(position));
+                break;
+            case VIEW_TYPE_FOOTER_MESSAGE:
+                ((FooterMessageViewHolder) holder).bind((String) displayItems.get(position));
                 break;
         }
     }
@@ -112,7 +120,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     // --- ViewHolder for the main Location Header ---
     class LocationHeaderViewHolder extends RecyclerView.ViewHolder {
-        TextView tvLocationCity, tvLocationStatus;
+        TextView tvLocationCity, tvLocationStatus, tvHeaderMessage;
         ImageButton ibEditLocation;
 
         LocationHeaderViewHolder(@NonNull View itemView) {
@@ -120,12 +128,21 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvLocationCity = itemView.findViewById(R.id.tv_location_city_itineraries);
             tvLocationStatus = itemView.findViewById(R.id.tv_location_status_itineraries);
             ibEditLocation = itemView.findViewById(R.id.ib_edit_location_itineraries);
+            tvHeaderMessage = itemView.findViewById(R.id.tv_header_message); // Find the new TextView
         }
 
         void bind() {
             tvLocationCity.setText(activity.getCurrentLocationNameToDisplay());
             tvLocationStatus.setText(activity.getCurrentLocationStatusToDisplay());
             ibEditLocation.setOnClickListener(v -> activity.showLocationChoiceDialog());
+
+            String message = activity.getHeaderMessage();
+            if (message != null && !message.isEmpty()) {
+                tvHeaderMessage.setText(message);
+                tvHeaderMessage.setVisibility(View.VISIBLE);
+            } else {
+                tvHeaderMessage.setVisibility(View.GONE);
+            }
         }
     }
 
@@ -144,7 +161,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     // --- ViewHolder for Itinerary Cards ---
     class CardViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
-        TextView tvTime, tvActivity, tvRating, tvItemNumber; // Added tvItemNumber
+        TextView tvTime, tvActivity, tvRating, tvItemNumber;
         SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
 
         CardViewHolder(@NonNull View itemView) {
@@ -153,14 +170,14 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvActivity = itemView.findViewById(R.id.tv_item_activity);
             tvRating = itemView.findViewById(R.id.tv_item_rating);
             ivImage = itemView.findViewById(R.id.iv_item_image);
-            tvItemNumber = itemView.findViewById(R.id.tv_item_number); // Find the new TextView
+            tvItemNumber = itemView.findViewById(R.id.tv_item_number);
         }
 
         void bind(ItineraryItem item, int sequenceNumber) {
             tvTime.setText(timeFormat.format(item.getTime().getTime()));
             tvActivity.setText(item.getActivity());
             tvRating.setText(item.getRating());
-            tvItemNumber.setText(String.valueOf(sequenceNumber)); // Set the number
+            tvItemNumber.setText(String.valueOf(sequenceNumber));
 
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
                 Glide.with(activity)
@@ -185,6 +202,18 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             RecommendedItineraryAdapter adapter = new RecommendedItineraryAdapter(activity, container.getRecommendedPlaces());
             rvHorizontal.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false));
             rvHorizontal.setAdapter(adapter);
+        }
+    }
+
+    // --- ViewHolder for Footer Message ---
+    static class FooterMessageViewHolder extends RecyclerView.ViewHolder {
+        TextView tvFooterMessage;
+        FooterMessageViewHolder(@NonNull View itemView) {
+            super(itemView);
+            tvFooterMessage = itemView.findViewById(R.id.tv_footer_message);
+        }
+        void bind(String message) {
+            tvFooterMessage.setText(message);
         }
     }
 

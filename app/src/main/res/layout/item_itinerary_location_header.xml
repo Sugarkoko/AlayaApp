@@ -20,6 +20,20 @@
         android:textSize="34sp"
         android:textStyle="bold" />
 
+    <!-- NEW: Message/Disclaimer TextView -->
+    <TextView
+        android:id="@+id/tv_header_message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:background="@drawable/bg_rounded_light_gray"
+        android:padding="12dp"
+        android:textColor="@color/text_secondary_dark"
+        android:textSize="14sp"
+        android:visibility="gone"
+        tools:text="This is a sample message explaining why the itinerary was changed."
+        tools:visibility="visible" />
+
     <TextView
         android:id="@+id/tv_current_location_header"
         android:layout_width="wrap_content"

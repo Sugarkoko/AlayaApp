@@ -22,7 +22,6 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.alayaapp.ItineraryGenerator;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -35,10 +34,13 @@ import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.IOException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 public class ItinerariesActivity extends AppCompatActivity {
     BottomNavigationView bottomNavigationView;
@@ -60,18 +62,27 @@ public class ItinerariesActivity extends AppCompatActivity {
     private FirebaseFirestore db;
     private List<Place> allPlacesList = new ArrayList<>();
     private ItineraryGenerator itineraryGenerator;
+
+    // Keys for trip date and time
     private static final String KEY_TRIP_DATE_YEAR = "trip_date_year";
     private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
     private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
-    private Calendar tripDateCalendar;
+    private static final String KEY_TRIP_TIME_HOUR = "trip_time_hour";
+    private static final String KEY_TRIP_TIME_MINUTE = "trip_time_minute";
+    private static final String KEY_TRIP_END_TIME_HOUR = "trip_end_time_hour";
+    private static final String KEY_TRIP_END_TIME_MINUTE = "trip_end_time_minute";
+
+    private Calendar tripStartCalendar;
+    private Calendar tripEndCalendar;
+
     private static final double BAGUIO_REGION_MIN_LAT = 16.35;
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
     private static final double BAGUIO_REGION_MIN_LON = 120.55;
     private static final double BAGUIO_REGION_MAX_LON = 120.65;
-
     private List<Object> displayItems = new ArrayList<>();
     private String currentLocationName = "Tap to get current location";
     private String currentLocationStatus = "Set your location to begin";
+    private String headerMessage = ""; // For disclaimers and explanations
 
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -96,21 +107,18 @@ public class ItinerariesActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itineraries);
-
         rvMain = findViewById(R.id.rv_itineraries_main);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
-
         db = FirebaseFirestore.getInstance();
         itineraryGenerator = new ItineraryGenerator();
-        tripDateCalendar = Calendar.getInstance();
+        tripStartCalendar = Calendar.getInstance();
+        tripEndCalendar = Calendar.getInstance();
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         setupLocationCallback();
         setupRecyclerView();
         bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
         setupBottomNavListener();
-
         loadLocationPreferenceAndInitialize();
     }
 
@@ -120,8 +128,9 @@ public class ItinerariesActivity extends AppCompatActivity {
         rvMain.setAdapter(itineraryAdapter);
     }
 
-    private void buildDisplayList(List<ItineraryItem> generatedItems) {
+    private void buildDisplayList(List<ItineraryItem> generatedItems, String message) {
         displayItems.clear();
+        this.headerMessage = message; // Set the message for the adapter
         displayItems.add(new ItineraryAdapter.LocationHeaderData());
 
         if (generatedItems != null && !generatedItems.isEmpty()) {
@@ -129,37 +138,45 @@ public class ItinerariesActivity extends AppCompatActivity {
             displayItems.addAll(generatedItems);
         }
 
-        List<RecommendedItineraryAdapter.RecommendedPlace> recommendedPlaces = new ArrayList<>();
-        recommendedPlaces.add(new RecommendedItineraryAdapter.RecommendedPlace("Arca's Yard Cafe", "3.0", "(1K)"));
-        recommendedPlaces.add(new RecommendedItineraryAdapter.RecommendedPlace("Wright Park Riding Center", "3.3", "(4K)"));
-        recommendedPlaces.add(new RecommendedItineraryAdapter.RecommendedPlace("Baguio Orchidarium", "3.5", "(2K)"));
-        recommendedPlaces.add(new RecommendedItineraryAdapter.RecommendedPlace("Camp John Hay Picnic Area", "4.0", "(5K)"));
-
-        if (!recommendedPlaces.isEmpty()) {
-            displayItems.add("Recommended Other Itineraries");
-            displayItems.add(new ItineraryAdapter.HorizontalListContainer(recommendedPlaces));
+        // Add a small disclaimer at the end
+        if (generatedItems != null && !generatedItems.isEmpty()) {
+            displayItems.add("Hours are based on standard schedules. We recommend checking ahead for holidays or special events.");
         }
 
         itineraryAdapter.notifyDataSetChanged();
     }
 
-    private void loadTripDate() {
+    private void loadTripDateTime() {
+        // Set date
         if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
-            int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripDateCalendar.get(Calendar.YEAR));
-            int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripDateCalendar.get(Calendar.MONTH));
-            int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripDateCalendar.get(Calendar.DAY_OF_MONTH));
-            tripDateCalendar.set(year, month, day);
+            int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripStartCalendar.get(Calendar.YEAR));
+            int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripStartCalendar.get(Calendar.MONTH));
+            int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripStartCalendar.get(Calendar.DAY_OF_MONTH));
+            tripStartCalendar.set(year, month, day);
+            tripEndCalendar.set(year, month, day);
         }
+
+        // Set start time (default 9 AM)
+        int startHour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
+        int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
+        tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
+        tripStartCalendar.set(Calendar.MINUTE, startMinute);
+
+        // Set end time (default 6 PM)
+        int endHour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
+        int endMinute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
+        tripEndCalendar.set(Calendar.HOUR_OF_DAY, endHour);
+        tripEndCalendar.set(Calendar.MINUTE, endMinute);
     }
 
     private void fetchPlacesAndGenerateItinerary(GeoPoint startLocation) {
         if (startLocation == null) {
             Toast.makeText(this, "Cannot generate itinerary without a start location.", Toast.LENGTH_LONG).show();
-            buildDisplayList(new ArrayList<>());
+            buildDisplayList(new ArrayList<>(), "Please set your start location.");
             return;
         }
-        loadTripDate();
-        Toast.makeText(this, "Generating itinerary...", Toast.LENGTH_SHORT).show();
+        loadTripDateTime();
+        Toast.makeText(this, "Generating itinerary for your selected time...", Toast.LENGTH_SHORT).show();
 
         db.collection("places")
                 .get()
@@ -178,21 +195,104 @@ public class ItinerariesActivity extends AppCompatActivity {
                             }
                         }
 
-                        List<ItineraryItem> generatedItems = itineraryGenerator.generate(startLocation, allPlacesList, tripDateCalendar);
-                        if (!generatedItems.isEmpty()) {
-                            Toast.makeText(this, "Itinerary generated!", Toast.LENGTH_SHORT).show();
+                        // Step 1: Attempt with user's chosen time
+                        List<ItineraryItem> generatedItems = itineraryGenerator.generate(startLocation, allPlacesList, tripStartCalendar, tripEndCalendar);
+
+                        // Step 2: Check if the result is poor and trigger fallback if needed
+                        if (generatedItems.size() < 2) {
+                            showInteractiveFallbackDialog(startLocation);
                         } else {
-                            Toast.makeText(this, "Could not generate an itinerary for this date/location.", Toast.LENGTH_LONG).show();
+                            Toast.makeText(this, "Itinerary generated!", Toast.LENGTH_SHORT).show();
+                            buildDisplayList(generatedItems, ""); // No special message
                         }
-                        buildDisplayList(generatedItems);
 
                     } else {
                         Log.w(TAG_LOCATION, "Error getting documents from Firestore.", task.getException());
                         Toast.makeText(ItinerariesActivity.this, "Failed to load places for itinerary.", Toast.LENGTH_LONG).show();
-                        buildDisplayList(new ArrayList<>());
+                        buildDisplayList(new ArrayList<>(), "Failed to load places data.");
                     }
                 });
     }
+
+    private void showInteractiveFallbackDialog(GeoPoint startLocation) {
+        new AlertDialog.Builder(this)
+                .setTitle("No Itinerary Found")
+                .setMessage("We couldn't find many open attractions for your selected time. Would you like us to generate a suggested plan based on the optimal hours for that day?")
+                .setPositiveButton("Yes, Suggest a Plan", (dialog, which) -> {
+                    generateFallbackItinerary(startLocation);
+                })
+                .setNegativeButton("No, Thanks", (dialog, which) -> {
+                    buildDisplayList(new ArrayList<>(), "No itinerary found for your selected time.");
+                    dialog.dismiss();
+                })
+                .show();
+    }
+
+    private void generateFallbackItinerary(GeoPoint startLocation) {
+        Toast.makeText(this, "Finding best times and creating a new plan...", Toast.LENGTH_SHORT).show();
+
+        // Calculate dynamic window
+        String dayOfWeek = tripStartCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
+        int earliestOpen = 24 * 60; // 24:00 in minutes
+        int latestClose = 0;
+
+        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.US);
+        for (Place place : allPlacesList) {
+            if (place.getOpeningHours() != null && place.getOpeningHours().containsKey(dayOfWeek)) {
+                Map<String, String> hours = place.getOpeningHours().get(dayOfWeek);
+                try {
+                    if (hours.get("open") != null) {
+                        Calendar openCal = Calendar.getInstance();
+                        openCal.setTime(sdf.parse(hours.get("open")));
+                        int openMinutes = openCal.get(Calendar.HOUR_OF_DAY) * 60 + openCal.get(Calendar.MINUTE);
+                        if (openMinutes < earliestOpen) {
+                            earliestOpen = openMinutes;
+                        }
+                    }
+                    if (hours.get("close") != null) {
+                        Calendar closeCal = Calendar.getInstance();
+                        closeCal.setTime(sdf.parse(hours.get("close")));
+                        int closeMinutes = closeCal.get(Calendar.HOUR_OF_DAY) * 60 + closeCal.get(Calendar.MINUTE);
+                        // Handle overnight closing times (e.g., 02:00 is later than 23:00)
+                        if (closeMinutes < earliestOpen) {
+                            closeMinutes += 24 * 60; // Add a day
+                        }
+                        if (closeMinutes > latestClose) {
+                            latestClose = closeMinutes;
+                        }
+                    }
+                } catch (ParseException e) {
+                    Log.e(TAG_LOCATION, "Could not parse hours for fallback: " + place.getName(), e);
+                }
+            }
+        }
+
+        // Create new calendars for the fallback
+        Calendar fallbackStart = (Calendar) tripStartCalendar.clone();
+        fallbackStart.set(Calendar.HOUR_OF_DAY, earliestOpen / 60);
+        fallbackStart.set(Calendar.MINUTE, earliestOpen % 60);
+
+        Calendar fallbackEnd = (Calendar) tripStartCalendar.clone();
+        // Handle times that went past midnight
+        if (latestClose >= 24 * 60) {
+            fallbackEnd.add(Calendar.DAY_OF_YEAR, 1);
+            latestClose -= 24*60;
+        }
+        fallbackEnd.set(Calendar.HOUR_OF_DAY, latestClose / 60);
+        fallbackEnd.set(Calendar.MINUTE, latestClose % 60);
+
+        // Re-run generator with the dynamic window
+        List<ItineraryItem> fallbackItems = itineraryGenerator.generate(startLocation, allPlacesList, fallbackStart, fallbackEnd);
+
+        String message;
+        if (fallbackItems.size() < 3) {
+            message = "There are very few attractions open on this day. Here is what we could find.";
+        } else {
+            message = "We couldn't find attractions for your time, so here's a plan for the day's optimal hours instead.";
+        }
+        buildDisplayList(fallbackItems, message);
+    }
+
 
     public void showLocationChoiceDialog() {
         final CharSequence[] options = {"Use My Current GPS Location", "Set Location Manually", "Cancel"};
@@ -239,7 +339,7 @@ public class ItinerariesActivity extends AppCompatActivity {
             currentLocationStatus = "Mode: GPS. Waiting for location...";
             checkAndRequestLocationPermissions();
         }
-        buildDisplayList(new ArrayList<>()); // Initial build with header
+        buildDisplayList(new ArrayList<>(), ""); // Initial build with header
     }
 
     private void getAddressFromLocation(double latitude, double longitude) {
@@ -258,7 +358,6 @@ public class ItinerariesActivity extends AppCompatActivity {
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
             if (addresses != null && !addresses.isEmpty()) {
-                // ... (address building logic is the same)
                 Address address = addresses.get(0);
                 String city = address.getLocality();
                 String subLocality = address.getSubLocality();
@@ -268,6 +367,7 @@ public class ItinerariesActivity extends AppCompatActivity {
                 else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
                 else if (thoroughfare != null && !thoroughfare.isEmpty()) addressTextBuilder.append(thoroughfare);
                 else addressTextBuilder.append("Unknown Area");
+
                 currentLocationName = addressTextBuilder.toString();
                 currentLocationStatus = "GPS: " + currentLocationName;
                 GeoPoint startPoint = new GeoPoint(latitude, longitude);
@@ -292,11 +392,16 @@ public class ItinerariesActivity extends AppCompatActivity {
         return currentLocationStatus;
     }
 
+    public String getHeaderMessage() {
+        return headerMessage;
+    }
+
     // --- Unchanged methods below ---
     private void setupBottomNavListener() {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
             if (destinationItemId == CURRENT_ITEM_ID) return true;
+
             Class<?> destinationActivityClass = null;
             if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
             else if (destinationItemId == R.id.navigation_map) destinationActivityClass = MapsActivity.class;
@@ -448,6 +553,7 @@ public class ItinerariesActivity extends AppCompatActivity {
             return;
         }
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
+
         currentLocationStatus = "Fetching last known location...";
         itineraryAdapter.notifyItemChanged(0);
         fusedLocationClient.getLastLocation()

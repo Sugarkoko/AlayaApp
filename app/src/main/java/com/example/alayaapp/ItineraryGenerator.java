@@ -2,9 +2,7 @@
 package com.example.alayaapp;
 
 import android.util.Log;
-
 import com.google.firebase.firestore.GeoPoint;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -18,34 +16,30 @@ import java.util.Map;
  */
 public class ItineraryGenerator {
     private static final String TAG = "ItineraryGenerator";
-    private static final String ITINERARY_START_TIME = "09:00";
-    private static final String ITINERARY_END_TIME = "18:00";
     private static final double AVERAGE_SPEED_KMH = 15.0; // Average travel speed in Baguio
     private static final double CATEGORY_REPETITION_PENALTY_KM = 50.0;
-    private static final int DEFAULT_VISIT_DURATION_MINUTES = 90;
+    private static final int DEFAULT_VISIT_DURATION_MINUTES = 90; // Fallback duration
 
     /**
      * Main method to generate the itinerary.
      * @param userStartLocation The starting point for the day.
      * @param allPlaces A list of all potential places to visit.
-     * @param tripDate The specific date for the itinerary.
+     * @param tripStartCalendar The desired start time for the itinerary.
+     * @param tripEndCalendar The desired end time for the itinerary.
      * @return A list of ItineraryItem objects representing the generated schedule.
      */
-    public List<ItineraryItem> generate(GeoPoint userStartLocation, List<Place> allPlaces, Calendar tripDate) {
+    public List<ItineraryItem> generate(GeoPoint userStartLocation, List<Place> allPlaces, Calendar tripStartCalendar, Calendar tripEndCalendar) {
         List<ItineraryItem> generatedItinerary = new ArrayList<>();
         List<Place> availablePlaces = new ArrayList<>(allPlaces);
 
         // 1. Initialization
-        Calendar currentTime = (Calendar) tripDate.clone();
-        setCalendarTime(currentTime, ITINERARY_START_TIME);
-        Calendar endTime = (Calendar) tripDate.clone();
-        setCalendarTime(endTime, ITINERARY_END_TIME);
-
+        Calendar currentTime = (Calendar) tripStartCalendar.clone();
+        Calendar endTime = (Calendar) tripEndCalendar.clone();
         GeoPoint currentLocation = userStartLocation;
         String lastCategory = null;
 
         // 2. Pre-filtering: Remove places that are closed for the entire day.
-        String dayOfWeek = tripDate.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
+        String dayOfWeek = tripStartCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
         availablePlaces.removeIf(place -> {
             if (place.getOpeningHours() == null || !place.getOpeningHours().containsKey(dayOfWeek)) {
                 Log.d(TAG, "Pre-filtering: Removing " + place.getName() + " as it's closed on " + dayOfWeek);
@@ -84,8 +78,10 @@ public class ItineraryGenerator {
             Calendar arrivalTime = (Calendar) currentTime.clone();
             arrivalTime.add(Calendar.MINUTE, travelTimeMinutes);
 
+            // Use dynamic visit duration from database, with a fallback
+            int visitDuration = bestNextPlace.getAverageVisitDuration() > 0 ? bestNextPlace.getAverageVisitDuration() : DEFAULT_VISIT_DURATION_MINUTES;
             Calendar departureTime = (Calendar) arrivalTime.clone();
-            departureTime.add(Calendar.MINUTE, DEFAULT_VISIT_DURATION_MINUTES);
+            departureTime.add(Calendar.MINUTE, visitDuration);
 
             if (departureTime.after(endTime)) {
                 Log.d(TAG, "Not enough time to visit " + bestNextPlace.getName() + ". Removing and continuing.");
@@ -100,7 +96,7 @@ public class ItineraryGenerator {
             }
 
             // C. Add to Itinerary and Update State
-            Log.d(TAG, "Adding " + bestNextPlace.getName() + " to itinerary.");
+            Log.d(TAG, "Adding " + bestNextPlace.getName() + " to itinerary. Visit duration: " + visitDuration + " mins.");
             Calendar itemTime = (Calendar) arrivalTime.clone();
             String rating = String.format(Locale.getDefault(), "%.1f", bestNextPlace.getRating());
             generatedItinerary.add(new ItineraryItem(
@@ -115,23 +111,12 @@ public class ItineraryGenerator {
 
             // Update algorithm state for the next iteration
             currentTime.setTime(arrivalTime.getTime());
-            currentTime.add(Calendar.MINUTE, DEFAULT_VISIT_DURATION_MINUTES);
+            currentTime.add(Calendar.MINUTE, visitDuration);
             currentLocation = bestNextPlace.getCoordinates();
             lastCategory = bestNextPlace.getCategory();
             availablePlaces.remove(bestNextPlace);
         }
         return generatedItinerary;
-    }
-
-    /**
-     * Helper to set a Calendar object's time from a "HH:mm" string.
-     */
-    private void setCalendarTime(Calendar calendar, String timeStr) {
-        String[] parts = timeStr.split(":");
-        calendar.set(Calendar.HOUR_OF_DAY, Integer.parseInt(parts[0]));
-        calendar.set(Calendar.MINUTE, Integer.parseInt(parts[1]));
-        calendar.set(Calendar.SECOND, 0);
-        calendar.set(Calendar.MILLISECOND, 0);
     }
 
     /**
@@ -142,19 +127,32 @@ public class ItineraryGenerator {
         if (hours == null || hours.get("open") == null || hours.get("close") == null) {
             return false; // No opening hours data for this day
         }
+
         try {
             SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.US);
             Calendar openTimeCal = Calendar.getInstance();
             openTimeCal.setTime(sdf.parse(hours.get("open")));
+
             Calendar closeTimeCal = Calendar.getInstance();
             closeTimeCal.setTime(sdf.parse(hours.get("close")));
+
+            // Handle 24-hour case (e.g., 00:00 to 23:59)
+            if (hours.get("open").equals("00:00") && (hours.get("close").equals("23:59") || hours.get("close").equals("24:00"))) {
+                return true;
+            }
 
             // Compare only the time part (hour and minute)
             int arrivalTimeInMinutes = arrivalTime.get(Calendar.HOUR_OF_DAY) * 60 + arrivalTime.get(Calendar.MINUTE);
             int openTimeInMinutes = openTimeCal.get(Calendar.HOUR_OF_DAY) * 60 + openTimeCal.get(Calendar.MINUTE);
             int closeTimeInMinutes = closeTimeCal.get(Calendar.HOUR_OF_DAY) * 60 + closeTimeCal.get(Calendar.MINUTE);
 
-            return arrivalTimeInMinutes >= openTimeInMinutes && arrivalTimeInMinutes < closeTimeInMinutes;
+            // Handle overnight case (e.g., 18:00 to 02:00)
+            if (closeTimeInMinutes < openTimeInMinutes) {
+                return arrivalTimeInMinutes >= openTimeInMinutes || arrivalTimeInMinutes < closeTimeInMinutes;
+            } else {
+                return arrivalTimeInMinutes >= openTimeInMinutes && arrivalTimeInMinutes < closeTimeInMinutes;
+            }
+
         } catch (ParseException e) {
             Log.e(TAG, "Failed to parse opening hours for " + place.getName(), e);
             return false;
@@ -168,14 +166,12 @@ public class ItineraryGenerator {
     private double calculateDistance(GeoPoint start, GeoPoint end) {
         if (start == null || end == null) return Double.MAX_VALUE;
         final int R = 6371; // Radius of the earth in km
-
         double latDistance = Math.toRadians(end.getLatitude() - start.getLatitude());
         double lonDistance = Math.toRadians(end.getLongitude() - start.getLongitude());
         double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
                 + Math.cos(Math.toRadians(start.getLatitude())) * Math.cos(Math.toRadians(end.getLatitude()))
                 * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-
         return R * c;
     }
 }
