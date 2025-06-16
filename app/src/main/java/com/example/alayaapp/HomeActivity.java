@@ -49,6 +49,7 @@ public class HomeActivity extends AppCompatActivity {
     final int CURRENT_ITEM_ID = R.id.navigation_home;
     private static final int REQUEST_LOCATION_PERMISSION = 1;
     private static final String TAG = "HomeActivity";
+    public static final String EXTRA_SHOW_OUTSIDE_REGION_DIALOG = "SHOW_OUTSIDE_REGION_DIALOG";
 
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
@@ -69,7 +70,7 @@ public class HomeActivity extends AppCompatActivity {
     private static final String KEY_TRIP_END_TIME_MINUTE = "trip_end_time_minute";
 
     private String currentLocationNameToDisplay = "Tap to get current location";
-    private GeoPoint manualGeoPoint = null;
+    private GeoPoint currentUserGeoPoint = null; // Single source of truth for location
     private PlaceAdapter placeAdapter;
     private List<Place> placesList;
     private FirebaseFirestore db;
@@ -94,14 +95,14 @@ public class HomeActivity extends AppCompatActivity {
 
                     if (locationName != null && !locationName.isEmpty()) {
                         currentLocationNameToDisplay = locationName;
-                        manualGeoPoint = new GeoPoint(latitude, longitude);
+                        currentUserGeoPoint = new GeoPoint(latitude, longitude);
                         binding.tvLocationCity2.setText(currentLocationNameToDisplay);
                         if (binding.tvDirectionText != null) {
                             binding.tvDirectionText.setText("Manually set: " + currentLocationNameToDisplay);
                         }
                         saveLocationPreference("manual", locationName, latitude, longitude);
                         stopLocationUpdates();
-                        fetchAndFilterPlaces(manualGeoPoint); // Fetch spots for new location
+                        fetchAndFilterPlaces(currentUserGeoPoint); // Fetch spots for new location
                     }
                 }
             });
@@ -135,6 +136,15 @@ public class HomeActivity extends AppCompatActivity {
             if (itemId == CURRENT_ITEM_ID) {
                 return true;
             }
+
+            // MODIFIED: Check before navigating to Itineraries
+            if (itemId == R.id.navigation_itineraries) {
+                if (currentUserGeoPoint != null && !isLocationInAllowedRegion(currentUserGeoPoint.getLatitude(), currentUserGeoPoint.getLongitude())) {
+                    showOutsideRegionDialog();
+                    return false; // Block navigation
+                }
+            }
+
             Intent intent = null;
             if (itemId == R.id.navigation_itineraries) {
                 intent = new Intent(getApplicationContext(), ItinerariesActivity.class);
@@ -154,6 +164,11 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         loadLocationPreferenceAndInitialize();
+
+        // NEW: Check if we were redirected here to show the dialog
+        if (getIntent().getBooleanExtra(EXTRA_SHOW_OUTSIDE_REGION_DIALOG, false)) {
+            showOutsideRegionDialog();
+        }
     }
 
     private void setupDateTimePickers() {
@@ -306,6 +321,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void getAddressFromLocation(double latitude, double longitude) {
+        currentUserGeoPoint = new GeoPoint(latitude, longitude); // Update current location
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
 
         if (!isLocationInAllowedRegion(latitude, longitude)) {
@@ -468,16 +484,16 @@ public class HomeActivity extends AppCompatActivity {
         builder.setItems(options, (dialog, item) -> {
             if (options[item].equals("Use My Current GPS Location")) {
                 saveLocationPreference("auto", null, 0, 0);
-                manualGeoPoint = null;
+                currentUserGeoPoint = null;
                 binding.tvLocationCity2.setText("Fetching GPS location...");
                 if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Mode: GPS");
                 checkAndRequestLocationPermissions();
             } else if (options[item].equals("Set Location Manually")) {
                 Intent intent = new Intent(HomeActivity.this, ManualLocationPickerActivity.class);
                 // MODIFIED: Pass current manual location if it exists
-                if (manualGeoPoint != null) {
-                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_LAT, manualGeoPoint.getLatitude());
-                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_LON, manualGeoPoint.getLongitude());
+                if (currentUserGeoPoint != null) {
+                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_LAT, currentUserGeoPoint.getLatitude());
+                    intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_LON, currentUserGeoPoint.getLongitude());
                     intent.putExtra(ManualLocationPickerActivity.EXTRA_INITIAL_NAME, currentLocationNameToDisplay);
                 }
                 manualLocationPickerLauncher.launch(intent);
@@ -496,12 +512,12 @@ public class HomeActivity extends AppCompatActivity {
             double lon = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LONGITUDE, Double.doubleToRawLongBits(0.0)));
             if (!name.isEmpty() && lat != 0.0 && lon != 0.0) {
                 currentLocationNameToDisplay = name;
-                manualGeoPoint = new GeoPoint(lat, lon);
+                currentUserGeoPoint = new GeoPoint(lat, lon);
                 binding.tvLocationCity2.setText(currentLocationNameToDisplay);
                 if (binding.tvDirectionText != null)
                     binding.tvDirectionText.setText("Manually set: " + currentLocationNameToDisplay);
                 stopLocationUpdates();
-                fetchAndFilterPlaces(manualGeoPoint); // Fetch spots for saved manual location
+                fetchAndFilterPlaces(currentUserGeoPoint); // Fetch spots for saved manual location
             } else {
                 saveLocationPreference("auto", null, 0, 0);
                 checkAndRequestLocationPermissions();

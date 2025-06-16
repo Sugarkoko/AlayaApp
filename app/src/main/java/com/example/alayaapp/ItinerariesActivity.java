@@ -320,6 +320,12 @@ public class ItinerariesActivity extends AppCompatActivity {
             return;
         }
 
+        // NEW: Check region before fetching
+        if (!isLocationInAllowedRegion(startLocation.getLatitude(), startLocation.getLongitude())) {
+            redirectToHomeWithDialog();
+            return;
+        }
+
         loadTripDateTime();
         Toast.makeText(this, "Generating itinerary for your selected time...", Toast.LENGTH_SHORT).show();
 
@@ -505,10 +511,7 @@ public class ItinerariesActivity extends AppCompatActivity {
 
         if (!isLocationInAllowedRegion(latitude, longitude)) {
             stopLocationUpdates();
-            currentLocationName = "Outside supported region";
-            currentLocationStatus = "Please set a location in Baguio.";
-            itineraryAdapter.notifyItemChanged(0);
-            showOutsideRegionDialog();
+            redirectToHomeWithDialog();
             return;
         }
 
@@ -629,16 +632,13 @@ public class ItinerariesActivity extends AppCompatActivity {
                 longitude >= BAGUIO_REGION_MIN_LON && longitude <= BAGUIO_REGION_MAX_LON;
     }
 
-    private void showOutsideRegionDialog() {
-        new AlertDialog.Builder(this)
-                .setTitle("Outside Baguio Region")
-                .setMessage("Your current location is outside the supported region. Please set a location within Baguio to generate an itinerary.")
-                .setPositiveButton("Set Manually", (dialog, which) -> {
-                    Intent intent = new Intent(ItinerariesActivity.this, ManualLocationPickerActivity.class);
-                    manualLocationPickerLauncher.launch(intent);
-                })
-                .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
-                .show();
+    // MODIFIED: This method now redirects to HomeActivity to show the dialog
+    private void redirectToHomeWithDialog() {
+        Intent intent = new Intent(ItinerariesActivity.this, HomeActivity.class);
+        intent.putExtra(HomeActivity.EXTRA_SHOW_OUTSIDE_REGION_DIALOG, true);
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+        finish();
     }
 
     @Override
