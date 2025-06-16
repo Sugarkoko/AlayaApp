@@ -90,6 +90,7 @@ public class ItinerariesActivity extends AppCompatActivity {
     private String currentLocationName = "Tap to get current location";
     private String currentLocationStatus = "Set your location to begin";
     private String headerMessage = "";
+    private boolean isCurrentItinerarySaved = false;
 
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -161,7 +162,7 @@ public class ItinerariesActivity extends AppCompatActivity {
         }
 
         if (mainItinerary != null && mainItinerary.size() >= 2) {
-            fabSaveTrip.setVisibility(View.VISIBLE);
+            checkIfTripIsAlreadySaved(mainItinerary);
         } else {
             fabSaveTrip.setVisibility(View.GONE);
         }
@@ -176,7 +177,8 @@ public class ItinerariesActivity extends AppCompatActivity {
             return;
         }
 
-        fabSaveTrip.setEnabled(false);
+        isCurrentItinerarySaved = true;
+        updateSaveButtonState();
         Toast.makeText(this, "Saving trip...", Toast.LENGTH_SHORT).show();
 
         List<ItineraryItem> currentItinerary = new ArrayList<>();
@@ -188,12 +190,14 @@ public class ItinerariesActivity extends AppCompatActivity {
 
         if (currentItinerary.isEmpty()) {
             Toast.makeText(this, "No itinerary to save.", Toast.LENGTH_SHORT).show();
-            fabSaveTrip.setEnabled(true);
+            isCurrentItinerarySaved = false;
+            updateSaveButtonState();
             return;
         }
 
         String tripTitle = "Trip to " + currentLocationName;
         String tripDate = DateFormat.getDateInstance(DateFormat.MEDIUM).format(tripStartCalendar.getTime());
+        String signature = generateTripSignature(currentItinerary);
 
         List<Map<String, String>> itineraryForDb = new ArrayList<>();
         for (ItineraryItem item : currentItinerary) {
@@ -204,20 +208,63 @@ public class ItinerariesActivity extends AppCompatActivity {
             itineraryForDb.add(itemMap);
         }
 
-        Trip tripToSave = new Trip(tripTitle, tripDate, itineraryForDb);
+        Trip tripToSave = new Trip(tripTitle, tripDate, signature, itineraryForDb);
 
         db.collection("users").document(currentUser.getUid())
                 .collection("tripHistory")
                 .add(tripToSave)
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(this, "Trip saved successfully!", Toast.LENGTH_SHORT).show();
-                    fabSaveTrip.setEnabled(true);
                 })
                 .addOnFailureListener(e -> {
-                    Toast.makeText(this, "Error saving trip: " + e.getMessage(), Toast.LENGTH_LONG).show();
-                    Log.w(TAG_LOCATION, "Error adding document", e);
-                    fabSaveTrip.setEnabled(true);
+                    Toast.makeText(this, "Error saving trip. It will be saved when you're online.", Toast.LENGTH_LONG).show();
+                    Log.w(TAG_LOCATION, "Error adding document, will be retried by Firestore offline persistence.", e);
                 });
+    }
+
+    private String generateTripSignature(List<ItineraryItem> itinerary) {
+        if (itinerary == null || itinerary.isEmpty()) {
+            return "";
+        }
+        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(tripStartCalendar.getTime());
+        String firstActivity = itinerary.get(0).getActivity();
+        String secondActivity = itinerary.size() > 1 ? itinerary.get(1).getActivity() : "";
+        return currentLocationName + "_" + date + "_" + firstActivity + "_" + secondActivity;
+    }
+
+    private void checkIfTripIsAlreadySaved(List<ItineraryItem> itinerary) {
+        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+        if (currentUser == null) {
+            fabSaveTrip.setVisibility(View.GONE);
+            return;
+        }
+
+        String signature = generateTripSignature(itinerary);
+
+        db.collection("users").document(currentUser.getUid())
+                .collection("tripHistory")
+                .whereEqualTo("tripSignature", signature)
+                .limit(1)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful() && task.getResult() != null && !task.getResult().isEmpty()) {
+                        isCurrentItinerarySaved = true;
+                    } else {
+                        isCurrentItinerarySaved = false;
+                    }
+                    updateSaveButtonState();
+                });
+    }
+
+    private void updateSaveButtonState() {
+        fabSaveTrip.setVisibility(View.VISIBLE);
+        if (isCurrentItinerarySaved) {
+            fabSaveTrip.setImageResource(android.R.drawable.ic_menu_myplaces); // Using a checkmark-like icon
+            fabSaveTrip.setEnabled(false);
+        } else {
+            fabSaveTrip.setImageResource(android.R.drawable.ic_menu_save);
+            fabSaveTrip.setEnabled(true);
+        }
     }
 
     private void fetchRecommendationsAndBuildFinalList(final List<ItineraryItem> mainItinerary, final String message) {

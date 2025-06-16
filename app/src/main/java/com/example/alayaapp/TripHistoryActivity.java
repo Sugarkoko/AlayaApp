@@ -1,23 +1,27 @@
 package com.example.alayaapp;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
+
 import com.example.alayaapp.databinding.ActivityTripHistoryBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class TripHistoryActivity extends AppCompatActivity {
-
+// Implement the new listener interface
+public class TripHistoryActivity extends AppCompatActivity implements TripHistoryAdapter.OnTripInteractionListener {
     private ActivityTripHistoryBinding binding;
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -56,7 +60,8 @@ public class TripHistoryActivity extends AppCompatActivity {
 
     private void setupRecyclerView() {
         tripList = new ArrayList<>();
-        adapter = new TripHistoryAdapter(this, tripList);
+        // Pass 'this' as the listener when creating the adapter
+        adapter = new TripHistoryAdapter(this, tripList, this);
         binding.rvTripHistory.setLayoutManager(new LinearLayoutManager(this));
         binding.rvTripHistory.setAdapter(adapter);
     }
@@ -98,6 +103,52 @@ public class TripHistoryActivity extends AppCompatActivity {
                         binding.tvNoHistoryMessage.setText("Could not load trip history.");
                         binding.tvNoHistoryMessage.setVisibility(View.VISIBLE);
                     }
+                });
+    }
+
+    // --- NEW METHODS FOR DELETION ---
+
+    @Override
+    public void onTripLongPressed(Trip trip, int position) {
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Trip")
+                .setMessage("Are you sure you want to permanently delete your '" + trip.getTripTitle() + "'?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    deleteTripFromFirestore(trip, position);
+                })
+                .setNegativeButton("Cancel", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
+    private void deleteTripFromFirestore(Trip trip, int position) {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null || trip.getDocumentId() == null || trip.getDocumentId().isEmpty()) {
+            Toast.makeText(this, "Error: Could not delete trip.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        db.collection("users").document(currentUser.getUid())
+                .collection("tripHistory").document(trip.getDocumentId())
+                .delete()
+                .addOnSuccessListener(aVoid -> {
+                    // On success, update the UI
+                    tripList.remove(position);
+                    adapter.notifyItemRemoved(position);
+                    // This is important to fix headers if the first item of a month is deleted
+                    adapter.notifyItemRangeChanged(position, tripList.size());
+
+                    Toast.makeText(this, "Trip deleted successfully.", Toast.LENGTH_SHORT).show();
+
+                    // Check if the list is now empty
+                    if (tripList.isEmpty()) {
+                        binding.tvNoHistoryMessage.setVisibility(View.VISIBLE);
+                        binding.rvTripHistory.setVisibility(View.GONE);
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(this, "Failed to delete trip. Please try again.", Toast.LENGTH_SHORT).show();
+                    Log.e("TripHistoryActivity", "Error deleting trip", e);
                 });
     }
 }

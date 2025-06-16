@@ -6,23 +6,24 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-// This is the model class for documents in the tripHistory collection.
 public class Trip {
 
     @Exclude private String documentId;
 
     private String tripTitle;
     private String tripDate;
-    @ServerTimestamp private Date savedAt; // For sorting
+    private String tripSignature; // NEW: For checking duplicates
+    @ServerTimestamp private Date savedAt;
     private List<Map<String, String>> itinerary;
 
     public Trip() {
         // Public no-arg constructor needed for Firestore
     }
 
-    public Trip(String tripTitle, String tripDate, List<Map<String, String>> itinerary) {
+    public Trip(String tripTitle, String tripDate, String tripSignature, List<Map<String, String>> itinerary) {
         this.tripTitle = tripTitle;
         this.tripDate = tripDate;
+        this.tripSignature = tripSignature;
         this.itinerary = itinerary;
     }
 
@@ -48,6 +49,14 @@ public class Trip {
 
     public void setTripDate(String tripDate) {
         this.tripDate = tripDate;
+    }
+
+    public String getTripSignature() {
+        return tripSignature;
+    }
+
+    public void setTripSignature(String tripSignature) {
+        this.tripSignature = tripSignature;
     }
 
     public Date getSavedAt() {
