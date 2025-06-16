@@ -1,13 +1,18 @@
 package com.example.alayaapp;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.app.DatePickerDialog;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
-import android.text.InputType;
 import android.text.TextUtils; // For checking empty name
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,7 +23,13 @@ import android.widget.Toast;
 
 import com.example.alayaapp.databinding.ActivitySignUpBinding;
 import com.example.alayaapp.databinding.ActivityWelcomePageBinding;
-import com.google.android.material.button.MaterialButton; // For name dialog button
+import com.google.android.gms.common.api.ResolvableApiException;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -40,6 +51,10 @@ public class SignUpActivity extends AppCompatActivity {
     private DatabaseReference databaseReference; // Points to "users" node
     private static final String TAG = "SignUpActivity";
 
+    // Request codes for permission and settings
+    private static final int LOCATION_PERMISSION_REQUEST_CODE = 1001;
+    private static final int REQUEST_CHECK_SETTINGS = 1002;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +63,7 @@ public class SignUpActivity extends AppCompatActivity {
         showSignUpForm();
     }
 
+    // --- (showSignUpForm, showWelcomeScreen, showEnterNameDialog, showEnterBirthdayDialog, showEnterPhoneDialog remain the same) ---
     private void showSignUpForm() {
         signUpFormBinding = ActivitySignUpBinding.inflate(getLayoutInflater());
         setContentView(signUpFormBinding.getRoot());
@@ -260,6 +276,7 @@ public class SignUpActivity extends AppCompatActivity {
         builder.setView(dialogView);
 
         Button btnTurnOn = dialogView.findViewById(R.id.btn_turn_on);
+        Button btnSkip = dialogView.findViewById(R.id.btn_skip_location); // Get the new skip button
         locationDialog = builder.create();
 
         if (locationDialog.getWindow() != null) {
@@ -268,14 +285,100 @@ public class SignUpActivity extends AppCompatActivity {
         locationDialog.setCancelable(false);
 
         btnTurnOn.setOnClickListener(v_dialog_button -> {
-            if (locationDialog != null) locationDialog.dismiss();
-            Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-            finish();
+            checkAndRequestLocationPermissions();
         });
 
+        btnSkip.setOnClickListener(v -> navigateToHome());
+
         locationDialog.show();
+    }
+
+    private void checkAndRequestLocationPermissions() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // Permission is not granted, request it.
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    LOCATION_PERMISSION_REQUEST_CODE);
+        } else {
+            // Permission has already been granted, check if location is enabled.
+            checkDeviceLocationSettings();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Permission was granted, now check if location services are on.
+                checkDeviceLocationSettings();
+            } else {
+                // Permission was denied. Navigate to home anyway.
+                Toast.makeText(this, "Location permission denied. Features will be limited.", Toast.LENGTH_LONG).show();
+                navigateToHome();
+            }
+        }
+    }
+
+    private void checkDeviceLocationSettings() {
+        LocationRequest locationRequest = LocationRequest.create();
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(locationRequest);
+
+        SettingsClient client = LocationServices.getSettingsClient(this);
+        Task<LocationSettingsResponse> task = client.checkLocationSettings(builder.build());
+
+        task.addOnSuccessListener(this, locationSettingsResponse -> {
+            // All location settings are satisfied. Navigate to home.
+            Toast.makeText(this, "Location is on. You're all set!", Toast.LENGTH_SHORT).show();
+            navigateToHome();
+        });
+
+        task.addOnFailureListener(this, e -> {
+            if (e instanceof ResolvableApiException) {
+                // Location settings are not satisfied, but this can be fixed by showing the user a dialog.
+                try {
+                    // Show the dialog by calling startResolutionForResult()
+                    ResolvableApiException resolvable = (ResolvableApiException) e;
+                    resolvable.startResolutionForResult(SignUpActivity.this, REQUEST_CHECK_SETTINGS);
+                } catch (IntentSender.SendIntentException sendEx) {
+                    // Ignore the error.
+                    Log.e(TAG, "Error resolving location settings", sendEx);
+                    navigateToHome();
+                }
+            } else {
+                // Non-resolvable error.
+                navigateToHome();
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CHECK_SETTINGS) {
+            if (resultCode == RESULT_OK) {
+                // The user agreed to change location settings.
+                Toast.makeText(this, "Location services enabled!", Toast.LENGTH_SHORT).show();
+            } else {
+                // The user did not agree to change location settings.
+                Toast.makeText(this, "Location services are required for the best experience.", Toast.LENGTH_LONG).show();
+            }
+            // In either case, proceed to the home screen.
+            navigateToHome();
+        }
+    }
+
+    private void navigateToHome() {
+        if (locationDialog != null && locationDialog.isShowing()) {
+            locationDialog.dismiss();
+        }
+        Intent intent = new Intent(SignUpActivity.this, HomeActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(intent);
+        finish();
     }
 
     @Override
