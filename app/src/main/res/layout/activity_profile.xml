@@ -35,31 +35,32 @@
         android:id="@+id/flProfileImageContainer"
         android:layout_width="200dp"
         android:layout_height="200dp"
+        android:layout_marginTop="50dp"
         android:elevation="8dp"
-        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/tvProfileNameHeader"
-        android:layout_marginTop="50dp">
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvProfileNameHeader">
 
         <ImageView
             android:id="@+id/ivProfileBackground"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:src="@drawable/circle_gradient_background"
-            android:scaleType="fitXY"/>
+            android:scaleType="fitXY"
+            android:src="@drawable/circle_gradient_background" />
+
         <ImageView
             android:id="@+id/ivProfileBorder"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
+
         <ImageView
             android:id="@+id/ivProfileIcon"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_gravity="center"
+            android:contentDescription="Profile Picture"
             android:scaleType="fitCenter"
-            android:src="@drawable/ic_profile_placeholder"
-            android:contentDescription="Profile Picture" />
-
+            android:src="@drawable/ic_profile_placeholder" />
     </FrameLayout>
 
     <ScrollView
@@ -88,11 +89,11 @@
                 android:id="@+id/card_complete_profile_prompt"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
                 app:cardBackgroundColor="@color/light_teal_background"
                 app:cardCornerRadius="8dp"
                 app:cardElevation="2dp"
-                android:layout_marginBottom="16dp"
-                android:visibility="gone"
                 tools:visibility="visible">
 
                 <LinearLayout
@@ -119,7 +120,6 @@
                 </LinearLayout>
             </androidx.cardview.widget.CardView>
 
-
             <!-- Name Row -->
             <RelativeLayout
                 android:id="@+id/layoutName"
@@ -133,9 +133,9 @@
                     android:layout_height="24dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
+                    android:contentDescription="Name Icon"
                     android:src="@drawable/ic_profile"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Name Icon"/>
+                    app:tint="@color/colorPrimaryDarker" />
 
                 <TextView
                     android:id="@+id/tvProfileNameDetail"
@@ -144,11 +144,11 @@
                     android:layout_centerVertical="true"
                     android:layout_toStartOf="@id/ivLogout"
                     android:layout_toEndOf="@id/iconName"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="4dp"
                     android:text="Alice Go"
                     android:textColor="@color/black"
-                    android:textSize="16sp"
-                    android:background="?attr/selectableItemBackground"
-                    android:padding="4dp"/>
+                    android:textSize="16sp" />
 
                 <ImageView
                     android:id="@+id/ivLogout"
@@ -158,12 +158,12 @@
                     android:layout_centerVertical="true"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:clickable="true"
+                    android:contentDescription="Logout"
                     android:focusable="true"
                     android:src="@drawable/ic_logout"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Logout"/>
-
+                    app:tint="@color/colorPrimaryDarker" />
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -175,15 +175,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="12dp">
+
                 <ImageView
                     android:id="@+id/iconBirthday"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
+                    android:contentDescription="Birthday Icon"
                     android:src="@drawable/ic_calendar_today"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Birthday Icon"/>
+                    app:tint="@color/colorPrimaryDarker" />
 
                 <TextView
                     android:id="@+id/tvProfileBirthday"
@@ -191,12 +192,13 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toEndOf="@id/iconBirthday"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="4dp"
                     android:text="January 1, 2000"
                     android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:background="?attr/selectableItemBackground"
-                    android:padding="4dp"/>
+                    android:textSize="16sp" />
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -208,15 +210,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="12dp">
+
                 <ImageView
                     android:id="@+id/iconEmail"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
+                    android:contentDescription="Email Icon"
                     android:src="@drawable/ic_email"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Email Icon"/>
+                    app:tint="@color/colorPrimaryDarker" />
+
                 <TextView
                     android:id="@+id/tvProfileEmail"
                     android:layout_width="wrap_content"
@@ -224,11 +228,12 @@
                     android:layout_centerVertical="true"
                     android:layout_toStartOf="@+id/tvEditEmail"
                     android:layout_toEndOf="@id/iconEmail"
+                    android:padding="4dp"
                     android:text="alicego@gmail.com"
                     android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:padding="4dp"/>
-                <!-- android:background="?attr/selectableItemBackground" --> <!-- Add if email edit implemented -->
+                    android:textSize="16sp" />
+                <!-- android:background="?attr/selectableItemBackground" -->
+                <!-- Add if email edit implemented -->
                 <TextView
                     android:id="@+id/tvEditEmail"
                     android:layout_width="wrap_content"
@@ -244,6 +249,7 @@
                     android:textSize="14sp"
                     android:visibility="gone" />
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -262,9 +268,9 @@
                     android:layout_height="24dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
+                    android:contentDescription="Phone Icon"
                     android:src="@drawable/ic_phone"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Phone Icon"/>
+                    app:tint="@color/colorPrimaryDarker" />
 
                 <TextView
                     android:id="@+id/tvProfilePhone"
@@ -273,11 +279,11 @@
                     android:layout_centerVertical="true"
                     android:layout_toStartOf="@+id/tvEditPhone"
                     android:layout_toEndOf="@id/iconPhone"
+                    android:background="?attr/selectableItemBackground"
+                    android:padding="4dp"
                     android:text="09215687102"
                     android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:background="?attr/selectableItemBackground"
-                    android:padding="4dp"/>
+                    android:textSize="16sp" />
 
                 <TextView
                     android:id="@+id/tvEditPhone"
@@ -294,6 +300,7 @@
                     android:textSize="14sp"
                     android:visibility="gone" /> <!-- Hiding -->
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -305,15 +312,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="12dp">
+
                 <ImageView
                     android:id="@+id/iconPassword"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
+                    android:contentDescription="Password Icon"
                     android:src="@drawable/ic_visibility_on"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="Password Icon"/>
+                    app:tint="@color/colorPrimaryDarker" />
 
                 <TextView
                     android:id="@+id/tvProfilePassword"
@@ -321,10 +329,11 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toEndOf="@id/iconPassword"
+                    android:padding="4dp"
                     android:text="************"
                     android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:padding="4dp"/>
+                    android:textSize="16sp" />
+
                 <LinearLayout
                     android:id="@+id/layoutChangePassword"
                     android:layout_width="wrap_content"
@@ -342,9 +351,9 @@
                         android:layout_height="18dp"
                         android:layout_gravity="center_vertical"
                         android:layout_marginEnd="4dp"
+                        android:contentDescription="Change Password Icon"
                         android:src="@drawable/ic_visibility_on"
-                        app:tint="@color/colorPrimaryDarker"
-                        android:contentDescription="Change Password Icon"/>
+                        app:tint="@color/colorPrimaryDarker" />
 
                     <TextView
                         android:id="@+id/tvChangePassword"
@@ -356,6 +365,7 @@
                 </LinearLayout>
 
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -370,15 +380,16 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:paddingVertical="12dp">
+
                 <ImageView
                     android:id="@+id/iconHistory"
                     android:layout_width="24dp"
                     android:layout_height="24dp"
                     android:layout_centerVertical="true"
                     android:layout_marginEnd="16dp"
+                    android:contentDescription="History Icon"
                     android:src="@drawable/ic_history"
-                    app:tint="@color/colorPrimaryDarker"
-                    android:contentDescription="History Icon"/>
+                    app:tint="@color/colorPrimaryDarker" />
 
                 <TextView
                     android:id="@+id/tvProfileHistory"
@@ -386,11 +397,12 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_toEndOf="@id/iconHistory"
+                    android:padding="4dp"
                     android:text="Location and Itinerary History"
                     android:textColor="@color/textPrimary"
-                    android:textSize="16sp"
-                    android:padding="4dp"/>
+                    android:textSize="16sp" />
             </RelativeLayout>
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
@@ -406,13 +418,13 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/windowBackground"
         app:elevation="8dp"
+        app:itemActiveIndicatorStyle="@null"
         app:itemIconTint="@color/bottom_nav_color_selector"
         app:itemTextColor="@color/bottom_nav_color_selector"
         app:labelVisibilityMode="labeled"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:menu="@menu/bottom_nav_menu"
-        app:itemActiveIndicatorStyle="@null" />
+        app:menu="@menu/bottom_nav_menu" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -34,7 +34,7 @@ public class SignUpActivity extends AppCompatActivity {
     private ActivityWelcomePageBinding welcomeScreenBinding;
     private AlertDialog locationDialog;
     private AlertDialog nameEntryDialog; // Dialog for entering name
-    private AlertDialog birthdayEntryDialog;
+    private AlertDialog birthdayPromptDialog;
     private AlertDialog phoneEntryDialog;
     private FirebaseAuth mAuth;
     private DatabaseReference databaseReference; // Points to "users" node
@@ -78,6 +78,7 @@ public class SignUpActivity extends AppCompatActivity {
                 signUpFormBinding.confirmPasswordLayout.setError(null);
             }
             if (!valid) return;
+
             if (!password.equals(confirmPassword)) {
                 signUpFormBinding.confirmPasswordLayout.setError("Passwords do not match");
                 return;
@@ -115,8 +116,7 @@ public class SignUpActivity extends AppCompatActivity {
                             }
                         } else {
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(SignUpActivity.this, "Authentication failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"),
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(SignUpActivity.this, "Authentication failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), Toast.LENGTH_LONG).show();
                         }
                     });
         });
@@ -144,7 +144,7 @@ public class SignUpActivity extends AppCompatActivity {
         builder.setView(dialogView);
 
         final EditText nameEditText = dialogView.findViewById(R.id.dialog_name_edit_text);
-        MaterialButton nextButton = dialogView.findViewById(R.id.dialog_next_button);
+        Button nextButton = dialogView.findViewById(R.id.dialog_next_button);
 
         nameEntryDialog = builder.create();
         nameEntryDialog.setCancelable(false);
@@ -167,83 +167,101 @@ public class SignUpActivity extends AppCompatActivity {
                         Log.e(TAG, "Failed to save name to Firebase", e);
                     });
         });
+
         nameEntryDialog.show();
     }
 
     private void showEnterBirthdayDialog(final FirebaseUser firebaseUser) {
-        Calendar calendar = Calendar.getInstance();
-        int year = calendar.get(Calendar.YEAR) - 25; // Default to a reasonable age
-        int month = calendar.get(Calendar.MONTH);
-        int day = calendar.get(Calendar.DAY_OF_MONTH);
+        if (birthdayPromptDialog != null && birthdayPromptDialog.isShowing()) {
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.TransparentDialog);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_prompt_birthday, null);
+        builder.setView(dialogView);
+        birthdayPromptDialog = builder.create();
+        birthdayPromptDialog.setCancelable(false);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
-                (view, yearSelected, monthOfYear, dayOfMonth) -> {
-                    Calendar selectedDate = Calendar.getInstance();
-                    selectedDate.set(yearSelected, monthOfYear, dayOfMonth);
-                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
-                    String formattedDate = sdf.format(selectedDate.getTime());
-                    databaseReference.child(firebaseUser.getUid()).child("birthday").setValue(formattedDate)
-                            .addOnSuccessListener(aVoid -> {
-                                Toast.makeText(this, "Birthday saved!", Toast.LENGTH_SHORT).show();
-                                showEnterPhoneDialog(firebaseUser); // Proceed to next step
-                            })
-                            .addOnFailureListener(e -> {
-                                Log.e(TAG, "Failed to save birthday", e);
-                                showEnterPhoneDialog(firebaseUser); // Proceed even if it fails
-                            });
-                }, year, month, day);
+        Button btnSelectDate = dialogView.findViewById(R.id.btn_select_date);
+        Button btnSkip = dialogView.findViewById(R.id.btn_skip_birthday);
 
-        // Add a "Skip" button
-        datePickerDialog.setButton(DatePickerDialog.BUTTON_NEUTRAL, "Skip",
-                (dialog, which) -> {
-                    dialog.dismiss();
-                    showEnterPhoneDialog(firebaseUser); // Proceed to next step
-                });
+        btnSkip.setOnClickListener(v -> {
+            birthdayPromptDialog.dismiss();
+            showEnterPhoneDialog(firebaseUser);
+        });
 
-        datePickerDialog.setTitle("Select Your Birthday (Optional)");
-        datePickerDialog.show();
+        btnSelectDate.setOnClickListener(v -> {
+            Calendar calendar = Calendar.getInstance();
+            int year = calendar.get(Calendar.YEAR) - 25; // Default to a reasonable age
+            int month = calendar.get(Calendar.MONTH);
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+            DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, yearSelected, monthOfYear, dayOfMonth) -> {
+                Calendar selectedDate = Calendar.getInstance();
+                selectedDate.set(yearSelected, monthOfYear, dayOfMonth);
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                String formattedDate = sdf.format(selectedDate.getTime());
+                databaseReference.child(firebaseUser.getUid()).child("birthday").setValue(formattedDate)
+                        .addOnSuccessListener(aVoid -> Toast.makeText(this, "Birthday saved!", Toast.LENGTH_SHORT).show())
+                        .addOnFailureListener(e -> Log.e(TAG, "Failed to save birthday", e));
+
+                birthdayPromptDialog.dismiss();
+                showEnterPhoneDialog(firebaseUser); // Proceed to next step regardless of save success
+            }, year, month, day);
+
+            datePickerDialog.setTitle("Select Your Birthday");
+            datePickerDialog.show();
+        });
+
+        birthdayPromptDialog.show();
     }
 
+
     private void showEnterPhoneDialog(final FirebaseUser firebaseUser) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Enter Phone Number (Optional)");
+        if (phoneEntryDialog != null && phoneEntryDialog.isShowing()) {
+            return;
+        }
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.TransparentDialog);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_enter_phone, null);
+        builder.setView(dialogView);
+        phoneEntryDialog = builder.create();
+        phoneEntryDialog.setCancelable(false);
 
-        final EditText input = new EditText(this);
-        input.setInputType(InputType.TYPE_CLASS_PHONE);
-        input.setHint("e.g., 09123456789");
-        builder.setView(input);
+        final EditText phoneEditText = dialogView.findViewById(R.id.dialog_phone_edit_text);
+        Button btnSave = dialogView.findViewById(R.id.btn_save_phone);
+        Button btnSkip = dialogView.findViewById(R.id.btn_skip_phone);
 
-        builder.setPositiveButton("Save", (dialog, which) -> {
-            String phoneNumber = input.getText().toString().trim();
+        btnSkip.setOnClickListener(v -> {
+            phoneEntryDialog.dismiss();
+            showLocationPermissionDialog();
+        });
+
+        btnSave.setOnClickListener(v -> {
+            String phoneNumber = phoneEditText.getText().toString().trim();
             if (!TextUtils.isEmpty(phoneNumber)) {
                 databaseReference.child(firebaseUser.getUid()).child("contactNumber").setValue(phoneNumber)
-                        .addOnCompleteListener(task -> showLocationPermissionDialog()); // Proceed anyway
-            } else {
-                showLocationPermissionDialog();
+                        .addOnSuccessListener(aVoid -> Toast.makeText(this, "Phone number saved!", Toast.LENGTH_SHORT).show());
             }
-        });
-        builder.setNegativeButton("Skip", (dialog, which) -> {
-            dialog.cancel();
+            phoneEntryDialog.dismiss();
             showLocationPermissionDialog(); // Proceed to next step
         });
 
-        builder.setCancelable(false);
-        builder.show();
+        phoneEntryDialog.show();
     }
-
 
     private void showLocationPermissionDialog() {
         if (locationDialog != null && locationDialog.isShowing()) {
             return; // Prevent multiple dialogs
         }
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.TransparentDialog);
         LayoutInflater inflater = this.getLayoutInflater();
         View dialogView = inflater.inflate(R.layout.dialog_location_notification, null);
         builder.setView(dialogView);
 
         Button btnTurnOn = dialogView.findViewById(R.id.btn_turn_on);
-
         locationDialog = builder.create();
+
         if (locationDialog.getWindow() != null) {
             locationDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
@@ -269,8 +287,8 @@ public class SignUpActivity extends AppCompatActivity {
         if (nameEntryDialog != null && nameEntryDialog.isShowing()) {
             nameEntryDialog.dismiss();
         }
-        if (birthdayEntryDialog != null && birthdayEntryDialog.isShowing()) {
-            birthdayEntryDialog.dismiss();
+        if (birthdayPromptDialog != null && birthdayPromptDialog.isShowing()) {
+            birthdayPromptDialog.dismiss();
         }
         if (phoneEntryDialog != null && phoneEntryDialog.isShowing()) {
             phoneEntryDialog.dismiss();

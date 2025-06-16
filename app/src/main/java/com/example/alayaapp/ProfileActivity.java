@@ -30,10 +30,10 @@ import java.text.SimpleDateFormat; // For formatting date
 import java.util.Locale; // For date formatting
 
 public class ProfileActivity extends AppCompatActivity {
+
     private ActivityProfileBinding binding;
     final int CURRENT_ITEM_ID = R.id.navigation_profile;
     private static final String TAG = "ProfileActivity";
-
     private FirebaseAuth mAuth;
     private DatabaseReference userDatabaseReference;
 
@@ -42,7 +42,6 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -61,12 +60,9 @@ public class ProfileActivity extends AppCompatActivity {
             if (destinationItemId == CURRENT_ITEM_ID) return true;
 
             Class<?> destinationActivityClass = null;
-            if (destinationItemId == R.id.navigation_home)
-                destinationActivityClass = HomeActivity.class;
-            else if (destinationItemId == R.id.navigation_itineraries)
-                destinationActivityClass = ItinerariesActivity.class;
-            else if (destinationItemId == R.id.navigation_map)
-                destinationActivityClass = MapsActivity.class;
+            if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
+            else if (destinationItemId == R.id.navigation_itineraries) destinationActivityClass = ItinerariesActivity.class;
+            else if (destinationItemId == R.id.navigation_map) destinationActivityClass = MapsActivity.class;
 
             if (destinationActivityClass != null) {
                 navigateTo(destinationActivityClass, destinationItemId, true);
@@ -160,7 +156,6 @@ public class ProfileActivity extends AppCompatActivity {
             String formattedDate = sdf.format(selectedDate.getTime());
             updateFirebaseField("birthday", formattedDate);
         }, year, month, day);
-
         datePickerDialog.show();
     }
 
@@ -241,6 +236,7 @@ public class ProfileActivity extends AppCompatActivity {
             binding.tvProfilePhone.setText("N/A");
             binding.tvProfileBirthday.setText("N/A");
             binding.cardCompleteProfilePrompt.setVisibility(View.GONE); // Hide prompt if not logged in
+
             if (currentUser == null) Log.e(TAG, "Cannot load profile data: current user is null.");
             else Log.e(TAG, "Cannot load profile data: userDatabaseReference is null.");
         }
@@ -254,13 +250,11 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
-
         boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
         if (slideRightToLeft)
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         else
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-
         if (finishCurrent) finish();
     }
 
