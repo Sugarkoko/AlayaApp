@@ -632,7 +632,6 @@ public class ItinerariesActivity extends AppCompatActivity {
                 longitude >= BAGUIO_REGION_MIN_LON && longitude <= BAGUIO_REGION_MAX_LON;
     }
 
-    // MODIFIED: This method now redirects to HomeActivity to show the dialog
     private void redirectToHomeWithDialog() {
         Intent intent = new Intent(ItinerariesActivity.this, HomeActivity.class);
         intent.putExtra(HomeActivity.EXTRA_SHOW_OUTSIDE_REGION_DIALOG, true);
