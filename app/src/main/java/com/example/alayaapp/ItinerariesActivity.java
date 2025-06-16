@@ -31,6 +31,7 @@ import com.google.android.gms.location.Priority;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.io.IOException;
@@ -128,9 +129,10 @@ public class ItinerariesActivity extends AppCompatActivity {
         rvMain.setAdapter(itineraryAdapter);
     }
 
+    // --- CORRECTED buildDisplayList METHOD ---
     private void buildDisplayList(List<ItineraryItem> generatedItems, String message) {
         displayItems.clear();
-        this.headerMessage = message; // Set the message for the adapter
+        this.headerMessage = message;
         displayItems.add(new ItineraryAdapter.LocationHeaderData());
 
         if (generatedItems != null && !generatedItems.isEmpty()) {
@@ -138,7 +140,10 @@ public class ItinerariesActivity extends AppCompatActivity {
             displayItems.addAll(generatedItems);
         }
 
-        // Add a small disclaimer at the end
+        // The old hardcoded block that created the duplicate list has been REMOVED.
+        // Now we only call the new, dynamic method.
+        fetchRecommendedSections(generatedItems);
+
         if (generatedItems != null && !generatedItems.isEmpty()) {
             displayItems.add("Hours are based on standard schedules. We recommend checking ahead for holidays or special events.");
         }
@@ -146,8 +151,44 @@ public class ItinerariesActivity extends AppCompatActivity {
         itineraryAdapter.notifyDataSetChanged();
     }
 
+    private void fetchRecommendedSections(List<ItineraryItem> generatedItems) {
+        List<String> excludedIds = new ArrayList<>();
+        if (generatedItems != null && !generatedItems.isEmpty()) {
+            for (ItineraryItem item : generatedItems) {
+                if (item.getPlaceDocumentId() != null && !item.getPlaceDocumentId().isEmpty()) {
+                    excludedIds.add(item.getPlaceDocumentId());
+                }
+            }
+        }
+
+        Query topRatedQuery = db.collection("places")
+                .orderBy("rating", Query.Direction.DESCENDING)
+                .limit(10);
+
+        if (!excludedIds.isEmpty()) {
+            topRatedQuery = topRatedQuery.whereNotIn(com.google.firebase.firestore.FieldPath.documentId(), excludedIds);
+        }
+
+        topRatedQuery.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                List<Place> topRatedPlaces = new ArrayList<>();
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    Place place = document.toObject(Place.class);
+                    place.setDocumentId(document.getId());
+                    topRatedPlaces.add(place);
+                }
+
+                if (!topRatedPlaces.isEmpty()) {
+                    displayItems.add(new ItineraryAdapter.HorizontalListContainer("Top Rated", topRatedPlaces));
+                    itineraryAdapter.notifyDataSetChanged();
+                }
+            } else {
+                Log.w(TAG_LOCATION, "Error getting documents for recommended section.", task.getException());
+            }
+        });
+    }
+
     private void loadTripDateTime() {
-        // Set date
         if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
             int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripStartCalendar.get(Calendar.YEAR));
             int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripStartCalendar.get(Calendar.MONTH));
@@ -156,13 +197,11 @@ public class ItinerariesActivity extends AppCompatActivity {
             tripEndCalendar.set(year, month, day);
         }
 
-        // Set start time (default 9 AM)
         int startHour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
         int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
         tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
         tripStartCalendar.set(Calendar.MINUTE, startMinute);
 
-        // Set end time (default 6 PM)
         int endHour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
         int endMinute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
         tripEndCalendar.set(Calendar.HOUR_OF_DAY, endHour);
@@ -195,15 +234,13 @@ public class ItinerariesActivity extends AppCompatActivity {
                             }
                         }
 
-                        // Step 1: Attempt with user's chosen time
                         List<ItineraryItem> generatedItems = itineraryGenerator.generate(startLocation, allPlacesList, tripStartCalendar, tripEndCalendar);
 
-                        // Step 2: Check if the result is poor and trigger fallback if needed
                         if (generatedItems.size() < 2) {
                             showInteractiveFallbackDialog(startLocation);
                         } else {
                             Toast.makeText(this, "Itinerary generated!", Toast.LENGTH_SHORT).show();
-                            buildDisplayList(generatedItems, ""); // No special message
+                            buildDisplayList(generatedItems, "");
                         }
 
                     } else {
@@ -231,9 +268,8 @@ public class ItinerariesActivity extends AppCompatActivity {
     private void generateFallbackItinerary(GeoPoint startLocation) {
         Toast.makeText(this, "Finding best times and creating a new plan...", Toast.LENGTH_SHORT).show();
 
-        // Calculate dynamic window
         String dayOfWeek = tripStartCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
-        int earliestOpen = 24 * 60; // 24:00 in minutes
+        int earliestOpen = 24 * 60;
         int latestClose = 0;
 
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.US);
@@ -253,9 +289,8 @@ public class ItinerariesActivity extends AppCompatActivity {
                         Calendar closeCal = Calendar.getInstance();
                         closeCal.setTime(sdf.parse(hours.get("close")));
                         int closeMinutes = closeCal.get(Calendar.HOUR_OF_DAY) * 60 + closeCal.get(Calendar.MINUTE);
-                        // Handle overnight closing times (e.g., 02:00 is later than 23:00)
                         if (closeMinutes < earliestOpen) {
-                            closeMinutes += 24 * 60; // Add a day
+                            closeMinutes += 24 * 60;
                         }
                         if (closeMinutes > latestClose) {
                             latestClose = closeMinutes;
@@ -267,13 +302,11 @@ public class ItinerariesActivity extends AppCompatActivity {
             }
         }
 
-        // Create new calendars for the fallback
         Calendar fallbackStart = (Calendar) tripStartCalendar.clone();
         fallbackStart.set(Calendar.HOUR_OF_DAY, earliestOpen / 60);
         fallbackStart.set(Calendar.MINUTE, earliestOpen % 60);
 
         Calendar fallbackEnd = (Calendar) tripStartCalendar.clone();
-        // Handle times that went past midnight
         if (latestClose >= 24 * 60) {
             fallbackEnd.add(Calendar.DAY_OF_YEAR, 1);
             latestClose -= 24*60;
@@ -281,7 +314,6 @@ public class ItinerariesActivity extends AppCompatActivity {
         fallbackEnd.set(Calendar.HOUR_OF_DAY, latestClose / 60);
         fallbackEnd.set(Calendar.MINUTE, latestClose % 60);
 
-        // Re-run generator with the dynamic window
         List<ItineraryItem> fallbackItems = itineraryGenerator.generate(startLocation, allPlacesList, fallbackStart, fallbackEnd);
 
         String message;
@@ -304,7 +336,7 @@ public class ItinerariesActivity extends AppCompatActivity {
                 manualGeoPoint = null;
                 currentLocationName = "Fetching GPS location...";
                 currentLocationStatus = "Mode: GPS";
-                itineraryAdapter.notifyItemChanged(0); // Update header
+                itineraryAdapter.notifyItemChanged(0);
                 checkAndRequestLocationPermissions();
             } else if (options[item].equals("Set Location Manually")) {
                 Intent intent = new Intent(ItinerariesActivity.this, ManualLocationPickerActivity.class);
@@ -339,7 +371,7 @@ public class ItinerariesActivity extends AppCompatActivity {
             currentLocationStatus = "Mode: GPS. Waiting for location...";
             checkAndRequestLocationPermissions();
         }
-        buildDisplayList(new ArrayList<>(), ""); // Initial build with header
+        buildDisplayList(new ArrayList<>(), "");
     }
 
     private void getAddressFromLocation(double latitude, double longitude) {
@@ -383,7 +415,6 @@ public class ItinerariesActivity extends AppCompatActivity {
         }
     }
 
-    // --- Helper getters for the adapter ---
     public String getCurrentLocationNameToDisplay() {
         return currentLocationName;
     }
@@ -396,7 +427,6 @@ public class ItinerariesActivity extends AppCompatActivity {
         return headerMessage;
     }
 
-    // --- Unchanged methods below ---
     private void setupBottomNavListener() {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();

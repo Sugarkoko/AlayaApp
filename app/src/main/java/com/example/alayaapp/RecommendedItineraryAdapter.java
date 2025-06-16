@@ -1,23 +1,25 @@
 package com.example.alayaapp;
 
 import android.content.Context;
+import android.content.Intent;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
-
 import java.util.List;
+import java.util.Locale;
 
 public class RecommendedItineraryAdapter extends RecyclerView.Adapter<RecommendedItineraryAdapter.RecommendedViewHolder> {
 
-    private final List<RecommendedPlace> recommendedPlaces;
+    private final List<Place> recommendedPlaces;
     private final Context context;
 
-    public RecommendedItineraryAdapter(Context context, List<RecommendedPlace> recommendedPlaces) {
+    public RecommendedItineraryAdapter(Context context, List<Place> recommendedPlaces) {
         this.context = context;
         this.recommendedPlaces = recommendedPlaces;
     }
@@ -31,14 +33,34 @@ public class RecommendedItineraryAdapter extends RecyclerView.Adapter<Recommende
 
     @Override
     public void onBindViewHolder(@NonNull RecommendedViewHolder holder, int position) {
-        RecommendedPlace place = recommendedPlaces.get(position);
+        Place place = recommendedPlaces.get(position);
+
         holder.tvPlaceName.setText(place.getName());
-        holder.tvRating.setText(place.getRating());
-        holder.tvReviews.setText(place.getReviews());
+
+        // This logic handles cases where data might be missing in Firestore.
+        // It works together with the layout fix to create a robust UI.
+        if (place.getRating() > 0) {
+            holder.llRatingContainer.setVisibility(View.VISIBLE);
+            holder.tvRating.setText(String.format(Locale.getDefault(), "%.1f", place.getRating()));
+
+            if (place.getReview_count_text() != null && !TextUtils.isEmpty(place.getReview_count_text())) {
+                holder.tvReviews.setText(place.getReview_count_text());
+                holder.tvReviews.setVisibility(View.VISIBLE);
+            } else {
+                holder.tvReviews.setVisibility(View.GONE);
+            }
+        } else {
+            holder.llRatingContainer.setVisibility(View.GONE);
+        }
 
         holder.itemView.setOnClickListener(v -> {
-            // Placeholder action
-            Toast.makeText(context, "Clicked on " + place.getName(), Toast.LENGTH_SHORT).show();
+            if (place.getDocumentId() != null && !place.getDocumentId().isEmpty()) {
+                Intent intent = new Intent(context, PlaceDetailsActivity.class);
+                intent.putExtra(PlaceDetailsActivity.EXTRA_PLACE_DOCUMENT_ID, place.getDocumentId());
+                context.startActivity(intent);
+            } else {
+                Toast.makeText(context, "Details not available for " + place.getName(), Toast.LENGTH_SHORT).show();
+            }
         });
     }
 
@@ -49,37 +71,14 @@ public class RecommendedItineraryAdapter extends RecyclerView.Adapter<Recommende
 
     static class RecommendedViewHolder extends RecyclerView.ViewHolder {
         TextView tvPlaceName, tvRating, tvReviews;
+        LinearLayout llRatingContainer;
 
         public RecommendedViewHolder(@NonNull View itemView) {
             super(itemView);
             tvPlaceName = itemView.findViewById(R.id.tv_recommended_place_name);
             tvRating = itemView.findViewById(R.id.tv_recommended_place_rating);
             tvReviews = itemView.findViewById(R.id.tv_recommended_place_reviews);
-        }
-    }
-
-    // Simple data class for the recommended items
-    public static class RecommendedPlace {
-        private final String name;
-        private final String rating;
-        private final String reviews;
-
-        public RecommendedPlace(String name, String rating, String reviews) {
-            this.name = name;
-            this.rating = rating;
-            this.reviews = reviews;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public String getRating() {
-            return rating;
-        }
-
-        public String getReviews() {
-            return reviews;
+            llRatingContainer = itemView.findViewById(R.id.ll_rating_container);
         }
     }
 }

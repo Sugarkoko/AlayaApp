@@ -1,6 +1,5 @@
 package com.example.alayaapp;
 
-import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,7 +19,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_HEADER = 1;
     private static final int VIEW_TYPE_ITINERARY_CARD = 2;
     private static final int VIEW_TYPE_HORIZONTAL_LIST = 3;
-    private static final int VIEW_TYPE_FOOTER_MESSAGE = 4; // For disclaimer
+    private static final int VIEW_TYPE_FOOTER_MESSAGE = 4;
 
     private final List<Object> displayItems;
     private final ItinerariesActivity activity;
@@ -41,9 +40,9 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         } else if (item instanceof HorizontalListContainer) {
             return VIEW_TYPE_HORIZONTAL_LIST;
         } else if (item instanceof String) {
-            // Check if it's a header or a footer message
+            // Differentiate between a main header and a footer message
             String text = (String) item;
-            if (text.equals("Suggested Itinerary") || text.equals("Recommended Other Itineraries")) {
+            if (text.equals("Suggested Itinerary")) {
                 return VIEW_TYPE_HEADER;
             } else {
                 return VIEW_TYPE_FOOTER_MESSAGE; // Assume other strings are footers/disclaimers
@@ -73,7 +72,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 View footerView = inflater.inflate(R.layout.item_itinerary_footer_message, parent, false);
                 return new FooterMessageViewHolder(footerView);
             default:
-                throw new IllegalArgumentException("Invalid view type");
+                throw new IllegalArgumentException("Invalid view type: " + viewType);
         }
     }
 
@@ -115,7 +114,8 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (item instanceof ItineraryItem) {
             return ((ItineraryItem) item).getId();
         }
-        return position + 10000;
+        // Use hashcode for stable IDs for other objects, which is better than just position
+        return item.hashCode();
     }
 
     // --- ViewHolder for the main Location Header ---
@@ -128,7 +128,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvLocationCity = itemView.findViewById(R.id.tv_location_city_itineraries);
             tvLocationStatus = itemView.findViewById(R.id.tv_location_status_itineraries);
             ibEditLocation = itemView.findViewById(R.id.ib_edit_location_itineraries);
-            tvHeaderMessage = itemView.findViewById(R.id.tv_header_message); // Find the new TextView
+            tvHeaderMessage = itemView.findViewById(R.id.tv_header_message);
         }
 
         void bind() {
@@ -194,11 +194,17 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     // --- ViewHolder for the Horizontal RecyclerView ---
     class HorizontalListViewHolder extends RecyclerView.ViewHolder {
         RecyclerView rvHorizontal;
+        TextView tvTitle;
+
         HorizontalListViewHolder(@NonNull View itemView) {
             super(itemView);
             rvHorizontal = itemView.findViewById(R.id.rv_horizontal);
+            tvTitle = itemView.findViewById(R.id.tv_horizontal_section_header);
         }
+
         void bind(HorizontalListContainer container) {
+            tvTitle.setText(container.getTitle());
+            // The adapter now takes a List<Place>
             RecommendedItineraryAdapter adapter = new RecommendedItineraryAdapter(activity, container.getRecommendedPlaces());
             rvHorizontal.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false));
             rvHorizontal.setAdapter(adapter);
@@ -219,12 +225,18 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     // --- Data container classes ---
     public static class LocationHeaderData {}
+
     public static class HorizontalListContainer {
-        private final List<RecommendedItineraryAdapter.RecommendedPlace> recommendedPlaces;
-        public HorizontalListContainer(List<RecommendedItineraryAdapter.RecommendedPlace> places) {
+        private final String title;
+        private final List<Place> recommendedPlaces; // Now holds a list of real Place objects
+
+        public HorizontalListContainer(String title, List<Place> places) {
+            this.title = title;
             this.recommendedPlaces = places;
         }
-        public List<RecommendedItineraryAdapter.RecommendedPlace> getRecommendedPlaces() {
+
+        public String getTitle() { return title; }
+        public List<Place> getRecommendedPlaces() {
             return recommendedPlaces;
         }
     }

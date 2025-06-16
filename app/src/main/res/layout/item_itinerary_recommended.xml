@@ -8,12 +8,13 @@
     android:layout_marginEnd="8dp"
     android:layout_marginTop="4dp"
     android:layout_marginBottom="4dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:foreground="?android:attr/selectableItemBackground"
     app:cardBackgroundColor="@color/lightGrayBackground"
     app:cardCornerRadius="12dp"
     app:cardElevation="3dp"
-    android:clickable="true"
-    android:focusable="true"
-    android:foreground="?android:attr/selectableItemBackground">
+    android:minHeight="80dp">  <!-- This is the fix -->
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -26,14 +27,16 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="4dp"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:textColor="@color/textPrimary"
             android:textSize="14sp"
             android:textStyle="bold"
-            android:maxLines="2"
-            android:ellipsize="end"
             tools:text="Arca's Yard Cafe" />
 
+        <!-- I've added an ID to this LinearLayout -->
         <LinearLayout
+            android:id="@+id/ll_rating_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
