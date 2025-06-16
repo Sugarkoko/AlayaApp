@@ -7,7 +7,6 @@ import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -19,12 +18,15 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider; // New import
 import androidx.recyclerview.widget.LinearLayoutManager;
+
 import com.example.alayaapp.databinding.ActivityManualLocationPickerBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
@@ -35,8 +37,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import java.io.IOException;
-import java.lang.ref.WeakReference;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -55,16 +56,18 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
     private Runnable searchDebounceRunnable;
     private static final long SEARCH_DEBOUNCE_DELAY_MS = 700;
     private boolean isUserInteractingWithSearch = false;
+    private Geocoder geocoder; // Geocoder instance
 
-    // Bounding box for Geocoder search bias (Philippines)
-    private static final double PH_LOWER_LEFT_LAT = 4.0;
-    private static final double PH_LOWER_LEFT_LON = 116.0;
-    private static final double PH_UPPER_RIGHT_LAT = 22.0;
-    private static final double PH_UPPER_RIGHT_LON = 127.0;
+    // --- NEW: ViewModel instance ---
+    private LocationPickerViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // --- NEW: Initialize ViewModel ---
+        viewModel = new ViewModelProvider(this).get(LocationPickerViewModel.class);
+
         binding = ActivityManualLocationPickerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
         Toolbar toolbar = binding.toolbarManualLocation;
@@ -81,6 +84,11 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         }
         setupSuggestionRecyclerView();
         fusedLocationClientPicker = LocationServices.getFusedLocationProviderClient(this);
+        if (Geocoder.isPresent()) {
+            geocoder = new Geocoder(this, Locale.getDefault());
+        } else {
+            Toast.makeText(this, "Geocoder service not available.", Toast.LENGTH_LONG).show();
+        }
         setupSearchFunctionality();
         binding.btnConfirmLocation.setOnClickListener(v -> {
             if (currentSelectedPoint != null && !TextUtils.isEmpty(currentSelectedName)) {
@@ -95,8 +103,86 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
             }
         });
         binding.fabPickerMyLocation.setOnClickListener(v -> goToMyCurrentLocation());
+
+        // --- NEW: Set up observers ---
+        setupObservers();
     }
 
+    private void setupObservers() {
+        // Observer for geocoding (search) results
+        viewModel.getGeocodeResults().observe(this, addresses -> {
+            String currentSearchText = binding.etSearchLocation.getText().toString().trim();
+            if (addresses == null || addresses.isEmpty()) {
+                suggestionAdapter.setSuggestions(null);
+                binding.rvLocationSuggestions.setVisibility(View.GONE);
+            } else {
+                List<Address> validAddresses = new ArrayList<>();
+                for (Address adr : addresses) {
+                    if (adr.hasLatitude() && adr.hasLongitude()) {
+                        validAddresses.add(adr);
+                    }
+                }
+                suggestionAdapter.setSuggestions(validAddresses);
+                if (!validAddresses.isEmpty() && binding.etSearchLocation.hasFocus()) {
+                    binding.rvLocationSuggestions.setVisibility(View.VISIBLE);
+                } else {
+                    binding.rvLocationSuggestions.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        // Observer for reverse geocoding results
+        viewModel.getReverseGeocodeResult().observe(this, addressName -> {
+            if (addressName != null) {
+                currentSelectedName = addressName;
+                setSearchText(addressName);
+                if (selectedLocationMarker != null) {
+                    selectedLocationMarker.setTitle(addressName);
+                }
+            }
+        });
+    }
+
+    private void performSearch(String query) {
+        if (query.isEmpty()) {
+            suggestionAdapter.setSuggestions(null);
+            binding.rvLocationSuggestions.setVisibility(View.GONE);
+            return;
+        }
+        if (geocoder != null) {
+            // --- REFACTORED: Call ViewModel ---
+            viewModel.searchLocationByName(query, geocoder);
+        }
+    }
+
+    private void updateSelectedLocation(LatLng point, String name, boolean performReverseGeocode) {
+        currentSelectedPoint = point;
+        if (selectedLocationMarker != null) {
+            selectedLocationMarker.remove();
+        }
+        MarkerOptions markerOptions = new MarkerOptions().position(point);
+        if (name != null && !name.isEmpty()) {
+            markerOptions.title(name);
+            currentSelectedName = name;
+            setSearchText(name);
+        }
+        selectedLocationMarker = mMap.addMarker(markerOptions);
+        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 15f));
+        if (performReverseGeocode && name == null) {
+            setSearchText("Fetching address...");
+            // --- REFACTORED: Call ViewModel ---
+            if (geocoder != null) {
+                viewModel.reverseGeocode(point, geocoder);
+            }
+        }
+        binding.btnConfirmLocation.setEnabled(true);
+    }
+
+    // --- The AsyncTask inner classes have been completely removed. ---
+    // --- All other methods remain the same. ---
+
+    // ... (Keep all other methods like onMapReady, onMapClick, setupSearchFunctionality, etc. exactly as they were)
+    // ...
     private void setupSearchFunctionality() {
         binding.etSearchLocation.setOnEditorActionListener((v, actionId, event) -> {
             if (actionId == EditorInfo.IME_ACTION_SEARCH) {
@@ -108,8 +194,11 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
             return false;
         });
         binding.etSearchLocation.addTextChangedListener(new TextWatcher() {
-            @Override public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            @Override public void onTextChanged(CharSequence s, int start, int before, int count) {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!isUserInteractingWithSearch) return;
                 searchDebounceHandler.removeCallbacks(searchDebounceRunnable);
                 String query = s.toString().trim();
@@ -123,7 +212,9 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
                     binding.rvLocationSuggestions.setVisibility(View.GONE);
                 }
             }
-            @Override public void afterTextChanged(Editable s) {}
+
+            @Override
+            public void afterTextChanged(Editable s) {}
         });
         binding.etSearchLocation.setOnFocusChangeListener((v, hasFocus) -> {
             isUserInteractingWithSearch = hasFocus;
@@ -169,26 +260,6 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         updateSelectedLocation(latLng, null, true);
     }
 
-    private void updateSelectedLocation(LatLng point, String name, boolean performReverseGeocode) {
-        currentSelectedPoint = point;
-        if (selectedLocationMarker != null) {
-            selectedLocationMarker.remove();
-        }
-        MarkerOptions markerOptions = new MarkerOptions().position(point);
-        if (name != null && !name.isEmpty()) {
-            markerOptions.title(name);
-            currentSelectedName = name;
-            setSearchText(name);
-        }
-        selectedLocationMarker = mMap.addMarker(markerOptions);
-        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(point, 15f));
-        if (performReverseGeocode && name == null) {
-            setSearchText("Fetching address...");
-            new ReverseGeocodeTaskForGoogleMap(this).execute(point);
-        }
-        binding.btnConfirmLocation.setEnabled(true);
-    }
-
     private void setSearchText(String text) {
         isUserInteractingWithSearch = false;
         binding.etSearchLocation.setText(text);
@@ -200,20 +271,6 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         }
         if (binding.etSearchLocation.hasFocus()) {
             new Handler(Looper.getMainLooper()).postDelayed(() -> isUserInteractingWithSearch = true, 50);
-        }
-    }
-
-    private void performSearch(String query) {
-        if (query.isEmpty()) {
-            suggestionAdapter.setSuggestions(null);
-            binding.rvLocationSuggestions.setVisibility(View.GONE);
-            return;
-        }
-        if (Geocoder.isPresent()) {
-            new GeocodeFromNameTaskAndroid(this, query).execute(query);
-        } else {
-            Toast.makeText(this, "Geocoder service not available.", Toast.LENGTH_LONG).show();
-            binding.rvLocationSuggestions.setVisibility(View.GONE);
         }
     }
 
@@ -243,64 +300,6 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
         if (binding.etSearchLocation != null) {
             binding.etSearchLocation.clearFocus();
-        }
-    }
-
-    private static class GeocodeFromNameTaskAndroid extends AsyncTask<String, Void, List<Address>> {
-        private WeakReference<ManualLocationPickerActivity> activityReference;
-        private String originalQueryForThisTask;
-        GeocodeFromNameTaskAndroid(ManualLocationPickerActivity activity, String query) {
-            activityReference = new WeakReference<>(activity);
-            this.originalQueryForThisTask = query;
-        }
-        @Override protected void onPreExecute() { super.onPreExecute(); }
-        @Override protected List<Address> doInBackground(String... params) {
-            ManualLocationPickerActivity activity = activityReference.get();
-            if (activity == null || activity.isFinishing() || !Geocoder.isPresent()) return null;
-            Geocoder geocoder = new Geocoder(activity, Locale.getDefault());
-            try {
-                return geocoder.getFromLocationName(originalQueryForThisTask, 10, PH_LOWER_LEFT_LAT, PH_LOWER_LEFT_LON, PH_UPPER_RIGHT_LAT, PH_UPPER_RIGHT_LON);
-            } catch (IOException e) {
-                Log.e(TAG, "Android Geocoder error for query: " + originalQueryForThisTask, e);
-                return null;
-            } catch (IllegalArgumentException e) {
-                Log.e(TAG, "Android Geocoder illegal argument for bounds: " + originalQueryForThisTask, e);
-                try {
-                    return geocoder.getFromLocationName(originalQueryForThisTask, 10);
-                } catch (IOException ioe) {
-                    Log.e(TAG, "Android Geocoder fallback error for query: " + originalQueryForThisTask, ioe);
-                    return null;
-                }
-            }
-        }
-        @Override protected void onPostExecute(List<Address> addresses) {
-            ManualLocationPickerActivity activity = activityReference.get();
-            if (activity == null || activity.isFinishing()) return;
-            String currentSearchText = activity.binding.etSearchLocation.getText().toString().trim();
-            if (!activity.isUserInteractingWithSearch && !originalQueryForThisTask.equals(currentSearchText) && !currentSearchText.equals("Fetching address...")) {
-                if (activity.binding.rvLocationSuggestions.getVisibility() == View.VISIBLE) {
-                } else {
-                    Log.d(TAG, "Geocode result for '" + originalQueryForThisTask + "' is stale. Current: '" + currentSearchText + "'. Discarding.");
-                    return;
-                }
-            }
-            if (addresses == null || addresses.isEmpty()) {
-                activity.suggestionAdapter.setSuggestions(null);
-                activity.binding.rvLocationSuggestions.setVisibility(View.GONE);
-            } else {
-                List<Address> validAddresses = new ArrayList<>();
-                for (Address adr : addresses) {
-                    if (adr.hasLatitude() && adr.hasLongitude()) {
-                        validAddresses.add(adr);
-                    }
-                }
-                activity.suggestionAdapter.setSuggestions(validAddresses);
-                if (!validAddresses.isEmpty() && activity.binding.etSearchLocation.hasFocus()) {
-                    activity.binding.rvLocationSuggestions.setVisibility(View.VISIBLE);
-                } else {
-                    activity.binding.rvLocationSuggestions.setVisibility(View.GONE);
-                }
-            }
         }
     }
 
@@ -365,40 +364,6 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         }
     }
 
-    private static class ReverseGeocodeTaskForGoogleMap extends AsyncTask<LatLng, Void, String> {
-        private WeakReference<ManualLocationPickerActivity> activityReference;
-        ReverseGeocodeTaskForGoogleMap(ManualLocationPickerActivity activity) {
-            activityReference = new WeakReference<>(activity);
-        }
-        @Override protected String doInBackground(LatLng... params) {
-            ManualLocationPickerActivity activity = activityReference.get();
-            if (activity == null || activity.isFinishing() || !Geocoder.isPresent()) {
-                return "Selected Coordinates";
-            }
-            LatLng pointToReverse = params[0];
-            Geocoder geocoder = new Geocoder(activity, Locale.getDefault());
-            try {
-                List<Address> addresses = geocoder.getFromLocation(pointToReverse.latitude, pointToReverse.longitude, 1);
-                if (addresses != null && !addresses.isEmpty()) {
-                    return Helper.getAddressDisplayName(addresses.get(0));
-                }
-            } catch (IOException e) {
-                Log.e(TAG, "Reverse geocoding error (Google Map Tap)", e);
-            }
-            return String.format(Locale.US, "Lat:%.4f, Lon:%.4f", pointToReverse.latitude, pointToReverse.longitude);
-        }
-        @Override protected void onPostExecute(String addressName) {
-            ManualLocationPickerActivity activity = activityReference.get();
-            if (activity != null && !activity.isFinishing() && addressName != null) {
-                activity.currentSelectedName = addressName;
-                activity.setSearchText(addressName);
-                if (activity.selectedLocationMarker != null) {
-                    activity.selectedLocationMarker.setTitle(addressName);
-                }
-            }
-        }
-    }
-
     public static class Helper {
         public static String getAddressDisplayName(Address address) {
             if (address == null) return "Unknown Location";
@@ -451,9 +416,8 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         }
     }
 
-    @Override protected void onResume() { super.onResume(); }
-    @Override protected void onPause() { super.onPause(); }
-    @Override protected void onDestroy() {
+    @Override
+    protected void onDestroy() {
         super.onDestroy();
         searchDebounceHandler.removeCallbacksAndMessages(null);
     }

@@ -7,7 +7,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider; // New import
 
 import com.example.alayaapp.databinding.ActivityMapsBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -50,18 +50,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.maps.android.PolyUtil;
 
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.lang.ref.WeakReference;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -111,42 +100,31 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LinearLayout btnModeWalkCard, btnModeTaxiCard, btnModeTwoWheelsCard;
     private ImageView ivModeWalk, ivModeTaxi, ivModeTwoWheels;
     private TextView tvModeWalk, tvModeTaxi, tvModeTwoWheels;
-
-    // --- FIELDS FOR ITINERARY ROUTE ---
     private ImageButton btnShowItineraryRoute;
     private ItineraryGenerator itineraryGenerator;
     private boolean isShowingSegmentedRoute = false;
     private List<ItineraryItem> fullItinerary = new ArrayList<>();
-    private List<Place> allPlacesList = new ArrayList<>(); // Cache places for fallback
+    private List<Place> allPlacesList = new ArrayList<>();
     private int currentItinerarySegmentIndex = -1;
     private LatLng userStartLocationForItinerary;
     private String userStartLocationNameForItinerary;
     private Calendar tripStartCalendar;
     private Calendar tripEndCalendar;
-
-    // --- UI PANE FIELDS ---
     private CardView routeInfoPane;
     private TextView tvRouteEta, tvRouteDistance, tvRouteItineraryNumber, tvRouteDestinationName;
     private Button btnRouteNext, btnRoutePrevious;
 
-    private static class DirectionsResult {
-        List<LatLng> polylinePoints;
-        LatLngBounds routeBounds;
-        String durationText;
-        String distanceText;
-
-        DirectionsResult(List<LatLng> polylinePoints, LatLngBounds routeBounds, String duration, String distance) {
-            this.polylinePoints = polylinePoints;
-            this.routeBounds = routeBounds;
-            this.durationText = duration;
-            this.distanceText = distance;
-        }
-    }
+    // --- NEW: ViewModel instance ---
+    private MapsViewModel mapsViewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
+
+        // --- NEW: Initialize the ViewModel ---
+        mapsViewModel = new ViewModelProvider(this).get(MapsViewModel.class);
+
         try {
             binding = ActivityMapsBinding.inflate(getLayoutInflater());
             setContentView(binding.getRoot());
@@ -156,7 +134,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             finish();
             return;
         }
-
         ViewCompat.setOnApplyWindowInsetsListener(binding.mainMapsCoordinatorLayout, (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, 0);
@@ -167,14 +144,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
             return insets;
         });
-
         markerPlaceMap = new HashMap<>();
         db = FirebaseFirestore.getInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         itineraryGenerator = new ItineraryGenerator();
         tripStartCalendar = Calendar.getInstance();
         tripEndCalendar = Calendar.getInstance();
-
         try {
             ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
             Bundle bundle = ai.metaData;
@@ -188,7 +163,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         } catch (NullPointerException e) {
             Log.e(TAG, "Failed to load meta-data, NullPointer: " + e.getMessage());
         }
-
         transportModeContainer = binding.transportModeSelectorContainer;
         btnModeWalkCard = binding.btnModeWalkCard;
         ivModeWalk = binding.ivModeWalk;
@@ -199,8 +173,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnModeTwoWheelsCard = binding.btnModeTwoWheelsCard;
         ivModeTwoWheels = binding.ivModeTwoWheels;
         tvModeTwoWheels = binding.tvModeTwoWheels;
-
-        // --- BIND UI PANE ---
         routeInfoPane = binding.routeInfoPane;
         tvRouteEta = binding.tvRouteEta;
         tvRouteDistance = binding.tvRouteDistance;
@@ -210,7 +182,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnRoutePrevious = binding.btnRoutePrevious;
         btnRouteNext.setOnClickListener(v -> displayNextItinerarySegment());
         btnRoutePrevious.setOnClickListener(v -> displayPreviousItinerarySegment());
-
         btnShowItineraryRoute = binding.btnShowItineraryRoute;
         btnShowItineraryRoute.setOnClickListener(v -> {
             if (isShowingSegmentedRoute) {
@@ -219,10 +190,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startSegmentedRouteView();
             }
         });
-
         setupTransportModeButtons();
         setupBottomNavigation();
-
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map_fragment_container);
         if (mapFragment != null) {
@@ -231,7 +200,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.e(TAG, "SupportMapFragment not found!");
             Toast.makeText(this, "Error: Map Fragment not found.", Toast.LENGTH_LONG).show();
         }
-
         binding.fabMyLocation.setOnClickListener(v -> {
             if (mMap != null) {
                 if ("auto".equals(currentLocationMode)) {
@@ -245,8 +213,163 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         });
+
+        // --- NEW: Observe the LiveData for directions results ---
+        mapsViewModel.getDirectionsResult().observe(this, result -> {
+            if (result != null && result.polylinePoints != null && !result.polylinePoints.isEmpty()) {
+                drawActualRoute(result);
+            } else {
+                String failedMode = selectedUIMode.equals("two_wheels") ? "2-Wheels" : selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1);
+                Toast.makeText(this, "Could not calculate directions for " + failedMode + ".", Toast.LENGTH_LONG).show();
+                if (binding.tvDirectionText != null) {
+                    binding.tvDirectionText.setText("Failed to get directions for " + failedMode + ". Showing straight line.");
+                }
+                if (routeOriginMarker != null && routeDestinationMarker != null) {
+                    drawStraightLineFallback(
+                            routeOriginMarker.getPosition(), routeOriginMarker.getTitle(),
+                            routeDestinationMarker.getPosition(), routeDestinationMarker.getTitle(),
+                            pendingRouteDestDocId
+                    );
+                }
+            }
+        });
     }
 
+    private void initiateRouteDrawing(LatLng originLatLng, String originName, LatLng destLatLng, String destName, String destDocId) {
+        if (mMap == null || originLatLng == null || destLatLng == null) {
+            Log.e(TAG, "Cannot draw route: Map or LatLngs are null.");
+            Toast.makeText(this, "Error preparing route.", Toast.LENGTH_SHORT).show();
+            transportModeContainer.setVisibility(View.GONE);
+            return;
+        }
+        if (directionsApiKey == null || directionsApiKey.isEmpty()) {
+            Toast.makeText(this, "API Key for directions is missing. Cannot draw road route.", Toast.LENGTH_LONG).show();
+            Log.e(TAG, "Directions API key is null or empty. Drawing straight line fallback.");
+            drawStraightLineFallback(originLatLng, originName, destLatLng, destName, destDocId);
+            transportModeContainer.setVisibility(View.VISIBLE);
+            return;
+        }
+        clearRouteElements(false);
+        this.currentRouteOriginLatLng = originLatLng;
+        this.currentRouteOriginName = originName;
+        transportModeContainer.setVisibility(View.VISIBLE);
+        updateTransportModeUI();
+        routeOriginMarker = mMap.addMarker(new MarkerOptions()
+                .position(originLatLng).title(originName)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        routeDestinationMarker = mMap.addMarker(new MarkerOptions()
+                .position(destLatLng).title(destName)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+        String modeDisplayName = selectedUIMode.equals("two_wheels") ? "2-Wheels" : selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1);
+        if (binding.tvDirectionText != null) {
+            binding.tvDirectionText.setText("Calculating " + modeDisplayName + " route from " + originName + " to " + destName + "...");
+        }
+        // --- REFACTORED: Call ViewModel instead of AsyncTask ---
+        mapsViewModel.fetchDirections(originLatLng, destLatLng, directionsApiKey, this.apiTravelMode);
+    }
+
+    public void drawActualRoute(MapsViewModel.DirectionsResult directionsResult) {
+        if (mMap == null || directionsResult == null || directionsResult.polylinePoints == null || directionsResult.polylinePoints.isEmpty()) {
+            String failedModeDisplay = selectedUIMode.equals("two_wheels") ? "2-Wheels" : selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1);
+            Toast.makeText(this, "Could not draw " + failedModeDisplay + " route.", Toast.LENGTH_SHORT).show();
+            if (binding.tvDirectionText != null) {
+                binding.tvDirectionText.setText("Failed to calculate " + failedModeDisplay + " route path.");
+            }
+            if (routeOriginMarker != null && routeDestinationMarker != null) {
+                LatLngBounds.Builder builder = new LatLngBounds.Builder();
+                builder.include(routeOriginMarker.getPosition());
+                builder.include(routeDestinationMarker.getPosition());
+                int padding = (int) (getResources().getDisplayMetrics().widthPixels * 0.20);
+                try {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding));
+                } catch (Exception e) {
+                    Log.e(TAG, "Error animating camera to fallback bounds: " + e.getMessage());
+                }
+            }
+            return;
+        }
+        if (currentRoutePolyline != null) {
+            currentRoutePolyline.remove();
+        }
+        PolylineOptions polylineOptions = new PolylineOptions()
+                .addAll(directionsResult.polylinePoints)
+                .color(Color.parseColor("#3F51B5"))
+                .width(15);
+        currentRoutePolyline = mMap.addPolyline(polylineOptions);
+        if (isShowingSegmentedRoute) {
+            tvRouteEta.setText(directionsResult.durationText);
+            tvRouteDistance.setText("(" + directionsResult.distanceText + ")");
+        }
+        if (directionsResult.routeBounds != null) {
+            int padding = (int) (getResources().getDisplayMetrics().widthPixels * 0.15);
+            try {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(directionsResult.routeBounds, padding));
+            } catch (IllegalStateException e) {
+                Log.e(TAG, "Cannot animate camera to route bounds yet: " + e.getMessage());
+                if (routeDestinationMarker != null) {
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(routeDestinationMarker.getPosition(), 12f));
+                }
+            }
+        } else if (routeOriginMarker != null && routeDestinationMarker != null) {
+            LatLngBounds.Builder builder = new LatLngBounds.Builder();
+            builder.include(routeOriginMarker.getPosition());
+            builder.include(routeDestinationMarker.getPosition());
+            int padding = (int) (getResources().getDisplayMetrics().widthPixels * 0.20);
+            try {
+                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding));
+            } catch (Exception e) {
+                Log.e(TAG, "Error animating camera to origin/dest bounds: " + e.getMessage());
+            }
+        }
+        String modeDisplayName = selectedUIMode.equals("two_wheels") ? "2-Wheels" : selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1);
+        if (binding.tvDirectionText != null && routeOriginMarker != null && routeDestinationMarker != null) {
+            binding.tvDirectionText.setText(modeDisplayName + " Route: " + routeOriginMarker.getTitle() + " to " + routeDestinationMarker.getTitle());
+        } else if (binding.tvDirectionText != null) {
+            binding.tvDirectionText.setText(modeDisplayName + " route calculated.");
+        }
+    }
+
+    private void displayItinerarySegment(int index) {
+        if (!isShowingSegmentedRoute || fullItinerary.isEmpty() || index < 0 || index >= fullItinerary.size()) {
+            Log.e(TAG, "Cannot display segment, invalid state or index: " + index);
+            hideSegmentedRouteView();
+            return;
+        }
+        clearRouteElements(false);
+        LatLng origin, destination;
+        String originName, destinationName;
+        ItineraryItem currentStop = fullItinerary.get(index);
+        destination = new LatLng(currentStop.getCoordinates().getLatitude(), currentStop.getCoordinates().getLongitude());
+        destinationName = currentStop.getActivity();
+        if (index == 0) {
+            origin = userStartLocationForItinerary;
+            originName = userStartLocationNameForItinerary;
+        } else {
+            ItineraryItem previousStop = fullItinerary.get(index - 1);
+            origin = new LatLng(previousStop.getCoordinates().getLatitude(), previousStop.getCoordinates().getLongitude());
+            originName = previousStop.getActivity();
+        }
+        tvRouteDestinationName.setText(destinationName);
+        tvRouteItineraryNumber.setText(getOrdinal(index + 1) + " location");
+        tvRouteEta.setText("...");
+        tvRouteDistance.setText("...");
+        routeOriginMarker = mMap.addMarker(new MarkerOptions().position(origin).title(originName).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
+        routeDestinationMarker = mMap.addMarker(new MarkerOptions().position(destination).title(destinationName).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
+
+        // --- REFACTORED: Call ViewModel instead of AsyncTask ---
+        mapsViewModel.fetchDirections(origin, destination, directionsApiKey, apiTravelMode);
+
+        btnRouteNext.setEnabled(index < fullItinerary.size() - 1);
+        btnRoutePrevious.setEnabled(index > 0);
+    }
+
+    // --- The FetchDirectionsTask inner class has been completely removed. ---
+    // --- All other methods remain the same. ---
+
+    // ... (Keep all other methods like onMapReady, onInfoWindowClick, setupBottomNavigation, etc. exactly as they were)
+    // The rest of your MapsActivity.java file remains unchanged.
+    // Just ensure the FetchDirectionsTask class is deleted.
+    // ...
     private void setupTransportModeButtons() {
         btnModeWalkCard.setOnClickListener(v -> selectTravelMode("walk"));
         btnModeTaxiCard.setOnClickListener(v -> selectTravelMode("taxi"));
@@ -266,16 +389,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 newApiMode = "walking";
                 break;
         }
-
         if (this.selectedUIMode.equals(uiMode) && (currentRoutePolyline != null || isShowingSegmentedRoute)) {
             Log.d(TAG, "UI Mode " + uiMode + " already selected and route shown.");
             return;
         }
-
         this.selectedUIMode = uiMode;
         this.apiTravelMode = newApiMode;
         updateTransportModeUI();
-
         if (isShowingSegmentedRoute) {
             displayItinerarySegment(currentItinerarySegmentIndex);
         } else if (currentRouteOriginLatLng != null && pendingRouteDestLatLng != null) {
@@ -289,8 +409,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.d(TAG, "No active route to redraw for mode: " + this.selectedUIMode);
         }
     }
-
-    // --- START: SEGMENTED ITINERARY ROUTE LOGIC ---
     private void startSegmentedRouteView() {
         binding.tvDirectionText.setText("Generating itinerary...");
         fullItinerary.clear();
@@ -332,9 +450,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         final String KEY_TRIP_TIME_MINUTE = "trip_time_minute";
         final String KEY_TRIP_END_TIME_HOUR = "trip_end_time_hour";
         final String KEY_TRIP_END_TIME_MINUTE = "trip_end_time_minute";
-
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-
         if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
             int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripStartCalendar.get(Calendar.YEAR));
             int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripStartCalendar.get(Calendar.MONTH));
@@ -342,12 +458,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             tripStartCalendar.set(year, month, day);
             tripEndCalendar.set(year, month, day);
         }
-
         int startHour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
         int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
         tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
         tripStartCalendar.set(Calendar.MINUTE, startMinute);
-
         int endHour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
         int endMinute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
         tripEndCalendar.set(Calendar.HOUR_OF_DAY, endHour);
@@ -365,12 +479,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         allPlacesList.add(place);
                     }
                 }
-
                 loadTripDateTime(); // Load user's selected times
-
                 GeoPoint startGeoPoint = new GeoPoint(userStartLocationForItinerary.latitude, userStartLocationForItinerary.longitude);
                 List<ItineraryItem> generatedItems = itineraryGenerator.generate(startGeoPoint, allPlacesList, tripStartCalendar, tripEndCalendar);
-
                 if (generatedItems.size() < 2) {
                     showInteractiveFallbackDialog(startGeoPoint);
                 } else {
@@ -405,12 +516,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     private void generateFallbackItinerary(GeoPoint startLocation) {
         Toast.makeText(this, "Finding best times and creating a new route...", Toast.LENGTH_SHORT).show();
-
         String dayOfWeek = tripStartCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
         int earliestOpen = 24 * 60;
         int latestClose = 0;
         SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.US);
-
         for (Place place : allPlacesList) {
             if (place.getOpeningHours() != null && place.getOpeningHours().containsKey(dayOfWeek)) {
                 Map<String, String> hours = place.getOpeningHours().get(dayOfWeek);
@@ -433,27 +542,22 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
             }
         }
-
         Calendar fallbackStart = (Calendar) tripStartCalendar.clone();
         fallbackStart.set(Calendar.HOUR_OF_DAY, earliestOpen / 60);
         fallbackStart.set(Calendar.MINUTE, earliestOpen % 60);
-
         Calendar fallbackEnd = (Calendar) tripStartCalendar.clone();
         if (latestClose >= 24 * 60) {
             fallbackEnd.add(Calendar.DAY_OF_YEAR, 1);
-            latestClose -= 24 * 60;
+            latestClose -= 24*60;
         }
         fallbackEnd.set(Calendar.HOUR_OF_DAY, latestClose / 60);
         fallbackEnd.set(Calendar.MINUTE, latestClose % 60);
-
         List<ItineraryItem> fallbackItems = itineraryGenerator.generate(startLocation, allPlacesList, fallbackStart, fallbackEnd);
-
         if (fallbackItems.isEmpty()) {
             Toast.makeText(this, "No alternative route could be generated.", Toast.LENGTH_LONG).show();
             binding.tvDirectionText.setText("No attractions found for this day.");
             return;
         }
-
         fullItinerary = fallbackItems;
         isShowingSegmentedRoute = true;
         currentItinerarySegmentIndex = 0;
@@ -461,48 +565,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         transportModeContainer.setVisibility(View.VISIBLE);
         routeInfoPane.setVisibility(View.VISIBLE);
         Toast.makeText(this, "Suggested route is ready!", Toast.LENGTH_SHORT).show();
-    }
-
-
-    private void displayItinerarySegment(int index) {
-        if (!isShowingSegmentedRoute || fullItinerary.isEmpty() || index < 0 || index >= fullItinerary.size()) {
-            Log.e(TAG, "Cannot display segment, invalid state or index: " + index);
-            hideSegmentedRouteView();
-            return;
-        }
-        clearRouteElements(false); // Clear previous route but not all markers
-
-        LatLng origin, destination;
-        String originName, destinationName;
-        ItineraryItem currentStop = fullItinerary.get(index);
-        destination = new LatLng(currentStop.getCoordinates().getLatitude(), currentStop.getCoordinates().getLongitude());
-        destinationName = currentStop.getActivity();
-
-        if (index == 0) {
-            origin = userStartLocationForItinerary;
-            originName = userStartLocationNameForItinerary;
-        } else {
-            ItineraryItem previousStop = fullItinerary.get(index - 1);
-            origin = new LatLng(previousStop.getCoordinates().getLatitude(), previousStop.getCoordinates().getLongitude());
-            originName = previousStop.getActivity();
-        }
-
-        // Update UI Pane
-        tvRouteDestinationName.setText(destinationName);
-        tvRouteItineraryNumber.setText(getOrdinal(index + 1) + " location");
-        tvRouteEta.setText("...");
-        tvRouteDistance.setText("...");
-
-        // Add markers for current segment
-        routeOriginMarker = mMap.addMarker(new MarkerOptions().position(origin).title(originName).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-        routeDestinationMarker = mMap.addMarker(new MarkerOptions().position(destination).title(destinationName).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-
-        // Fetch directions
-        new FetchDirectionsTask(this, directionsApiKey, apiTravelMode).execute(origin, destination);
-
-        // Update BOTH button states
-        btnRouteNext.setEnabled(index < fullItinerary.size() - 1);
-        btnRoutePrevious.setEnabled(index > 0);
     }
 
     private void displayNextItinerarySegment() {
@@ -533,24 +595,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return number + "th";
         }
         switch (number % 10) {
-            case 1:
-                return number + "st";
-            case 2:
-                return number + "nd";
-            case 3:
-                return number + "rd";
-            default:
-                return number + "th";
+            case 1: return number + "st";
+            case 2: return number + "nd";
+            case 3: return number + "rd";
+            default: return number + "th";
         }
     }
-
-    // --- END: SEGMENTED ITINERARY ROUTE LOGIC ---
-
     private void updateTransportModeUI() {
         ImageView[] icons = {ivModeWalk, ivModeTaxi, ivModeTwoWheels};
         TextView[] texts = {tvModeWalk, tvModeTaxi, tvModeTwoWheels};
         String[] modes = {"walk", "taxi", "two_wheels"};
-
         for (int i = 0; i < modes.length; i++) {
             boolean isSelected = modes[i].equals(selectedUIMode);
             icons[i].setColorFilter(ContextCompat.getColor(this, isSelected ? R.color.colorPrimary : R.color.textSecondary), android.graphics.PorterDuff.Mode.SRC_IN);
@@ -582,12 +636,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         customInfoWindowAdapter = new CustomInfoWindowAdapter(MapsActivity.this, markerPlaceMap);
         mMap.setInfoWindowAdapter(customInfoWindowAdapter);
         mMap.setOnInfoWindowClickListener(this);
-
         clearRouteElements(true);
-
         Intent intent = getIntent();
         boolean drawRouteFlag = intent.getBooleanExtra(EXTRA_DRAW_ROUTE, false);
-
         if (intent.hasExtra(EXTRA_TARGET_LATITUDE) && intent.hasExtra(EXTRA_TARGET_LONGITUDE)) {
             pendingRouteDestLatLng = new LatLng(
                     intent.getDoubleExtra(EXTRA_TARGET_LATITUDE, 0),
@@ -596,7 +647,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             pendingRouteDestName = intent.getStringExtra(EXTRA_TARGET_NAME);
             pendingRouteDestDocId = intent.getStringExtra(PlaceDetailsActivity.EXTRA_PLACE_DOCUMENT_ID);
         }
-
         if (drawRouteFlag && pendingRouteDestLatLng != null) {
             transportModeContainer.setVisibility(View.VISIBLE);
             selectTravelMode("walk");
@@ -622,13 +672,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             } else if (manualHomeLocation != null) {
                 addManualHomeMarkerToMap();
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(manualHomeLocation, 15f));
-                if (binding.tvDirectionText != null)
-                    binding.tvDirectionText.setText(manualHomeLocationName);
+                if (binding.tvDirectionText != null) binding.tvDirectionText.setText(manualHomeLocationName);
             } else {
                 LatLng philippines = new LatLng(12.8797, 121.7740);
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(philippines, 6f));
-                if (binding.tvDirectionText != null)
-                    binding.tvDirectionText.setText("Explore the map.");
+                if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Explore the map.");
             }
         }
     }
@@ -718,45 +766,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    private void initiateRouteDrawing(LatLng originLatLng, String originName, LatLng destLatLng, String destName, String destDocId) {
-        if (mMap == null || originLatLng == null || destLatLng == null) {
-            Log.e(TAG, "Cannot draw route: Map or LatLngs are null.");
-            Toast.makeText(this, "Error preparing route.", Toast.LENGTH_SHORT).show();
-            transportModeContainer.setVisibility(View.GONE);
-            return;
-        }
-        if (directionsApiKey == null || directionsApiKey.isEmpty()) {
-            Toast.makeText(this, "API Key for directions is missing. Cannot draw road route.", Toast.LENGTH_LONG).show();
-            Log.e(TAG, "Directions API key is null or empty. Drawing straight line fallback.");
-            drawStraightLineFallback(originLatLng, originName, destLatLng, destName, destDocId);
-            transportModeContainer.setVisibility(View.VISIBLE);
-            return;
-        }
-
-        clearRouteElements(false);
-        this.currentRouteOriginLatLng = originLatLng;
-        this.currentRouteOriginName = originName;
-        transportModeContainer.setVisibility(View.VISIBLE);
-        updateTransportModeUI();
-
-        routeOriginMarker = mMap.addMarker(new MarkerOptions()
-                .position(originLatLng).title(originName)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-        routeDestinationMarker = mMap.addMarker(new MarkerOptions()
-                .position(destLatLng).title(destName)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
-
-        String modeDisplayName = selectedUIMode.equals("two_wheels") ? "2-Wheels" : selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1);
-        if (binding.tvDirectionText != null) {
-            binding.tvDirectionText.setText("Calculating " + modeDisplayName + " route from " + originName + " to " + destName + "...");
-        }
-        new FetchDirectionsTask(this, directionsApiKey, this.apiTravelMode).execute(originLatLng, destLatLng);
-    }
-
     private void drawStraightLineFallback(LatLng originLatLng, String originName, LatLng destLatLng, String destName, String destDocId) {
         Log.w(TAG, "Drawing straight line as fallback for route from " + originName + " to " + destName);
         if (mMap == null || originLatLng == null || destLatLng == null) return;
-
         if (currentRoutePolyline != null) {
             currentRoutePolyline.remove();
         }
@@ -766,7 +778,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 .width(10)
                 .pattern(Arrays.asList(new Dash(20), new Gap(10)));
         currentRoutePolyline = mMap.addPolyline(polylineOptions);
-
         LatLngBounds.Builder builder = new LatLngBounds.Builder();
         builder.include(originLatLng);
         builder.include(destLatLng);
@@ -779,74 +790,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.e(TAG, "IllegalStateException for newLatLngBounds (Fallback). Map not ready.", e);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destLatLng, 12f));
         }
-
         if (binding.tvDirectionText != null) {
             binding.tvDirectionText.setText("Showing straight line to " + destName + " (Directions API unavailable)");
-        }
-    }
-
-    public void drawActualRoute(DirectionsResult directionsResult) {
-        if (mMap == null || directionsResult == null || directionsResult.polylinePoints == null || directionsResult.polylinePoints.isEmpty()) {
-            String failedModeDisplay = selectedUIMode.equals("two_wheels") ? "2-Wheels" : selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1);
-            Toast.makeText(this, "Could not draw " + failedModeDisplay + " route.", Toast.LENGTH_SHORT).show();
-            if (binding.tvDirectionText != null) {
-                binding.tvDirectionText.setText("Failed to calculate " + failedModeDisplay + " route path.");
-            }
-            if (routeOriginMarker != null && routeDestinationMarker != null) {
-                LatLngBounds.Builder builder = new LatLngBounds.Builder();
-                builder.include(routeOriginMarker.getPosition());
-                builder.include(routeDestinationMarker.getPosition());
-                int padding = (int) (getResources().getDisplayMetrics().widthPixels * 0.20);
-                try {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding));
-                } catch (Exception e) {
-                    Log.e(TAG, "Error animating camera to fallback bounds: " + e.getMessage());
-                }
-            }
-            return;
-        }
-
-        if (currentRoutePolyline != null) {
-            currentRoutePolyline.remove();
-        }
-        PolylineOptions polylineOptions = new PolylineOptions()
-                .addAll(directionsResult.polylinePoints)
-                .color(Color.parseColor("#3F51B5"))
-                .width(15);
-        currentRoutePolyline = mMap.addPolyline(polylineOptions);
-
-        if (isShowingSegmentedRoute) {
-            tvRouteEta.setText(directionsResult.durationText);
-            tvRouteDistance.setText("(" + directionsResult.distanceText + ")");
-        }
-
-        if (directionsResult.routeBounds != null) {
-            int padding = (int) (getResources().getDisplayMetrics().widthPixels * 0.15);
-            try {
-                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(directionsResult.routeBounds, padding));
-            } catch (IllegalStateException e) {
-                Log.e(TAG, "Cannot animate camera to route bounds yet: " + e.getMessage());
-                if (routeDestinationMarker != null) {
-                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(routeDestinationMarker.getPosition(), 12f));
-                }
-            }
-        } else if (routeOriginMarker != null && routeDestinationMarker != null) {
-            LatLngBounds.Builder builder = new LatLngBounds.Builder();
-            builder.include(routeOriginMarker.getPosition());
-            builder.include(routeDestinationMarker.getPosition());
-            int padding = (int) (getResources().getDisplayMetrics().widthPixels * 0.20);
-            try {
-                mMap.animateCamera(CameraUpdateFactory.newLatLngBounds(builder.build(), padding));
-            } catch (Exception e) {
-                Log.e(TAG, "Error animating camera to origin/dest bounds: " + e.getMessage());
-            }
-        }
-
-        String modeDisplayName = selectedUIMode.equals("two_wheels") ? "2-Wheels" : selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1);
-        if (binding.tvDirectionText != null && routeOriginMarker != null && routeDestinationMarker != null) {
-            binding.tvDirectionText.setText(modeDisplayName + " Route: " + routeOriginMarker.getTitle() + " to " + routeDestinationMarker.getTitle());
-        } else if (binding.tvDirectionText != null) {
-            binding.tvDirectionText.setText(modeDisplayName + " route calculated.");
         }
     }
 
@@ -981,7 +926,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         binding.bottomNavigationMapsPage.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
             if (destinationItemId == CURRENT_ITEM_ID) return true;
-
             Class<?> destinationActivityClass = null;
             if (destinationItemId == R.id.navigation_home)
                 destinationActivityClass = HomeActivity.class;
@@ -989,7 +933,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 destinationActivityClass = ItinerariesActivity.class;
             else if (destinationItemId == R.id.navigation_profile)
                 destinationActivityClass = ProfileActivity.class;
-
             if (destinationActivityClass != null) {
                 Intent intent = new Intent(MapsActivity.this, destinationActivityClass);
                 intent.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT);
@@ -1022,172 +965,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (mMap != null && mMap.getUiSettings() != null) {
             clearRouteElements(true);
             onMapReady(mMap);
-        }
-    }
-
-    private static class FetchDirectionsTask extends AsyncTask<Object, Void, DirectionsResult> {
-        private WeakReference<MapsActivity> activityReference;
-        private String apiKey;
-        private String travelMode;
-
-        FetchDirectionsTask(MapsActivity context, String apiKey, String travelMode) {
-            this.activityReference = new WeakReference<>(context);
-            this.apiKey = apiKey;
-            this.travelMode = travelMode;
-        }
-
-        @Override
-        protected DirectionsResult doInBackground(Object... params) {
-            MapsActivity activity = activityReference.get();
-            if (activity == null || activity.isFinishing()) return null;
-
-            LatLng origin = (LatLng) params[0];
-            LatLng dest = (LatLng) params[1];
-            List<LatLng> waypoints = null;
-            if (params.length > 2) {
-                waypoints = (List<LatLng>) params[2];
-            }
-
-            String urlString = getDirectionsUrl(origin, dest, waypoints, apiKey, this.travelMode);
-            Log.d("FetchDirectionsTask", "Request URL: " + urlString);
-            String jsonData = "";
-            try {
-                jsonData = downloadUrl(urlString);
-            } catch (IOException e) {
-                Log.e("FetchDirectionsTask", "Error downloading URL: " + e.getMessage());
-                return null;
-            }
-            if (jsonData.isEmpty()) {
-                Log.e("FetchDirectionsTask", "Downloaded JSON data is empty.");
-                return null;
-            }
-            return parseDirections(jsonData);
-        }
-
-        @Override
-        protected void onPostExecute(DirectionsResult result) {
-            MapsActivity activity = activityReference.get();
-            if (activity == null || activity.isFinishing()) return;
-
-            if (result != null && result.polylinePoints != null && !result.polylinePoints.isEmpty()) {
-                activity.drawActualRoute(result);
-            } else {
-                String failedMode = activity.selectedUIMode.equals("two_wheels") ? "2-Wheels" : activity.selectedUIMode.substring(0, 1).toUpperCase() + activity.selectedUIMode.substring(1);
-                Toast.makeText(activity, "Could not calculate directions for " + failedMode + ".", Toast.LENGTH_LONG).show();
-                if (activity.binding.tvDirectionText != null) {
-                    activity.binding.tvDirectionText.setText("Failed to get directions for " + failedMode + ". Showing straight line.");
-                }
-                if (activity.routeOriginMarker != null && activity.routeDestinationMarker != null) {
-                    activity.drawStraightLineFallback(
-                            activity.routeOriginMarker.getPosition(),
-                            activity.routeOriginMarker.getTitle(),
-                            activity.routeDestinationMarker.getPosition(),
-                            activity.routeDestinationMarker.getTitle(),
-                            activity.pendingRouteDestDocId
-                    );
-                }
-            }
-        }
-
-        private String getDirectionsUrl(LatLng origin, LatLng dest, List<LatLng> waypoints, String key, String modeParam) {
-            String strOrigin = "origin=" + origin.latitude + "," + origin.longitude;
-            String strDest = "destination=" + dest.latitude + "," + dest.longitude;
-            String modeQueryParam = "mode=" + modeParam;
-            String strWaypoints = "";
-            if (waypoints != null && !waypoints.isEmpty()) {
-                StringBuilder sb = new StringBuilder();
-                sb.append("waypoints=optimize:true|");
-                for (int i = 0; i < waypoints.size(); i++) {
-                    LatLng point = waypoints.get(i);
-                    sb.append(point.latitude).append(",").append(point.longitude);
-                    if (i < waypoints.size() - 1) {
-                        sb.append("|");
-                    }
-                }
-                strWaypoints = "&" + sb.toString();
-            }
-            String parameters = strOrigin + "&" + strDest + strWaypoints + "&" + modeQueryParam;
-            parameters += "&key=" + key;
-            String output = "json";
-            return "https://maps.googleapis.com/maps/api/directions/" + output + "?" + parameters;
-        }
-
-        private String downloadUrl(String strUrl) throws IOException {
-            String data = "";
-            InputStream iStream = null;
-            HttpURLConnection urlConnection = null;
-            try {
-                URL url = new URL(strUrl);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.connect();
-                iStream = urlConnection.getInputStream();
-                BufferedReader br = new BufferedReader(new InputStreamReader(iStream));
-                StringBuilder sb = new StringBuilder();
-                String line;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
-                }
-                data = sb.toString();
-                br.close();
-            } catch (Exception e) {
-                Log.e("FetchDirectionsTask", "Exception downloading URL: " + e.toString());
-                throw new IOException("Error downloading URL", e);
-            } finally {
-                if (iStream != null) {
-                    try {
-                        iStream.close();
-                    } catch (IOException e) { /* ignore */ }
-                }
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-            }
-            return data;
-        }
-
-        private DirectionsResult parseDirections(String jsonData) {
-            List<LatLng> polylinePoints = new ArrayList<>();
-            LatLngBounds routeBounds = null;
-            String duration = "";
-            String distance = "";
-            try {
-                JSONObject jsonObject = new JSONObject(jsonData);
-                String status = jsonObject.optString("status");
-                if (!"OK".equals(status)) {
-                    Log.e("FetchDirectionsTask", "Directions API non-OK status: " + status + " - " + jsonObject.optString("error_message"));
-                    return null;
-                }
-                JSONArray routesArray = jsonObject.getJSONArray("routes");
-                if (routesArray.length() > 0) {
-                    JSONObject route = routesArray.getJSONObject(0);
-                    JSONObject overviewPolyline = route.getJSONObject("overview_polyline");
-                    String encodedPolyline = overviewPolyline.getString("points");
-                    polylinePoints = PolyUtil.decode(encodedPolyline);
-
-                    JSONObject boundsJson = route.getJSONObject("bounds");
-                    JSONObject northeastJson = boundsJson.getJSONObject("northeast");
-                    JSONObject southwestJson = boundsJson.getJSONObject("southwest");
-                    LatLng northeast = new LatLng(northeastJson.getDouble("lat"), northeastJson.getDouble("lng"));
-                    LatLng southwest = new LatLng(southwestJson.getDouble("lat"), southwestJson.getDouble("lng"));
-                    routeBounds = new LatLngBounds(southwest, northeast);
-
-                    if (route.has("legs")) {
-                        JSONArray legs = route.getJSONArray("legs");
-                        if (legs.length() > 0) {
-                            duration = legs.getJSONObject(0).getJSONObject("duration").getString("text");
-                            distance = legs.getJSONObject(0).getJSONObject("distance").getString("text");
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                Log.e("FetchDirectionsTask", "Error parsing directions JSON: " + e.getMessage());
-                return null;
-            }
-            if (polylinePoints.isEmpty() && jsonData.contains("\"status\" : \"OK\"") && jsonData.contains("\"routes\" : [ ]")) {
-                Log.w("FetchDirectionsTask", "Polyline points are empty even though status was OK. This implies no route for the mode (ZERO_RESULTS).");
-                return null;
-            }
-            return new DirectionsResult(polylinePoints, routeBounds, duration, distance);
         }
     }
 }

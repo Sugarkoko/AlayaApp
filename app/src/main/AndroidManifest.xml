@@ -18,7 +18,6 @@
         android:theme="@style/Theme.AlayaApp"
         tools:targetApi="34">
 
-        <!-- THE FIX: The hardcoded key is replaced with the placeholder from Gradle -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${mapsApiKey}" />
@@ -83,9 +82,9 @@
         <activity
             android:name=".ProfileActivity"
             android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
+
+        <!-- The declaration for .MainActivity has been removed from here. -->
+
     </application>
 
 </manifest>

@@ -7,7 +7,7 @@ plugins {
     id("com.google.gms.google-services")
 }
 
-// --- NEW: Code to read from local.properties ---
+// --- Code to read from local.properties ---
 val localProperties = Properties()
 val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
@@ -15,7 +15,6 @@ if (localPropertiesFile.exists()) {
 }
 // Get the API key, or an empty string if it's not found
 val mapsApiKey = localProperties.getProperty("MAPS_API_KEY") ?: ""
-// --- END NEW CODE ---
 
 
 android {
@@ -31,7 +30,6 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 
-        // --- NEW: Inject the key as a manifest placeholder ---
         manifestPlaceholders["mapsApiKey"] = mapsApiKey
     }
 
@@ -56,6 +54,10 @@ android {
 }
 
 dependencies {
+    // --- NEW DEPENDENCIES FOR VIEWMODEL AND LIVEDATA ---
+    implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.4")
+    implementation("androidx.lifecycle:lifecycle-livedata:2.8.4")
+
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("com.google.firebase:firebase-auth")
@@ -64,7 +66,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
     implementation(libs.play.services.maps)
-    implementation(libs.play.services.maps) // This is a duplicate, but we'll leave it for now as requested
+    // Removed duplicate play-services-maps
     implementation(libs.play.services.location)
     testImplementation(libs.junit)
     implementation(libs.maps.utils)
@@ -76,5 +78,5 @@ dependencies {
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
     implementation("com.github.bumptech.glide:glide:4.16.0")
-    implementation("de.hdodenhof:circleimageview:3.1.0") // This is also a duplicate
+    // Removed duplicate circleimageview
 }
