@@ -47,12 +47,10 @@
             android:layout_height="match_parent"
             android:src="@drawable/circle_gradient_background"
             android:scaleType="fitXY"/>
-
         <ImageView
             android:id="@+id/ivProfileBorder"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
-
         <ImageView
             android:id="@+id/ivProfileIcon"
             android:layout_width="100dp"
@@ -61,6 +59,7 @@
             android:scaleType="fitCenter"
             android:src="@drawable/ic_profile_placeholder"
             android:contentDescription="Profile Picture" />
+
     </FrameLayout>
 
     <ScrollView
@@ -83,6 +82,43 @@
             android:paddingTop="16dp"
             android:paddingEnd="16dp"
             android:paddingBottom="16dp">
+
+            <!-- NEW: Complete Profile Prompt Card -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/card_complete_profile_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:cardBackgroundColor="@color/light_teal_background"
+                app:cardCornerRadius="8dp"
+                app:cardElevation="2dp"
+                android:layout_marginBottom="16dp"
+                android:visibility="gone"
+                tools:visibility="visible">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Complete Your Profile"
+                        android:textColor="@color/colorPrimaryDarker"
+                        android:textSize="16sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="@string/profile_completion_prompt"
+                        android:textColor="@color/text_secondary_dark"
+                        android:textSize="14sp" />
+                </LinearLayout>
+            </androidx.cardview.widget.CardView>
+
 
             <!-- Name Row -->
             <RelativeLayout
@@ -126,6 +162,7 @@
                     android:src="@drawable/ic_logout"
                     app:tint="@color/colorPrimaryDarker"
                     android:contentDescription="Logout"/>
+
             </RelativeLayout>
             <View
                 android:layout_width="match_parent"
@@ -138,7 +175,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="12dp">
-
                 <ImageView
                     android:id="@+id/iconBirthday"
                     android:layout_width="24dp"
@@ -172,7 +208,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="12dp">
-
                 <ImageView
                     android:id="@+id/iconEmail"
                     android:layout_width="24dp"
@@ -182,7 +217,6 @@
                     android:src="@drawable/ic_email"
                     app:tint="@color/colorPrimaryDarker"
                     android:contentDescription="Email Icon"/>
-
                 <TextView
                     android:id="@+id/tvProfileEmail"
                     android:layout_width="wrap_content"
@@ -194,9 +228,7 @@
                     android:textColor="@color/textPrimary"
                     android:textSize="16sp"
                     android:padding="4dp"/>
-                <!-- android:background="?attr/selectableItemBackground" -->
-                <!-- Add if email edit implemented -->
-
+                <!-- android:background="?attr/selectableItemBackground" --> <!-- Add if email edit implemented -->
                 <TextView
                     android:id="@+id/tvEditEmail"
                     android:layout_width="wrap_content"
@@ -273,7 +305,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:paddingVertical="12dp">
-
                 <ImageView
                     android:id="@+id/iconPassword"
                     android:layout_width="24dp"
@@ -294,7 +325,6 @@
                     android:textColor="@color/textPrimary"
                     android:textSize="16sp"
                     android:padding="4dp"/>
-
                 <LinearLayout
                     android:id="@+id/layoutChangePassword"
                     android:layout_width="wrap_content"
@@ -324,6 +354,7 @@
                         android:textColor="@color/colorPrimary"
                         android:textSize="14sp" />
                 </LinearLayout>
+
             </RelativeLayout>
             <View
                 android:layout_width="match_parent"
@@ -339,7 +370,6 @@
                 android:clickable="true"
                 android:focusable="true"
                 android:paddingVertical="12dp">
-
                 <ImageView
                     android:id="@+id/iconHistory"
                     android:layout_width="24dp"

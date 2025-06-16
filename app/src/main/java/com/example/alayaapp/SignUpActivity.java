@@ -3,13 +3,16 @@ package com.example.alayaapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.app.DatePickerDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.InputType;
 import android.text.TextUtils; // For checking empty name
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;   // For location dialog
+import android.widget.Button; // For location dialog
 import android.widget.EditText; // For name dialog
 import android.widget.Toast;
 
@@ -20,15 +23,19 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
+import java.util.Locale;
 
 public class SignUpActivity extends AppCompatActivity {
-
     private ActivitySignUpBinding signUpFormBinding;
     private ActivityWelcomePageBinding welcomeScreenBinding;
     private AlertDialog locationDialog;
     private AlertDialog nameEntryDialog; // Dialog for entering name
-
+    private AlertDialog birthdayEntryDialog;
+    private AlertDialog phoneEntryDialog;
     private FirebaseAuth mAuth;
     private DatabaseReference databaseReference; // Points to "users" node
     private static final String TAG = "SignUpActivity";
@@ -38,7 +45,6 @@ public class SignUpActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("users");
-
         showSignUpForm();
     }
 
@@ -59,23 +65,19 @@ public class SignUpActivity extends AppCompatActivity {
             } else {
                 signUpFormBinding.emailLayout.setError(null);
             }
-
             if (password.isEmpty()) {
                 signUpFormBinding.passwordLayout.setError("Password required");
                 valid = false;
             } else {
                 signUpFormBinding.passwordLayout.setError(null);
             }
-
             if (confirmPassword.isEmpty()) {
                 signUpFormBinding.confirmPasswordLayout.setError("Confirmation required");
                 valid = false;
             } else {
                 signUpFormBinding.confirmPasswordLayout.setError(null);
             }
-
             if (!valid) return;
-
             if (!password.equals(confirmPassword)) {
                 signUpFormBinding.confirmPasswordLayout.setError("Passwords do not match");
                 return;
@@ -93,7 +95,6 @@ public class SignUpActivity extends AppCompatActivity {
                         if (task.isSuccessful()) {
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser firebaseUser = mAuth.getCurrentUser();
-
                             if (firebaseUser != null) {
                                 String userId = firebaseUser.getUid();
                                 HashMap<String, Object> userInfo = new HashMap<>();
@@ -114,8 +115,7 @@ public class SignUpActivity extends AppCompatActivity {
                             }
                         } else {
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(SignUpActivity.this, "Authentication failed: " +
-                                            (task.getException() != null ? task.getException().getMessage() : "Unknown error"),
+                            Toast.makeText(SignUpActivity.this, "Authentication failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"),
                                     Toast.LENGTH_LONG).show();
                         }
                     });
@@ -129,7 +129,6 @@ public class SignUpActivity extends AppCompatActivity {
     private void showWelcomeScreen(FirebaseUser firebaseUser) {
         welcomeScreenBinding = ActivityWelcomePageBinding.inflate(getLayoutInflater());
         setContentView(welcomeScreenBinding.getRoot());
-
         welcomeScreenBinding.getStartedButton.setOnClickListener(v_welcome -> {
             showEnterNameDialog(firebaseUser); // Show name dialog first
         });
@@ -141,13 +140,10 @@ public class SignUpActivity extends AppCompatActivity {
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.TransparentDialog);
         LayoutInflater inflater = this.getLayoutInflater();
-
         View dialogView = inflater.inflate(R.layout.dialog_enter_name, null);
         builder.setView(dialogView);
 
-
         final EditText nameEditText = dialogView.findViewById(R.id.dialog_name_edit_text);
-
         MaterialButton nextButton = dialogView.findViewById(R.id.dialog_next_button);
 
         nameEntryDialog = builder.create();
@@ -159,23 +155,82 @@ public class SignUpActivity extends AppCompatActivity {
                 nameEditText.setError("Name cannot be empty");
                 return;
             }
-
             // Save the name to Firebase
             databaseReference.child(firebaseUser.getUid()).child("name").setValue(name)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(SignUpActivity.this, "Name saved!", Toast.LENGTH_SHORT).show();
                         if (nameEntryDialog != null) nameEntryDialog.dismiss();
-                        showLocationPermissionDialog();
+                        showEnterBirthdayDialog(firebaseUser); // Proceed to next step
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(SignUpActivity.this, "Failed to save name: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                         Log.e(TAG, "Failed to save name to Firebase", e);
-
                     });
         });
-
         nameEntryDialog.show();
     }
+
+    private void showEnterBirthdayDialog(final FirebaseUser firebaseUser) {
+        Calendar calendar = Calendar.getInstance();
+        int year = calendar.get(Calendar.YEAR) - 25; // Default to a reasonable age
+        int month = calendar.get(Calendar.MONTH);
+        int day = calendar.get(Calendar.DAY_OF_MONTH);
+
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this,
+                (view, yearSelected, monthOfYear, dayOfMonth) -> {
+                    Calendar selectedDate = Calendar.getInstance();
+                    selectedDate.set(yearSelected, monthOfYear, dayOfMonth);
+                    SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
+                    String formattedDate = sdf.format(selectedDate.getTime());
+                    databaseReference.child(firebaseUser.getUid()).child("birthday").setValue(formattedDate)
+                            .addOnSuccessListener(aVoid -> {
+                                Toast.makeText(this, "Birthday saved!", Toast.LENGTH_SHORT).show();
+                                showEnterPhoneDialog(firebaseUser); // Proceed to next step
+                            })
+                            .addOnFailureListener(e -> {
+                                Log.e(TAG, "Failed to save birthday", e);
+                                showEnterPhoneDialog(firebaseUser); // Proceed even if it fails
+                            });
+                }, year, month, day);
+
+        // Add a "Skip" button
+        datePickerDialog.setButton(DatePickerDialog.BUTTON_NEUTRAL, "Skip",
+                (dialog, which) -> {
+                    dialog.dismiss();
+                    showEnterPhoneDialog(firebaseUser); // Proceed to next step
+                });
+
+        datePickerDialog.setTitle("Select Your Birthday (Optional)");
+        datePickerDialog.show();
+    }
+
+    private void showEnterPhoneDialog(final FirebaseUser firebaseUser) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Enter Phone Number (Optional)");
+
+        final EditText input = new EditText(this);
+        input.setInputType(InputType.TYPE_CLASS_PHONE);
+        input.setHint("e.g., 09123456789");
+        builder.setView(input);
+
+        builder.setPositiveButton("Save", (dialog, which) -> {
+            String phoneNumber = input.getText().toString().trim();
+            if (!TextUtils.isEmpty(phoneNumber)) {
+                databaseReference.child(firebaseUser.getUid()).child("contactNumber").setValue(phoneNumber)
+                        .addOnCompleteListener(task -> showLocationPermissionDialog()); // Proceed anyway
+            } else {
+                showLocationPermissionDialog();
+            }
+        });
+        builder.setNegativeButton("Skip", (dialog, which) -> {
+            dialog.cancel();
+            showLocationPermissionDialog(); // Proceed to next step
+        });
+
+        builder.setCancelable(false);
+        builder.show();
+    }
+
 
     private void showLocationPermissionDialog() {
         if (locationDialog != null && locationDialog.isShowing()) {
@@ -183,14 +238,12 @@ public class SignUpActivity extends AppCompatActivity {
         }
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         LayoutInflater inflater = this.getLayoutInflater();
-
         View dialogView = inflater.inflate(R.layout.dialog_location_notification, null);
         builder.setView(dialogView);
 
-
         Button btnTurnOn = dialogView.findViewById(R.id.btn_turn_on);
-        locationDialog = builder.create();
 
+        locationDialog = builder.create();
         if (locationDialog.getWindow() != null) {
             locationDialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
         }
@@ -203,18 +256,24 @@ public class SignUpActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
         locationDialog.show();
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         if (locationDialog != null && locationDialog.isShowing()) {
             locationDialog.dismiss();
         }
         if (nameEntryDialog != null && nameEntryDialog.isShowing()) {
             nameEntryDialog.dismiss();
+        }
+        if (birthdayEntryDialog != null && birthdayEntryDialog.isShowing()) {
+            birthdayEntryDialog.dismiss();
+        }
+        if (phoneEntryDialog != null && phoneEntryDialog.isShowing()) {
+            phoneEntryDialog.dismiss();
         }
     }
 }
