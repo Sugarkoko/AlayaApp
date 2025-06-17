@@ -22,33 +22,44 @@ public class ItineraryGenerator {
     private static final int MIN_VISIT_DURATION_MINUTES = 30;
     private static final double CATEGORY_REPETITION_PENALTY_KM = 50.0;
 
+    // ADDED: A result class to hold both the itinerary and any failure messages.
+    public static class GenerationResult {
+        public final List<ItineraryItem> itinerary;
+        public final List<String> unmetPreferences;
+
+        public GenerationResult(List<ItineraryItem> itinerary, List<String> unmetPreferences) {
+            this.itinerary = itinerary;
+            this.unmetPreferences = unmetPreferences;
+        }
+    }
+
     /**
-     * Generates an itinerary with dynamic time windows for each stop.
-     * This is the new primary generation method.
+     * MODIFIED: This method now returns a GenerationResult object.
      */
-    public List<ItineraryItem> generateWithTimeWindows(GeoPoint userStartLocation, List<Place> allPlaces, Calendar tripStartCalendar, Calendar tripEndCalendar, List<String> categoryPreferences) {
+    public GenerationResult generateWithTimeWindows(GeoPoint userStartLocation, List<Place> allPlaces, Calendar tripStartCalendar, Calendar tripEndCalendar, List<String> categoryPreferences) {
         Log.d(TAG, "Starting dynamic window itinerary generation.");
         List<ItineraryItem> generatedItinerary = new ArrayList<>();
         List<Place> availablePlaces = new ArrayList<>(allPlaces);
         String dayOfWeek = tripStartCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
 
-        // 1. Pre-filter places that are closed for the entire day.
+        // ADDED: List to track which preferences we couldn't meet.
+        List<String> unmetPreferences = new ArrayList<>();
+
         availablePlaces.removeIf(place -> !isPlaceOpenOnDay(place, dayOfWeek));
         if (availablePlaces.isEmpty()) {
             Log.w(TAG, "No places are open on " + dayOfWeek);
-            return generatedItinerary;
+            return new GenerationResult(generatedItinerary, unmetPreferences);
         }
 
-        // 2. Select the sequence of places to visit based on preferences.
-        List<Place> sequence = selectPlaceSequence(userStartLocation, availablePlaces, categoryPreferences);
+        // MODIFIED: Pass the unmetPreferences list to be populated.
+        List<Place> sequence = selectPlaceSequence(userStartLocation, availablePlaces, categoryPreferences, unmetPreferences);
         if (sequence.isEmpty()) {
             Log.w(TAG, "Could not determine a valid sequence of places.");
-            return generatedItinerary;
+            return new GenerationResult(generatedItinerary, unmetPreferences);
         }
 
         Log.d(TAG, "Determined sequence: " + sequence.stream().map(Place::getName).collect(Collectors.joining(" -> ")));
 
-        // 3. Calculate total minimum time required for the sequence
         long totalMinVisitMinutes = 0;
         for (Place p : sequence) {
             totalMinVisitMinutes += p.getAverageVisitDuration() > 0 ? p.getAverageVisitDuration() : DEFAULT_VISIT_DURATION_MINUTES;
@@ -62,16 +73,14 @@ public class ItineraryGenerator {
         long minTotalTimeMinutes = totalMinVisitMinutes + totalTravelMinutes;
         long userTripDurationMinutes = (tripEndCalendar.getTimeInMillis() - tripStartCalendar.getTimeInMillis()) / (60 * 1000);
 
-        // 4. Calculate and distribute slack time
         long slackMinutes = userTripDurationMinutes - minTotalTimeMinutes;
         Log.d(TAG, "User Trip: " + userTripDurationMinutes + " mins. Min Required: " + minTotalTimeMinutes + " mins. Slack: " + slackMinutes + " mins.");
         if (slackMinutes < 0) {
             Log.w(TAG, "Not enough time for the planned itinerary. Required time exceeds user's trip window.");
-            return generatedItinerary; // Return empty list to signal failure
+            return new GenerationResult(generatedItinerary, unmetPreferences);
         }
         double perStopSlackMinutes = sequence.isEmpty() ? 0 : (double) slackMinutes / sequence.size();
 
-        // 5. Generate the final itinerary with time windows (Forward Pass)
         Calendar currentTime = (Calendar) tripStartCalendar.clone();
         GeoPoint currentGeoLocation = userStartLocation;
         long itineraryItemIdCounter = 1;
@@ -83,19 +92,16 @@ public class ItineraryGenerator {
             Calendar placeOpenTime = getPlaceTime(place, dayOfWeek, "open", tripStartCalendar);
             Calendar placeCloseTime = getPlaceTime(place, dayOfWeek, "close", tripStartCalendar);
 
-            // The start of the visit window is the LATEST of: arrival time or opening time.
             Calendar windowStart = (Calendar) arrivalTime.clone();
             if (windowStart.before(placeOpenTime)) {
                 windowStart.setTime(placeOpenTime.getTime());
             }
 
-            // Calculate the end of the visit window based on duration + slack.
             int baseVisitDuration = place.getAverageVisitDuration() > 0 ? place.getAverageVisitDuration() : DEFAULT_VISIT_DURATION_MINUTES;
             int flexibleVisitDuration = (int) (baseVisitDuration + perStopSlackMinutes);
             Calendar windowEnd = (Calendar) windowStart.clone();
             windowEnd.add(Calendar.MINUTE, flexibleVisitDuration);
 
-            // The end of the visit window is the EARLIEST of: calculated end, closing time, or trip end time.
             if (windowEnd.after(placeCloseTime)) {
                 windowEnd.setTime(placeCloseTime.getTime());
             }
@@ -103,7 +109,6 @@ public class ItineraryGenerator {
                 windowEnd.setTime(tripEndCalendar.getTime());
             }
 
-            // Final check: if the calculated window is invalid or too short, skip the place.
             long finalVisitMinutes = (windowEnd.getTimeInMillis() - windowStart.getTimeInMillis()) / (60 * 1000);
             if (finalVisitMinutes < MIN_VISIT_DURATION_MINUTES || windowStart.after(windowEnd) || windowStart.after(tripEndCalendar)) {
                 Log.w(TAG, "Skipping " + place.getName() + " because the available time window is invalid or too short.");
@@ -111,8 +116,6 @@ public class ItineraryGenerator {
             }
 
             String rating = String.format(Locale.getDefault(), "%.1f", place.getRating());
-
-            // MODIFIED: Pass the category from the Place object to the ItineraryItem constructor
             generatedItinerary.add(new ItineraryItem(
                     itineraryItemIdCounter++,
                     windowStart,
@@ -122,36 +125,33 @@ public class ItineraryGenerator {
                     place.getImage_url(),
                     place.getCoordinates(),
                     place.getDocumentId(),
-                    place.getCategory() // Pass the category here
+                    place.getCategory()
             ));
 
-            // The departure time for the next leg is the end of the current window.
             currentTime = (Calendar) windowEnd.clone();
             currentGeoLocation = place.getCoordinates();
         }
-        return generatedItinerary;
+        // MODIFIED: Return the GenerationResult object.
+        return new GenerationResult(generatedItinerary, unmetPreferences);
     }
 
     /**
-     * Selects the sequence of places to visit, routing to the correct algorithm.
+     * MODIFIED: Accepts a list to populate with unmet preferences.
      */
-    private List<Place> selectPlaceSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences) {
+    private List<Place> selectPlaceSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences, List<String> unmetPreferences) {
         if (categoryPreferences == null || categoryPreferences.isEmpty()) {
             return selectGreedySequence(startLocation, availablePlaces);
         } else {
-            return selectCustomSequence(startLocation, availablePlaces, categoryPreferences);
+            return selectCustomSequence(startLocation, availablePlaces, categoryPreferences, unmetPreferences);
         }
     }
 
-    /**
-     * Selects a sequence of places using a greedy nearest-neighbor approach.
-     */
     private List<Place> selectGreedySequence(GeoPoint startLocation, List<Place> availablePlaces) {
         List<Place> sequence = new ArrayList<>();
         List<Place> pool = new ArrayList<>(availablePlaces);
         GeoPoint currentLocation = startLocation;
         String lastCategory = null;
-        int maxStops = 5; // Default number of stops for greedy mode
+        int maxStops = 5;
         while (sequence.size() < maxStops && !pool.isEmpty()) {
             Place bestNextPlace = null;
             double bestScore = Double.MAX_VALUE;
@@ -179,14 +179,20 @@ public class ItineraryGenerator {
     }
 
     /**
-     * Selects a sequence of places based on user-defined category preferences for each stop.
+     * MODIFIED: This now populates the unmetPreferences list when a category isn't found.
      */
-    private List<Place> selectCustomSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences) {
+    private List<Place> selectCustomSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences, List<String> unmetPreferences) {
         List<Place> sequence = new ArrayList<>();
         List<Place> pool = new ArrayList<>(availablePlaces);
         GeoPoint currentLocation = startLocation;
-        for (String preferredCategory : categoryPreferences) {
-            if (pool.isEmpty()) break;
+
+        for (int i = 0; i < categoryPreferences.size(); i++) {
+            String preferredCategory = categoryPreferences.get(i);
+            if (pool.isEmpty()) {
+                // If the pool is empty, all remaining preferences are unmet.
+                unmetPreferences.add("'" + preferredCategory + "' for Stop " + (i + 1));
+                continue;
+            }
 
             List<Place> candidatesForStop = new ArrayList<>();
             if ("Any".equalsIgnoreCase(preferredCategory)) {
@@ -201,6 +207,8 @@ public class ItineraryGenerator {
 
             if (candidatesForStop.isEmpty()) {
                 Log.w(TAG, "No available places in pool for category: " + preferredCategory);
+                // ADDED: Record the failure.
+                unmetPreferences.add("'" + preferredCategory + "' for Stop " + (i + 1));
                 continue;
             }
 

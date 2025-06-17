@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -17,6 +19,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -71,27 +74,17 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _itineraryState.postValue(savedState);
                 _currentLocationName.postValue(savedState.getLocationName());
                 _currentLocationStatus.postValue("Loaded saved plan for: " + savedState.getLocationName());
-
-                // --- THE COMPLETE FIX IS HERE ---
                 if (savedState.getItineraryItems() != null && !savedState.getItineraryItems().isEmpty()) {
-                    // Get the start time from the first item
                     Calendar tripStart = savedState.getItineraryItems().get(0).getStartTime();
-
-                    // **CRITICAL NULL CHECK**
-                    // Ensure the calendar object was successfully created before using it.
                     if (tripStart != null) {
                         checkIfTripIsAlreadySaved(savedState.getItineraryItems(), savedState.getLocationName(), tripStart);
                     } else {
-                        // If the time is invalid, it can't be a saved trip.
                         Log.w(TAG, "Loaded itinerary item has an invalid start time. Cannot check history.");
                         _isItinerarySaved.postValue(false);
                     }
                 } else {
-                    // If there are no items, it can't be saved, so set to false.
                     _isItinerarySaved.postValue(false);
                 }
-                // --- END OF FIX ---
-
             } else {
                 Log.d(TAG, "ViewModel initialized with no saved state.");
                 _itineraryState.postValue(null);
@@ -112,17 +105,33 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _isLoading.postValue(false);
             } else {
                 Log.d(TAG, forceRegenerate ? "Forcing regeneration." : "No valid saved itinerary. Generating new one.");
-                List<ItineraryItem> generatedItems = itineraryGenerator.generateWithTimeWindows(startLocation, allPlaces, tripStart, tripEnd, categoryPreferences);
 
-                String message = "";
+                // MODIFIED: Handle the new GenerationResult object
+                ItineraryGenerator.GenerationResult result = itineraryGenerator.generateWithTimeWindows(startLocation, allPlaces, tripStart, tripEnd, categoryPreferences);
+                List<ItineraryItem> generatedItems = result.itinerary;
+
+                StringBuilder messageBuilder = new StringBuilder();
+
                 if (generatedItems.isEmpty()) {
-                    message = "We couldn't find any open attractions for your selected time and categories, or the schedule was too tight. Try extending your trip time or changing preferences.";
+                    messageBuilder.append("We couldn't find any open attractions for your selected time and categories, or the schedule was too tight. Try extending your trip time or changing preferences.");
                 } else if (categoryPreferences != null && !categoryPreferences.isEmpty() && generatedItems.size() < categoryPreferences.size()) {
-                    message = "We couldn't find matches for all your preferences, but here's what we found!";
+                    messageBuilder.append("We couldn't find matches for all your preferences, but here's what we found!");
                 } else {
-                    message = "This is a suggested plan. Times are flexible and based on your trip window and location hours.";
+                    messageBuilder.append("This is a suggested plan. Times are flexible and based on your trip window and location hours.");
                 }
-                fetchRecommendationsAndBuildState(generatedItems, message, startLocation, locationName, tripStart, tripEnd, categoryPreferences);
+
+                // ADDED: Append specific failure messages if they exist.
+                if (result.unmetPreferences != null && !result.unmetPreferences.isEmpty()) {
+                    messageBuilder.append("\n\nNote: We could not find a nearby location for the following:\n");
+                    for (int i = 0; i < result.unmetPreferences.size(); i++) {
+                        messageBuilder.append("• ").append(result.unmetPreferences.get(i));
+                        if (i < result.unmetPreferences.size() - 1) {
+                            messageBuilder.append("\n");
+                        }
+                    }
+                }
+
+                fetchRecommendationsAndBuildState(generatedItems, messageBuilder.toString(), startLocation, locationName, tripStart, tripEnd, categoryPreferences);
             }
         });
     }
@@ -141,8 +150,9 @@ public class ItineraryViewModel extends AndroidViewModel {
                 if (item.getPlaceDocumentId() != null) excludedIds.add(item.getPlaceDocumentId());
             }
         }
+
         Query topRatedQuery = db.collection("places").orderBy("rating", Query.Direction.DESCENDING).limit(10);
-        if (!excludedIds.isEmpty() && excludedIds.size() < 10) { // Firestore 'not-in' limit is 10
+        if (!excludedIds.isEmpty() && excludedIds.size() < 10) {
             topRatedQuery = topRatedQuery.whereNotIn(com.google.firebase.firestore.FieldPath.documentId(), excludedIds);
         }
 
@@ -157,11 +167,14 @@ public class ItineraryViewModel extends AndroidViewModel {
             } else {
                 Log.w(TAG, "Error getting recommended places.", task.getException());
             }
+
             ItineraryState newState = new ItineraryState(
                     startLocation.getLatitude(), startLocation.getLongitude(),
                     tripStart.getTimeInMillis(), tripEnd.getTimeInMillis(),
-                    categoryPreferences, mainItinerary, topRatedPlaces, message, locationName
+                    categoryPreferences,
+                    mainItinerary, topRatedPlaces, message, locationName
             );
+
             saveStateToPrefs(newState);
             _itineraryState.postValue(newState);
             _currentLocationName.postValue(locationName);
@@ -200,6 +213,7 @@ public class ItineraryViewModel extends AndroidViewModel {
             Toast.makeText(getApplication(), "No itinerary to save.", Toast.LENGTH_SHORT).show();
             return;
         }
+
         _isItinerarySaved.setValue(true);
         Toast.makeText(getApplication(), "Saving trip...", Toast.LENGTH_SHORT).show();
 
@@ -246,7 +260,6 @@ public class ItineraryViewModel extends AndroidViewModel {
     }
 
     private String generateTripSignature(List<ItineraryItem> itinerary, String locationName, Calendar tripStartCalendar) {
-        // Defensive null checks to prevent crashes
         if (itinerary == null || itinerary.isEmpty() || tripStartCalendar == null) {
             return "";
         }
