@@ -1,3 +1,5 @@
+// In: app/src/main/java/com/example/alayaapp/MapsActivity.java
+
 package com.example.alayaapp;
 
 import android.Manifest;
@@ -64,6 +66,7 @@ import java.util.Locale;
 import java.util.Map;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnInfoWindowClickListener {
+
     private static final String TAG = "MapsActivity";
     private ActivityMapsBinding binding;
     private GoogleMap mMap;
@@ -71,12 +74,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient fusedLocationClient;
     final int CURRENT_ITEM_ID = R.id.navigation_map;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 101;
-
     public static final String EXTRA_TARGET_LATITUDE = "com.example.alayaapp.TARGET_LATITUDE";
     public static final String EXTRA_TARGET_LONGITUDE = "com.example.alayaapp.TARGET_LONGITUDE";
     public static final String EXTRA_TARGET_NAME = "com.example.alayaapp.TARGET_NAME";
     public static final String EXTRA_DRAW_ROUTE = "com.example.alayaapp.DRAW_ROUTE";
-
     private static final String PREFS_NAME = "AlayaAppPrefs";
     private static final String KEY_ACTIVE_ITINERARY_STATE = "active_itinerary_state";
     private static final String KEY_LOCATION_MODE = "location_mode";
@@ -96,6 +97,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private HashMap<String, Place> markerPlaceMap;
     private CustomInfoWindowAdapter customInfoWindowAdapter;
     private Marker manualHomeMarker = null;
+
     private Marker routeOriginMarker;
     private Marker routeDestinationMarker;
     private Polyline currentRoutePolyline;
@@ -106,8 +108,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean awaitingPermissionsForRoute = false;
 
     private String directionsApiKey;
+
     private String apiTravelMode = "walking";
     private String selectedUIMode = "walk";
+
     private LatLng currentRouteOriginLatLng;
     private String currentRouteOriginName;
 
@@ -115,8 +119,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private LinearLayout btnModeWalkCard, btnModeTaxiCard, btnModeTwoWheelsCard;
     private ImageView ivModeWalk, ivModeTaxi, ivModeTwoWheels;
     private TextView tvModeWalk, tvModeTaxi, tvModeTwoWheels;
-    private ImageButton btnShowItineraryRoute;
 
+    private ImageButton btnShowItineraryRoute;
     private boolean isShowingSegmentedRoute = false;
     private List<ItineraryItem> fullItinerary = new ArrayList<>();
     private int currentItinerarySegmentIndex = -1;
@@ -135,6 +139,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
+
         mapsViewModel = new ViewModelProvider(this).get(MapsViewModel.class);
 
         try {
@@ -206,6 +211,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 startSegmentedRouteView();
             }
         });
+
         setupTransportModeButtons();
         setupBottomNavigation();
 
@@ -261,6 +267,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             transportModeContainer.setVisibility(View.GONE);
             return;
         }
+
         if (directionsApiKey == null || directionsApiKey.isEmpty()) {
             Toast.makeText(this, "API Key for directions is missing. Cannot draw road route.", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Directions API key is null or empty. Drawing straight line fallback.");
@@ -313,6 +320,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (currentRoutePolyline != null) {
             currentRoutePolyline.remove();
         }
+
         PolylineOptions polylineOptions = new PolylineOptions()
                 .addAll(directionsResult.polylinePoints)
                 .color(Color.parseColor("#3F51B5"))
@@ -354,6 +362,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+
     private void displayItinerarySegment(int index) {
         if (!isShowingSegmentedRoute || fullItinerary.isEmpty() || index < 0 || index >= fullItinerary.size()) {
             Log.e(TAG, "Cannot display segment, invalid state or index: " + index);
@@ -391,6 +400,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnRouteNext.setEnabled(index < fullItinerary.size() - 1);
         btnRoutePrevious.setEnabled(index > 0);
     }
+
 
     private void setupTransportModeButtons() {
         btnModeWalkCard.setOnClickListener(v -> selectTravelMode("walk"));
@@ -440,7 +450,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
      */
     private void startSegmentedRouteView() {
         String stateJson = sharedPreferences.getString(KEY_ACTIVE_ITINERARY_STATE, null);
-
         if (stateJson == null) {
             Toast.makeText(this, "No itinerary plan found. Please create one in the Itineraries tab first.", Toast.LENGTH_LONG).show();
             return;
@@ -455,7 +464,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return;
         }
 
-
         if (savedState == null || savedState.getItineraryItems() == null || savedState.getItineraryItems().isEmpty()) {
             Toast.makeText(this, "Your current itinerary is empty. Please create a new plan.", Toast.LENGTH_LONG).show();
             return;
@@ -464,16 +472,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Success! We have a valid, saved itinerary.
         fullItinerary = savedState.getItineraryItems();
 
-        // THIS IS THE CORRECTION: Get the start location and name from the state object itself.
-        ItineraryItem firstItem = savedState.getItineraryItems().get(0);
-        userStartLocationForItinerary = new LatLng(firstItem.getCoordinates().getLatitude(), firstItem.getCoordinates().getLongitude());
+        // *** THIS IS THE FIX ***
+        // Get the start location and name from the state object itself. This is the
+        // actual location used to generate the plan, not the first destination.
+        userStartLocationForItinerary = new LatLng(savedState.getStartLat(), savedState.getStartLon());
         userStartLocationNameForItinerary = savedState.getLocationName();
+        // *** END OF FIX ***
 
 
         isShowingSegmentedRoute = true;
         currentItinerarySegmentIndex = 0;
-        displayItinerarySegment(currentItinerarySegmentIndex);
 
+        displayItinerarySegment(currentItinerarySegmentIndex);
         transportModeContainer.setVisibility(View.VISIBLE);
         routeInfoPane.setVisibility(View.VISIBLE);
         Toast.makeText(this, "Showing route for your current itinerary!", Toast.LENGTH_SHORT).show();
@@ -507,10 +517,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             return number + "th";
         }
         switch (number % 10) {
-            case 1: return number + "st";
-            case 2: return number + "nd";
-            case 3: return number + "rd";
-            default: return number + "th";
+            case 1:
+                return number + "st";
+            case 2:
+                return number + "nd";
+            case 3:
+                return number + "rd";
+            default:
+                return number + "th";
         }
     }
 
@@ -518,6 +532,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ImageView[] icons = {ivModeWalk, ivModeTaxi, ivModeTwoWheels};
         TextView[] texts = {tvModeWalk, tvModeTaxi, tvModeTwoWheels};
         String[] modes = {"walk", "taxi", "two_wheels"};
+
         for (int i = 0; i < modes.length; i++) {
             boolean isSelected = modes[i].equals(selectedUIMode);
             icons[i].setColorFilter(ContextCompat.getColor(this, isSelected ? R.color.colorPrimary : R.color.textSecondary), android.graphics.PorterDuff.Mode.SRC_IN);
@@ -549,10 +564,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         customInfoWindowAdapter = new CustomInfoWindowAdapter(MapsActivity.this, markerPlaceMap);
         mMap.setInfoWindowAdapter(customInfoWindowAdapter);
         mMap.setOnInfoWindowClickListener(this);
+
         clearRouteElements(true);
 
         Intent intent = getIntent();
         boolean drawRouteFlag = intent.getBooleanExtra(EXTRA_DRAW_ROUTE, false);
+
         if (intent.hasExtra(EXTRA_TARGET_LATITUDE) && intent.hasExtra(EXTRA_TARGET_LONGITUDE)) {
             pendingRouteDestLatLng = new LatLng(
                     intent.getDoubleExtra(EXTRA_TARGET_LATITUDE, 0),
@@ -604,6 +621,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+
     private void addManualHomeMarkerToMap() {
         if (mMap == null || manualHomeLocation == null) return;
         if (manualHomeMarker != null && manualHomeMarker.getId() != null) {
@@ -622,6 +640,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+
     private void centerMapOnLocation(LatLng location, String name, float zoom) {
         if (mMap == null || location == null) return;
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, zoom));
@@ -639,6 +658,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             } catch (SecurityException e) {
                 Log.e(TAG, "Security Exception enabling my location layer: " + e.getMessage());
             }
+
             binding.tvDirectionText.setText("Fetching current location for route...");
             fusedLocationClient.getLastLocation()
                     .addOnSuccessListener(this, location -> {
@@ -671,6 +691,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+
     protected void clearRouteElements(boolean restorePois) {
         if (currentRoutePolyline != null) {
             currentRoutePolyline.remove();
@@ -692,6 +713,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             binding.tvDirectionText.setText("Explore the map.");
         }
     }
+
 
     private void drawStraightLineFallback(LatLng originLatLng, String originName, LatLng destLatLng, String destName, String destDocId) {
         Log.w(TAG, "Drawing straight line as fallback for route from " + originName + " to " + destName);
@@ -718,6 +740,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.e(TAG, "IllegalStateException for newLatLngBounds (Fallback). Map not ready.", e);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destLatLng, 12f));
         }
+
         if (binding.tvDirectionText != null) {
             binding.tvDirectionText.setText("Showing straight line to " + destName + " (Directions API unavailable)");
         }
@@ -783,6 +806,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } catch (SecurityException e) {
                     Log.e(TAG, "SecurityException on setMyLocationEnabled: " + e.getMessage());
                 }
+
                 fusedLocationClient.getLastLocation()
                         .addOnSuccessListener(this, location -> {
                             if (location != null) {
@@ -817,6 +841,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -841,6 +866,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } catch (SecurityException se) {
                     Log.e(TAG, "SecurityException on setMyLocationEnabled(false)");
                 }
+
                 if (pendingRouteDestLatLng != null) {
                     centerMapOnLocation(pendingRouteDestLatLng, pendingRouteDestName, 15f);
                     transportModeContainer.setVisibility(View.GONE);

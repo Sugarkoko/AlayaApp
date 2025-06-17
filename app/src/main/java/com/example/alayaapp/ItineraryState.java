@@ -1,3 +1,5 @@
+// In: app/src/main/java/com/example/alayaapp/ItineraryState.java
+
 package com.example.alayaapp;
 
 import java.util.List;
@@ -33,6 +35,17 @@ public class ItineraryState {
         this.locationName = locationName;
     }
 
+    // *** START of ADDED CODE ***
+    public double getStartLat() {
+        return startLat;
+    }
+
+    public double getStartLon() {
+        return startLon;
+    }
+    // *** END of ADDED CODE ***
+
+
     public List<ItineraryItem> getItineraryItems() {
         return itineraryItems;
     }
@@ -56,10 +69,12 @@ public class ItineraryState {
      */
     public boolean isStillValid(double currentLat, double currentLon, long currentStartMillis, long currentEndMillis, List<String> currentPreferences) {
         final double LAT_LON_TOLERANCE = 0.0001; // Approx 11 meters
-        boolean isLocationSame = Math.abs(this.startLat - currentLat) < LAT_LON_TOLERANCE && Math.abs(this.startLon - currentLon) < LAT_LON_TOLERANCE;
+        boolean isLocationSame = Math.abs(this.startLat - currentLat) < LAT_LON_TOLERANCE &&
+                Math.abs(this.startLon - currentLon) < LAT_LON_TOLERANCE;
         boolean areTimesSame = this.startTimeMillis == currentStartMillis && this.endTimeMillis == currentEndMillis;
         // NEW: Also check if the customization preferences are identical
         boolean arePrefsSame = Objects.equals(this.categoryPreferences, currentPreferences);
+
         return isLocationSame && areTimesSame && arePrefsSame;
     }
 
