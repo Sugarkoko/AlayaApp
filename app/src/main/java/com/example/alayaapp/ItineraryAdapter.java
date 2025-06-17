@@ -3,6 +3,7 @@ package com.example.alayaapp;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -21,12 +22,23 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_HORIZONTAL_LIST = 3;
     private static final int VIEW_TYPE_FOOTER_MESSAGE = 4;
 
-    private final List<Object> displayItems;
-    private final ItinerariesActivity activity;
+    /**
+     * Listener interface for actions originating from the header.
+     */
+    public interface ItineraryHeaderListener {
+        void onRegenerateClicked();
+        void onClearClicked();
+        void onEditLocationClicked();
+    }
 
-    public ItineraryAdapter(ItinerariesActivity activity, List<Object> displayItems) {
+    private final List<Object> displayItems;
+    private final ItinerariesActivity activity; // Context
+    private final ItineraryHeaderListener headerListener; // Listener for header actions
+
+    public ItineraryAdapter(ItinerariesActivity activity, List<Object> displayItems, ItineraryHeaderListener listener) {
         this.activity = activity;
         this.displayItems = displayItems;
+        this.headerListener = listener;
         setHasStableIds(true);
     }
 
@@ -80,7 +92,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
         switch (holder.getItemViewType()) {
             case VIEW_TYPE_LOCATION_HEADER:
-                ((LocationHeaderViewHolder) holder).bind();
+                ((LocationHeaderViewHolder) holder).bind((LocationHeaderData) displayItems.get(position), headerListener);
                 break;
             case VIEW_TYPE_HEADER:
                 ((HeaderViewHolder) holder).bind((String) displayItems.get(position));
@@ -120,23 +132,36 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     // --- ViewHolder for the main Location Header ---
     class LocationHeaderViewHolder extends RecyclerView.ViewHolder {
-        TextView tvLocationCity, tvLocationStatus, tvHeaderMessage;
+        TextView tvLocationCity, tvLocationStatus, tvHeaderMessage, tvItinerariesTitle;
         ImageButton ibEditLocation;
+        Button btnRegenerate, btnClear;
 
         LocationHeaderViewHolder(@NonNull View itemView) {
             super(itemView);
+            tvItinerariesTitle = itemView.findViewById(R.id.tv_itineraries_title);
             tvLocationCity = itemView.findViewById(R.id.tv_location_city_itineraries);
             tvLocationStatus = itemView.findViewById(R.id.tv_location_status_itineraries);
             ibEditLocation = itemView.findViewById(R.id.ib_edit_location_itineraries);
             tvHeaderMessage = itemView.findViewById(R.id.tv_header_message);
+            btnRegenerate = itemView.findViewById(R.id.btn_regenerate_itinerary);
+            btnClear = itemView.findViewById(R.id.btn_clear_itinerary);
         }
 
-        void bind() {
-            tvLocationCity.setText(activity.getCurrentLocationNameToDisplay());
-            tvLocationStatus.setText(activity.getCurrentLocationStatusToDisplay());
-            ibEditLocation.setOnClickListener(v -> activity.showLocationChoiceDialog());
+        void bind(LocationHeaderData data, ItineraryHeaderListener listener) {
+            // The ViewModel is now the source of truth for this text
+            activity.itineraryViewModel.currentLocationName.observe(activity, tvLocationCity::setText);
+            activity.itineraryViewModel.currentLocationStatus.observe(activity, tvLocationStatus::setText);
 
-            String message = activity.getHeaderMessage();
+            ibEditLocation.setOnClickListener(v -> listener.onEditLocationClicked());
+            btnRegenerate.setOnClickListener(v -> listener.onRegenerateClicked());
+            btnClear.setOnClickListener(v -> listener.onClearClicked());
+
+            // Hide title if there are no items
+            boolean hasItems = displayItems.stream().anyMatch(item -> item instanceof ItineraryItem);
+            tvItinerariesTitle.setVisibility(hasItems ? View.VISIBLE : View.GONE);
+
+
+            String message = data.getHeaderMessage();
             if (message != null && !message.isEmpty()) {
                 tvHeaderMessage.setText(message);
                 tvHeaderMessage.setVisibility(View.VISIBLE);
@@ -195,13 +220,11 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     class HorizontalListViewHolder extends RecyclerView.ViewHolder {
         RecyclerView rvHorizontal;
         TextView tvTitle;
-
         HorizontalListViewHolder(@NonNull View itemView) {
             super(itemView);
             rvHorizontal = itemView.findViewById(R.id.rv_horizontal);
             tvTitle = itemView.findViewById(R.id.tv_horizontal_section_header);
         }
-
         void bind(HorizontalListContainer container) {
             tvTitle.setText(container.getTitle());
             // The adapter now takes a List<Place>
@@ -224,20 +247,24 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     // --- Data container classes ---
-    public static class LocationHeaderData {}
+    public static class LocationHeaderData {
+        private final String headerMessage;
+
+        public LocationHeaderData(String headerMessage) {
+            this.headerMessage = headerMessage;
+        }
+
+        public String getHeaderMessage() { return headerMessage; }
+    }
 
     public static class HorizontalListContainer {
         private final String title;
         private final List<Place> recommendedPlaces; // Now holds a list of real Place objects
-
         public HorizontalListContainer(String title, List<Place> places) {
             this.title = title;
             this.recommendedPlaces = places;
         }
-
         public String getTitle() { return title; }
-        public List<Place> getRecommendedPlaces() {
-            return recommendedPlaces;
-        }
+        public List<Place> getRecommendedPlaces() { return recommendedPlaces; }
     }
 }

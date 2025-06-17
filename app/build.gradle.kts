@@ -13,9 +13,9 @@ val localPropertiesFile = rootProject.file("local.properties")
 if (localPropertiesFile.exists()) {
     localProperties.load(FileInputStream(localPropertiesFile))
 }
+
 // Get the API key, or an empty string if it's not found
 val mapsApiKey = localProperties.getProperty("MAPS_API_KEY") ?: ""
-
 
 android {
     namespace = "com.example.alayaapp"
@@ -29,7 +29,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-
         manifestPlaceholders["mapsApiKey"] = mapsApiKey
     }
 
@@ -55,6 +54,7 @@ android {
 
 dependencies {
     // --- NEW DEPENDENCIES FOR VIEWMODEL AND LIVEDATA ---
+    implementation("com.google.code.gson:gson:2.10.1") // For state serialization
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.4")
     implementation("androidx.lifecycle:lifecycle-livedata:2.8.4")
 
@@ -65,8 +65,7 @@ dependencies {
     implementation(libs.material)
     implementation(libs.activity)
     implementation(libs.constraintlayout)
-    implementation(libs.play.services.maps)
-    // Removed duplicate play-services-maps
+    implementation(libs.play.services.maps) // Removed duplicate play-services-maps
     implementation(libs.play.services.location)
     testImplementation(libs.junit)
     implementation(libs.maps.utils)
@@ -77,6 +76,5 @@ dependencies {
     implementation("de.hdodenhof:circleimageview:3.1.0")
     implementation("com.google.firebase:firebase-firestore")
     implementation("com.google.firebase:firebase-storage")
-    implementation("com.github.bumptech.glide:glide:4.16.0")
-    // Removed duplicate circleimageview
+    implementation("com.github.bumptech.glide:glide:4.16.0") // Removed duplicate circleimageview
 }

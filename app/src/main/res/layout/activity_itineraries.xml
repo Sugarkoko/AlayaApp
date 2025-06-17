@@ -21,6 +21,18 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/list_item_itinerary" />
 
+    <!-- NEW: Loading Indicator -->
+    <ProgressBar
+        android:id="@+id/pb_itineraries"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:visibility="visible" />
+
     <!-- NEW: Save Trip Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_save_trip"
@@ -35,7 +47,7 @@
         app:backgroundTint="@color/colorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_menu_save"
+        app:srcCompat="@drawable/ic_profile_placeholder"
         app:tint="@color/white"
         tools:visibility="visible" />
 
