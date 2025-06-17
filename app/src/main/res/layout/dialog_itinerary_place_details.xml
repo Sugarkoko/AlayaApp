@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="24dp">
+
+    <ImageView
+        android:id="@+id/iv_drag_handle"
+        android:layout_width="40dp"
+        android:layout_height="4dp"
+        android:layout_marginTop="8dp"
+        android:src="@drawable/ic_drag_handle"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/textSecondary" />
+
+    <ImageButton
+        android:id="@+id/btn_close_sheet"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/close"
+        android:src="@drawable/ic_close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/textSecondary" />
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/cv_place_image_container"
+        android:layout_width="0dp"
+        android:layout_height="180dp"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        app:cardCornerRadius="12dp"
+        app:cardElevation="0dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iv_drag_handle">
+
+        <ImageView
+            android:id="@+id/iv_place_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerCrop"
+            tools:src="@drawable/burnham" />
+    </androidx.cardview.widget.CardView>
+
+    <TextView
+        android:id="@+id/tv_place_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="24dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="24dp"
+        android:textColor="@color/textPrimary"
+        android:textSize="22sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/cv_place_image_container"
+        tools:text="Burnham Park" />
+
+    <TextView
+        android:id="@+id/tv_place_category"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_fastest_badge"
+        android:paddingStart="8dp"
+        android:paddingTop="3dp"
+        android:paddingEnd="8dp"
+        android:paddingBottom="3dp"
+        android:textColor="@color/badge_fastest_text"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        app:layout_constraintStart_toStartOf="@id/tv_place_name"
+        app:layout_constraintTop_toBottomOf="@id/tv_place_name"
+        tools:text="TOURIST SPOT" />
+
+    <TextView
+        android:id="@+id/tv_place_about"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:ellipsize="end"
+        android:maxLines="3"
+        android:textColor="@color/textSecondary"
+        android:textSize="14sp"
+        app:layout_constraintEnd_toEndOf="@id/tv_place_name"
+        app:layout_constraintStart_toStartOf="@id/tv_place_name"
+        app:layout_constraintTop_toBottomOf="@id/tv_place_category"
+        tools:text="A historic urban park located at the heart of Baguio. It was named after the American architect and urban planner, Daniel Burnham who laid the plans for the city." />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_get_directions"
+        style="@style/Widget.MaterialComponents.Button"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="24dp"
+        android:text="@string/get_directions"
+        app:cornerRadius="8dp"
+        app:layout_constraintEnd_toEndOf="@id/tv_place_name"
+        app:layout_constraintStart_toStartOf="@id/tv_place_name"
+        app:layout_constraintTop_toBottomOf="@id/tv_place_about" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_view_on_map"
+        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/view_on_map"
+        android:textColor="@color/colorPrimary"
+        app:cornerRadius="8dp"
+        app:layout_constraintEnd_toEndOf="@id/btn_get_directions"
+        app:layout_constraintStart_toStartOf="@id/btn_get_directions"
+        app:layout_constraintTop_toBottomOf="@id/btn_get_directions"
+        app:strokeColor="@color/colorPrimary" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

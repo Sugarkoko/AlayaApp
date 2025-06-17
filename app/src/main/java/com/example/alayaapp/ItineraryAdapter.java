@@ -7,13 +7,10 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import com.bumptech.glide.Glide;
-
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -36,6 +33,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public interface ItineraryCardListener {
         void onSwitchItemClicked(int position);
         void onDeleteItemClicked(int position);
+        void onItemClicked(int position); // New method for general card clicks
     }
 
     private final List<Object> displayItems;
@@ -191,7 +189,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     class CardViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
         TextView tvTime, tvActivity, tvRating, tvItemNumber, tvItemCategoryTag;
-        ImageButton btnSwitchItem, btnDeleteItem; // MODIFIED: Added delete button
+        ImageButton btnSwitchItem, btnDeleteItem;
 
         CardViewHolder(@NonNull View itemView, ItineraryCardListener listener) {
             super(itemView);
@@ -202,7 +200,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvItemNumber = itemView.findViewById(R.id.tv_item_number);
             tvItemCategoryTag = itemView.findViewById(R.id.tv_item_category_tag);
             btnSwitchItem = itemView.findViewById(R.id.btn_switch_item);
-            btnDeleteItem = itemView.findViewById(R.id.btn_delete_item); // MODIFIED: Find the delete button
+            btnDeleteItem = itemView.findViewById(R.id.btn_delete_item);
 
             // Helper method to get the correct item index
             final int[] itemIndex = {-1};
@@ -226,9 +224,26 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                     }
                 }
             };
-
             btnSwitchItem.setOnClickListener(actionListener);
-            btnDeleteItem.setOnClickListener(actionListener); // MODIFIED: Set listener for delete button
+            btnDeleteItem.setOnClickListener(actionListener);
+
+            // MODIFIED: Set a click listener for the entire card
+            itemView.setOnClickListener(v -> {
+                if (listener != null) {
+                    int position = getAdapterPosition();
+                    if (position != RecyclerView.NO_POSITION) {
+                        itemIndex[0] = -1;
+                        for (int i = 0; i <= position; i++) {
+                            if (displayItems.get(i) instanceof ItineraryItem) {
+                                itemIndex[0]++;
+                            }
+                        }
+                        if (itemIndex[0] != -1) {
+                            listener.onItemClicked(itemIndex[0]);
+                        }
+                    }
+                }
+            });
         }
 
         void bind(ItineraryItem item, int itemIndex) {

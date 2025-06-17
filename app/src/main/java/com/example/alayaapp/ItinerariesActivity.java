@@ -45,32 +45,32 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class ItinerariesActivity extends AppCompatActivity implements
-        ItineraryAdapter.ItineraryHeaderListener,
-        ItineraryAdapter.ItineraryCardListener,
-        CustomizeItineraryBottomSheet.CustomizeListener,
-        ItineraryAlternativesBottomSheet.AlternativesListener {
-
+public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.ItineraryHeaderListener, ItineraryAdapter.ItineraryCardListener, CustomizeItineraryBottomSheet.CustomizeListener, ItineraryAlternativesBottomSheet.AlternativesListener {
     BottomNavigationView bottomNavigationView;
     RecyclerView rvMain;
     ItineraryAdapter itineraryAdapter;
     FloatingActionButton fabSaveTrip;
     ProgressBar pbItineraries;
+
     final int CURRENT_ITEM_ID = R.id.navigation_itineraries;
     private static final String TAG_LOCATION = "ItinerariesActivity";
     private static final int REQUEST_LOCATION_PERMISSION_ITINERARIES = 2;
+
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private boolean requestingLocationUpdates = false;
+
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "AlayaAppPrefs";
     private static final String KEY_LOCATION_MODE = "location_mode";
     private static final String KEY_MANUAL_LOCATION_NAME = "manual_location_name";
     private static final String KEY_MANUAL_LATITUDE = "manual_latitude";
     private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
+
     private GeoPoint currentGeoPoint = null;
     private FirebaseFirestore db;
     public List<Place> allPlacesList = new ArrayList<>();
+
     private static final String KEY_TRIP_DATE_YEAR = "trip_date_year";
     private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
     private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
@@ -78,14 +78,18 @@ public class ItinerariesActivity extends AppCompatActivity implements
     private static final String KEY_TRIP_TIME_MINUTE = "trip_time_minute";
     private static final String KEY_TRIP_END_TIME_HOUR = "trip_end_time_hour";
     private static final String KEY_TRIP_END_TIME_MINUTE = "trip_end_time_minute";
+
     private Calendar tripStartCalendar;
     private Calendar tripEndCalendar;
+
     private static final double BAGUIO_REGION_MIN_LAT = 16.35;
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
     private static final double BAGUIO_REGION_MIN_LON = 120.55;
     private static final double BAGUIO_REGION_MAX_LON = 120.65;
+
     private List<Object> displayItems = new ArrayList<>();
     public ItineraryViewModel itineraryViewModel;
+
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -109,21 +113,25 @@ public class ItinerariesActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itineraries);
+
         rvMain = findViewById(R.id.rv_itineraries_main);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         fabSaveTrip = findViewById(R.id.fab_save_trip);
         pbItineraries = findViewById(R.id.pb_itineraries);
+
         itineraryViewModel = new ViewModelProvider(this).get(ItineraryViewModel.class);
         db = FirebaseFirestore.getInstance();
         tripStartCalendar = Calendar.getInstance();
         tripEndCalendar = Calendar.getInstance();
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         setupRecyclerView();
         setupViewModelObservers();
         setupBottomNavListener();
         setupActionListeners();
         setupLocationCallback();
+
         if (savedInstanceState == null) {
             itineraryViewModel.initializeState();
         }
@@ -147,6 +155,7 @@ public class ItinerariesActivity extends AppCompatActivity implements
                 headerMessage = state.getHeaderMessage();
             }
             displayItems.add(new ItineraryAdapter.LocationHeaderData(headerMessage));
+
             boolean hasContent = false;
             if (state != null) {
                 if (state.getItineraryItems() != null && !state.getItineraryItems().isEmpty()) {
@@ -165,10 +174,12 @@ public class ItinerariesActivity extends AppCompatActivity implements
             itineraryAdapter.notifyDataSetChanged();
             fabSaveTrip.setVisibility(hasContent ? View.VISIBLE : View.GONE);
         });
+
         itineraryViewModel.isLoading.observe(this, isLoading -> {
             pbItineraries.setVisibility(isLoading ? View.VISIBLE : View.GONE);
             rvMain.setVisibility(isLoading ? View.GONE : View.VISIBLE);
         });
+
         itineraryViewModel.isItinerarySaved.observe(this, isSaved -> {
             fabSaveTrip.setImageResource(isSaved ? R.drawable.ic_profile_placeholder : android.R.drawable.ic_menu_save);
             fabSaveTrip.setEnabled(!isSaved);
@@ -237,6 +248,7 @@ public class ItinerariesActivity extends AppCompatActivity implements
         int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
         tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
         tripStartCalendar.set(Calendar.MINUTE, startMinute);
+
         int endHour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
         int endMinute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
         tripEndCalendar.set(Calendar.HOUR_OF_DAY, endHour);
@@ -290,11 +302,13 @@ public class ItinerariesActivity extends AppCompatActivity implements
 
     private void getAddressFromLocation(double latitude, double longitude) {
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
+
         if (!isLocationInAllowedRegion(latitude, longitude)) {
             stopLocationUpdates();
             redirectToHomeWithDialog();
             return;
         }
+
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
@@ -308,6 +322,7 @@ public class ItinerariesActivity extends AppCompatActivity implements
                 else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
                 else if (thoroughfare != null && !thoroughfare.isEmpty()) addressTextBuilder.append(thoroughfare);
                 else addressTextBuilder.append("Unknown Area");
+
                 currentGeoPoint = new GeoPoint(latitude, longitude);
                 itineraryViewModel.updateLocationStatus(addressTextBuilder.toString(), "GPS: " + addressTextBuilder.toString());
                 itineraryViewModel.clearItinerary();
@@ -324,10 +339,12 @@ public class ItinerariesActivity extends AppCompatActivity implements
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
             if (destinationItemId == CURRENT_ITEM_ID) return true;
+
             Class<?> destinationActivityClass = null;
             if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
             else if (destinationItemId == R.id.navigation_map) destinationActivityClass = MapsActivity.class;
             else if (destinationItemId == R.id.navigation_profile) destinationActivityClass = ProfileActivity.class;
+
             if (destinationActivityClass != null) {
                 Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
                 startActivity(intent);
@@ -452,6 +469,7 @@ public class ItinerariesActivity extends AppCompatActivity implements
             return;
         }
         if (!"auto".equals(sharedPreferences.getString(KEY_LOCATION_MODE, "auto"))) return;
+
         itineraryViewModel.updateLocationStatus(itineraryViewModel.currentLocationName.getValue(), "Fetching last known location...");
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, location -> {
@@ -493,7 +511,6 @@ public class ItinerariesActivity extends AppCompatActivity implements
     }
 
     // --- Listener Implementations ---
-
     @Override
     public void onRegenerateClicked() {
         triggerGeneration(true, Collections.emptyList());
@@ -531,7 +548,6 @@ public class ItinerariesActivity extends AppCompatActivity implements
         bottomSheet.show(getSupportFragmentManager(), ItineraryAlternativesBottomSheet.TAG);
     }
 
-    // ADDED: Implementation for the delete button click
     @Override
     public void onDeleteItemClicked(int position) {
         ItineraryState state = itineraryViewModel.itineraryState.getValue();
@@ -539,7 +555,6 @@ public class ItinerariesActivity extends AppCompatActivity implements
             return;
         }
         ItineraryItem itemToDelete = state.getItineraryItems().get(position);
-
         new AlertDialog.Builder(this)
                 .setTitle("Delete Stop")
                 .setMessage("Are you sure you want to remove '" + itemToDelete.getActivity() + "' from your itinerary?")
@@ -549,6 +564,28 @@ public class ItinerariesActivity extends AppCompatActivity implements
                 .setNegativeButton("Cancel", null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show();
+    }
+
+    // *** THIS IS THE NEWLY IMPLEMENTED METHOD ***
+    @Override
+    public void onItemClicked(int position) {
+        ItineraryState state = itineraryViewModel.itineraryState.getValue();
+        if (state == null || state.getItineraryItems() == null || position >= state.getItineraryItems().size()) {
+            Log.e(TAG_LOCATION, "onItemClicked: Invalid state or position.");
+            return;
+        }
+
+        ItineraryItem clickedItem = state.getItineraryItems().get(position);
+        String placeDocId = clickedItem.getPlaceDocumentId();
+
+        if (placeDocId == null || placeDocId.isEmpty()) {
+            Toast.makeText(this, "Details for this item are not available.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        // Launch the bottom sheet with the document ID
+        ItineraryPlaceDetailSheet bottomSheet = ItineraryPlaceDetailSheet.newInstance(placeDocId);
+        bottomSheet.show(getSupportFragmentManager(), ItineraryPlaceDetailSheet.TAG);
     }
 
     @Override
