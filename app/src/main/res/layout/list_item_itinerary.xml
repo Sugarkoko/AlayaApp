@@ -31,20 +31,48 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:text="1" />
 
-        <TextView
-            android:id="@+id/tv_item_activity"
+        <LinearLayout
+            android:id="@+id/ll_activity_header"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="16dp"
             android:layout_marginEnd="8dp"
-            android:textColor="@color/textPrimary"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            android:gravity="bottom"
+            android:orientation="horizontal"
             app:layout_constraintEnd_toStartOf="@+id/tv_item_number"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            tools:text="Breakfast at Café by the Ruins" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/tv_item_activity"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:ellipsize="end"
+                android:maxLines="2"
+                android:textColor="@color/textPrimary"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                tools:text="Breakfast at Café by the Ruins" />
+
+            <TextView
+                android:id="@+id/tv_item_category_tag"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:background="@drawable/bg_fastest_badge"
+                android:paddingLeft="8dp"
+                android:paddingTop="3dp"
+                android:paddingRight="8dp"
+                android:paddingBottom="3dp"
+                android:textColor="@color/badge_fastest_text"
+                android:textSize="10sp"
+                android:textStyle="bold"
+                android:visibility="gone"
+                tools:text="FOOD"
+                tools:visibility="visible" />
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/iv_item_image"
@@ -55,7 +83,7 @@
             android:scaleType="centerCrop"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/tv_item_activity"
+            app:layout_constraintTop_toBottomOf="@id/ll_activity_header"
             tools:src="@drawable/burnham" />
 
         <TextView
@@ -65,9 +93,13 @@
             android:layout_marginStart="16dp"
             android:layout_marginTop="12dp"
             android:layout_marginBottom="16dp"
+            android:background="?attr/selectableItemBackground"
+            android:clickable="true"
             android:drawableStart="@drawable/ic_calendar_today"
             android:drawablePadding="6dp"
+            android:focusable="true"
             android:gravity="center_vertical"
+            android:padding="4dp"
             android:textColor="@color/textSecondary"
             android:textSize="14sp"
             app:drawableTint="@color/textSecondary"
@@ -88,10 +120,41 @@
             android:textSize="14sp"
             app:drawableTint="@color/starColor"
             app:layout_constraintBottom_toBottomOf="@id/tv_item_time"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/ll_action_buttons"
             app:layout_constraintTop_toTopOf="@id/tv_item_time"
+            app:layout_constraintHorizontal_bias="1.0"
             tools:text="4.5" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- The swap button has been removed from here -->
+        <LinearLayout
+            android:id="@+id/ll_action_buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginBottom="8dp"
+            android:orientation="horizontal"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent">
 
+            <ImageButton
+                android:id="@+id/btn_delete_item"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete this itinerary stop"
+                android:src="@android:drawable/ic_menu_delete"
+                app:tint="@color/colorErrorRed" />
+
+            <ImageButton
+                android:id="@+id/btn_switch_item"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Switch this itinerary stop"
+                android:src="@android:drawable/ic_menu_rotate"
+                app:tint="@color/colorPrimary" />
+
+        </LinearLayout>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

@@ -1,3 +1,5 @@
+// In: app/src/main/java/com/example/alayaapp/MapsActivity.java
+
 package com.example.alayaapp;
 
 import android.Manifest;
@@ -28,7 +30,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.lifecycle.ViewModelProvider; // New import
+import androidx.lifecycle.ViewModelProvider;
 
 import com.example.alayaapp.databinding.ActivityMapsBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -50,6 +52,8 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -70,28 +74,26 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private FusedLocationProviderClient fusedLocationClient;
     final int CURRENT_ITEM_ID = R.id.navigation_map;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 101;
-
     public static final String EXTRA_TARGET_LATITUDE = "com.example.alayaapp.TARGET_LATITUDE";
     public static final String EXTRA_TARGET_LONGITUDE = "com.example.alayaapp.TARGET_LONGITUDE";
     public static final String EXTRA_TARGET_NAME = "com.example.alayaapp.TARGET_NAME";
     public static final String EXTRA_DRAW_ROUTE = "com.example.alayaapp.DRAW_ROUTE";
-
     private static final String PREFS_NAME = "AlayaAppPrefs";
+    private static final String KEY_ACTIVE_ITINERARY_STATE = "active_itinerary_state";
     private static final String KEY_LOCATION_MODE = "location_mode";
     private static final String KEY_MANUAL_LATITUDE = "manual_latitude";
     private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
     private static final String KEY_MANUAL_LOCATION_NAME = "manual_location_name";
 
-    // NEW: Region boundaries
     private static final double BAGUIO_REGION_MIN_LAT = 16.35;
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
     private static final double BAGUIO_REGION_MIN_LON = 120.55;
     private static final double BAGUIO_REGION_MAX_LON = 120.65;
 
-
     private String currentLocationMode = "auto";
     private LatLng manualHomeLocation = null;
     private String manualHomeLocationName = "Manually Set Location";
+
     private HashMap<String, Place> markerPlaceMap;
     private CustomInfoWindowAdapter customInfoWindowAdapter;
     private Marker manualHomeMarker = null;
@@ -106,8 +108,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private boolean awaitingPermissionsForRoute = false;
 
     private String directionsApiKey;
+
     private String apiTravelMode = "walking";
     private String selectedUIMode = "walk";
+
     private LatLng currentRouteOriginLatLng;
     private String currentRouteOriginName;
 
@@ -117,21 +121,18 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     private TextView tvModeWalk, tvModeTaxi, tvModeTwoWheels;
 
     private ImageButton btnShowItineraryRoute;
-    private ItineraryGenerator itineraryGenerator;
     private boolean isShowingSegmentedRoute = false;
     private List<ItineraryItem> fullItinerary = new ArrayList<>();
-    private List<Place> allPlacesList = new ArrayList<>();
     private int currentItinerarySegmentIndex = -1;
     private LatLng userStartLocationForItinerary;
     private String userStartLocationNameForItinerary;
-    private Calendar tripStartCalendar;
-    private Calendar tripEndCalendar;
+    private SharedPreferences sharedPreferences;
+    private Gson gson;
 
     private CardView routeInfoPane;
     private TextView tvRouteEta, tvRouteDistance, tvRouteItineraryNumber, tvRouteDestinationName;
     private Button btnRouteNext, btnRoutePrevious;
 
-    // --- NEW: ViewModel instance ---
     private MapsViewModel mapsViewModel;
 
     @Override
@@ -139,7 +140,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
 
-        // --- NEW: Initialize the ViewModel ---
         mapsViewModel = new ViewModelProvider(this).get(MapsViewModel.class);
 
         try {
@@ -166,9 +166,8 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         markerPlaceMap = new HashMap<>();
         db = FirebaseFirestore.getInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        itineraryGenerator = new ItineraryGenerator();
-        tripStartCalendar = Calendar.getInstance();
-        tripEndCalendar = Calendar.getInstance();
+        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        gson = new GsonBuilder().create();
 
         try {
             ApplicationInfo ai = getPackageManager().getApplicationInfo(getPackageName(), PackageManager.GET_META_DATA);
@@ -194,7 +193,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         btnModeTwoWheelsCard = binding.btnModeTwoWheelsCard;
         ivModeTwoWheels = binding.ivModeTwoWheels;
         tvModeTwoWheels = binding.tvModeTwoWheels;
-
         routeInfoPane = binding.routeInfoPane;
         tvRouteEta = binding.tvRouteEta;
         tvRouteDistance = binding.tvRouteDistance;
@@ -202,10 +200,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         tvRouteDestinationName = binding.tvRouteDestinationName;
         btnRouteNext = binding.btnRouteNext;
         btnRoutePrevious = binding.btnRoutePrevious;
+        btnShowItineraryRoute = binding.btnShowItineraryRoute;
+
         btnRouteNext.setOnClickListener(v -> displayNextItinerarySegment());
         btnRoutePrevious.setOnClickListener(v -> displayPreviousItinerarySegment());
-
-        btnShowItineraryRoute = binding.btnShowItineraryRoute;
         btnShowItineraryRoute.setOnClickListener(v -> {
             if (isShowingSegmentedRoute) {
                 hideSegmentedRouteView();
@@ -240,7 +238,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
-        // --- NEW: Observe the LiveData for directions results ---
         mapsViewModel.getDirectionsResult().observe(this, result -> {
             if (result != null && result.polylinePoints != null && !result.polylinePoints.isEmpty()) {
                 drawActualRoute(result);
@@ -252,8 +249,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 }
                 if (routeOriginMarker != null && routeDestinationMarker != null) {
                     drawStraightLineFallback(
-                            routeOriginMarker.getPosition(), routeOriginMarker.getTitle(),
-                            routeDestinationMarker.getPosition(), routeDestinationMarker.getTitle(),
+                            routeOriginMarker.getPosition(),
+                            routeOriginMarker.getTitle(),
+                            routeDestinationMarker.getPosition(),
+                            routeDestinationMarker.getTitle(),
                             pendingRouteDestDocId
                     );
                 }
@@ -286,18 +285,14 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         routeOriginMarker = mMap.addMarker(new MarkerOptions()
                 .position(originLatLng).title(originName)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
-
         routeDestinationMarker = mMap.addMarker(new MarkerOptions()
                 .position(destLatLng).title(destName)
                 .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
         String modeDisplayName = selectedUIMode.equals("two_wheels") ? "2-Wheels" : selectedUIMode.substring(0, 1).toUpperCase() + selectedUIMode.substring(1);
-
         if (binding.tvDirectionText != null) {
             binding.tvDirectionText.setText("Calculating " + modeDisplayName + " route from " + originName + " to " + destName + "...");
         }
-
-        // --- REFACTORED: Call ViewModel instead of AsyncTask ---
         mapsViewModel.fetchDirections(originLatLng, destLatLng, directionsApiKey, this.apiTravelMode);
     }
 
@@ -367,13 +362,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+
     private void displayItinerarySegment(int index) {
         if (!isShowingSegmentedRoute || fullItinerary.isEmpty() || index < 0 || index >= fullItinerary.size()) {
             Log.e(TAG, "Cannot display segment, invalid state or index: " + index);
             hideSegmentedRouteView();
             return;
         }
-
         clearRouteElements(false);
 
         LatLng origin, destination;
@@ -400,12 +395,12 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         routeOriginMarker = mMap.addMarker(new MarkerOptions().position(origin).title(originName).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)));
         routeDestinationMarker = mMap.addMarker(new MarkerOptions().position(destination).title(destinationName).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)));
 
-        // --- REFACTORED: Call ViewModel instead of AsyncTask ---
         mapsViewModel.fetchDirections(origin, destination, directionsApiKey, apiTravelMode);
 
         btnRouteNext.setEnabled(index < fullItinerary.size() - 1);
         btnRoutePrevious.setEnabled(index > 0);
     }
+
 
     private void setupTransportModeButtons() {
         btnModeWalkCard.setOnClickListener(v -> selectTravelMode("walk"));
@@ -450,186 +445,49 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
+    /**
+     * CORRECTED: This method now correctly loads the itinerary and its true start point from SharedPreferences.
+     */
     private void startSegmentedRouteView() {
-        binding.tvDirectionText.setText("Generating itinerary...");
-        fullItinerary.clear();
-        if ("auto".equals(currentLocationMode)) {
-            fetchCurrentLocationForItinerary();
-        } else if (manualHomeLocation != null) {
-            if (!isLocationInAllowedRegion(manualHomeLocation.latitude, manualHomeLocation.longitude)) {
-                redirectToHomeWithDialog();
-                return;
-            }
-            userStartLocationForItinerary = manualHomeLocation;
-            userStartLocationNameForItinerary = manualHomeLocationName;
-            generateItineraryAndStart();
-        } else {
-            Toast.makeText(this, "Your start location is not set. Please set it on the Home screen or enable GPS.", Toast.LENGTH_LONG).show();
-            binding.tvDirectionText.setText("Could not determine start location.");
-        }
-    }
-
-    private void fetchCurrentLocationForItinerary() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this, "Location permission needed to plan route.", Toast.LENGTH_LONG).show();
-            return;
-        }
-        fusedLocationClient.getLastLocation()
-                .addOnSuccessListener(this, location -> {
-                    if (location != null) {
-                        if (!isLocationInAllowedRegion(location.getLatitude(), location.getLongitude())) {
-                            redirectToHomeWithDialog();
-                            return;
-                        }
-                        userStartLocationForItinerary = new LatLng(location.getLatitude(), location.getLongitude());
-                        userStartLocationNameForItinerary = "Your Current Location";
-                        generateItineraryAndStart();
-                    } else {
-                        Toast.makeText(MapsActivity.this, "Could not get current GPS location.", Toast.LENGTH_LONG).show();
-                        binding.tvDirectionText.setText("Failed to get GPS location.");
-                    }
-                });
-    }
-
-
-    private void loadTripDateTime() {
-        final String KEY_TRIP_DATE_YEAR = "trip_date_year";
-        final String KEY_TRIP_DATE_MONTH = "trip_date_month";
-        final String KEY_TRIP_DATE_DAY = "trip_date_day";
-        final String KEY_TRIP_TIME_HOUR = "trip_time_hour";
-        final String KEY_TRIP_TIME_MINUTE = "trip_time_minute";
-        final String KEY_TRIP_END_TIME_HOUR = "trip_end_time_hour";
-        final String KEY_TRIP_END_TIME_MINUTE = "trip_end_time_minute";
-
-        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
-            int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripStartCalendar.get(Calendar.YEAR));
-            int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripStartCalendar.get(Calendar.MONTH));
-            int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripStartCalendar.get(Calendar.DAY_OF_MONTH));
-            tripStartCalendar.set(year, month, day);
-            tripEndCalendar.set(year, month, day);
-        }
-
-        int startHour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
-        int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
-        tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
-        tripStartCalendar.set(Calendar.MINUTE, startMinute);
-
-        int endHour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
-        int endMinute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
-        tripEndCalendar.set(Calendar.HOUR_OF_DAY, endHour);
-        tripEndCalendar.set(Calendar.MINUTE, endMinute);
-    }
-
-
-    private void generateItineraryAndStart() {
-        db.collection("places").get().addOnCompleteListener(task -> {
-            if (task.isSuccessful() && task.getResult() != null) {
-                allPlacesList.clear();
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    Place place = document.toObject(Place.class);
-                    if (place != null && place.getCoordinates() != null && place.getOpeningHours() != null) {
-                        place.setDocumentId(document.getId());
-                        allPlacesList.add(place);
-                    }
-                }
-                loadTripDateTime(); // Load user's selected times
-
-                GeoPoint startGeoPoint = new GeoPoint(userStartLocationForItinerary.latitude, userStartLocationForItinerary.longitude);
-                List<ItineraryItem> generatedItems = itineraryGenerator.generate(startGeoPoint, allPlacesList, tripStartCalendar, tripEndCalendar);
-
-                if (generatedItems.size() < 2) {
-                    showInteractiveFallbackDialog(startGeoPoint);
-                } else {
-                    fullItinerary = generatedItems;
-                    isShowingSegmentedRoute = true;
-                    currentItinerarySegmentIndex = 0;
-                    displayItinerarySegment(currentItinerarySegmentIndex);
-                    transportModeContainer.setVisibility(View.VISIBLE);
-                    routeInfoPane.setVisibility(View.VISIBLE);
-                    Toast.makeText(this, "Itinerary route ready!", Toast.LENGTH_SHORT).show();
-                }
-            } else {
-                Toast.makeText(MapsActivity.this, "Failed to load places data.", Toast.LENGTH_SHORT).show();
-                binding.tvDirectionText.setText("Error loading places.");
-            }
-        });
-    }
-
-    private void showInteractiveFallbackDialog(GeoPoint startLocation) {
-        new AlertDialog.Builder(this)
-                .setTitle("Route Plan Limited")
-                .setMessage("We couldn't find many open attractions for your selected time to build a route. Would you like us to generate a suggested route based on the optimal hours for that day?")
-                .setPositiveButton("Yes, Suggest Route", (dialog, which) -> {
-                    generateFallbackItinerary(startLocation);
-                })
-                .setNegativeButton("No, Thanks", (dialog, which) -> {
-                    binding.tvDirectionText.setText("No route found for your selected time.");
-                    dialog.dismiss();
-                })
-                .show();
-    }
-
-    private void generateFallbackItinerary(GeoPoint startLocation) {
-        Toast.makeText(this, "Finding best times and creating a new route...", Toast.LENGTH_SHORT).show();
-        String dayOfWeek = tripStartCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
-        int earliestOpen = 24 * 60;
-        int latestClose = 0;
-        SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.US);
-
-        for (Place place : allPlacesList) {
-            if (place.getOpeningHours() != null && place.getOpeningHours().containsKey(dayOfWeek)) {
-                Map<String, String> hours = place.getOpeningHours().get(dayOfWeek);
-                try {
-                    if (hours.get("open") != null) {
-                        Calendar openCal = Calendar.getInstance();
-                        openCal.setTime(sdf.parse(hours.get("open")));
-                        int openMinutes = openCal.get(Calendar.HOUR_OF_DAY) * 60 + openCal.get(Calendar.MINUTE);
-                        if (openMinutes < earliestOpen) earliestOpen = openMinutes;
-                    }
-                    if (hours.get("close") != null) {
-                        Calendar closeCal = Calendar.getInstance();
-                        closeCal.setTime(sdf.parse(hours.get("close")));
-                        int closeMinutes = closeCal.get(Calendar.HOUR_OF_DAY) * 60 + closeCal.get(Calendar.MINUTE);
-                        if (closeMinutes < earliestOpen) closeMinutes += 24 * 60;
-                        if (closeMinutes > latestClose) latestClose = closeMinutes;
-                    }
-                } catch (ParseException e) {
-                    Log.e(TAG, "Could not parse hours for fallback route: " + place.getName(), e);
-                }
-            }
-        }
-
-        Calendar fallbackStart = (Calendar) tripStartCalendar.clone();
-        fallbackStart.set(Calendar.HOUR_OF_DAY, earliestOpen / 60);
-        fallbackStart.set(Calendar.MINUTE, earliestOpen % 60);
-
-        Calendar fallbackEnd = (Calendar) tripStartCalendar.clone();
-        if (latestClose >= 24 * 60) {
-            fallbackEnd.add(Calendar.DAY_OF_YEAR, 1);
-            latestClose -= 24*60;
-        }
-        fallbackEnd.set(Calendar.HOUR_OF_DAY, latestClose / 60);
-        fallbackEnd.set(Calendar.MINUTE, latestClose % 60);
-
-        List<ItineraryItem> fallbackItems = itineraryGenerator.generate(startLocation, allPlacesList, fallbackStart, fallbackEnd);
-
-        if (fallbackItems.isEmpty()) {
-            Toast.makeText(this, "No alternative route could be generated.", Toast.LENGTH_LONG).show();
-            binding.tvDirectionText.setText("No attractions found for this day.");
+        String stateJson = sharedPreferences.getString(KEY_ACTIVE_ITINERARY_STATE, null);
+        if (stateJson == null) {
+            Toast.makeText(this, "No itinerary plan found. Please create one in the Itineraries tab first.", Toast.LENGTH_LONG).show();
             return;
         }
 
-        fullItinerary = fallbackItems;
+        ItineraryState savedState;
+        try {
+            savedState = gson.fromJson(stateJson, ItineraryState.class);
+        } catch (Exception e) {
+            Log.e(TAG, "Error parsing saved itinerary state", e);
+            Toast.makeText(this, "Could not read the saved itinerary plan.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (savedState == null || savedState.getItineraryItems() == null || savedState.getItineraryItems().isEmpty()) {
+            Toast.makeText(this, "Your current itinerary is empty. Please create a new plan.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // Success! We have a valid, saved itinerary.
+        fullItinerary = savedState.getItineraryItems();
+
+        // *** THIS IS THE FIX ***
+        // Get the start location and name from the state object itself. This is the
+        // actual location used to generate the plan, not the first destination.
+        userStartLocationForItinerary = new LatLng(savedState.getStartLat(), savedState.getStartLon());
+        userStartLocationNameForItinerary = savedState.getLocationName();
+        // *** END OF FIX ***
+
+
         isShowingSegmentedRoute = true;
         currentItinerarySegmentIndex = 0;
+
         displayItinerarySegment(currentItinerarySegmentIndex);
         transportModeContainer.setVisibility(View.VISIBLE);
         routeInfoPane.setVisibility(View.VISIBLE);
-        Toast.makeText(this, "Suggested route is ready!", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Showing route for your current itinerary!", Toast.LENGTH_SHORT).show();
     }
-
 
     private void displayNextItinerarySegment() {
         if (currentItinerarySegmentIndex < fullItinerary.size() - 1) {
@@ -651,7 +509,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         fullItinerary.clear();
         routeInfoPane.setVisibility(View.GONE);
         transportModeContainer.setVisibility(View.GONE);
-        clearRouteElements(true); // Clear everything and restore POIs
+        clearRouteElements(true);
     }
 
     private String getOrdinal(int number) {
@@ -674,6 +532,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         ImageView[] icons = {ivModeWalk, ivModeTaxi, ivModeTwoWheels};
         TextView[] texts = {tvModeWalk, tvModeTaxi, tvModeTwoWheels};
         String[] modes = {"walk", "taxi", "two_wheels"};
+
         for (int i = 0; i < modes.length; i++) {
             boolean isSelected = modes[i].equals(selectedUIMode);
             icons[i].setColorFilter(ContextCompat.getColor(this, isSelected ? R.color.colorPrimary : R.color.textSecondary), android.graphics.PorterDuff.Mode.SRC_IN);
@@ -681,11 +540,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
     private void loadHomeLocationPreference() {
         SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         currentLocationMode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
-
         if ("manual".equals(currentLocationMode)) {
             double lat = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LATITUDE, Double.doubleToRawLongBits(0.0)));
             double lon = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LONGITUDE, Double.doubleToRawLongBits(0.0)));
@@ -700,7 +557,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         mMap = googleMap;
@@ -713,6 +569,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
         Intent intent = getIntent();
         boolean drawRouteFlag = intent.getBooleanExtra(EXTRA_DRAW_ROUTE, false);
+
         if (intent.hasExtra(EXTRA_TARGET_LATITUDE) && intent.hasExtra(EXTRA_TARGET_LONGITUDE)) {
             pendingRouteDestLatLng = new LatLng(
                     intent.getDoubleExtra(EXTRA_TARGET_LATITUDE, 0),
@@ -782,6 +639,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             markerPlaceMap.put(manualHomeMarker.getId(), manualPlaceStub);
         }
     }
+
 
     private void centerMapOnLocation(LatLng location, String name, float zoom) {
         if (mMap == null || location == null) return;
@@ -856,10 +714,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+
     private void drawStraightLineFallback(LatLng originLatLng, String originName, LatLng destLatLng, String destName, String destDocId) {
         Log.w(TAG, "Drawing straight line as fallback for route from " + originName + " to " + destName);
         if (mMap == null || originLatLng == null || destLatLng == null) return;
-
         if (currentRoutePolyline != null) {
             currentRoutePolyline.remove();
         }
@@ -882,6 +740,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             Log.e(TAG, "IllegalStateException for newLatLngBounds (Fallback). Map not ready.", e);
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(destLatLng, 12f));
         }
+
         if (binding.tvDirectionText != null) {
             binding.tvDirectionText.setText("Showing straight line to " + destName + " (Directions API unavailable)");
         }
@@ -909,8 +768,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         }
                         if (binding.tvDirectionText != null) {
                             String currentText = binding.tvDirectionText.getText().toString();
-                            if (currentText.contains("Loading map...") || currentText.equals("Explore the map.") ||
-                                    (!currentText.toLowerCase().contains("route") && !currentText.toLowerCase().contains("showing:"))) {
+                            if (currentText.contains("Loading map...") || currentText.equals("Explore the map.") || (!currentText.toLowerCase().contains("route") && !currentText.toLowerCase().contains("showing:"))) {
                                 binding.tvDirectionText.setText("Places loaded. Tap markers for details.");
                             }
                         }
@@ -952,19 +810,16 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 fusedLocationClient.getLastLocation()
                         .addOnSuccessListener(this, location -> {
                             if (location != null) {
-                                // MODIFIED: Check region before centering
                                 if (!isLocationInAllowedRegion(location.getLatitude(), location.getLongitude())) {
                                     redirectToHomeWithDialog();
                                     return;
                                 }
-
                                 LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
                                 if (animate) {
                                     mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15f));
                                 } else {
                                     mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 15f));
                                 }
-
                                 if (binding.tvDirectionText != null && "auto".equals(currentLocationMode)) {
                                     boolean drawingRoute = getIntent().getBooleanExtra(EXTRA_DRAW_ROUTE, false);
                                     boolean hasTarget = getIntent().hasExtra(EXTRA_TARGET_LATITUDE);
@@ -985,6 +840,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_PERMISSION_REQUEST_CODE);
         }
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -1010,6 +866,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                 } catch (SecurityException se) {
                     Log.e(TAG, "SecurityException on setMyLocationEnabled(false)");
                 }
+
                 if (pendingRouteDestLatLng != null) {
                     centerMapOnLocation(pendingRouteDestLatLng, pendingRouteDestName, 15f);
                     transportModeContainer.setVisibility(View.GONE);
@@ -1029,8 +886,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             if (destinationItemId == CURRENT_ITEM_ID) return true;
 
             Class<?> destinationActivityClass = null;
-            if (destinationItemId == R.id.navigation_home)
-                destinationActivityClass = HomeActivity.class;
+            if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
             else if (destinationItemId == R.id.navigation_itineraries)
                 destinationActivityClass = ItinerariesActivity.class;
             else if (destinationItemId == R.id.navigation_profile)
@@ -1071,13 +927,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    // NEW: Helper method for region check
     private boolean isLocationInAllowedRegion(double latitude, double longitude) {
         return latitude >= BAGUIO_REGION_MIN_LAT && latitude <= BAGUIO_REGION_MAX_LAT &&
                 longitude >= BAGUIO_REGION_MIN_LON && longitude <= BAGUIO_REGION_MAX_LON;
     }
 
-    // NEW: Helper method to redirect
     private void redirectToHomeWithDialog() {
         Intent intent = new Intent(MapsActivity.this, HomeActivity.class);
         intent.putExtra(HomeActivity.EXTRA_SHOW_OUTSIDE_REGION_DIALOG, true);
