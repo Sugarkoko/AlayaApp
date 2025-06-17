@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -24,6 +25,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
+
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -35,6 +37,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -42,7 +45,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.ItineraryHeaderListener, CustomizeItineraryBottomSheet.CustomizeListener {
+// MODIFIED: Implement the new listeners
+public class ItinerariesActivity extends AppCompatActivity implements
+        ItineraryAdapter.ItineraryHeaderListener,
+        ItineraryAdapter.ItineraryCardListener, // For the switch button click
+        CustomizeItineraryBottomSheet.CustomizeListener,
+        ItineraryAlternativesBottomSheet.AlternativesListener { // For the dialog result
+
     BottomNavigationView bottomNavigationView;
     RecyclerView rvMain;
     ItineraryAdapter itineraryAdapter;
@@ -62,7 +71,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
     private GeoPoint currentGeoPoint = null;
     private FirebaseFirestore db;
-    private List<Place> allPlacesList = new ArrayList<>();
+    public List<Place> allPlacesList = new ArrayList<>(); // Made public to be accessible by the dialog
     private static final String KEY_TRIP_DATE_YEAR = "trip_date_year";
     private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
     private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
@@ -78,7 +87,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private static final double BAGUIO_REGION_MAX_LON = 120.65;
     private List<Object> displayItems = new ArrayList<>();
     public ItineraryViewModel itineraryViewModel;
-
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
@@ -102,7 +110,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itineraries);
-
         rvMain = findViewById(R.id.rv_itineraries_main);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         fabSaveTrip = findViewById(R.id.fab_save_trip);
@@ -113,21 +120,21 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         tripEndCalendar = Calendar.getInstance();
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         setupRecyclerView();
         setupViewModelObservers();
         setupBottomNavListener();
         setupActionListeners();
         setupLocationCallback();
-
         if (savedInstanceState == null) {
             itineraryViewModel.initializeState();
         }
         loadAndDisplayLocationHeader();
+        fetchAllPlaces(); // Fetch all places once on create
     }
 
     private void setupRecyclerView() {
-        itineraryAdapter = new ItineraryAdapter(this, displayItems, this);
+        // MODIFIED: Pass 'this' as the card listener
+        itineraryAdapter = new ItineraryAdapter(this, displayItems, this, this);
         rvMain.setLayoutManager(new LinearLayoutManager(this));
         rvMain.setAdapter(itineraryAdapter);
     }
@@ -142,7 +149,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 headerMessage = state.getHeaderMessage();
             }
             displayItems.add(new ItineraryAdapter.LocationHeaderData(headerMessage));
-
             boolean hasContent = false;
             if (state != null) {
                 if (state.getItineraryItems() != null && !state.getItineraryItems().isEmpty()) {
@@ -161,12 +167,10 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             itineraryAdapter.notifyDataSetChanged();
             fabSaveTrip.setVisibility(hasContent ? View.VISIBLE : View.GONE);
         });
-
         itineraryViewModel.isLoading.observe(this, isLoading -> {
             pbItineraries.setVisibility(isLoading ? View.VISIBLE : View.GONE);
             rvMain.setVisibility(isLoading ? View.GONE : View.VISIBLE);
         });
-
         itineraryViewModel.isItinerarySaved.observe(this, isSaved -> {
             fabSaveTrip.setImageResource(isSaved ? R.drawable.ic_profile_placeholder : android.R.drawable.ic_menu_save);
             fabSaveTrip.setEnabled(!isSaved);
@@ -181,16 +185,8 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         });
     }
 
-    private void triggerGeneration(boolean forceRegenerate, List<String> categoryPreferences) {
-        if (currentGeoPoint == null) {
-            Toast.makeText(this, "Cannot generate itinerary without a start location.", Toast.LENGTH_LONG).show();
-            return;
-        }
-        if (!isLocationInAllowedRegion(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude())) {
-            redirectToHomeWithDialog();
-            return;
-        }
-        loadTripDateTime();
+    // ADDED: Fetch all places from Firestore once and store them.
+    private void fetchAllPlaces() {
         db.collection("places").get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
                 allPlacesList.clear();
@@ -205,13 +201,32 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                         Log.e(TAG_LOCATION, "Error converting document to Place object: " + document.getId(), e);
                     }
                 }
-                String locationName = itineraryViewModel.currentLocationName.getValue() != null ? itineraryViewModel.currentLocationName.getValue() : "Selected Location";
-                itineraryViewModel.loadOrGenerateItinerary(currentGeoPoint, locationName, tripStartCalendar, tripEndCalendar, allPlacesList, forceRegenerate, categoryPreferences);
+                Log.d(TAG_LOCATION, "Successfully fetched " + allPlacesList.size() + " places.");
             } else {
-                Log.w(TAG_LOCATION, "Error getting documents from Firestore.", task.getException());
-                Toast.makeText(ItinerariesActivity.this, "Failed to load places for itinerary.", Toast.LENGTH_LONG).show();
+                Log.w(TAG_LOCATION, "Error getting all documents from Firestore.", task.getException());
+                Toast.makeText(ItinerariesActivity.this, "Failed to load place data for editing.", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    private void triggerGeneration(boolean forceRegenerate, List<String> categoryPreferences) {
+        if (currentGeoPoint == null) {
+            Toast.makeText(this, "Cannot generate itinerary without a start location.", Toast.LENGTH_LONG).show();
+            return;
+        }
+        if (!isLocationInAllowedRegion(currentGeoPoint.getLatitude(), currentGeoPoint.getLongitude())) {
+            redirectToHomeWithDialog();
+            return;
+        }
+        loadTripDateTime();
+        // Use the already fetched list of places
+        if (allPlacesList.isEmpty()) {
+            Toast.makeText(this, "Place data is not ready. Please try again in a moment.", Toast.LENGTH_SHORT).show();
+            fetchAllPlaces(); // Attempt to refetch if it's empty
+            return;
+        }
+        String locationName = itineraryViewModel.currentLocationName.getValue() != null ? itineraryViewModel.currentLocationName.getValue() : "Selected Location";
+        itineraryViewModel.loadOrGenerateItinerary(currentGeoPoint, locationName, tripStartCalendar, tripEndCalendar, allPlacesList, forceRegenerate, categoryPreferences);
     }
 
     private void loadTripDateTime() {
@@ -481,6 +496,8 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         }
     }
 
+    // --- Listener Implementations ---
+
     @Override
     public void onRegenerateClicked() {
         triggerGeneration(true, Collections.emptyList());
@@ -506,5 +523,23 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     public void onCustomizeApplied(List<String> categoryPreferences) {
         Toast.makeText(this, "Applying customization and generating new plan...", Toast.LENGTH_SHORT).show();
         triggerGeneration(true, categoryPreferences);
+    }
+
+    // ADDED: Implementation for the switch button click
+    @Override
+    public void onSwitchItemClicked(int position) {
+        if (allPlacesList.isEmpty()) {
+            Toast.makeText(this, "Place data not ready, please try again.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        ItineraryAlternativesBottomSheet bottomSheet = ItineraryAlternativesBottomSheet.newInstance(position);
+        bottomSheet.show(getSupportFragmentManager(), ItineraryAlternativesBottomSheet.TAG);
+    }
+
+    // ADDED: Implementation for the dialog result
+    @Override
+    public void onPlaceSelectedForReplacement(int indexToReplace, Place newPlace) {
+        Toast.makeText(this, "Replacing stop with " + newPlace.getName() + "...", Toast.LENGTH_SHORT).show();
+        itineraryViewModel.replaceItineraryItem(indexToReplace, newPlace, allPlacesList);
     }
 }

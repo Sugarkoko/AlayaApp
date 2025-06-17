@@ -31,6 +31,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class ItineraryViewModel extends AndroidViewModel {
     private static final String TAG = "ItineraryViewModel";
@@ -105,13 +106,9 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _isLoading.postValue(false);
             } else {
                 Log.d(TAG, forceRegenerate ? "Forcing regeneration." : "No valid saved itinerary. Generating new one.");
-
-                // MODIFIED: Handle the new GenerationResult object
                 ItineraryGenerator.GenerationResult result = itineraryGenerator.generateWithTimeWindows(startLocation, allPlaces, tripStart, tripEnd, categoryPreferences);
                 List<ItineraryItem> generatedItems = result.itinerary;
-
                 StringBuilder messageBuilder = new StringBuilder();
-
                 if (generatedItems.isEmpty()) {
                     messageBuilder.append("We couldn't find any open attractions for your selected time and categories, or the schedule was too tight. Try extending your trip time or changing preferences.");
                 } else if (categoryPreferences != null && !categoryPreferences.isEmpty() && generatedItems.size() < categoryPreferences.size()) {
@@ -119,8 +116,6 @@ public class ItineraryViewModel extends AndroidViewModel {
                 } else {
                     messageBuilder.append("This is a suggested plan. Times are flexible and based on your trip window and location hours.");
                 }
-
-                // ADDED: Append specific failure messages if they exist.
                 if (result.unmetPreferences != null && !result.unmetPreferences.isEmpty()) {
                     messageBuilder.append("\n\nNote: We could not find a nearby location for the following:\n");
                     for (int i = 0; i < result.unmetPreferences.size(); i++) {
@@ -130,11 +125,60 @@ public class ItineraryViewModel extends AndroidViewModel {
                         }
                     }
                 }
-
-                fetchRecommendationsAndBuildState(generatedItems, messageBuilder.toString(), startLocation, locationName, tripStart, tripEnd, categoryPreferences);
+                fetchRecommendationsAndBuildState(generatedItems, messageBuilder.toString(), startLocation, locationName, tripStart, tripEnd, categoryPreferences, false);
             }
         });
     }
+
+    // ADDED: New method to handle the replacement logic
+    public void replaceItineraryItem(int indexToReplace, Place newPlace, List<Place> allPlaces) {
+        _isLoading.setValue(true);
+        executorService.execute(() -> {
+            ItineraryState currentState = _itineraryState.getValue();
+            if (currentState == null) {
+                Log.e(TAG, "Cannot replace item, current state is null.");
+                _isLoading.postValue(false);
+                return;
+            }
+
+            // Create a new list of places for the generator based on the user's change
+            List<Place> newSequenceOfPlaces = new ArrayList<>();
+            List<ItineraryItem> oldItinerary = currentState.getItineraryItems();
+
+            for (int i = 0; i < oldItinerary.size(); i++) {
+                if (i == indexToReplace) {
+                    newSequenceOfPlaces.add(newPlace);
+                } else {
+                    // Find the original Place object from the list of all places
+                    String placeId = oldItinerary.get(i).getPlaceDocumentId();
+                    allPlaces.stream()
+                            .filter(p -> p.getDocumentId().equals(placeId))
+                            .findFirst()
+                            .ifPresent(newSequenceOfPlaces::add);
+                }
+            }
+
+            // Re-run the time window generation with the new, fixed sequence of places
+            GeoPoint startLocation = new GeoPoint(currentState.getStartLat(), currentState.getStartLon());
+            Calendar tripStart = Calendar.getInstance();
+            tripStart.setTimeInMillis(currentState.getStartTimeMillis());
+            Calendar tripEnd = Calendar.getInstance();
+            tripEnd.setTimeInMillis(currentState.getEndTimeMillis());
+
+            // We create a "fake" custom preference list to force the generator to use our new sequence
+            List<String> forcedSequenceCategories = newSequenceOfPlaces.stream()
+                    .map(Place::getCategory)
+                    .collect(Collectors.toList());
+
+            ItineraryGenerator.GenerationResult result = itineraryGenerator.generateWithTimeWindows(startLocation, newSequenceOfPlaces, tripStart, tripEnd, forcedSequenceCategories);
+
+            String message = "Your itinerary has been updated with your changes. Times have been recalculated.";
+
+            // Rebuild the state, now marking it as user-modified
+            fetchRecommendationsAndBuildState(result.itinerary, message, startLocation, currentState.getLocationName(), tripStart, tripEnd, currentState.getCategoryPreferences(), true);
+        });
+    }
+
 
     public void clearItinerary() {
         sharedPreferences.edit().remove(KEY_ACTIVE_ITINERARY_STATE).apply();
@@ -143,7 +187,8 @@ public class ItineraryViewModel extends AndroidViewModel {
         Toast.makeText(getApplication(), "Itinerary cleared.", Toast.LENGTH_SHORT).show();
     }
 
-    private void fetchRecommendationsAndBuildState(List<ItineraryItem> mainItinerary, String message, GeoPoint startLocation, String locationName, Calendar tripStart, Calendar tripEnd, List<String> categoryPreferences) {
+    // MODIFIED: Added isUserModified parameter
+    private void fetchRecommendationsAndBuildState(List<ItineraryItem> mainItinerary, String message, GeoPoint startLocation, String locationName, Calendar tripStart, Calendar tripEnd, List<String> categoryPreferences, boolean isUserModified) {
         List<String> excludedIds = new ArrayList<>();
         if (mainItinerary != null) {
             for (ItineraryItem item : mainItinerary) {
@@ -172,7 +217,8 @@ public class ItineraryViewModel extends AndroidViewModel {
                     startLocation.getLatitude(), startLocation.getLongitude(),
                     tripStart.getTimeInMillis(), tripEnd.getTimeInMillis(),
                     categoryPreferences,
-                    mainItinerary, topRatedPlaces, message, locationName
+                    mainItinerary, topRatedPlaces, message, locationName,
+                    isUserModified // Pass the flag here
             );
 
             saveStateToPrefs(newState);

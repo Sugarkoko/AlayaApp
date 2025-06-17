@@ -22,7 +22,6 @@ public class ItineraryGenerator {
     private static final int MIN_VISIT_DURATION_MINUTES = 30;
     private static final double CATEGORY_REPETITION_PENALTY_KM = 50.0;
 
-    // ADDED: A result class to hold both the itinerary and any failure messages.
     public static class GenerationResult {
         public final List<ItineraryItem> itinerary;
         public final List<String> unmetPreferences;
@@ -33,16 +32,12 @@ public class ItineraryGenerator {
         }
     }
 
-    /**
-     * MODIFIED: This method now returns a GenerationResult object.
-     */
     public GenerationResult generateWithTimeWindows(GeoPoint userStartLocation, List<Place> allPlaces, Calendar tripStartCalendar, Calendar tripEndCalendar, List<String> categoryPreferences) {
         Log.d(TAG, "Starting dynamic window itinerary generation.");
         List<ItineraryItem> generatedItinerary = new ArrayList<>();
         List<Place> availablePlaces = new ArrayList<>(allPlaces);
         String dayOfWeek = tripStartCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
 
-        // ADDED: List to track which preferences we couldn't meet.
         List<String> unmetPreferences = new ArrayList<>();
 
         availablePlaces.removeIf(place -> !isPlaceOpenOnDay(place, dayOfWeek));
@@ -131,17 +126,19 @@ public class ItineraryGenerator {
             currentTime = (Calendar) windowEnd.clone();
             currentGeoLocation = place.getCoordinates();
         }
-        // MODIFIED: Return the GenerationResult object.
         return new GenerationResult(generatedItinerary, unmetPreferences);
     }
 
-    /**
-     * MODIFIED: Accepts a list to populate with unmet preferences.
-     */
     private List<Place> selectPlaceSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences, List<String> unmetPreferences) {
         if (categoryPreferences == null || categoryPreferences.isEmpty()) {
             return selectGreedySequence(startLocation, availablePlaces);
         } else {
+            // THIS IS THE FIX: Check if the availablePlaces list is the same size as the preferences.
+            // This indicates a "forced sequence" from the ViewModel, so we just return it directly.
+            if (availablePlaces.size() == categoryPreferences.size()) {
+                Log.d(TAG, "Forced sequence detected. Using the provided place list directly.");
+                return availablePlaces;
+            }
             return selectCustomSequence(startLocation, availablePlaces, categoryPreferences, unmetPreferences);
         }
     }
@@ -178,9 +175,6 @@ public class ItineraryGenerator {
         return sequence;
     }
 
-    /**
-     * MODIFIED: This now populates the unmetPreferences list when a category isn't found.
-     */
     private List<Place> selectCustomSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences, List<String> unmetPreferences) {
         List<Place> sequence = new ArrayList<>();
         List<Place> pool = new ArrayList<>(availablePlaces);
@@ -189,7 +183,6 @@ public class ItineraryGenerator {
         for (int i = 0; i < categoryPreferences.size(); i++) {
             String preferredCategory = categoryPreferences.get(i);
             if (pool.isEmpty()) {
-                // If the pool is empty, all remaining preferences are unmet.
                 unmetPreferences.add("'" + preferredCategory + "' for Stop " + (i + 1));
                 continue;
             }
@@ -207,7 +200,6 @@ public class ItineraryGenerator {
 
             if (candidatesForStop.isEmpty()) {
                 Log.w(TAG, "No available places in pool for category: " + preferredCategory);
-                // ADDED: Record the failure.
                 unmetPreferences.add("'" + preferredCategory + "' for Stop " + (i + 1));
                 continue;
             }

@@ -1,5 +1,4 @@
 // In: app/src/main/java/com/example/alayaapp/ItineraryState.java
-
 package com.example.alayaapp;
 
 import java.util.List;
@@ -15,7 +14,7 @@ public class ItineraryState {
     private final double startLon;
     private final long startTimeMillis;
     private final long endTimeMillis;
-    private final List<String> categoryPreferences; // NEW: Store the customization
+    private final List<String> categoryPreferences;
 
     // --- Generated Data ---
     private final List<ItineraryItem> itineraryItems;
@@ -23,19 +22,21 @@ public class ItineraryState {
     private final String headerMessage;
     private final String locationName;
 
-    public ItineraryState(double startLat, double startLon, long startTimeMillis, long endTimeMillis, List<String> categoryPreferences, List<ItineraryItem> itineraryItems, List<Place> topRatedPlaces, String headerMessage, String locationName) {
+    private final boolean isUserModified;
+
+    public ItineraryState(double startLat, double startLon, long startTimeMillis, long endTimeMillis, List<String> categoryPreferences, List<ItineraryItem> itineraryItems, List<Place> topRatedPlaces, String headerMessage, String locationName, boolean isUserModified) {
         this.startLat = startLat;
         this.startLon = startLon;
         this.startTimeMillis = startTimeMillis;
         this.endTimeMillis = endTimeMillis;
-        this.categoryPreferences = categoryPreferences; // NEW
+        this.categoryPreferences = categoryPreferences;
         this.itineraryItems = itineraryItems;
         this.topRatedPlaces = topRatedPlaces;
         this.headerMessage = headerMessage;
         this.locationName = locationName;
+        this.isUserModified = isUserModified;
     }
 
-    // *** START of ADDED CODE ***
     public double getStartLat() {
         return startLat;
     }
@@ -43,8 +44,6 @@ public class ItineraryState {
     public double getStartLon() {
         return startLon;
     }
-    // *** END of ADDED CODE ***
-
 
     public List<ItineraryItem> getItineraryItems() {
         return itineraryItems;
@@ -62,17 +61,42 @@ public class ItineraryState {
         return locationName;
     }
 
+    public boolean isUserModified() {
+        return isUserModified;
+    }
+
+    // *** START of ADDED/FIXED CODE ***
+    // These getters were missing, causing the compilation errors.
+    public long getStartTimeMillis() {
+        return startTimeMillis;
+    }
+
+    public long getEndTimeMillis() {
+        return endTimeMillis;
+    }
+
+    public List<String> getCategoryPreferences() {
+        return categoryPreferences;
+    }
+    // *** END of ADDED/FIXED CODE ***
+
     /**
      * Checks if the parameters used to generate this itinerary state
      * are still valid compared to the current user preferences.
      * A small tolerance is used for location comparison.
+     * MODIFIED: If the state was user-modified, it's always considered valid
+     * to prevent overwriting the user's changes.
      */
     public boolean isStillValid(double currentLat, double currentLon, long currentStartMillis, long currentEndMillis, List<String> currentPreferences) {
+        // If user made changes, don't auto-regenerate. Keep their version.
+        if (this.isUserModified) {
+            return true;
+        }
+
         final double LAT_LON_TOLERANCE = 0.0001; // Approx 11 meters
         boolean isLocationSame = Math.abs(this.startLat - currentLat) < LAT_LON_TOLERANCE &&
                 Math.abs(this.startLon - currentLon) < LAT_LON_TOLERANCE;
         boolean areTimesSame = this.startTimeMillis == currentStartMillis && this.endTimeMillis == currentEndMillis;
-        // NEW: Also check if the customization preferences are identical
         boolean arePrefsSame = Objects.equals(this.categoryPreferences, currentPreferences);
 
         return isLocationSame && areTimesSame && arePrefsSame;
@@ -87,11 +111,12 @@ public class ItineraryState {
                 Double.compare(that.startLon, startLon) == 0 &&
                 startTimeMillis == that.startTimeMillis &&
                 endTimeMillis == that.endTimeMillis &&
-                Objects.equals(categoryPreferences, that.categoryPreferences); // NEW
+                isUserModified == that.isUserModified &&
+                Objects.equals(categoryPreferences, that.categoryPreferences);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(startLat, startLon, startTimeMillis, endTimeMillis, categoryPreferences); // NEW
+        return Objects.hash(startLat, startLon, startTimeMillis, endTimeMillis, categoryPreferences, isUserModified);
     }
 }
