@@ -566,7 +566,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 .show();
     }
 
-    // *** THIS IS THE NEWLY IMPLEMENTED METHOD ***
     @Override
     public void onItemClicked(int position) {
         ItineraryState state = itineraryViewModel.itineraryState.getValue();
@@ -583,8 +582,11 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             return;
         }
 
-        // Launch the bottom sheet with the document ID
-        ItineraryPlaceDetailSheet bottomSheet = ItineraryPlaceDetailSheet.newInstance(placeDocId);
+        // MODIFIED: Pass the trip date to the bottom sheet
+        loadTripDateTime(); // Ensure tripStartCalendar is current
+        long tripDateMillis = tripStartCalendar.getTimeInMillis();
+
+        ItineraryPlaceDetailSheet bottomSheet = ItineraryPlaceDetailSheet.newInstance(placeDocId, tripDateMillis);
         bottomSheet.show(getSupportFragmentManager(), ItineraryPlaceDetailSheet.TAG);
     }
 

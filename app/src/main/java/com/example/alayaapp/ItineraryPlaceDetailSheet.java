@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -18,24 +19,31 @@ import androidx.annotation.Nullable;
 import com.bumptech.glide.Glide;
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Locale;
+import java.util.Map;
 
 public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
 
     public static final String TAG = "ItineraryPlaceDetailSheet";
     private static final String ARG_PLACE_DOC_ID = "place_doc_id";
+    private static final String ARG_TRIP_DATE_MILLIS = "trip_date_millis";
 
     private Place currentPlace;
 
     private ImageView ivPlaceImage;
-    private TextView tvPlaceName, tvPlaceCategory, tvPlaceAbout;
+    private TextView tvPlaceName, tvPlaceCategory, tvPlaceAbout, tvPlaceOpeningHours;
+    private LinearLayout llOpeningHoursContainer;
     private Button btnGetDirections, btnViewOnMap;
     private ImageButton btnCloseSheet;
 
-    public static ItineraryPlaceDetailSheet newInstance(String placeDocumentId) {
+    public static ItineraryPlaceDetailSheet newInstance(String placeDocumentId, long tripDateMillis) {
         ItineraryPlaceDetailSheet fragment = new ItineraryPlaceDetailSheet();
         Bundle args = new Bundle();
         args.putString(ARG_PLACE_DOC_ID, placeDocumentId);
+        args.putLong(ARG_TRIP_DATE_MILLIS, tripDateMillis);
         fragment.setArguments(args);
         return fragment;
     }
@@ -58,18 +66,38 @@ public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
         btnGetDirections = view.findViewById(R.id.btn_get_directions);
         btnViewOnMap = view.findViewById(R.id.btn_view_on_map);
         btnCloseSheet = view.findViewById(R.id.btn_close_sheet);
+        llOpeningHoursContainer = view.findViewById(R.id.ll_opening_hours_container);
+        tvPlaceOpeningHours = view.findViewById(R.id.tv_place_opening_hours);
 
-        String placeDocId = getArguments() != null ? getArguments().getString(ARG_PLACE_DOC_ID) : null;
+        // --- THE FIX IS HERE ---
+        // Get arguments and store them in final variables immediately.
+        Bundle args = getArguments();
+        if (args == null) {
+            Toast.makeText(getContext(), "Error: Missing place information.", Toast.LENGTH_SHORT).show();
+            dismiss();
+            return;
+        }
+
+        final String placeDocId = args.getString(ARG_PLACE_DOC_ID);
+        final long tripDateMillis = args.getLong(ARG_TRIP_DATE_MILLIS, 0);
+
+        if (placeDocId == null || placeDocId.isEmpty()) {
+            Toast.makeText(getContext(), "Error: Invalid place ID.", Toast.LENGTH_SHORT).show();
+            dismiss();
+            return;
+        }
+        // --- END OF FIX ---
+
         ItinerariesActivity activity = (ItinerariesActivity) getActivity();
 
-        if (activity != null && placeDocId != null) {
-            // Find the place from the activity's master list
+        if (activity != null) {
+            // Now we use the 'final' variables inside the lambda, which is allowed.
             activity.allPlacesList.stream()
                     .filter(p -> placeDocId.equals(p.getDocumentId()))
                     .findFirst()
                     .ifPresent(place -> {
                         this.currentPlace = place;
-                        populateUI();
+                        populateUI(tripDateMillis); // Pass the final variable
                     });
         }
 
@@ -82,7 +110,7 @@ public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
         setupClickListeners();
     }
 
-    private void populateUI() {
+    private void populateUI(long tripDateMillis) {
         if (currentPlace == null) return;
 
         tvPlaceName.setText(currentPlace.getName());
@@ -104,6 +132,41 @@ public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
         } else {
             ivPlaceImage.setImageResource(R.drawable.img_placeholder);
         }
+
+        if (tripDateMillis > 0 && currentPlace.getOpeningHours() != null) {
+            Calendar tripCal = Calendar.getInstance();
+            tripCal.setTimeInMillis(tripDateMillis);
+            String dayOfWeek = tripCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
+
+            Map<String, String> hoursForDay = currentPlace.getOpeningHours().get(dayOfWeek);
+            if (hoursForDay != null) {
+                String openTime = formatTime(hoursForDay.get("open"));
+                String closeTime = formatTime(hoursForDay.get("close"));
+                if (openTime != null && closeTime != null) {
+                    tvPlaceOpeningHours.setText(String.format("%s - %s", openTime, closeTime));
+                    llOpeningHoursContainer.setVisibility(View.VISIBLE);
+                } else {
+                    llOpeningHoursContainer.setVisibility(View.GONE);
+                }
+            } else {
+                tvPlaceOpeningHours.setText("Closed on this day");
+                llOpeningHoursContainer.setVisibility(View.VISIBLE);
+            }
+        } else {
+            llOpeningHoursContainer.setVisibility(View.GONE);
+        }
+    }
+
+    private String formatTime(String time24h) {
+        if (time24h == null || time24h.isEmpty()) return null;
+        try {
+            SimpleDateFormat sdf24 = new SimpleDateFormat("HH:mm", Locale.US);
+            SimpleDateFormat sdf12 = new SimpleDateFormat("h:mm a", Locale.US);
+            return sdf12.format(sdf24.parse(time24h));
+        } catch (ParseException e) {
+            Log.e(TAG, "Could not parse time: " + time24h, e);
+            return time24h;
+        }
     }
 
     private void setupClickListeners() {
@@ -115,7 +178,6 @@ public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
                 mapIntent.putExtra(MapsActivity.EXTRA_TARGET_LATITUDE, currentPlace.getLatitude());
                 mapIntent.putExtra(MapsActivity.EXTRA_TARGET_LONGITUDE, currentPlace.getLongitude());
                 mapIntent.putExtra(MapsActivity.EXTRA_TARGET_NAME, currentPlace.getName());
-                // Do NOT set EXTRA_DRAW_ROUTE, so it just centers on the pin
                 startActivity(mapIntent);
             }
         });
@@ -126,7 +188,7 @@ public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
                 mapIntent.putExtra(MapsActivity.EXTRA_TARGET_LATITUDE, currentPlace.getLatitude());
                 mapIntent.putExtra(MapsActivity.EXTRA_TARGET_LONGITUDE, currentPlace.getLongitude());
                 mapIntent.putExtra(MapsActivity.EXTRA_TARGET_NAME, currentPlace.getName());
-                mapIntent.putExtra(MapsActivity.EXTRA_DRAW_ROUTE, true); // Signal to draw a route
+                mapIntent.putExtra(MapsActivity.EXTRA_DRAW_ROUTE, true);
                 startActivity(mapIntent);
             }
         });
