@@ -115,25 +115,41 @@
             android:textSize="14sp"
             app:drawableTint="@color/starColor"
             app:layout_constraintBottom_toBottomOf="@id/tv_item_time"
-            app:layout_constraintEnd_toStartOf="@+id/btn_switch_item"
+            app:layout_constraintEnd_toStartOf="@+id/ll_action_buttons"
             app:layout_constraintTop_toTopOf="@id/tv_item_time"
             app:layout_constraintHorizontal_bias="1.0"
             android:layout_marginEnd="16dp"
             tools:text="4.5" />
 
-        <!-- ADDED: Switch/Edit button for the itinerary item -->
-        <ImageButton
-            android:id="@+id/btn_switch_item"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+        <!-- ADDED: LinearLayout to group the action buttons -->
+        <LinearLayout
+            android:id="@+id/ll_action_buttons"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:layout_marginBottom="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:contentDescription="Switch this itinerary stop"
-            android:src="@android:drawable/ic_menu_rotate"
+            android:orientation="horizontal"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:tint="@color/colorPrimary" />
+            app:layout_constraintEnd_toEndOf="parent">
+
+            <ImageButton
+                android:id="@+id/btn_delete_item"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Delete this itinerary stop"
+                android:src="@android:drawable/ic_menu_delete"
+                app:tint="@color/colorErrorRed" />
+
+            <ImageButton
+                android:id="@+id/btn_switch_item"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:contentDescription="Switch this itinerary stop"
+                android:src="@android:drawable/ic_menu_rotate"
+                app:tint="@color/colorPrimary" />
+        </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

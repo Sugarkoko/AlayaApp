@@ -32,22 +32,22 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         void onCustomizeClicked();
     }
 
-    // ADDED: New interface for card-specific actions
+    // MODIFIED: Added a new method to the listener interface
     public interface ItineraryCardListener {
         void onSwitchItemClicked(int position);
+        void onDeleteItemClicked(int position);
     }
 
     private final List<Object> displayItems;
     private final ItinerariesActivity activity;
     private final ItineraryHeaderListener headerListener;
-    private final ItineraryCardListener cardListener; // ADDED
+    private final ItineraryCardListener cardListener;
 
-    // MODIFIED: Constructor now accepts the card listener
     public ItineraryAdapter(ItinerariesActivity activity, List<Object> displayItems, ItineraryHeaderListener headerListener, ItineraryCardListener cardListener) {
         this.activity = activity;
         this.displayItems = displayItems;
         this.headerListener = headerListener;
-        this.cardListener = cardListener; // ADDED
+        this.cardListener = cardListener;
         setHasStableIds(true);
     }
 
@@ -84,7 +84,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 return new HeaderViewHolder(headerView);
             case VIEW_TYPE_ITINERARY_CARD:
                 View cardView = inflater.inflate(R.layout.list_item_itinerary, parent, false);
-                return new CardViewHolder(cardView, cardListener); // MODIFIED: Pass listener
+                return new CardViewHolder(cardView, cardListener);
             case VIEW_TYPE_HORIZONTAL_LIST:
                 View horizontalView = inflater.inflate(R.layout.item_itinerary_horizontal_list, parent, false);
                 return new HorizontalListViewHolder(horizontalView);
@@ -106,8 +106,6 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 ((HeaderViewHolder) holder).bind((String) displayItems.get(position));
                 break;
             case VIEW_TYPE_ITINERARY_CARD:
-                int sequenceNumber = 1;
-                // This needs to find the actual index within the list of ItineraryItems only
                 int itemIndex = -1;
                 for (int i = 0; i <= position; i++) {
                     if (displayItems.get(i) instanceof ItineraryItem) {
@@ -193,9 +191,8 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     class CardViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
         TextView tvTime, tvActivity, tvRating, tvItemNumber, tvItemCategoryTag;
-        ImageButton btnSwitchItem; // ADDED
+        ImageButton btnSwitchItem, btnDeleteItem; // MODIFIED: Added delete button
 
-        // MODIFIED: Constructor accepts listener
         CardViewHolder(@NonNull View itemView, ItineraryCardListener listener) {
             super(itemView);
             tvTime = itemView.findViewById(R.id.tv_item_time);
@@ -204,34 +201,41 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             ivImage = itemView.findViewById(R.id.iv_item_image);
             tvItemNumber = itemView.findViewById(R.id.tv_item_number);
             tvItemCategoryTag = itemView.findViewById(R.id.tv_item_category_tag);
-            btnSwitchItem = itemView.findViewById(R.id.btn_switch_item); // ADDED
+            btnSwitchItem = itemView.findViewById(R.id.btn_switch_item);
+            btnDeleteItem = itemView.findViewById(R.id.btn_delete_item); // MODIFIED: Find the delete button
 
-            // ADDED: Set the click listener for the switch button
-            btnSwitchItem.setOnClickListener(v -> {
+            // Helper method to get the correct item index
+            final int[] itemIndex = {-1};
+            View.OnClickListener actionListener = v -> {
                 if (listener != null) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
-                        // We need to find the true index within the ItineraryItem list, not the overall display list
-                        int itemIndex = -1;
+                        itemIndex[0] = -1;
                         for (int i = 0; i <= position; i++) {
                             if (displayItems.get(i) instanceof ItineraryItem) {
-                                itemIndex++;
+                                itemIndex[0]++;
                             }
                         }
-                        if (itemIndex != -1) {
-                            listener.onSwitchItemClicked(itemIndex);
+                        if (itemIndex[0] != -1) {
+                            if (v.getId() == R.id.btn_switch_item) {
+                                listener.onSwitchItemClicked(itemIndex[0]);
+                            } else if (v.getId() == R.id.btn_delete_item) {
+                                listener.onDeleteItemClicked(itemIndex[0]);
+                            }
                         }
                     }
                 }
-            });
+            };
+
+            btnSwitchItem.setOnClickListener(actionListener);
+            btnDeleteItem.setOnClickListener(actionListener); // MODIFIED: Set listener for delete button
         }
 
-        // MODIFIED: Parameter is now the true index within the ItineraryItem list
         void bind(ItineraryItem item, int itemIndex) {
             tvTime.setText(item.getFormattedTime());
             tvActivity.setText(item.getActivity());
             tvRating.setText(item.getRating());
-            tvItemNumber.setText(String.valueOf(itemIndex + 1)); // Use the correct index for numbering
+            tvItemNumber.setText(String.valueOf(itemIndex + 1));
 
             if (item.getCategory() != null && !item.getCategory().isEmpty()) {
                 tvItemCategoryTag.setText(item.getCategory().toUpperCase(Locale.ROOT));

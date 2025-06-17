@@ -45,12 +45,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-// MODIFIED: Implement the new listeners
 public class ItinerariesActivity extends AppCompatActivity implements
         ItineraryAdapter.ItineraryHeaderListener,
-        ItineraryAdapter.ItineraryCardListener, // For the switch button click
+        ItineraryAdapter.ItineraryCardListener,
         CustomizeItineraryBottomSheet.CustomizeListener,
-        ItineraryAlternativesBottomSheet.AlternativesListener { // For the dialog result
+        ItineraryAlternativesBottomSheet.AlternativesListener {
 
     BottomNavigationView bottomNavigationView;
     RecyclerView rvMain;
@@ -71,7 +70,7 @@ public class ItinerariesActivity extends AppCompatActivity implements
     private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
     private GeoPoint currentGeoPoint = null;
     private FirebaseFirestore db;
-    public List<Place> allPlacesList = new ArrayList<>(); // Made public to be accessible by the dialog
+    public List<Place> allPlacesList = new ArrayList<>();
     private static final String KEY_TRIP_DATE_YEAR = "trip_date_year";
     private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
     private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
@@ -129,11 +128,10 @@ public class ItinerariesActivity extends AppCompatActivity implements
             itineraryViewModel.initializeState();
         }
         loadAndDisplayLocationHeader();
-        fetchAllPlaces(); // Fetch all places once on create
+        fetchAllPlaces();
     }
 
     private void setupRecyclerView() {
-        // MODIFIED: Pass 'this' as the card listener
         itineraryAdapter = new ItineraryAdapter(this, displayItems, this, this);
         rvMain.setLayoutManager(new LinearLayoutManager(this));
         rvMain.setAdapter(itineraryAdapter);
@@ -185,7 +183,6 @@ public class ItinerariesActivity extends AppCompatActivity implements
         });
     }
 
-    // ADDED: Fetch all places from Firestore once and store them.
     private void fetchAllPlaces() {
         db.collection("places").get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
@@ -219,10 +216,9 @@ public class ItinerariesActivity extends AppCompatActivity implements
             return;
         }
         loadTripDateTime();
-        // Use the already fetched list of places
         if (allPlacesList.isEmpty()) {
             Toast.makeText(this, "Place data is not ready. Please try again in a moment.", Toast.LENGTH_SHORT).show();
-            fetchAllPlaces(); // Attempt to refetch if it's empty
+            fetchAllPlaces();
             return;
         }
         String locationName = itineraryViewModel.currentLocationName.getValue() != null ? itineraryViewModel.currentLocationName.getValue() : "Selected Location";
@@ -525,7 +521,6 @@ public class ItinerariesActivity extends AppCompatActivity implements
         triggerGeneration(true, categoryPreferences);
     }
 
-    // ADDED: Implementation for the switch button click
     @Override
     public void onSwitchItemClicked(int position) {
         if (allPlacesList.isEmpty()) {
@@ -536,7 +531,26 @@ public class ItinerariesActivity extends AppCompatActivity implements
         bottomSheet.show(getSupportFragmentManager(), ItineraryAlternativesBottomSheet.TAG);
     }
 
-    // ADDED: Implementation for the dialog result
+    // ADDED: Implementation for the delete button click
+    @Override
+    public void onDeleteItemClicked(int position) {
+        ItineraryState state = itineraryViewModel.itineraryState.getValue();
+        if (state == null || state.getItineraryItems() == null || position >= state.getItineraryItems().size()) {
+            return;
+        }
+        ItineraryItem itemToDelete = state.getItineraryItems().get(position);
+
+        new AlertDialog.Builder(this)
+                .setTitle("Delete Stop")
+                .setMessage("Are you sure you want to remove '" + itemToDelete.getActivity() + "' from your itinerary?")
+                .setPositiveButton("Delete", (dialog, which) -> {
+                    itineraryViewModel.deleteItineraryItem(position, allPlacesList);
+                })
+                .setNegativeButton("Cancel", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
+    }
+
     @Override
     public void onPlaceSelectedForReplacement(int indexToReplace, Place newPlace) {
         Toast.makeText(this, "Replacing stop with " + newPlace.getName() + "...", Toast.LENGTH_SHORT).show();
