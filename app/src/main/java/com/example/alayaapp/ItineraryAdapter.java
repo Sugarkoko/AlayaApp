@@ -29,6 +29,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         void onRegenerateClicked();
         void onClearClicked();
         void onEditLocationClicked();
+        void onCustomizeClicked();
     }
 
     private final List<Object> displayItems;
@@ -134,7 +135,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     class LocationHeaderViewHolder extends RecyclerView.ViewHolder {
         TextView tvLocationCity, tvLocationStatus, tvHeaderMessage, tvItinerariesTitle;
         ImageButton ibEditLocation;
-        Button btnRegenerate, btnClear;
+        Button btnRegenerate, btnClear, btnCustomize;
 
         LocationHeaderViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -145,6 +146,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvHeaderMessage = itemView.findViewById(R.id.tv_header_message);
             btnRegenerate = itemView.findViewById(R.id.btn_regenerate_itinerary);
             btnClear = itemView.findViewById(R.id.btn_clear_itinerary);
+            btnCustomize = itemView.findViewById(R.id.btn_customize_itinerary);
         }
 
         void bind(LocationHeaderData data, ItineraryHeaderListener listener) {
@@ -155,11 +157,11 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             ibEditLocation.setOnClickListener(v -> listener.onEditLocationClicked());
             btnRegenerate.setOnClickListener(v -> listener.onRegenerateClicked());
             btnClear.setOnClickListener(v -> listener.onClearClicked());
+            btnCustomize.setOnClickListener(v -> listener.onCustomizeClicked());
 
             // Hide title if there are no items
             boolean hasItems = displayItems.stream().anyMatch(item -> item instanceof ItineraryItem);
             tvItinerariesTitle.setVisibility(hasItems ? View.VISIBLE : View.GONE);
-
 
             String message = data.getHeaderMessage();
             if (message != null && !message.isEmpty()) {
@@ -220,11 +222,13 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     class HorizontalListViewHolder extends RecyclerView.ViewHolder {
         RecyclerView rvHorizontal;
         TextView tvTitle;
+
         HorizontalListViewHolder(@NonNull View itemView) {
             super(itemView);
             rvHorizontal = itemView.findViewById(R.id.rv_horizontal);
             tvTitle = itemView.findViewById(R.id.tv_horizontal_section_header);
         }
+
         void bind(HorizontalListContainer container) {
             tvTitle.setText(container.getTitle());
             // The adapter now takes a List<Place>
@@ -249,22 +253,29 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     // --- Data container classes ---
     public static class LocationHeaderData {
         private final String headerMessage;
-
         public LocationHeaderData(String headerMessage) {
             this.headerMessage = headerMessage;
         }
-
-        public String getHeaderMessage() { return headerMessage; }
+        public String getHeaderMessage() {
+            return headerMessage;
+        }
     }
 
     public static class HorizontalListContainer {
         private final String title;
         private final List<Place> recommendedPlaces; // Now holds a list of real Place objects
+
         public HorizontalListContainer(String title, List<Place> places) {
             this.title = title;
             this.recommendedPlaces = places;
         }
-        public String getTitle() { return title; }
-        public List<Place> getRecommendedPlaces() { return recommendedPlaces; }
+
+        public String getTitle() {
+            return title;
+        }
+
+        public List<Place> getRecommendedPlaces() {
+            return recommendedPlaces;
+        }
     }
 }

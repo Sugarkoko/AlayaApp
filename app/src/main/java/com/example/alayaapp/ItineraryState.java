@@ -8,12 +8,12 @@ import java.util.Objects;
  * This object is serialized to JSON and stored in SharedPreferences.
  */
 public class ItineraryState {
-
     // --- Generation Parameters ---
     private final double startLat;
     private final double startLon;
     private final long startTimeMillis;
     private final long endTimeMillis;
+    private final List<String> categoryPreferences; // NEW: Store the customization
 
     // --- Generated Data ---
     private final List<ItineraryItem> itineraryItems;
@@ -21,13 +21,12 @@ public class ItineraryState {
     private final String headerMessage;
     private final String locationName;
 
-    public ItineraryState(double startLat, double startLon, long startTimeMillis, long endTimeMillis,
-                          List<ItineraryItem> itineraryItems, List<Place> topRatedPlaces,
-                          String headerMessage, String locationName) {
+    public ItineraryState(double startLat, double startLon, long startTimeMillis, long endTimeMillis, List<String> categoryPreferences, List<ItineraryItem> itineraryItems, List<Place> topRatedPlaces, String headerMessage, String locationName) {
         this.startLat = startLat;
         this.startLon = startLon;
         this.startTimeMillis = startTimeMillis;
         this.endTimeMillis = endTimeMillis;
+        this.categoryPreferences = categoryPreferences; // NEW
         this.itineraryItems = itineraryItems;
         this.topRatedPlaces = topRatedPlaces;
         this.headerMessage = headerMessage;
@@ -55,14 +54,14 @@ public class ItineraryState {
      * are still valid compared to the current user preferences.
      * A small tolerance is used for location comparison.
      */
-    public boolean isStillValid(double currentLat, double currentLon, long currentStartMillis, long currentEndMillis) {
+    public boolean isStillValid(double currentLat, double currentLon, long currentStartMillis, long currentEndMillis, List<String> currentPreferences) {
         final double LAT_LON_TOLERANCE = 0.0001; // Approx 11 meters
-        boolean isLocationSame = Math.abs(this.startLat - currentLat) < LAT_LON_TOLERANCE &&
-                Math.abs(this.startLon - currentLon) < LAT_LON_TOLERANCE;
-        boolean areTimesSame = this.startTimeMillis == currentStartMillis &&
-                this.endTimeMillis == currentEndMillis;
+        boolean isLocationSame = Math.abs(this.startLat - currentLat) < LAT_LON_TOLERANCE && Math.abs(this.startLon - currentLon) < LAT_LON_TOLERANCE;
+        boolean areTimesSame = this.startTimeMillis == currentStartMillis && this.endTimeMillis == currentEndMillis;
+        // NEW: Also check if the customization preferences are identical
+        boolean arePrefsSame = Objects.equals(this.categoryPreferences, currentPreferences);
 
-        return isLocationSame && areTimesSame;
+        return isLocationSame && areTimesSame && arePrefsSame;
     }
 
     @Override
@@ -73,11 +72,12 @@ public class ItineraryState {
         return Double.compare(that.startLat, startLat) == 0 &&
                 Double.compare(that.startLon, startLon) == 0 &&
                 startTimeMillis == that.startTimeMillis &&
-                endTimeMillis == that.endTimeMillis;
+                endTimeMillis == that.endTimeMillis &&
+                Objects.equals(categoryPreferences, that.categoryPreferences); // NEW
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(startLat, startLon, startTimeMillis, endTimeMillis);
+        return Objects.hash(startLat, startLon, startTimeMillis, endTimeMillis, categoryPreferences); // NEW
     }
 }
