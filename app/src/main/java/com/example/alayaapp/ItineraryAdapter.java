@@ -7,15 +7,19 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
+
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
 
 public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+
     private static final int VIEW_TYPE_LOCATION_HEADER = 0;
     private static final int VIEW_TYPE_HEADER = 1;
     private static final int VIEW_TYPE_ITINERARY_CARD = 2;
@@ -35,6 +39,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         void onDeleteItemClicked(int position);
         void onItemClicked(int position); // For general card clicks
         void onTimeClicked(int position); // NEW: For editing time
+        void onSwapItemClicked(int position); // NEW: For swapping order
     }
 
     private final List<Object> displayItems;
@@ -176,12 +181,10 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView tvHeader;
-
         HeaderViewHolder(@NonNull View itemView) {
             super(itemView);
             tvHeader = itemView.findViewById(R.id.tv_section_header);
         }
-
         void bind(String title) {
             tvHeader.setText(title);
         }
@@ -190,7 +193,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     class CardViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
         TextView tvTime, tvActivity, tvRating, tvItemNumber, tvItemCategoryTag;
-        ImageButton btnSwitchItem, btnDeleteItem;
+        ImageButton btnSwitchItem, btnDeleteItem, btnSwapItem;
 
         CardViewHolder(@NonNull View itemView, ItineraryCardListener listener) {
             super(itemView);
@@ -202,6 +205,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvItemCategoryTag = itemView.findViewById(R.id.tv_item_category_tag);
             btnSwitchItem = itemView.findViewById(R.id.btn_switch_item);
             btnDeleteItem = itemView.findViewById(R.id.btn_delete_item);
+            btnSwapItem = itemView.findViewById(R.id.btn_swap_item);
 
             // Helper method to get the correct item index
             final int[] itemIndex = {-1};
@@ -222,15 +226,17 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                 listener.onDeleteItemClicked(itemIndex[0]);
                             } else if (v.getId() == R.id.tv_item_time) { // NEW
                                 listener.onTimeClicked(itemIndex[0]);
+                            } else if (v.getId() == R.id.btn_swap_item) { // NEW
+                                listener.onSwapItemClicked(itemIndex[0]);
                             }
                         }
                     }
                 }
             };
-
             btnSwitchItem.setOnClickListener(actionListener);
             btnDeleteItem.setOnClickListener(actionListener);
             tvTime.setOnClickListener(actionListener); // NEW
+            btnSwapItem.setOnClickListener(actionListener); // NEW
 
             // MODIFIED: Set a click listener for the entire card
             itemView.setOnClickListener(v -> {
@@ -273,19 +279,30 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             } else {
                 ivImage.setImageResource(R.drawable.img_placeholder);
             }
+
+            // NEW: Logic to hide swap button on the last item
+            boolean isLastItem = true; // Assume last until proven otherwise
+            int adapterPosition = getAdapterPosition();
+            if (adapterPosition != RecyclerView.NO_POSITION) {
+                for (int i = adapterPosition + 1; i < displayItems.size(); i++) {
+                    if (displayItems.get(i) instanceof ItineraryItem) {
+                        isLastItem = false;
+                        break;
+                    }
+                }
+            }
+            btnSwapItem.setVisibility(isLastItem ? View.GONE : View.VISIBLE);
         }
     }
 
     class HorizontalListViewHolder extends RecyclerView.ViewHolder {
         RecyclerView rvHorizontal;
         TextView tvTitle;
-
         HorizontalListViewHolder(@NonNull View itemView) {
             super(itemView);
             rvHorizontal = itemView.findViewById(R.id.rv_horizontal);
             tvTitle = itemView.findViewById(R.id.tv_horizontal_section_header);
         }
-
         void bind(HorizontalListContainer container) {
             tvTitle.setText(container.getTitle());
             RecommendedItineraryAdapter adapter = new RecommendedItineraryAdapter(activity, container.getRecommendedPlaces());
@@ -296,12 +313,10 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     static class FooterMessageViewHolder extends RecyclerView.ViewHolder {
         TextView tvFooterMessage;
-
         FooterMessageViewHolder(@NonNull View itemView) {
             super(itemView);
             tvFooterMessage = itemView.findViewById(R.id.tv_footer_message);
         }
-
         void bind(String message) {
             tvFooterMessage.setText(message);
         }
@@ -309,31 +324,18 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public static class LocationHeaderData {
         private final String headerMessage;
-
-        public LocationHeaderData(String headerMessage) {
-            this.headerMessage = headerMessage;
-        }
-
-        public String getHeaderMessage() {
-            return headerMessage;
-        }
+        public LocationHeaderData(String headerMessage) { this.headerMessage = headerMessage; }
+        public String getHeaderMessage() { return headerMessage; }
     }
 
     public static class HorizontalListContainer {
         private final String title;
         private final List<Place> recommendedPlaces;
-
         public HorizontalListContainer(String title, List<Place> places) {
             this.title = title;
             this.recommendedPlaces = places;
         }
-
-        public String getTitle() {
-            return title;
-        }
-
-        public List<Place> getRecommendedPlaces() {
-            return recommendedPlaces;
-        }
+        public String getTitle() { return title; }
+        public List<Place> getRecommendedPlaces() { return recommendedPlaces; }
     }
 }

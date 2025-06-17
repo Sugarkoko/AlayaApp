@@ -45,13 +45,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class ItinerariesActivity extends AppCompatActivity implements
-        ItineraryAdapter.ItineraryHeaderListener,
-        ItineraryAdapter.ItineraryCardListener,
-        CustomizeItineraryBottomSheet.CustomizeListener,
-        ItineraryAlternativesBottomSheet.AlternativesListener,
-        EditItineraryTimeDialog.EditTimeDialogListener { // NEW: Implement the dialog listener
-
+public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.ItineraryHeaderListener, ItineraryAdapter.ItineraryCardListener, CustomizeItineraryBottomSheet.CustomizeListener, ItineraryAlternativesBottomSheet.AlternativesListener, EditItineraryTimeDialog.EditTimeDialogListener {
+    // NEW: Implement the dialog listener
     BottomNavigationView bottomNavigationView;
     RecyclerView rvMain;
     ItineraryAdapter itineraryAdapter;
@@ -104,6 +99,7 @@ public class ItinerariesActivity extends AppCompatActivity implements
                     String locationName = data.getStringExtra("selected_location_name");
                     double latitude = data.getDoubleExtra("selected_latitude", 0.0);
                     double longitude = data.getDoubleExtra("selected_longitude", 0.0);
+
                     if (locationName != null && !locationName.isEmpty()) {
                         currentGeoPoint = new GeoPoint(latitude, longitude);
                         itineraryViewModel.updateLocationStatus(locationName, "Manually set: " + locationName);
@@ -254,7 +250,6 @@ public class ItinerariesActivity extends AppCompatActivity implements
         int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
         tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
         tripStartCalendar.set(Calendar.MINUTE, startMinute);
-
         int endHour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
         int endMinute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
         tripEndCalendar.set(Calendar.HOUR_OF_DAY, endHour);
@@ -435,7 +430,8 @@ public class ItinerariesActivity extends AppCompatActivity implements
                 new AlertDialog.Builder(this)
                         .setTitle("Location Permission Needed")
                         .setMessage("This app needs the Location permission to show your current location for itineraries. Please allow.")
-                        .setPositiveButton("OK", (dialogInterface, i) -> ActivityCompat.requestPermissions(ItinerariesActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION_ITINERARIES))
+                        .setPositiveButton("OK", (dialogInterface, i) -> ActivityCompat.requestPermissions(ItinerariesActivity.this,
+                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION_ITINERARIES))
                         .setNegativeButton("Cancel", (dialog, which) -> itineraryViewModel.updateLocationStatus("Permission needed", "Location permission denied.") )
                         .create()
                         .show();
@@ -621,5 +617,15 @@ public class ItinerariesActivity extends AppCompatActivity implements
     public void onTimeConfirmed(int itemIndex, Calendar newStartTime, Calendar newEndTime) {
         Toast.makeText(this, "Updating schedule...", Toast.LENGTH_SHORT).show();
         itineraryViewModel.lockAndRecalculateItinerary(itemIndex, newStartTime, newEndTime, allPlacesList);
+    }
+
+    @Override
+    public void onSwapItemClicked(int position) {
+        if (allPlacesList.isEmpty()) {
+            Toast.makeText(this, "Cannot swap, place data is not ready.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        Toast.makeText(this, "Checking if swap is possible...", Toast.LENGTH_SHORT).show();
+        itineraryViewModel.attemptSwap(position, allPlacesList);
     }
 }
