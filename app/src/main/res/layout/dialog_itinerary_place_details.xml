@@ -17,19 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/textSecondary" />
 
-    <ImageButton
-        android:id="@+id/btn_close_sheet"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:layout_marginTop="8dp"
-        android:layout_marginEnd="8dp"
-        android:background="?attr/selectableItemBackgroundBorderless"
-        android:contentDescription="@string/close"
-        android:src="@drawable/ic_close"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tint="@color/textSecondary" />
-
+    <!-- The CardView is now drawn before the close button -->
     <androidx.cardview.widget.CardView
         android:id="@+id/cv_place_image_container"
         android:layout_width="0dp"
@@ -97,7 +85,6 @@
         app:layout_constraintTop_toBottomOf="@id/tv_place_category"
         tools:text="A historic urban park located at the heart of Baguio. It was named after the American architect and urban planner, Daniel Burnham who laid the plans for the city." />
 
-    <!-- NEW: Opening Hours Section -->
     <LinearLayout
         android:id="@+id/ll_opening_hours_container"
         android:layout_width="0dp"
@@ -159,5 +146,21 @@
         app:layout_constraintStart_toStartOf="@id/btn_get_directions"
         app:layout_constraintTop_toBottomOf="@id/btn_get_directions"
         app:strokeColor="@color/colorPrimary" />
+
+    <!-- THE FIX: The close button is now the last view, so it will be drawn on top. -->
+    <!-- I've also added a small elevation to guarantee it. -->
+    <ImageButton
+        android:id="@+id/btn_close_sheet"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="?attr/selectableItemBackgroundBorderless"
+        android:contentDescription="@string/close"
+        android:elevation="4dp"
+        android:src="@drawable/ic_close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tint="@color/textSecondary" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
