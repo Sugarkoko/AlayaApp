@@ -2,6 +2,7 @@ package com.example.alayaapp;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils; // Import TextUtils for ellipsize
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,6 +40,9 @@ public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
     private Button btnGetDirections, btnViewOnMap;
     private ImageButton btnCloseSheet;
 
+    // NEW: Member variable to track the expanded/collapsed state of the description
+    private boolean isDescriptionExpanded = false;
+
     public static ItineraryPlaceDetailSheet newInstance(String placeDocumentId, long tripDateMillis) {
         ItineraryPlaceDetailSheet fragment = new ItineraryPlaceDetailSheet();
         Bundle args = new Bundle();
@@ -69,8 +73,6 @@ public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
         llOpeningHoursContainer = view.findViewById(R.id.ll_opening_hours_container);
         tvPlaceOpeningHours = view.findViewById(R.id.tv_place_opening_hours);
 
-        // --- THE FIX IS HERE ---
-        // Get arguments and store them in final variables immediately.
         Bundle args = getArguments();
         if (args == null) {
             Toast.makeText(getContext(), "Error: Missing place information.", Toast.LENGTH_SHORT).show();
@@ -86,18 +88,16 @@ public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
             dismiss();
             return;
         }
-        // --- END OF FIX ---
 
         ItinerariesActivity activity = (ItinerariesActivity) getActivity();
 
         if (activity != null) {
-            // Now we use the 'final' variables inside the lambda, which is allowed.
             activity.allPlacesList.stream()
                     .filter(p -> placeDocId.equals(p.getDocumentId()))
                     .findFirst()
                     .ifPresent(place -> {
                         this.currentPlace = place;
-                        populateUI(tripDateMillis); // Pass the final variable
+                        populateUI(tripDateMillis);
                     });
         }
 
@@ -190,6 +190,22 @@ public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
                 mapIntent.putExtra(MapsActivity.EXTRA_TARGET_NAME, currentPlace.getName());
                 mapIntent.putExtra(MapsActivity.EXTRA_DRAW_ROUTE, true);
                 startActivity(mapIntent);
+            }
+        });
+
+        // --- NEWLY ADDED CLICK LISTENER FOR THE DESCRIPTION ---
+        tvPlaceAbout.setOnClickListener(v -> {
+            // Toggle the boolean flag
+            isDescriptionExpanded = !isDescriptionExpanded;
+
+            if (isDescriptionExpanded) {
+                // If it's now expanded, show all lines
+                tvPlaceAbout.setMaxLines(Integer.MAX_VALUE);
+                tvPlaceAbout.setEllipsize(null);
+            } else {
+                // If it's now collapsed, set max lines back to 3
+                tvPlaceAbout.setMaxLines(3);
+                tvPlaceAbout.setEllipsize(TextUtils.TruncateAt.END);
             }
         });
     }
