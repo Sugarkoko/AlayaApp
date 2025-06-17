@@ -22,9 +22,6 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_HORIZONTAL_LIST = 3;
     private static final int VIEW_TYPE_FOOTER_MESSAGE = 4;
 
-    /**
-     * Listener interface for actions originating from the header.
-     */
     public interface ItineraryHeaderListener {
         void onRegenerateClicked();
         void onClearClicked();
@@ -33,8 +30,8 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     }
 
     private final List<Object> displayItems;
-    private final ItinerariesActivity activity; // Context
-    private final ItineraryHeaderListener headerListener; // Listener for header actions
+    private final ItinerariesActivity activity;
+    private final ItineraryHeaderListener headerListener;
 
     public ItineraryAdapter(ItinerariesActivity activity, List<Object> displayItems, ItineraryHeaderListener listener) {
         this.activity = activity;
@@ -53,12 +50,11 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         } else if (item instanceof HorizontalListContainer) {
             return VIEW_TYPE_HORIZONTAL_LIST;
         } else if (item instanceof String) {
-            // Differentiate between a main header and a footer message
             String text = (String) item;
             if (text.equals("Suggested Itinerary")) {
                 return VIEW_TYPE_HEADER;
             } else {
-                return VIEW_TYPE_FOOTER_MESSAGE; // Assume other strings are footers/disclaimers
+                return VIEW_TYPE_FOOTER_MESSAGE;
             }
         }
         return super.getItemViewType(position);
@@ -127,11 +123,9 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         if (item instanceof ItineraryItem) {
             return ((ItineraryItem) item).getId();
         }
-        // Use hashcode for stable IDs for other objects, which is better than just position
         return item.hashCode();
     }
 
-    // --- ViewHolder for the main Location Header ---
     class LocationHeaderViewHolder extends RecyclerView.ViewHolder {
         TextView tvLocationCity, tvLocationStatus, tvHeaderMessage, tvItinerariesTitle;
         ImageButton ibEditLocation;
@@ -150,16 +144,13 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         void bind(LocationHeaderData data, ItineraryHeaderListener listener) {
-            // The ViewModel is now the source of truth for this text
             activity.itineraryViewModel.currentLocationName.observe(activity, tvLocationCity::setText);
             activity.itineraryViewModel.currentLocationStatus.observe(activity, tvLocationStatus::setText);
-
             ibEditLocation.setOnClickListener(v -> listener.onEditLocationClicked());
             btnRegenerate.setOnClickListener(v -> listener.onRegenerateClicked());
             btnClear.setOnClickListener(v -> listener.onClearClicked());
             btnCustomize.setOnClickListener(v -> listener.onCustomizeClicked());
 
-            // Hide title if there are no items
             boolean hasItems = displayItems.stream().anyMatch(item -> item instanceof ItineraryItem);
             tvItinerariesTitle.setVisibility(hasItems ? View.VISIBLE : View.GONE);
 
@@ -173,7 +164,6 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    // --- ViewHolder for Section Headers ---
     static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView tvHeader;
         HeaderViewHolder(@NonNull View itemView) {
@@ -185,11 +175,9 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    // --- ViewHolder for Itinerary Cards ---
     class CardViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
         TextView tvTime, tvActivity, tvRating, tvItemNumber;
-        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
 
         CardViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -201,11 +189,10 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
 
         void bind(ItineraryItem item, int sequenceNumber) {
-            tvTime.setText(timeFormat.format(item.getTime().getTime()));
+            tvTime.setText(item.getFormattedTime()); // UPDATED to show time window
             tvActivity.setText(item.getActivity());
             tvRating.setText(item.getRating());
             tvItemNumber.setText(String.valueOf(sequenceNumber));
-
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
                 Glide.with(activity)
                         .load(item.getImageUrl())
@@ -218,27 +205,22 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    // --- ViewHolder for the Horizontal RecyclerView ---
     class HorizontalListViewHolder extends RecyclerView.ViewHolder {
         RecyclerView rvHorizontal;
         TextView tvTitle;
-
         HorizontalListViewHolder(@NonNull View itemView) {
             super(itemView);
             rvHorizontal = itemView.findViewById(R.id.rv_horizontal);
             tvTitle = itemView.findViewById(R.id.tv_horizontal_section_header);
         }
-
         void bind(HorizontalListContainer container) {
             tvTitle.setText(container.getTitle());
-            // The adapter now takes a List<Place>
             RecommendedItineraryAdapter adapter = new RecommendedItineraryAdapter(activity, container.getRecommendedPlaces());
             rvHorizontal.setLayoutManager(new LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false));
             rvHorizontal.setAdapter(adapter);
         }
     }
 
-    // --- ViewHolder for Footer Message ---
     static class FooterMessageViewHolder extends RecyclerView.ViewHolder {
         TextView tvFooterMessage;
         FooterMessageViewHolder(@NonNull View itemView) {
@@ -250,7 +232,6 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
     }
 
-    // --- Data container classes ---
     public static class LocationHeaderData {
         private final String headerMessage;
         public LocationHeaderData(String headerMessage) {
@@ -263,17 +244,14 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public static class HorizontalListContainer {
         private final String title;
-        private final List<Place> recommendedPlaces; // Now holds a list of real Place objects
-
+        private final List<Place> recommendedPlaces;
         public HorizontalListContainer(String title, List<Place> places) {
             this.title = title;
             this.recommendedPlaces = places;
         }
-
         public String getTitle() {
             return title;
         }
-
         public List<Place> getRecommendedPlaces() {
             return recommendedPlaces;
         }

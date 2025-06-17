@@ -10,7 +10,6 @@ import androidx.core.content.ContextCompat;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -25,7 +24,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
-
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -37,7 +35,6 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.GeoPoint;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -51,26 +48,21 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     ItineraryAdapter itineraryAdapter;
     FloatingActionButton fabSaveTrip;
     ProgressBar pbItineraries;
-
     final int CURRENT_ITEM_ID = R.id.navigation_itineraries;
     private static final String TAG_LOCATION = "ItinerariesActivity";
     private static final int REQUEST_LOCATION_PERMISSION_ITINERARIES = 2;
-
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private boolean requestingLocationUpdates = false;
-
     private SharedPreferences sharedPreferences;
     private static final String PREFS_NAME = "AlayaAppPrefs";
     private static final String KEY_LOCATION_MODE = "location_mode";
     private static final String KEY_MANUAL_LOCATION_NAME = "manual_location_name";
     private static final String KEY_MANUAL_LATITUDE = "manual_latitude";
     private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
-
     private GeoPoint currentGeoPoint = null;
     private FirebaseFirestore db;
     private List<Place> allPlacesList = new ArrayList<>();
-
     private static final String KEY_TRIP_DATE_YEAR = "trip_date_year";
     private static final String KEY_TRIP_DATE_MONTH = "trip_date_month";
     private static final String KEY_TRIP_DATE_DAY = "trip_date_day";
@@ -78,20 +70,13 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private static final String KEY_TRIP_TIME_MINUTE = "trip_time_minute";
     private static final String KEY_TRIP_END_TIME_HOUR = "trip_end_time_hour";
     private static final String KEY_TRIP_END_TIME_MINUTE = "trip_end_time_minute";
-
     private Calendar tripStartCalendar;
     private Calendar tripEndCalendar;
-
     private static final double BAGUIO_REGION_MIN_LAT = 16.35;
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
-    private static final String KEY_MANUAL_LOCATION_NAME1 = "manual_location_name";
-    private static final String KEY_MANUAL_LATITUDE1 = "manual_latitude";
-    private static final String KEY_MANUAL_LONGITUDE1 = "manual_longitude";
     private static final double BAGUIO_REGION_MIN_LON = 120.55;
     private static final double BAGUIO_REGION_MAX_LON = 120.65;
-
     private List<Object> displayItems = new ArrayList<>();
-
     public ItineraryViewModel itineraryViewModel;
 
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
@@ -107,8 +92,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                         itineraryViewModel.updateLocationStatus(locationName, "Manually set: " + locationName);
                         saveLocationPreference("manual", locationName, latitude, longitude);
                         stopLocationUpdates();
-                        // We don't auto-generate here anymore. The user must click a button.
-                        itineraryViewModel.clearItinerary(); // Clear old plan when location changes
+                        itineraryViewModel.clearItinerary();
                         Toast.makeText(this, "Location set. Click 'New Plan' or 'Customize' to generate.", Toast.LENGTH_LONG).show();
                     }
                 }
@@ -119,7 +103,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_itineraries);
 
-        // Standard initializations
         rvMain = findViewById(R.id.rv_itineraries_main);
         bottomNavigationView = findViewById(R.id.bottom_navigation);
         fabSaveTrip = findViewById(R.id.fab_save_trip);
@@ -131,14 +114,12 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
-        // Setup UI components
         setupRecyclerView();
         setupViewModelObservers();
         setupBottomNavListener();
         setupActionListeners();
         setupLocationCallback();
 
-        // MODIFIED: This is the new initialization flow
         if (savedInstanceState == null) {
             itineraryViewModel.initializeState();
         }
@@ -156,7 +137,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             displayItems.clear();
             String headerMessage;
             if (state == null) {
-                // State is null, meaning no plan exists. Show a prompt.
                 headerMessage = "Your itinerary is empty. Use the buttons below to create a plan!";
             } else {
                 headerMessage = state.getHeaderMessage();
@@ -201,10 +181,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         });
     }
 
-    /**
-     * NEW: This method is now the single point of entry for generation.
-     * It fetches all places from Firestore and then calls the ViewModel.
-     */
     private void triggerGeneration(boolean forceRegenerate, List<String> categoryPreferences) {
         if (currentGeoPoint == null) {
             Toast.makeText(this, "Cannot generate itinerary without a start location.", Toast.LENGTH_LONG).show();
@@ -215,8 +191,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             return;
         }
         loadTripDateTime();
-
-        // Fetch all places data from Firestore first.
         db.collection("places").get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
                 allPlacesList.clear();
@@ -232,7 +206,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                     }
                 }
                 String locationName = itineraryViewModel.currentLocationName.getValue() != null ? itineraryViewModel.currentLocationName.getValue() : "Selected Location";
-                // Now call the ViewModel with all the necessary data.
                 itineraryViewModel.loadOrGenerateItinerary(currentGeoPoint, locationName, tripStartCalendar, tripEndCalendar, allPlacesList, forceRegenerate, categoryPreferences);
             } else {
                 Log.w(TAG_LOCATION, "Error getting documents from Firestore.", task.getException());
@@ -253,7 +226,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
         tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
         tripStartCalendar.set(Calendar.MINUTE, startMinute);
-
         int endHour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
         int endMinute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
         tripEndCalendar.set(Calendar.HOUR_OF_DAY, endHour);
@@ -285,10 +257,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         builder.show();
     }
 
-    /**
-     * NEW: This method ONLY loads the location preference and updates the header UI.
-     * It does NOT trigger any itinerary generation.
-     */
     private void loadAndDisplayLocationHeader() {
         String mode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
         if (mode.equals("manual")) {
@@ -300,12 +268,10 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 itineraryViewModel.updateLocationStatus(name, "Manually set: " + name);
                 stopLocationUpdates();
             } else {
-                // Fallback to auto if manual data is invalid
                 saveLocationPreference("auto", null, 0,0);
                 checkAndRequestLocationPermissions();
             }
         } else {
-            // Auto mode
             itineraryViewModel.updateLocationStatus("Tap to get current location", "Mode: GPS. Waiting for location...");
             checkAndRequestLocationPermissions();
         }
@@ -313,13 +279,11 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
 
     private void getAddressFromLocation(double latitude, double longitude) {
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
-
         if (!isLocationInAllowedRegion(latitude, longitude)) {
             stopLocationUpdates();
             redirectToHomeWithDialog();
             return;
         }
-
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocation(latitude, longitude, 1);
@@ -333,13 +297,10 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
                 else if (thoroughfare != null && !thoroughfare.isEmpty()) addressTextBuilder.append(thoroughfare);
                 else addressTextBuilder.append("Unknown Area");
-
                 currentGeoPoint = new GeoPoint(latitude, longitude);
                 itineraryViewModel.updateLocationStatus(addressTextBuilder.toString(), "GPS: " + addressTextBuilder.toString());
-                // Don't auto-generate. If the user's plan was for a different location, clear it.
                 itineraryViewModel.clearItinerary();
                 Toast.makeText(this, "Location updated. Click 'New Plan' or 'Customize' to generate.", Toast.LENGTH_LONG).show();
-
             } else {
                 itineraryViewModel.updateLocationStatus("Location Name Not Found (Auto)", "GPS: Location Name Not Found");
             }
@@ -348,17 +309,14 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         }
     }
 
-    // ... (setupBottomNavListener, getItemIndex, setupLocationCallback, saveLocationPreference, isLocationInAllowedRegion, redirectToHomeWithDialog are unchanged) ...
     private void setupBottomNavListener() {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
             if (destinationItemId == CURRENT_ITEM_ID) return true;
-
             Class<?> destinationActivityClass = null;
             if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
             else if (destinationItemId == R.id.navigation_map) destinationActivityClass = MapsActivity.class;
             else if (destinationItemId == R.id.navigation_profile) destinationActivityClass = ProfileActivity.class;
-
             if (destinationActivityClass != null) {
                 Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
                 startActivity(intent);
@@ -388,7 +346,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
                         getAddressFromLocation(location.getLatitude(), location.getLongitude());
-                        stopLocationUpdates(); // Got a location, stop for now.
+                        stopLocationUpdates();
                         break;
                     }
                 }
@@ -424,12 +382,10 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         finish();
     }
 
-
     @Override
     protected void onResume() {
         super.onResume();
         bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
-        // The onResume method is now much simpler. It just ensures the location header is up-to-date.
         loadAndDisplayLocationHeader();
     }
 
@@ -445,8 +401,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 new AlertDialog.Builder(this)
                         .setTitle("Location Permission Needed")
                         .setMessage("This app needs the Location permission to show your current location for itineraries. Please allow.")
-                        .setPositiveButton("OK", (dialogInterface, i) -> ActivityCompat.requestPermissions(ItinerariesActivity.this,
-                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION_ITINERARIES))
+                        .setPositiveButton("OK", (dialogInterface, i) -> ActivityCompat.requestPermissions(ItinerariesActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION_ITINERARIES))
                         .setNegativeButton("Cancel", (dialog, which) -> itineraryViewModel.updateLocationStatus("Permission needed", "Location permission denied.") )
                         .create()
                         .show();
@@ -486,7 +441,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             return;
         }
         if (!"auto".equals(sharedPreferences.getString(KEY_LOCATION_MODE, "auto"))) return;
-
         itineraryViewModel.updateLocationStatus(itineraryViewModel.currentLocationName.getValue(), "Fetching last known location...");
         fusedLocationClient.getLastLocation()
                 .addOnSuccessListener(this, location -> {
@@ -527,11 +481,8 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         }
     }
 
-    // --- ItineraryHeaderListener Implementation ---
-
     @Override
     public void onRegenerateClicked() {
-        // A standard "New Plan" click means no specific preferences.
         triggerGeneration(true, Collections.emptyList());
     }
 
@@ -550,8 +501,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         CustomizeItineraryBottomSheet bottomSheet = CustomizeItineraryBottomSheet.newInstance();
         bottomSheet.show(getSupportFragmentManager(), CustomizeItineraryBottomSheet.TAG);
     }
-
-    // --- CustomizeListener Implementation ---
 
     @Override
     public void onCustomizeApplied(List<String> categoryPreferences) {

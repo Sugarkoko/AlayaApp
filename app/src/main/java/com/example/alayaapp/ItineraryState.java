@@ -60,7 +60,6 @@ public class ItineraryState {
         boolean areTimesSame = this.startTimeMillis == currentStartMillis && this.endTimeMillis == currentEndMillis;
         // NEW: Also check if the customization preferences are identical
         boolean arePrefsSame = Objects.equals(this.categoryPreferences, currentPreferences);
-
         return isLocationSame && areTimesSame && arePrefsSame;
     }
 
