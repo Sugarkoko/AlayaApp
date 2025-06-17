@@ -33,7 +33,8 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public interface ItineraryCardListener {
         void onSwitchItemClicked(int position);
         void onDeleteItemClicked(int position);
-        void onItemClicked(int position); // New method for general card clicks
+        void onItemClicked(int position); // For general card clicks
+        void onTimeClicked(int position); // NEW: For editing time
     }
 
     private final List<Object> displayItems;
@@ -219,13 +220,17 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                                 listener.onSwitchItemClicked(itemIndex[0]);
                             } else if (v.getId() == R.id.btn_delete_item) {
                                 listener.onDeleteItemClicked(itemIndex[0]);
+                            } else if (v.getId() == R.id.tv_item_time) { // NEW
+                                listener.onTimeClicked(itemIndex[0]);
                             }
                         }
                     }
                 }
             };
+
             btnSwitchItem.setOnClickListener(actionListener);
             btnDeleteItem.setOnClickListener(actionListener);
+            tvTime.setOnClickListener(actionListener); // NEW
 
             // MODIFIED: Set a click listener for the entire card
             itemView.setOnClickListener(v -> {

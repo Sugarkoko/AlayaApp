@@ -45,7 +45,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.ItineraryHeaderListener, ItineraryAdapter.ItineraryCardListener, CustomizeItineraryBottomSheet.CustomizeListener, ItineraryAlternativesBottomSheet.AlternativesListener {
+public class ItinerariesActivity extends AppCompatActivity implements
+        ItineraryAdapter.ItineraryHeaderListener,
+        ItineraryAdapter.ItineraryCardListener,
+        CustomizeItineraryBottomSheet.CustomizeListener,
+        ItineraryAlternativesBottomSheet.AlternativesListener,
+        EditItineraryTimeDialog.EditTimeDialogListener { // NEW: Implement the dialog listener
+
     BottomNavigationView bottomNavigationView;
     RecyclerView rvMain;
     ItineraryAdapter itineraryAdapter;
@@ -511,6 +517,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     }
 
     // --- Listener Implementations ---
+
     @Override
     public void onRegenerateClicked() {
         triggerGeneration(true, Collections.emptyList());
@@ -573,19 +580,15 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             Log.e(TAG_LOCATION, "onItemClicked: Invalid state or position.");
             return;
         }
-
         ItineraryItem clickedItem = state.getItineraryItems().get(position);
         String placeDocId = clickedItem.getPlaceDocumentId();
-
         if (placeDocId == null || placeDocId.isEmpty()) {
             Toast.makeText(this, "Details for this item are not available.", Toast.LENGTH_SHORT).show();
             return;
         }
-
         // MODIFIED: Pass the trip date to the bottom sheet
         loadTripDateTime(); // Ensure tripStartCalendar is current
         long tripDateMillis = tripStartCalendar.getTimeInMillis();
-
         ItineraryPlaceDetailSheet bottomSheet = ItineraryPlaceDetailSheet.newInstance(placeDocId, tripDateMillis);
         bottomSheet.show(getSupportFragmentManager(), ItineraryPlaceDetailSheet.TAG);
     }
@@ -594,5 +597,29 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     public void onPlaceSelectedForReplacement(int indexToReplace, Place newPlace) {
         Toast.makeText(this, "Replacing stop with " + newPlace.getName() + "...", Toast.LENGTH_SHORT).show();
         itineraryViewModel.replaceItineraryItem(indexToReplace, newPlace, allPlacesList);
+    }
+
+    // --- NEW LISTENER IMPLEMENTATIONS ---
+
+    @Override
+    public void onTimeClicked(int position) {
+        ItineraryState state = itineraryViewModel.itineraryState.getValue();
+        if (state == null || state.getItineraryItems() == null || position >= state.getItineraryItems().size()) {
+            Toast.makeText(this, "Cannot edit time, itinerary data is missing.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        loadTripDateTime(); // Ensure trip calendars are up-to-date
+        EditItineraryTimeDialog dialog = EditItineraryTimeDialog.newInstance(
+                position,
+                tripStartCalendar.getTimeInMillis(),
+                tripEndCalendar.getTimeInMillis()
+        );
+        dialog.show(getSupportFragmentManager(), "EditItineraryTimeDialog");
+    }
+
+    @Override
+    public void onTimeConfirmed(int itemIndex, Calendar newStartTime, Calendar newEndTime) {
+        Toast.makeText(this, "Updating schedule...", Toast.LENGTH_SHORT).show();
+        itineraryViewModel.lockAndRecalculateItinerary(itemIndex, newStartTime, newEndTime, allPlacesList);
     }
 }

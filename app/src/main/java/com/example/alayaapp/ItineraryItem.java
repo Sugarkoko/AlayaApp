@@ -1,7 +1,6 @@
 package com.example.alayaapp;
 
 import com.google.firebase.firestore.GeoPoint;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -15,15 +14,15 @@ public class ItineraryItem {
     private String activity;
     private String rating;
     private String imageUrl;
-    private String category; // ADDED: To store the category
+    private String category;
     private transient GeoPoint coordinates;
     private double latitude;
     private double longitude;
     private String placeDocumentId;
+    private boolean isTimeLocked = false; // NEW: To mark this item as fixed
 
     public ItineraryItem() {}
 
-    // MODIFIED: Added category to the constructor
     public ItineraryItem(long id, Calendar startTime, Calendar endTime, String activity, String rating, String imageUrl, GeoPoint coordinates, String placeDocumentId, String category) {
         this.id = id;
         this.startTime = startTime;
@@ -33,8 +32,7 @@ public class ItineraryItem {
         this.imageUrl = imageUrl;
         this.coordinates = coordinates;
         this.placeDocumentId = placeDocumentId;
-        this.category = category; // ADDED: Assign category
-
+        this.category = category;
         if (startTime != null) this.startTimeMillis = startTime.getTimeInMillis();
         if (endTime != null) this.endTimeMillis = endTime.getTimeInMillis();
         if (coordinates != null) {
@@ -44,10 +42,7 @@ public class ItineraryItem {
     }
 
     // --- Getters and Setters ---
-    public long getId() {
-        return id;
-    }
-
+    public long getId() { return id; }
     public Calendar getStartTime() {
         if (startTime == null && startTimeMillis > 0) {
             startTime = Calendar.getInstance();
@@ -55,7 +50,6 @@ public class ItineraryItem {
         }
         return startTime;
     }
-
     public Calendar getEndTime() {
         if (endTime == null && endTimeMillis > 0) {
             endTime = Calendar.getInstance();
@@ -63,43 +57,29 @@ public class ItineraryItem {
         }
         return endTime;
     }
-
-    public String getActivity() {
-        return activity;
-    }
-
-    public String getRating() {
-        return rating;
-    }
-
-    public String getImageUrl() {
-        return imageUrl;
-    }
-
-    public String getPlaceDocumentId() {
-        return placeDocumentId;
-    }
-
-    // ADDED: Getter for the new category field
-    public String getCategory() {
-        return category;
-    }
-
+    public String getActivity() { return activity; }
+    public String getRating() { return rating; }
+    public String getImageUrl() { return imageUrl; }
+    public String getPlaceDocumentId() { return placeDocumentId; }
+    public String getCategory() { return category; }
     public GeoPoint getCoordinates() {
         if (coordinates == null && (latitude != 0.0 || longitude != 0.0)) {
             coordinates = new GeoPoint(latitude, longitude);
         }
         return coordinates;
     }
+    public Calendar getTime() { return getStartTime(); }
 
-    public Calendar getTime() {
-        return getStartTime();
+    // NEW: Getter and Setter for isTimeLocked
+    public boolean isTimeLocked() {
+        return isTimeLocked;
+    }
+    public void setTimeLocked(boolean timeLocked) {
+        isTimeLocked = timeLocked;
     }
 
     private Calendar roundToNearestFiveMinutes(Calendar originalCal) {
-        if (originalCal == null) {
-            return null;
-        }
+        if (originalCal == null) { return null; }
         Calendar roundedCal = (Calendar) originalCal.clone();
         int minutes = roundedCal.get(Calendar.MINUTE);
         int roundedMinutes = (int) (Math.round((double) minutes / 5.0) * 5);
