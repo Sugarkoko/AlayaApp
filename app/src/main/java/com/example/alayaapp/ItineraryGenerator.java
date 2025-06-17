@@ -1,7 +1,9 @@
 package com.example.alayaapp;
 
 import android.util.Log;
+
 import com.google.firebase.firestore.GeoPoint;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -12,6 +14,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.Date;
+
 public class ItineraryGenerator {
     private static final String TAG = "ItineraryGenerator";
     private static final double AVERAGE_SPEED_KMH = 15.0;
@@ -42,6 +45,7 @@ public class ItineraryGenerator {
             Log.w(TAG, "Could not determine a valid sequence of places.");
             return generatedItinerary;
         }
+
         Log.d(TAG, "Determined sequence: " + sequence.stream().map(Place::getName).collect(Collectors.joining(" -> ")));
 
         // 3. Calculate total minimum time required for the sequence
@@ -49,33 +53,28 @@ public class ItineraryGenerator {
         for (Place p : sequence) {
             totalMinVisitMinutes += p.getAverageVisitDuration() > 0 ? p.getAverageVisitDuration() : DEFAULT_VISIT_DURATION_MINUTES;
         }
-
         long totalTravelMinutes = 0;
         GeoPoint lastLocation = userStartLocation;
         for (Place p : sequence) {
             totalTravelMinutes += calculateTravelTime(lastLocation, p.getCoordinates());
             lastLocation = p.getCoordinates();
         }
-
         long minTotalTimeMinutes = totalMinVisitMinutes + totalTravelMinutes;
         long userTripDurationMinutes = (tripEndCalendar.getTimeInMillis() - tripStartCalendar.getTimeInMillis()) / (60 * 1000);
 
         // 4. Calculate and distribute slack time
         long slackMinutes = userTripDurationMinutes - minTotalTimeMinutes;
         Log.d(TAG, "User Trip: " + userTripDurationMinutes + " mins. Min Required: " + minTotalTimeMinutes + " mins. Slack: " + slackMinutes + " mins.");
-
         if (slackMinutes < 0) {
             Log.w(TAG, "Not enough time for the planned itinerary. Required time exceeds user's trip window.");
             return generatedItinerary; // Return empty list to signal failure
         }
-
         double perStopSlackMinutes = sequence.isEmpty() ? 0 : (double) slackMinutes / sequence.size();
 
         // 5. Generate the final itinerary with time windows (Forward Pass)
         Calendar currentTime = (Calendar) tripStartCalendar.clone();
         GeoPoint currentGeoLocation = userStartLocation;
         long itineraryItemIdCounter = 1;
-
         for (Place place : sequence) {
             int travelTime = calculateTravelTime(currentGeoLocation, place.getCoordinates());
             Calendar arrivalTime = (Calendar) currentTime.clone();
@@ -112,16 +111,24 @@ public class ItineraryGenerator {
             }
 
             String rating = String.format(Locale.getDefault(), "%.1f", place.getRating());
+
+            // MODIFIED: Pass the category from the Place object to the ItineraryItem constructor
             generatedItinerary.add(new ItineraryItem(
-                    itineraryItemIdCounter++, windowStart, windowEnd, place.getName(),
-                    rating, place.getImage_url(), place.getCoordinates(), place.getDocumentId()
+                    itineraryItemIdCounter++,
+                    windowStart,
+                    windowEnd,
+                    place.getName(),
+                    rating,
+                    place.getImage_url(),
+                    place.getCoordinates(),
+                    place.getDocumentId(),
+                    place.getCategory() // Pass the category here
             ));
 
             // The departure time for the next leg is the end of the current window.
             currentTime = (Calendar) windowEnd.clone();
             currentGeoLocation = place.getCoordinates();
         }
-
         return generatedItinerary;
     }
 
@@ -145,11 +152,9 @@ public class ItineraryGenerator {
         GeoPoint currentLocation = startLocation;
         String lastCategory = null;
         int maxStops = 5; // Default number of stops for greedy mode
-
         while (sequence.size() < maxStops && !pool.isEmpty()) {
             Place bestNextPlace = null;
             double bestScore = Double.MAX_VALUE;
-
             for (Place candidate : pool) {
                 double distance = calculateDistance(currentLocation, candidate.getCoordinates());
                 double score = distance;
@@ -161,7 +166,6 @@ public class ItineraryGenerator {
                     bestNextPlace = candidate;
                 }
             }
-
             if (bestNextPlace != null) {
                 sequence.add(bestNextPlace);
                 pool.remove(bestNextPlace);
@@ -181,7 +185,6 @@ public class ItineraryGenerator {
         List<Place> sequence = new ArrayList<>();
         List<Place> pool = new ArrayList<>(availablePlaces);
         GeoPoint currentLocation = startLocation;
-
         for (String preferredCategory : categoryPreferences) {
             if (pool.isEmpty()) break;
 
@@ -242,7 +245,6 @@ public class ItineraryGenerator {
             Date parsedTime = sdf.parse(hours.get(type));
             Calendar parsedCal = Calendar.getInstance();
             parsedCal.setTime(Objects.requireNonNull(parsedTime));
-
             timeCal.set(Calendar.HOUR_OF_DAY, parsedCal.get(Calendar.HOUR_OF_DAY));
             timeCal.set(Calendar.MINUTE, parsedCal.get(Calendar.MINUTE));
             timeCal.set(Calendar.SECOND, 0);
@@ -265,7 +267,9 @@ public class ItineraryGenerator {
         final int R = 6371; // Radius of the earth in km
         double latDistance = Math.toRadians(end.getLatitude() - start.getLatitude());
         double lonDistance = Math.toRadians(end.getLongitude() - start.getLongitude());
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2) + Math.cos(Math.toRadians(start.getLatitude())) * Math.cos(Math.toRadians(end.getLatitude())) * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
+                + Math.cos(Math.toRadians(start.getLatitude())) * Math.cos(Math.toRadians(end.getLatitude()))
+                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     }

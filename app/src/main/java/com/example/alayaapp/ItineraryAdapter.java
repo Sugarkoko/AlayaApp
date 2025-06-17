@@ -7,10 +7,13 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+
 import com.bumptech.glide.Glide;
+
 import java.text.SimpleDateFormat;
 import java.util.List;
 import java.util.Locale;
@@ -166,10 +169,12 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView tvHeader;
+
         HeaderViewHolder(@NonNull View itemView) {
             super(itemView);
             tvHeader = itemView.findViewById(R.id.tv_section_header);
         }
+
         void bind(String title) {
             tvHeader.setText(title);
         }
@@ -177,7 +182,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     class CardViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
-        TextView tvTime, tvActivity, tvRating, tvItemNumber;
+        TextView tvTime, tvActivity, tvRating, tvItemNumber, tvItemCategoryTag; // MODIFIED: Added category tag
 
         CardViewHolder(@NonNull View itemView) {
             super(itemView);
@@ -186,13 +191,23 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvRating = itemView.findViewById(R.id.tv_item_rating);
             ivImage = itemView.findViewById(R.id.iv_item_image);
             tvItemNumber = itemView.findViewById(R.id.tv_item_number);
+            tvItemCategoryTag = itemView.findViewById(R.id.tv_item_category_tag); // MODIFIED: Find the new TextView
         }
 
         void bind(ItineraryItem item, int sequenceNumber) {
-            tvTime.setText(item.getFormattedTime()); // UPDATED to show time window
+            tvTime.setText(item.getFormattedTime());
             tvActivity.setText(item.getActivity());
             tvRating.setText(item.getRating());
             tvItemNumber.setText(String.valueOf(sequenceNumber));
+
+            // ADDED: Logic to show or hide the category tag
+            if (item.getCategory() != null && !item.getCategory().isEmpty()) {
+                tvItemCategoryTag.setText(item.getCategory().toUpperCase(Locale.ROOT));
+                tvItemCategoryTag.setVisibility(View.VISIBLE);
+            } else {
+                tvItemCategoryTag.setVisibility(View.GONE);
+            }
+
             if (item.getImageUrl() != null && !item.getImageUrl().isEmpty()) {
                 Glide.with(activity)
                         .load(item.getImageUrl())
@@ -208,11 +223,13 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     class HorizontalListViewHolder extends RecyclerView.ViewHolder {
         RecyclerView rvHorizontal;
         TextView tvTitle;
+
         HorizontalListViewHolder(@NonNull View itemView) {
             super(itemView);
             rvHorizontal = itemView.findViewById(R.id.rv_horizontal);
             tvTitle = itemView.findViewById(R.id.tv_horizontal_section_header);
         }
+
         void bind(HorizontalListContainer container) {
             tvTitle.setText(container.getTitle());
             RecommendedItineraryAdapter adapter = new RecommendedItineraryAdapter(activity, container.getRecommendedPlaces());
@@ -223,10 +240,12 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     static class FooterMessageViewHolder extends RecyclerView.ViewHolder {
         TextView tvFooterMessage;
+
         FooterMessageViewHolder(@NonNull View itemView) {
             super(itemView);
             tvFooterMessage = itemView.findViewById(R.id.tv_footer_message);
         }
+
         void bind(String message) {
             tvFooterMessage.setText(message);
         }
@@ -234,9 +253,11 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     public static class LocationHeaderData {
         private final String headerMessage;
+
         public LocationHeaderData(String headerMessage) {
             this.headerMessage = headerMessage;
         }
+
         public String getHeaderMessage() {
             return headerMessage;
         }
@@ -245,13 +266,16 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     public static class HorizontalListContainer {
         private final String title;
         private final List<Place> recommendedPlaces;
+
         public HorizontalListContainer(String title, List<Place> places) {
             this.title = title;
             this.recommendedPlaces = places;
         }
+
         public String getTitle() {
             return title;
         }
+
         public List<Place> getRecommendedPlaces() {
             return recommendedPlaces;
         }
