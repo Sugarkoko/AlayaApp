@@ -162,7 +162,14 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             if (state != null) {
                 if (state.getItineraryItems() != null && !state.getItineraryItems().isEmpty()) {
                     displayItems.add("Suggested Itinerary");
-                    displayItems.addAll(state.getItineraryItems());
+                    List<ItineraryItem> items = state.getItineraryItems();
+                    for (int i = 0; i < items.size(); i++) {
+                        displayItems.add(items.get(i));
+                        // If this is not the last item, add a swap button after it
+                        if (i < items.size() - 1) {
+                            displayItems.add(new ItineraryAdapter.SwapButtonData(i));
+                        }
+                    }
                     hasContent = true;
                 }
                 if (state.getTopRatedPlaces() != null && !state.getTopRatedPlaces().isEmpty()) {

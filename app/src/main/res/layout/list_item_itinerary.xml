@@ -125,7 +125,7 @@
             app:layout_constraintHorizontal_bias="1.0"
             tools:text="4.5" />
 
-        <!-- ADDED: LinearLayout to group the action buttons -->
+        <!-- The swap button has been removed from here -->
         <LinearLayout
             android:id="@+id/ll_action_buttons"
             android:layout_width="wrap_content"
@@ -154,14 +154,6 @@
                 android:src="@android:drawable/ic_menu_rotate"
                 app:tint="@color/colorPrimary" />
 
-            <ImageButton
-                android:id="@+id/btn_swap_item"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:contentDescription="Swap with next item"
-                android:src="@drawable/ic_swap_vert"
-                app:tint="@color/colorPrimary" />
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

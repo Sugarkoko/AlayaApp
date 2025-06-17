@@ -25,6 +25,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     private static final int VIEW_TYPE_ITINERARY_CARD = 2;
     private static final int VIEW_TYPE_HORIZONTAL_LIST = 3;
     private static final int VIEW_TYPE_FOOTER_MESSAGE = 4;
+    private static final int VIEW_TYPE_SWAP_BUTTON = 5;
 
     public interface ItineraryHeaderListener {
         void onRegenerateClicked();
@@ -33,13 +34,12 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         void onCustomizeClicked();
     }
 
-    // MODIFIED: Added a new method to the listener interface
     public interface ItineraryCardListener {
         void onSwitchItemClicked(int position);
         void onDeleteItemClicked(int position);
-        void onItemClicked(int position); // For general card clicks
-        void onTimeClicked(int position); // NEW: For editing time
-        void onSwapItemClicked(int position); // NEW: For swapping order
+        void onItemClicked(int position);
+        void onTimeClicked(int position);
+        void onSwapItemClicked(int position);
     }
 
     private final List<Object> displayItems;
@@ -62,6 +62,8 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             return VIEW_TYPE_LOCATION_HEADER;
         } else if (item instanceof ItineraryItem) {
             return VIEW_TYPE_ITINERARY_CARD;
+        } else if (item instanceof SwapButtonData) {
+            return VIEW_TYPE_SWAP_BUTTON;
         } else if (item instanceof HorizontalListContainer) {
             return VIEW_TYPE_HORIZONTAL_LIST;
         } else if (item instanceof String) {
@@ -89,6 +91,9 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             case VIEW_TYPE_ITINERARY_CARD:
                 View cardView = inflater.inflate(R.layout.list_item_itinerary, parent, false);
                 return new CardViewHolder(cardView, cardListener);
+            case VIEW_TYPE_SWAP_BUTTON:
+                View swapView = inflater.inflate(R.layout.item_itinerary_swap_button, parent, false);
+                return new SwapButtonViewHolder(swapView);
             case VIEW_TYPE_HORIZONTAL_LIST:
                 View horizontalView = inflater.inflate(R.layout.item_itinerary_horizontal_list, parent, false);
                 return new HorizontalListViewHolder(horizontalView);
@@ -110,13 +115,16 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
                 ((HeaderViewHolder) holder).bind((String) displayItems.get(position));
                 break;
             case VIEW_TYPE_ITINERARY_CARD:
-                int itemIndex = -1;
-                for (int i = 0; i <= position; i++) {
+                int itemIndex = 0;
+                for (int i = 0; i < position; i++) {
                     if (displayItems.get(i) instanceof ItineraryItem) {
                         itemIndex++;
                     }
                 }
                 ((CardViewHolder) holder).bind((ItineraryItem) displayItems.get(position), itemIndex);
+                break;
+            case VIEW_TYPE_SWAP_BUTTON:
+                ((SwapButtonViewHolder) holder).bind((SwapButtonData) displayItems.get(position), cardListener);
                 break;
             case VIEW_TYPE_HORIZONTAL_LIST:
                 ((HorizontalListViewHolder) holder).bind((HorizontalListContainer) displayItems.get(position));
@@ -134,11 +142,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
 
     @Override
     public long getItemId(int position) {
-        Object item = displayItems.get(position);
-        if (item instanceof ItineraryItem) {
-            return ((ItineraryItem) item).getId();
-        }
-        return item.hashCode();
+        return displayItems.get(position).hashCode();
     }
 
     class LocationHeaderViewHolder extends RecyclerView.ViewHolder {
@@ -193,7 +197,7 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
     class CardViewHolder extends RecyclerView.ViewHolder {
         ImageView ivImage;
         TextView tvTime, tvActivity, tvRating, tvItemNumber, tvItemCategoryTag;
-        ImageButton btnSwitchItem, btnDeleteItem, btnSwapItem;
+        ImageButton btnSwitchItem, btnDeleteItem;
 
         CardViewHolder(@NonNull View itemView, ItineraryCardListener listener) {
             super(itemView);
@@ -205,53 +209,43 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             tvItemCategoryTag = itemView.findViewById(R.id.tv_item_category_tag);
             btnSwitchItem = itemView.findViewById(R.id.btn_switch_item);
             btnDeleteItem = itemView.findViewById(R.id.btn_delete_item);
-            btnSwapItem = itemView.findViewById(R.id.btn_swap_item);
 
-            // Helper method to get the correct item index
             final int[] itemIndex = {-1};
             View.OnClickListener actionListener = v -> {
                 if (listener != null) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
-                        itemIndex[0] = -1;
-                        for (int i = 0; i <= position; i++) {
+                        itemIndex[0] = 0;
+                        for (int i = 0; i < position; i++) {
                             if (displayItems.get(i) instanceof ItineraryItem) {
                                 itemIndex[0]++;
                             }
                         }
-                        if (itemIndex[0] != -1) {
-                            if (v.getId() == R.id.btn_switch_item) {
-                                listener.onSwitchItemClicked(itemIndex[0]);
-                            } else if (v.getId() == R.id.btn_delete_item) {
-                                listener.onDeleteItemClicked(itemIndex[0]);
-                            } else if (v.getId() == R.id.tv_item_time) { // NEW
-                                listener.onTimeClicked(itemIndex[0]);
-                            } else if (v.getId() == R.id.btn_swap_item) { // NEW
-                                listener.onSwapItemClicked(itemIndex[0]);
-                            }
+                        if (v.getId() == R.id.btn_switch_item) {
+                            listener.onSwitchItemClicked(itemIndex[0]);
+                        } else if (v.getId() == R.id.btn_delete_item) {
+                            listener.onDeleteItemClicked(itemIndex[0]);
+                        } else if (v.getId() == R.id.tv_item_time) {
+                            listener.onTimeClicked(itemIndex[0]);
                         }
                     }
                 }
             };
             btnSwitchItem.setOnClickListener(actionListener);
             btnDeleteItem.setOnClickListener(actionListener);
-            tvTime.setOnClickListener(actionListener); // NEW
-            btnSwapItem.setOnClickListener(actionListener); // NEW
+            tvTime.setOnClickListener(actionListener);
 
-            // MODIFIED: Set a click listener for the entire card
             itemView.setOnClickListener(v -> {
                 if (listener != null) {
                     int position = getAdapterPosition();
                     if (position != RecyclerView.NO_POSITION) {
-                        itemIndex[0] = -1;
-                        for (int i = 0; i <= position; i++) {
+                        itemIndex[0] = 0;
+                        for (int i = 0; i < position; i++) {
                             if (displayItems.get(i) instanceof ItineraryItem) {
                                 itemIndex[0]++;
                             }
                         }
-                        if (itemIndex[0] != -1) {
-                            listener.onItemClicked(itemIndex[0]);
-                        }
+                        listener.onItemClicked(itemIndex[0]);
                     }
                 }
             });
@@ -279,19 +273,21 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             } else {
                 ivImage.setImageResource(R.drawable.img_placeholder);
             }
+        }
+    }
 
-            // NEW: Logic to hide swap button on the last item
-            boolean isLastItem = true; // Assume last until proven otherwise
-            int adapterPosition = getAdapterPosition();
-            if (adapterPosition != RecyclerView.NO_POSITION) {
-                for (int i = adapterPosition + 1; i < displayItems.size(); i++) {
-                    if (displayItems.get(i) instanceof ItineraryItem) {
-                        isLastItem = false;
-                        break;
-                    }
+    static class SwapButtonViewHolder extends RecyclerView.ViewHolder {
+        ImageButton swapButton;
+        SwapButtonViewHolder(@NonNull View itemView) {
+            super(itemView);
+            swapButton = itemView.findViewById(R.id.btn_swap);
+        }
+        void bind(SwapButtonData data, ItineraryCardListener listener) {
+            swapButton.setOnClickListener(v -> {
+                if (listener != null) {
+                    listener.onSwapItemClicked(data.getPosition());
                 }
-            }
-            btnSwapItem.setVisibility(isLastItem ? View.GONE : View.VISIBLE);
+            });
         }
     }
 
@@ -337,5 +333,11 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
         }
         public String getTitle() { return title; }
         public List<Place> getRecommendedPlaces() { return recommendedPlaces; }
+    }
+
+    public static class SwapButtonData {
+        private final int position;
+        public SwapButtonData(int position) { this.position = position; }
+        public int getPosition() { return position; }
     }
 }
