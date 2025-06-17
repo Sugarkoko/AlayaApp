@@ -133,13 +133,29 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     }
 
     private void setupViewModelObservers() {
-        itineraryViewModel.displayList.observe(this, items -> {
+        itineraryViewModel.itineraryState.observe(this, state -> {
             displayItems.clear();
-            if (items != null) {
-                displayItems.addAll(items);
+            // Always add the header, getting the message from the state if it exists.
+            String headerMessage = (state != null) ? state.getHeaderMessage() : "";
+            displayItems.add(new ItineraryAdapter.LocationHeaderData(headerMessage));
+
+            boolean hasContent = false;
+            if (state != null) {
+                if (state.getItineraryItems() != null && !state.getItineraryItems().isEmpty()) {
+                    displayItems.add("Suggested Itinerary");
+                    displayItems.addAll(state.getItineraryItems());
+                    hasContent = true;
+                }
+                if (state.getTopRatedPlaces() != null && !state.getTopRatedPlaces().isEmpty()) {
+                    displayItems.add(new ItineraryAdapter.HorizontalListContainer("Top Rated", state.getTopRatedPlaces()));
+                    hasContent = true;
+                }
+                if (state.getItineraryItems() != null && !state.getItineraryItems().isEmpty()) {
+                    displayItems.add("Hours are based on standard schedules. We recommend checking ahead for holidays or special events.");
+                }
             }
             itineraryAdapter.notifyDataSetChanged();
-            fabSaveTrip.setVisibility(items != null && !items.isEmpty() ? View.VISIBLE : View.GONE);
+            fabSaveTrip.setVisibility(hasContent ? View.VISIBLE : View.GONE);
         });
 
         itineraryViewModel.isLoading.observe(this, isLoading -> {
