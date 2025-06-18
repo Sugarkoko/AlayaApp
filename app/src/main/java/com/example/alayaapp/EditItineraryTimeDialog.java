@@ -199,7 +199,7 @@ public class EditItineraryTimeDialog extends DialogFragment {
 
     private void showTimePicker(boolean isStartTime) {
         Calendar calToShow = isStartTime ? itemStartCal : itemEndCal;
-        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(),R.style.GreenTimePickerDialog,
                 (view, hourOfDay, minute) -> {
                     if (isStartTime) {
                         itemStartCal.set(Calendar.HOUR_OF_DAY, hourOfDay);
