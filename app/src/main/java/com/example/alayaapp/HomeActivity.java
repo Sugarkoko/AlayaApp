@@ -123,7 +123,7 @@ public class HomeActivity extends AppCompatActivity {
             wasRedirectedForDialog = true;
         }
 
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        sharedPreferences = UserPreferences.get(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         setupLocationCallback();
 

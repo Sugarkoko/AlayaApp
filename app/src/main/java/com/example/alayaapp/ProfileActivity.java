@@ -7,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog; // For birthday picker
 import android.content.DialogInterface; // For AlertDialog buttons
 import android.content.Intent;
+import android.content.SharedPreferences; // Import SharedPreferences
 import android.os.Bundle;
 import android.text.InputType; // For setting EditText input type
 import android.text.TextUtils; // For checking empty strings
@@ -30,7 +31,6 @@ import java.text.SimpleDateFormat; // For formatting date
 import java.util.Locale; // For date formatting
 
 public class ProfileActivity extends AppCompatActivity {
-
     private ActivityProfileBinding binding;
     final int CURRENT_ITEM_ID = R.id.navigation_profile;
     private static final String TAG = "ProfileActivity";
@@ -42,6 +42,7 @@ public class ProfileActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
+
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
@@ -60,9 +61,12 @@ public class ProfileActivity extends AppCompatActivity {
             if (destinationItemId == CURRENT_ITEM_ID) return true;
 
             Class<?> destinationActivityClass = null;
-            if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
-            else if (destinationItemId == R.id.navigation_itineraries) destinationActivityClass = ItinerariesActivity.class;
-            else if (destinationItemId == R.id.navigation_map) destinationActivityClass = MapsActivity.class;
+            if (destinationItemId == R.id.navigation_home)
+                destinationActivityClass = HomeActivity.class;
+            else if (destinationItemId == R.id.navigation_itineraries)
+                destinationActivityClass = ItinerariesActivity.class;
+            else if (destinationItemId == R.id.navigation_map)
+                destinationActivityClass = MapsActivity.class;
 
             if (destinationActivityClass != null) {
                 navigateTo(destinationActivityClass, destinationItemId, true);
@@ -74,7 +78,10 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupActionListeners() {
         binding.ivLogout.setOnClickListener(v -> {
+            // Sign out the user from Firebase. Their data will remain in their specific file.
             mAuth.signOut();
+
+            // Show confirmation and navigate to the login screen
             Toast.makeText(ProfileActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
@@ -205,7 +212,6 @@ public class ProfileActivity extends AppCompatActivity {
                         // NEW: Logic to show/hide the completion prompt
                         boolean isProfileIncomplete = TextUtils.isEmpty(name) || TextUtils.isEmpty(contactNumber) || TextUtils.isEmpty(birthday);
                         binding.cardCompleteProfilePrompt.setVisibility(isProfileIncomplete ? View.VISIBLE : View.GONE);
-
                     } else {
                         Log.w(TAG, "User data not found in database for UID: " + currentUser.getUid());
                         binding.tvProfileNameHeader.setText("Set your name");
@@ -236,7 +242,6 @@ public class ProfileActivity extends AppCompatActivity {
             binding.tvProfilePhone.setText("N/A");
             binding.tvProfileBirthday.setText("N/A");
             binding.cardCompleteProfilePrompt.setVisibility(View.GONE); // Hide prompt if not logged in
-
             if (currentUser == null) Log.e(TAG, "Cannot load profile data: current user is null.");
             else Log.e(TAG, "Cannot load profile data: userDatabaseReference is null.");
         }
@@ -250,11 +255,13 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
+
         boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
         if (slideRightToLeft)
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         else
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+
         if (finishCurrent) finish();
     }
 

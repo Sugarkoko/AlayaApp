@@ -63,7 +63,7 @@ public class ItineraryViewModel extends AndroidViewModel {
 
     public ItineraryViewModel(@NonNull Application application) {
         super(application);
-        sharedPreferences = application.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+        sharedPreferences = UserPreferences.get(application);
         gson = new GsonBuilder().create();
         db = FirebaseFirestore.getInstance();
         itineraryGenerator = new ItineraryGenerator();
