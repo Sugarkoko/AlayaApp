@@ -28,7 +28,7 @@
     <color name="text_grey_medium">#757575</color>
     <color name="map_route_blue">#4285F4</color>
     <color name="map_overlay_color">#99808080</color>
-    <color name="colorErrorRed">#D32F2F</color>
+    <color name="colorErrorRed">#C53030</color>
     <!-- ADDED FOR THE DISABLED PREVIOUS BUTTON -->
     <color name="button_disabled_grey">#BDBDBD</color>
 </resources>

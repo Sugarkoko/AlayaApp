@@ -109,32 +109,39 @@
 
         <Button
             android:id="@+id/btn_regenerate_itinerary"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="New Plan"
-            android:textColor="@color/colorPrimary"
-            app:strokeColor="@color/colorPrimary" />
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:backgroundTint="@color/colorPrimary"
+            app:cornerRadius="12dp" />
 
         <Button
             android:id="@+id/btn_customize_itinerary"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_weight="1"
             android:text="Customize"
-            android:textColor="@color/colorPrimary"
-            app:strokeColor="@color/colorPrimary" />
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:backgroundTint="@color/colorPrimary"
+            app:cornerRadius="12dp" />
 
         <Button
             android:id="@+id/btn_clear_itinerary"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
+            style="@style/Widget.MaterialComponents.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:text="Clear"
-            android:textColor="@color/colorErrorRed" />
+            android:textColor="@android:color/white"
+            android:textSize="12sp"
+            android:backgroundTint="@color/colorErrorRed"
+            app:cornerRadius="12dp" />
     </LinearLayout>
 </LinearLayout>

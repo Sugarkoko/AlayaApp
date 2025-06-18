@@ -307,7 +307,7 @@ public class HomeActivity extends AppCompatActivity {
                 saveTripDate(year, monthOfYear, dayOfMonth);
                 updateDateTimeUI();
             };
-            new DatePickerDialog(HomeActivity.this, dateSetListener,
+            new DatePickerDialog(HomeActivity.this, R.style.GreenDatePickerDialog, dateSetListener,
                     tripDateCalendar.get(Calendar.YEAR), tripDateCalendar.get(Calendar.MONTH),
                     tripDateCalendar.get(Calendar.DAY_OF_MONTH))
                     .show();
@@ -323,7 +323,7 @@ public class HomeActivity extends AppCompatActivity {
             updateDateTimeUI();
             showEndTimePickerDialog();
         };
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, timeSetListener,
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this,R.style.GreenTimePickerDialog, timeSetListener,
                 tripDateCalendar.get(Calendar.HOUR_OF_DAY), tripDateCalendar.get(Calendar.MINUTE), false);
         timePickerDialog.setTitle("Select Start Time");
         timePickerDialog.show();
@@ -344,7 +344,7 @@ public class HomeActivity extends AppCompatActivity {
             saveTripEndTime(hourOfDay, minute);
             updateDateTimeUI();
         };
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this, timeSetListener,
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this,R.style.GreenTimePickerDialog, timeSetListener,
                 tripEndCalendar.get(Calendar.HOUR_OF_DAY), tripEndCalendar.get(Calendar.MINUTE), false);
         timePickerDialog.setTitle("Select End Time");
         timePickerDialog.show();

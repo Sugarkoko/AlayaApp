@@ -205,7 +205,7 @@
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp"
         android:contentDescription="My Location"
-        android:src="@drawable/map"
+        android:src="@drawable/location_picture"
         app:backgroundTint="@color/white"
         app:elevation="10dp"
         app:layout_constraintBottom_toTopOf="@id/route_info_pane"

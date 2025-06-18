@@ -142,7 +142,7 @@
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Delete this itinerary stop"
-                android:src="@android:drawable/ic_menu_delete"
+                android:src="@drawable/ic_delete_custom"
                 app:tint="@color/colorErrorRed" />
 
             <ImageButton
@@ -151,7 +151,7 @@
                 android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:contentDescription="Switch this itinerary stop"
-                android:src="@android:drawable/ic_menu_rotate"
+                android:src="@drawable/ic_swap_custom"
                 app:tint="@color/colorPrimary" />
 
         </LinearLayout>

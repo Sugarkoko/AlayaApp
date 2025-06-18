@@ -329,7 +329,7 @@
                         android:layout_centerVertical="true"
                         android:layout_marginEnd="16dp"
                         android:contentDescription="Password Icon"
-                        android:src="@drawable/ic_visibility_on"
+                        android:src="@drawable/ic_password_"
                         app:tint="@color/colorPrimaryDarker" />
 
                     <TextView
@@ -361,7 +361,6 @@
                             android:layout_gravity="center_vertical"
                             android:layout_marginEnd="4dp"
                             android:contentDescription="Change Password Icon"
-                            android:src="@drawable/ic_visibility_on"
                             app:tint="@color/colorPrimaryDarker" />
 
                         <TextView
