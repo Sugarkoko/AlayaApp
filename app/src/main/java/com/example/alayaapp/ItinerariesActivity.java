@@ -99,7 +99,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                     String locationName = data.getStringExtra("selected_location_name");
                     double latitude = data.getDoubleExtra("selected_latitude", 0.0);
                     double longitude = data.getDoubleExtra("selected_longitude", 0.0);
-
                     if (locationName != null && !locationName.isEmpty()) {
                         currentGeoPoint = new GeoPoint(latitude, longitude);
                         itineraryViewModel.updateLocationStatus(locationName, "Manually set: " + locationName);
@@ -227,6 +226,14 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     }
 
     private void triggerGeneration(boolean forceRegenerate, List<String> categoryPreferences) {
+        // --- FIX: ADDED VALIDATION BLOCK ---
+        // Check if the user has set a date and time before proceeding.
+        if (!sharedPreferences.contains(KEY_TRIP_DATE_YEAR) || !sharedPreferences.contains(KEY_TRIP_TIME_HOUR)) {
+            Toast.makeText(this, "Please set a trip date and time on the Home screen first.", Toast.LENGTH_LONG).show();
+            return; // Exit the method immediately to prevent a crash.
+        }
+        // --- END OF FIX ---
+
         if (currentGeoPoint == null) {
             Toast.makeText(this, "Cannot generate itinerary without a start location.", Toast.LENGTH_LONG).show();
             return;
@@ -257,6 +264,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
         tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
         tripStartCalendar.set(Calendar.MINUTE, startMinute);
+
         int endHour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
         int endMinute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
         tripEndCalendar.set(Calendar.HOUR_OF_DAY, endHour);
@@ -520,7 +528,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     }
 
     // --- Listener Implementations ---
-
     @Override
     public void onRegenerateClicked() {
         triggerGeneration(true, Collections.emptyList());
@@ -603,7 +610,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     }
 
     // --- NEW LISTENER IMPLEMENTATIONS ---
-
     @Override
     public void onTimeClicked(int position) {
         ItineraryState state = itineraryViewModel.itineraryState.getValue();
