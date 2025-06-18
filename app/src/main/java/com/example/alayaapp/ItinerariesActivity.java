@@ -125,7 +125,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         db = FirebaseFirestore.getInstance();
         tripStartCalendar = Calendar.getInstance();
         tripEndCalendar = Calendar.getInstance();
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        sharedPreferences = UserPreferences.get(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         setupRecyclerView();

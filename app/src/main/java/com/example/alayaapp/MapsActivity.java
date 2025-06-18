@@ -166,7 +166,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         markerPlaceMap = new HashMap<>();
         db = FirebaseFirestore.getInstance();
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-        sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        sharedPreferences = UserPreferences.get(this);
         gson = new GsonBuilder().create();
 
         try {
@@ -541,7 +541,9 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void loadHomeLocationPreference() {
-        SharedPreferences sharedPreferences = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        // The incorrect local declaration has been removed.
+        // This method now uses the class member 'sharedPreferences'
+        // which is correctly initialized in onCreate().
         currentLocationMode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
         if ("manual".equals(currentLocationMode)) {
             double lat = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LATITUDE, Double.doubleToRawLongBits(0.0)));
