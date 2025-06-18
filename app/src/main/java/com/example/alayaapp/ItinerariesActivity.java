@@ -189,7 +189,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         });
 
         itineraryViewModel.isItinerarySaved.observe(this, isSaved -> {
-            fabSaveTrip.setImageResource(isSaved ? R.drawable.ic_profile_placeholder : android.R.drawable.ic_menu_save);
+            fabSaveTrip.setImageResource(isSaved ? R.drawable.ic_saved : android.R.drawable.ic_menu_save);
             fabSaveTrip.setEnabled(!isSaved);
         });
     }

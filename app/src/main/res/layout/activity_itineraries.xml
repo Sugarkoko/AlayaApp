@@ -47,7 +47,7 @@
         app:backgroundTint="@color/colorPrimary"
         app:layout_constraintBottom_toTopOf="@+id/bottom_navigation"
         app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@drawable/ic_profile_placeholder"
+        app:srcCompat="@drawable/ic_saved"
         app:tint="@color/white"
         tools:visibility="visible" />
 
