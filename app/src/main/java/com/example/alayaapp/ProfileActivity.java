@@ -149,7 +149,7 @@ public class ProfileActivity extends AppCompatActivity {
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
 
-        DatePickerDialog datePickerDialog = new DatePickerDialog(this, (view, yearSelected, monthOfYear, dayOfMonth) -> {
+        DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.GreenDatePickerDialog,(view, yearSelected, monthOfYear, dayOfMonth) -> {
             Calendar selectedDate = Calendar.getInstance();
             selectedDate.set(yearSelected, monthOfYear, dayOfMonth);
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()); // Store in a standard format
