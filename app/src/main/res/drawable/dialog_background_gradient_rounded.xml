@@ -2,14 +2,14 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
 
-    <!-- Copied from your original gradient file -->
+
     <gradient
         android:angle="270"
         android:startColor="#26925C"
         android:endColor="#2E7D32"
         android:type="linear" />
 
-    <!-- ADDED corners SPECIFICALLY for the dialog -->
-    <corners android:radius="16dp" />  <!-- Adjust "16dp" as needed -->
+
+    <corners android:radius="16dp" />
 
 </shape>

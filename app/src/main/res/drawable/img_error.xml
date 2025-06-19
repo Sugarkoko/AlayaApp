@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="#FFCDD2"/> <!-- Light red color for error -->
+    <solid android:color="#FFCDD2"/>
     <corners android:radius="4dp"/>
-    <!-- You could add an icon inside using a layer-list if desired -->
+
 </shape>
