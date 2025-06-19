@@ -2,6 +2,7 @@ package com.example.alayaapp;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.text.TextUtils; // Import TextUtils
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +13,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog; // Import AlertDialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputLayout;
@@ -19,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
 
@@ -34,15 +37,8 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
     private LinearLayout spinnersContainer;
     private Button applyButton;
 
-    // --- MODIFIED: Updated list of categories ---
     private final List<String> categories = new ArrayList<>(Arrays.asList(
-            "Any",
-            "Tourists",
-            "Food",
-            "Shopping",
-            "Farm",
-            "Museum",
-            "Church"
+            "Any", "Tourists", "Food", "Shopping", "Farm", "Museum", "Church"
     ));
 
     public static CustomizeItineraryBottomSheet newInstance() {
@@ -68,7 +64,7 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
         spinnersContainer = view.findViewById(R.id.container_category_spinners);
         applyButton = view.findViewById(R.id.btn_apply_and_generate);
         setupSlider();
-        setupApplyButton();
+        setupApplyButton(); // This method is being updated
 
         updateStopCountText(Math.round(stopsSlider.getValue()));
         updateSpinners(Math.round(stopsSlider.getValue()));
@@ -101,8 +97,10 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
         }
     }
 
+    // --- MODIFIED METHOD ---
     private void setupApplyButton() {
         applyButton.setOnClickListener(v -> {
+            // Step 1: Gather the preferences from the spinners
             List<String> preferences = new ArrayList<>();
             for (int i = 0; i < spinnersContainer.getChildCount(); i++) {
                 View child = spinnersContainer.getChildAt(i);
@@ -111,8 +109,28 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
                     preferences.add(actv.getText().toString());
                 }
             }
-            listener.onCustomizeApplied(preferences);
-            dismiss();
+
+            // Step 2: Format the preferences for display in the dialog
+            // We use a stream to add bullet points for better readability
+            String selectedStops = preferences.stream()
+                    .map(pref -> "• " + pref)
+                    .collect(Collectors.joining("\n"));
+
+            String message = "This will generate a new plan with the following stop preferences:\n\n" +
+                    selectedStops +
+                    "\n\nAny unsaved changes will be lost. Continue?";
+
+            // Step 3: Show the confirmation dialog
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Generate Customized Plan?")
+                    .setMessage(message)
+                    .setPositiveButton("Generate", (dialog, which) -> {
+                        // Original action moved inside the confirmation
+                        listener.onCustomizeApplied(preferences);
+                        dismiss(); // Dismiss the bottom sheet
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
         });
     }
 }
