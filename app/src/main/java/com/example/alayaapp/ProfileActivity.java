@@ -1,20 +1,20 @@
 package com.example.alayaapp;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog; // Import AlertDialog
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.DatePickerDialog; // For birthday picker
-import android.content.DialogInterface; // For AlertDialog buttons
+import android.app.DatePickerDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences; // Import SharedPreferences
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.InputType; // For setting EditText input type
-import android.text.TextUtils; // For checking empty strings
+import android.text.InputType;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
-import android.widget.DatePicker; // For DatePickerDialog listener
-import android.widget.EditText; // For input dialogs
+import android.widget.DatePicker;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.example.alayaapp.databinding.ActivityProfileBinding;
@@ -26,16 +26,21 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
-import java.util.Calendar; // For DatePickerDialog
-import java.text.SimpleDateFormat; // For formatting date
-import java.util.Locale; // For date formatting
+import java.util.Calendar;
+import java.text.SimpleDateFormat;
+import java.util.Locale;
 
 public class ProfileActivity extends AppCompatActivity {
+
     private ActivityProfileBinding binding;
     final int CURRENT_ITEM_ID = R.id.navigation_profile;
     private static final String TAG = "ProfileActivity";
+
     private FirebaseAuth mAuth;
     private DatabaseReference userDatabaseReference;
+    // --- NEW: Declare the listener as a member variable ---
+    private ValueEventListener userProfileListener;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +57,23 @@ public class ProfileActivity extends AppCompatActivity {
         binding.bottomNavigationProfilePage.setSelectedItemId(CURRENT_ITEM_ID);
         setupBottomNavListener();
         setupActionListeners();
-        loadProfileData();
+    }
+
+    // --- NEW: onStart() method to attach the listener ---
+    @Override
+    protected void onStart() {
+        super.onStart();
+        loadProfileData(); // Load or re-load data when the activity starts
+    }
+
+    // --- NEW: onStop() method to detach the listener ---
+    @Override
+    protected void onStop() {
+        super.onStop();
+        // Remove the listener to prevent it from firing when the activity is not visible
+        if (userDatabaseReference != null && userProfileListener != null) {
+            userDatabaseReference.removeEventListener(userProfileListener);
+        }
     }
 
     private void setupBottomNavListener() {
@@ -78,27 +99,21 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupActionListeners() {
         binding.ivLogout.setOnClickListener(v -> {
-            // Sign out the user from Firebase. Their data will remain in their specific file.
             mAuth.signOut();
-
-            // Show confirmation and navigate to the login screen
             Toast.makeText(ProfileActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
             finish();
         });
-
         binding.tvProfileNameDetail.setOnClickListener(v -> showEditTextDialog("name", "Edit Name", binding.tvProfileNameDetail.getText().toString()));
         binding.tvProfileBirthday.setOnClickListener(v -> showBirthdayPickerDialog());
         binding.tvProfilePhone.setOnClickListener(v -> showEditTextDialog("contactNumber", "Edit Contact Number", binding.tvProfilePhone.getText().toString()));
-
         binding.layoutChangePassword.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, ChangePasswordActivity.class);
             startActivity(intent);
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
-
         binding.layoutHistory.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, TripHistoryActivity.class);
             startActivity(intent);
@@ -108,8 +123,8 @@ public class ProfileActivity extends AppCompatActivity {
     private void showEditTextDialog(final String fieldKey, String title, String currentValue) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle(title);
-
         final EditText input = new EditText(this);
+
         if (fieldKey.equals("contactNumber")) {
             input.setInputType(InputType.TYPE_CLASS_PHONE);
         } else {
@@ -118,7 +133,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         if (!currentValue.startsWith("Set ") && !currentValue.equals("N/A") && !currentValue.equals("Not Set")) {
             input.setText(currentValue);
-            input.setSelection(currentValue.length()); // Move cursor to end
+            input.setSelection(currentValue.length());
         } else {
             input.setHint("Enter " + fieldKey.toLowerCase().replace("number", " no."));
         }
@@ -130,36 +145,31 @@ public class ProfileActivity extends AppCompatActivity {
             if (!TextUtils.isEmpty(newValue)) {
                 updateFirebaseField(fieldKey, newValue);
             } else {
-                updateFirebaseField(fieldKey, ""); // Or show a Toast "Field cannot be empty"
+                updateFirebaseField(fieldKey, "");
             }
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-
         builder.show();
     }
 
     private void showBirthdayPickerDialog() {
         Calendar calendar = Calendar.getInstance();
-        // Try to parse current birthday text if it exists and is valid
         String currentBirthdayText = binding.tvProfileBirthday.getText().toString();
         if (!currentBirthdayText.startsWith("Set ") && !currentBirthdayText.equals("N/A") && !currentBirthdayText.equals("Not Set")) {
             try {
-                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()); // Or your display format
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 calendar.setTime(sdf.parse(currentBirthdayText));
             } catch (Exception e) {
-                // Could not parse, use current date as default for picker
                 Log.w(TAG, "Could not parse existing birthday: " + currentBirthdayText, e);
             }
         }
-
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
-
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.GreenDatePickerDialog,(view, yearSelected, monthOfYear, dayOfMonth) -> {
             Calendar selectedDate = Calendar.getInstance();
             selectedDate.set(yearSelected, monthOfYear, dayOfMonth);
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()); // Store in a standard format
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
             String formattedDate = sdf.format(selectedDate.getTime());
             updateFirebaseField("birthday", formattedDate);
         }, year, month, day);
@@ -171,15 +181,6 @@ public class ProfileActivity extends AppCompatActivity {
             userDatabaseReference.child(fieldKey).setValue(value)
                     .addOnSuccessListener(aVoid -> {
                         Toast.makeText(ProfileActivity.this, fieldKey + " updated successfully", Toast.LENGTH_SHORT).show();
-                        // Update UI locally
-                        if (fieldKey.equals("name")) {
-                            binding.tvProfileNameHeader.setText(!value.isEmpty() ? value : "Set your name");
-                            binding.tvProfileNameDetail.setText(!value.isEmpty() ? value : "Set your name");
-                        } else if (fieldKey.equals("contactNumber")) {
-                            binding.tvProfilePhone.setText(!value.isEmpty() ? value : "Set contact no.");
-                        } else if (fieldKey.equals("birthday")) {
-                            binding.tvProfileBirthday.setText(!value.isEmpty() ? value : "Set birthday");
-                        }
                     })
                     .addOnFailureListener(e -> {
                         Toast.makeText(ProfileActivity.this, "Failed to update " + fieldKey, Toast.LENGTH_SHORT).show();
@@ -190,12 +191,14 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    // --- MODIFIED METHOD ---
     private void loadProfileData() {
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null && userDatabaseReference != null) {
             binding.tvProfileEmail.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "N/A");
 
-            userDatabaseReference.addValueEventListener(new ValueEventListener() { // Changed to addValueEventListener for real-time updates
+            // Instantiate the listener
+            userProfileListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                     if (dataSnapshot.exists()) {
@@ -203,53 +206,43 @@ public class ProfileActivity extends AppCompatActivity {
                         String contactNumber = dataSnapshot.child("contactNumber").getValue(String.class);
                         String birthday = dataSnapshot.child("birthday").getValue(String.class);
 
-                        // Update UI text fields
                         binding.tvProfileNameHeader.setText(name != null && !name.isEmpty() ? name : "Set your name");
                         binding.tvProfileNameDetail.setText(name != null && !name.isEmpty() ? name : "Set your name");
                         binding.tvProfilePhone.setText(contactNumber != null && !contactNumber.isEmpty() ? contactNumber : "Set contact no.");
                         binding.tvProfileBirthday.setText(birthday != null && !birthday.isEmpty() ? birthday : "Set birthday");
 
-                        // NEW: Logic to show/hide the completion prompt
                         boolean isProfileIncomplete = TextUtils.isEmpty(name) || TextUtils.isEmpty(contactNumber) || TextUtils.isEmpty(birthday);
                         binding.cardCompleteProfilePrompt.setVisibility(isProfileIncomplete ? View.VISIBLE : View.GONE);
                     } else {
-                        Log.w(TAG, "User data not found in database for UID: " + currentUser.getUid());
-                        binding.tvProfileNameHeader.setText("Set your name");
-                        binding.tvProfileNameDetail.setText("Set your name");
-                        binding.tvProfilePhone.setText("Set contact no.");
-                        binding.tvProfileBirthday.setText("Set birthday");
-                        binding.cardCompleteProfilePrompt.setVisibility(View.VISIBLE); // Show prompt if no data exists
+                        // Handle case where user node doesn't exist
+                        binding.cardCompleteProfilePrompt.setVisibility(View.VISIBLE);
                     }
                 }
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    Log.e(TAG, "Failed to load profile data.", databaseError.toException());
+                    // This toast will now only show if there's a real issue while the screen is active
                     Toast.makeText(ProfileActivity.this, "Failed to load profile details.", Toast.LENGTH_SHORT).show();
-                    binding.tvProfileNameHeader.setText("User");
-                    binding.tvProfileNameDetail.setText("User");
-                    binding.tvProfileEmail.setText(currentUser.getEmail() != null ? currentUser.getEmail() : "user@example.com");
-                    binding.tvProfilePhone.setText("Error loading");
-                    binding.tvProfileBirthday.setText("Error loading");
-                    binding.cardCompleteProfilePrompt.setVisibility(View.GONE);
+                    Log.e(TAG, "Failed to load profile data.", databaseError.toException());
                 }
-            });
+            };
+            // Attach the listener
+            userDatabaseReference.addValueEventListener(userProfileListener);
         } else {
-            // Handle case where user is not logged in or DB ref is null
-            binding.tvProfileNameHeader.setText("User");
-            binding.tvProfileNameDetail.setText("User");
-            binding.tvProfileEmail.setText("user@example.com");
-            binding.tvProfilePhone.setText("N/A");
-            binding.tvProfileBirthday.setText("N/A");
-            binding.cardCompleteProfilePrompt.setVisibility(View.GONE); // Hide prompt if not logged in
-            if (currentUser == null) Log.e(TAG, "Cannot load profile data: current user is null.");
-            else Log.e(TAG, "Cannot load profile data: userDatabaseReference is null.");
+            // Handle case where user is not logged in
+            Toast.makeText(this, "No user signed in.", Toast.LENGTH_SHORT).show();
+            // Optional: navigate to login screen if this state is reached unexpectedly
+            Intent intent = new Intent(this, LoginActivity.class);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+            finish();
         }
 
         if (binding.tvProfilePassword != null) {
             binding.tvProfilePassword.setText("************");
         }
     }
+
 
     private void navigateTo(Class<?> destinationActivityClass, int destinationItemId, boolean finishCurrent) {
         Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
