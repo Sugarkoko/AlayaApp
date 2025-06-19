@@ -416,7 +416,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         super.onResume();
         bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
         loadAndDisplayLocationHeader();
-        checkIfReadyToGenerate(); // Check state when activity is resumed
+        checkIfReadyToGenerate();
     }
 
     @Override
@@ -518,7 +518,15 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
 
     @Override
     public void onClearClicked() {
-        itineraryViewModel.clearItinerary();
+        new AlertDialog.Builder(this)
+                .setTitle("Clear Itinerary")
+                .setMessage("Are you sure you want to remove the current plan?")
+                .setPositiveButton("Clear", (dialog, which) -> {
+                    itineraryViewModel.clearItinerary();
+                })
+                .setNegativeButton("Cancel", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     @Override
@@ -534,8 +542,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
 
     @Override
     public void onCustomizeApplied(List<String> categoryPreferences) {
-
-
         triggerGeneration(true, categoryPreferences);
     }
 
