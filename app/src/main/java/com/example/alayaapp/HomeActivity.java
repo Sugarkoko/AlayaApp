@@ -57,7 +57,6 @@ public class HomeActivity extends AppCompatActivity {
     private LocationCallback locationCallback;
     private boolean requestingLocationUpdates = false;
 
-    // NEW: Add a variable for the SwipeRefreshLayout
     private SwipeRefreshLayout swipeRefreshLayout;
 
     private SharedPreferences sharedPreferences;
@@ -116,7 +115,6 @@ public class HomeActivity extends AppCompatActivity {
                         }
                         saveLocationPreference("manual", locationName, latitude, longitude);
                         stopLocationUpdates();
-                        // MODIFIED: Pass 'false' for isManualRefresh
                         fetchAndFilterPlaces(currentUserGeoPoint, false);
                     }
                 }
@@ -136,19 +134,27 @@ public class HomeActivity extends AppCompatActivity {
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         setupLocationCallback();
 
-        // NEW: Initialize SwipeRefreshLayout and set its listener
         swipeRefreshLayout = binding.swipeRefreshLayout;
         swipeRefreshLayout.setOnRefreshListener(() -> {
             Log.d(TAG, "Pull-to-refresh triggered.");
             if (currentUserGeoPoint != null) {
-                // Call fetchAndFilterPlaces with 'true' for isManualRefresh
                 fetchAndFilterPlaces(currentUserGeoPoint, true);
             } else {
-                // If there's no location, just stop the refreshing indicator
                 Toast.makeText(this, "Location not set. Cannot refresh.", Toast.LENGTH_SHORT).show();
                 swipeRefreshLayout.setRefreshing(false);
             }
         });
+
+        // ================== NEW CODE BLOCK START ==================
+        // This listener prevents the refresh gesture unless the user is at the top of the screen.
+        binding.scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                // The refresh gesture is enabled only when the scroll view is at the very top.
+                swipeRefreshLayout.setEnabled(scrollY == 0);
+            }
+        });
+        // =================== NEW CODE BLOCK END ===================
 
         db = FirebaseFirestore.getInstance();
         placesList = new ArrayList<>();
@@ -254,13 +260,11 @@ public class HomeActivity extends AppCompatActivity {
             binding.tvLocationCity2.setText("Outside supported region");
             binding.tvDirectionText.setText("Please set a location in Baguio.");
             showOutsideRegionDialog();
-            // MODIFIED: Pass 'false' for isManualRefresh
             fetchAndFilterPlaces(null, false);
             return;
         }
 
         dismissOutsideRegionDialog();
-        // MODIFIED: Pass 'false' for isManualRefresh
         fetchAndFilterPlaces(new GeoPoint(latitude, longitude), false);
 
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
@@ -391,7 +395,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void updateDateTimeUI() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yy", Locale.getDefault());
         SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
 
         if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
@@ -450,7 +454,6 @@ public class HomeActivity extends AppCompatActivity {
         return R * c;
     }
 
-    // MODIFIED: This method now takes a boolean to handle UI for manual refreshes
     private void fetchAndFilterPlaces(GeoPoint userLocation, boolean isManualRefresh) {
         if (userLocation == null) {
             placesList.clear();
@@ -589,7 +592,6 @@ public class HomeActivity extends AppCompatActivity {
                 binding.tvLocationCity2.setText(currentLocationNameToDisplay);
                 if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Manually set: " + currentLocationNameToDisplay);
                 stopLocationUpdates();
-                // MODIFIED: Pass 'false' for isManualRefresh
                 fetchAndFilterPlaces(currentUserGeoPoint, false);
             } else {
                 saveLocationPreference("auto", null, 0, 0);
@@ -635,7 +637,6 @@ public class HomeActivity extends AppCompatActivity {
                         .setNegativeButton("Cancel", (dialog, which) -> {
                             binding.tvLocationCity2.setText("Permission needed");
                             if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Location permission denied.");
-                            // MODIFIED: Pass 'false' for isManualRefresh
                             fetchAndFilterPlaces(null, false);
                         })
                         .create()
@@ -669,7 +670,6 @@ public class HomeActivity extends AppCompatActivity {
                 binding.tvLocationCity2.setText("Location permission denied");
                 if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Location permission denied.");
                 Toast.makeText(this, "Location permission denied.", Toast.LENGTH_LONG).show();
-                // MODIFIED: Pass 'false' for isManualRefresh
                 fetchAndFilterPlaces(null, false);
             }
         }
