@@ -95,7 +95,6 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupActionListeners() {
         binding.ivLogout.setOnClickListener(v -> {
-            // --- FINAL FIX: Remove the listener BEFORE signing out ---
             if (userDatabaseReference != null && userProfileListener != null) {
                 userDatabaseReference.removeEventListener(userProfileListener);
             }
@@ -105,6 +104,10 @@ public class ProfileActivity extends AppCompatActivity {
             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
+
+            // --- ADD THIS LINE for the logout animation ---
+            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+
             finish();
         });
 
