@@ -26,7 +26,7 @@ public class ItineraryGenerator {
 
     // --- NEW CONSTANTS FOR FLEXIBLE GENERATION ---
     private static final int MAX_STOPS = 5;
-    private static final int MIN_STOPS = 3;
+    private static final int MIN_STOPS = 1;
 
     private Calendar roundToNearestFiveMinutes(Calendar originalCal) {
         if (originalCal == null) {
