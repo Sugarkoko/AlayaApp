@@ -24,9 +24,9 @@ public class ItineraryGenerator {
     private static final int MIN_VISIT_DURATION_MINUTES = 30;
     private static final double CATEGORY_REPETITION_PENALTY_KM = 50.0;
 
-    // --- NEW CONSTANTS FOR FLEXIBLE GENERATION ---
+    // --- CONSTANTS FOR FLEXIBLE GENERATION ---
     private static final int MAX_STOPS = 5;
-    private static final int MIN_STOPS = 1;
+    private static final int MIN_STOPS = 1; // Minimum is now 1 stop
 
     private Calendar roundToNearestFiveMinutes(Calendar originalCal) {
         if (originalCal == null) {
@@ -66,10 +66,6 @@ public class ItineraryGenerator {
         }
     }
 
-    /**
-     * MODIFIED: This method now iteratively tries to generate a plan, starting from MAX_STOPS
-     * and reducing the count until a plan fits within the user's time window.
-     */
     private GenerationResult generateNewItinerary(GeoPoint userStartLocation, List<Place> allPlaces, Calendar tripStartCalendar, Calendar tripEndCalendar, List<String> categoryPreferences) {
         List<ItineraryItem> generatedItinerary = new ArrayList<>();
         List<Place> availablePlaces = new ArrayList<>(allPlaces);
@@ -82,11 +78,24 @@ public class ItineraryGenerator {
             return new GenerationResult(new ArrayList<>(), unmetPreferences);
         }
 
-        // --- NEW: Iterative logic to find a plan that fits ---
-        for (int numStops = MAX_STOPS; numStops >= MIN_STOPS; numStops--) {
+        // --- MODIFIED: Determine the starting number of stops for the loop ---
+        final boolean isCustomPlan = categoryPreferences != null && !categoryPreferences.isEmpty();
+        int startNumStops = isCustomPlan ? categoryPreferences.size() : MAX_STOPS;
+
+        for (int numStops = startNumStops; numStops >= MIN_STOPS; numStops--) {
             Log.i(TAG, "Attempting to generate an itinerary with " + numStops + " stops.");
 
-            List<Place> sequence = selectPlaceSequence(userStartLocation, availablePlaces, categoryPreferences, unmetPreferences, numStops);
+            // --- MODIFIED: Create the list of preferences for this specific attempt ---
+            List<String> prefsForThisAttempt;
+            if (isCustomPlan) {
+                // For custom plans, take a sublist of the user's top preferences
+                prefsForThisAttempt = categoryPreferences.subList(0, numStops);
+            } else {
+                // For standard plans, it's always an empty list
+                prefsForThisAttempt = Collections.emptyList();
+            }
+
+            List<Place> sequence = selectPlaceSequence(userStartLocation, availablePlaces, prefsForThisAttempt, unmetPreferences, numStops);
 
             if (sequence.size() < numStops) {
                 Log.w(TAG, "Could not find " + numStops + " suitable places. Trying with " + (numStops - 1) + ".");
@@ -243,9 +252,6 @@ public class ItineraryGenerator {
         return new GenerationResult(finalItinerary, Collections.emptyList());
     }
 
-    /**
-     * MODIFIED: Signature changed to accept numStops.
-     */
     private List<Place> selectPlaceSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences, List<String> unmetPreferences, int numStops) {
         if (categoryPreferences == null || categoryPreferences.isEmpty()) {
             return selectOptimalSequence(startLocation, availablePlaces, numStops);
@@ -258,9 +264,6 @@ public class ItineraryGenerator {
         }
     }
 
-    /**
-     * MODIFIED: Signature changed to accept numStops.
-     */
     private List<Place> selectOptimalSequence(GeoPoint startLocation, List<Place> availablePlaces, int numStops) {
         List<Place> bestRoute = selectGreedySequence(startLocation, availablePlaces, numStops);
         if (bestRoute.size() <= 2) {
@@ -316,9 +319,6 @@ public class ItineraryGenerator {
         return totalDistance;
     }
 
-    /**
-     * MODIFIED: Signature changed to accept numStops.
-     */
     private List<Place> selectGreedySequence(GeoPoint startLocation, List<Place> availablePlaces, int numStops) {
         List<Place> sequence = new ArrayList<>();
         List<Place> pool = new ArrayList<>(availablePlaces);
@@ -394,7 +394,6 @@ public class ItineraryGenerator {
             return selectedPlacesForRoute;
         }
         Log.d(TAG, "Optimizing the route for the " + selectedPlacesForRoute.size() + " custom-selected places.");
-        // For custom sequences, we don't limit by numStops, we use all selected places.
         return selectOptimalSequence(startLocation, selectedPlacesForRoute, selectedPlacesForRoute.size());
     }
 
