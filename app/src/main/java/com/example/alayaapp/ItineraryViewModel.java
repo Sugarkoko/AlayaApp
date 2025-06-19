@@ -5,12 +5,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
-
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -19,9 +17,7 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
 import android.os.Looper;
-
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -120,6 +116,7 @@ public class ItineraryViewModel extends AndroidViewModel {
                 Log.d(TAG, forceRegenerate ? "Forcing regeneration." : "No valid saved itinerary. Generating new one.");
                 ItineraryGenerator.GenerationResult result = itineraryGenerator.generateWithTimeWindows(startLocation, allPlaces, tripStart, tripEnd, categoryPreferences, null);
                 List<ItineraryItem> generatedItems = result.itinerary;
+
                 StringBuilder messageBuilder = new StringBuilder();
                 if (generatedItems.isEmpty()) {
                     messageBuilder.append("We couldn't create a plan. Your selected time window from the Home screen is likely too short to fit our minimum of 1 stop, or no places matching your preferences are open. Please try extending your trip's start/end time or changing your customization options and generate again.");
@@ -172,8 +169,7 @@ public class ItineraryViewModel extends AndroidViewModel {
 
             if (currentSequenceOfPlaces.size() != currentItems.size()) {
                 Log.e(TAG, "Mismatch between itinerary items and found places. Aborting recalculation.");
-                new android.os.Handler(Looper.getMainLooper()).post(() ->
-                        Toast.makeText(getApplication(), "Error: Could not find all places for recalculation.", Toast.LENGTH_LONG).show());
+                new android.os.Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplication(), "Error: Could not find all places for recalculation.", Toast.LENGTH_LONG).show());
                 _isLoading.postValue(false);
                 return;
             }
@@ -212,8 +208,7 @@ public class ItineraryViewModel extends AndroidViewModel {
             String message;
             if (result.itinerary.isEmpty() || result.itinerary.size() < currentItems.size()) {
                 message = "Could not fit all stops with the new time for '" + lockedItem.getActivity() + "'. Some stops were removed.";
-                new android.os.Handler(Looper.getMainLooper()).post(() ->
-                        Toast.makeText(getApplication(), "Conflict: Could not fit all stops.", Toast.LENGTH_LONG).show());
+                new android.os.Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplication(), "Conflict: Could not fit all stops.", Toast.LENGTH_LONG).show());
             } else {
                 message = "Schedule updated around your new time for '" + lockedItem.getActivity() + "'.";
             }
@@ -326,7 +321,6 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _isLoading.postValue(false);
                 return;
             }
-
             List<ItineraryItem> currentItems = new ArrayList<>(currentState.getItineraryItems());
             if (positionOfTopItem < 0 || positionOfTopItem + 1 >= currentItems.size()) {
                 postToast("Cannot swap, invalid item position.");
@@ -535,7 +529,6 @@ public class ItineraryViewModel extends AndroidViewModel {
     }
 
     private void postToast(String message) {
-        new android.os.Handler(Looper.getMainLooper()).post(() ->
-                Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show());
+        new android.os.Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show());
     }
 }
