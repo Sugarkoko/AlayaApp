@@ -19,7 +19,6 @@
         android:textStyle="bold"
         tools:text="APRIL 2024" />
 
-    <!-- THE FIX IS HERE: The ID has no space after the slash -->
     <androidx.cardview.widget.CardView
         android:id="@+id/card_trip_item"
         android:layout_width="match_parent"

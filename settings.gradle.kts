@@ -18,7 +18,7 @@ dependencyResolutionManagement {
     repositories {
         google()
         mavenCentral()
-        // Add JitPack repository for osmdroid-bonuspack and other libraries
+
         maven { url = uri("https://jitpack.io") }
     }
 }

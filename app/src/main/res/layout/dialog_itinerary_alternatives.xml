@@ -28,7 +28,6 @@
         android:textStyle="bold"
         tools:text="Replace 'Burnham Park'" />
 
-    <!-- ADDED: Container for the initial choice buttons -->
     <LinearLayout
         android:id="@+id/ll_choice_container"
         android:layout_width="match_parent"
@@ -57,7 +56,7 @@
             app:strokeColor="@color/colorPrimary" />
     </LinearLayout>
 
-    <!-- MODIFIED: This is now hidden initially -->
+
     <TextView
         android:id="@+id/tv_alternatives_subtitle"
         android:layout_width="match_parent"
@@ -72,7 +71,7 @@
         tools:text="Showing nearby places in the same category."
         tools:visibility="visible" />
 
-    <!-- MODIFIED: This is now hidden initially -->
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_alternatives"
         android:layout_width="match_parent"

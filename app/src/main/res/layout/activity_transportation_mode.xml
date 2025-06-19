@@ -25,7 +25,7 @@
             android:paddingEnd="24dp"
             android:paddingTop="24dp"
             android:paddingBottom="24dp"
-            android:clipToPadding="false"> <!-- Allows shadows from cards to extend into padding -->
+            android:clipToPadding="false">
 
             <TextView
                 android:id="@+id/tv_transportation_title"
@@ -54,7 +54,7 @@
                 android:useDefaultMargins="true"
                 android:padding="8dp">
 
-                <!-- Row 1, Item 1 -->
+
                 <include
                     android:id="@+id/transport_taxi"
                 layout="@layout/item_transport_option"
@@ -63,7 +63,7 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill_horizontal" />
 
-                <!-- Bus Card -->
+
                 <include
                     android:id="@+id/transport_bus"
                 layout="@layout/item_transport_option"
@@ -72,7 +72,7 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill_horizontal" />
 
-                <!-- Bike Card -->
+
                 <include
                     android:id="@+id/transport_bike"
                 layout="@layout/item_transport_option"
@@ -81,7 +81,7 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill_horizontal" />
 
-                <!-- Motorcycle Card -->
+
                 <include
                     android:id="@+id/transport_motorcycle"
                 layout="@layout/item_transport_option"
@@ -90,7 +90,7 @@
                 android:layout_columnWeight="1"
                 android:layout_gravity="fill_horizontal" />
 
-                <!-- Walk Card (Spanning two columns) -->
+
                 <include
                     android:id="@+id/transport_walk"
                 layout="@layout/item_transport_option"
@@ -116,7 +116,7 @@
         app:layout_constraintEnd_toEndOf="parent" />
 
 
-    <!-- Bottom Navigation -->
+
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation_transport_page"
         android:layout_width="0dp"

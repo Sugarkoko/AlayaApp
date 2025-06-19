@@ -25,7 +25,7 @@
     <string name="content_desc_rating_star">Rating star icon</string>
     <string name="profile_completion_prompt">Add your remaining details to complete your account registration.</string>
 
-    <!-- ADDED STRINGS FOR THE NEW POP-UP -->
+
     <string name="view_on_map">View on Map</string>
     <string name="get_directions">Get Directions</string>
     <string name="close">Close</string>

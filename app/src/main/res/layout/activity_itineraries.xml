@@ -7,7 +7,6 @@
     android:background="@color/white"
     tools:context=".ItinerariesActivity">
 
-    <!-- The ONE RecyclerView that controls the whole scrolling body -->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_itineraries_main"
         android:layout_width="0dp"
@@ -21,7 +20,6 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:listitem="@layout/list_item_itinerary" />
 
-    <!-- NEW: Loading Indicator -->
     <ProgressBar
         android:id="@+id/pb_itineraries"
         android:layout_width="wrap_content"
@@ -33,7 +31,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:visibility="visible" />
 
-    <!-- NEW: Save Trip Floating Action Button -->
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_save_trip"
         android:layout_width="wrap_content"

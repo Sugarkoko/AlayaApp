@@ -31,7 +31,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/iv_back_arrow_trip_history" />
 
-    <!-- RecyclerView is now constrained to the bottom of the parent -->
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_trip_history"
         android:layout_width="0dp"
@@ -60,6 +60,5 @@
         app:layout_constraintTop_toTopOf="@id/rv_trip_history"
         tools:visibility="visible" />
 
-    <!-- The BottomNavigationView has been completely removed from this file. -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

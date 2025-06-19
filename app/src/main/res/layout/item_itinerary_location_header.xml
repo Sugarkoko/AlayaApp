@@ -20,7 +20,7 @@
         android:textSize="34sp"
         android:textStyle="bold" />
 
-    <!-- NEW: Message/Disclaimer TextView -->
+
     <TextView
         android:id="@+id/tv_header_message"
         android:layout_width="match_parent"

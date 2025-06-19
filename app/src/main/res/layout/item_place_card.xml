@@ -58,7 +58,7 @@
             app:tint="@color/starColor"
             app:layout_constraintStart_toStartOf="@id/tv_item_place_name"
             app:layout_constraintTop_toBottomOf="@id/tv_item_place_name"
-            android:contentDescription="@string/content_desc_rating_star"/> <!-- Use string resource -->
+            android:contentDescription="@string/content_desc_rating_star"/>
 
         <TextView
             android:id="@+id/tv_item_place_rating"

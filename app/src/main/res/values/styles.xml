@@ -1,26 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="GreenDatePickerDialog" parent="Theme.MaterialComponents.Light.Dialog">
-        <!-- Primary color for header background and selected date -->
+
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
         <item name="colorOnPrimary">@android:color/white</item>
 
-        <!-- Surface colors for calendar background -->
+
         <item name="colorSurface">@android:color/white</item>
         <item name="colorOnSurface">@android:color/black</item>
 
-        <!-- Selected date circle and accent colors -->
+
         <item name="android:colorAccent">@color/colorPrimary</item>
         <item name="colorSecondary">@color/colorPrimary</item>
         <item name="colorOnSecondary">@android:color/white</item>
 
-        <!-- Button styling -->
+
         <item name="materialButtonStyle">@style/GreenDatePickerButton</item>
         <item name="android:textColorPrimary">@android:color/black</item>
     </style>
 
-    <!-- Simplified version without custom datePickerStyle -->
+
     <style name="GreenDatePickerDialogSimple" parent="Theme.MaterialComponents.Light.Dialog">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorPrimary</item>
@@ -28,7 +28,7 @@
         <item name="materialButtonStyle">@style/GreenDatePickerButton</item>
     </style>
 
-    <!-- Alternative for Material Design 3 -->
+
     <style name="GreenDatePickerDialogM3" parent="Theme.Material3.Light.Dialog">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@android:color/white</item>
@@ -41,26 +41,26 @@
     </style>
 
     <style name="GreenTimePickerDialog" parent="Theme.MaterialComponents.Light.Dialog">
-        <!-- Primary color for main elements -->
+
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
 
-        <!-- For Material Design 3 compatibility -->
+
         <item name="colorOnPrimary">@android:color/white</item>
         <item name="colorSurface">@android:color/white</item>
         <item name="colorOnSurface">@android:color/black</item>
 
-        <!-- Button colors -->
+
         <item name="materialButtonStyle">@style/GreenTimePickerButton</item>
         <item name="android:textColorPrimary">@android:color/black</item>
 
-        <!-- Clock hand and selection colors -->
+
         <item name="android:colorAccent">@color/colorPrimary</item>
         <item name="colorSecondary">@color/colorPrimary</item>
         <item name="colorOnSecondary">@android:color/white</item>
     </style>
 
-    <!-- Alternative for Material Design 3 -->
+
     <style name="GreenTimePickerDialogM3" parent="Theme.Material3.Light.Dialog">
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorOnPrimary">@android:color/white</item>
@@ -71,19 +71,19 @@
         <item name="colorTertiary">@color/colorPrimaryDark</item>
     </style>
 
-    <!-- Custom button style for date picker -->
+
     <style name="GreenDatePickerButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">@color/colorPrimary</item>
         <item name="backgroundTint">@android:color/transparent</item>
         <item name="rippleColor">@color/colorPrimary</item>
     </style>
 
-    <!-- Simplified custom date picker style -->
+
     <style name="GreenDatePickerStyle" parent="android:Widget.Material.DatePicker">
         <item name="android:colorAccent">@color/colorPrimary</item>
     </style>
 
-    <!-- Custom button style for time picker -->
+
     <style name="GreenTimePickerButton" parent="Widget.MaterialComponents.Button.TextButton">
         <item name="android:textColor">@color/colorPrimary</item>
         <item name="backgroundTint">@android:color/transparent</item>
