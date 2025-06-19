@@ -44,10 +44,8 @@ public class ProfileActivity extends AppCompatActivity {
         binding = ActivityProfileBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // --- MODIFIED: Set a neutral default text initially ---
         binding.tvProfileNameHeader.setText("User");
         binding.tvProfileNameDetail.setText("User");
-        // --- End of modification ---
 
         mAuth = FirebaseAuth.getInstance();
         FirebaseUser currentUser = mAuth.getCurrentUser();
@@ -97,6 +95,11 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupActionListeners() {
         binding.ivLogout.setOnClickListener(v -> {
+            // --- FINAL FIX: Remove the listener BEFORE signing out ---
+            if (userDatabaseReference != null && userProfileListener != null) {
+                userDatabaseReference.removeEventListener(userProfileListener);
+            }
+
             mAuth.signOut();
             Toast.makeText(ProfileActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
@@ -104,6 +107,7 @@ public class ProfileActivity extends AppCompatActivity {
             startActivity(intent);
             finish();
         });
+
         binding.tvProfileNameDetail.setOnClickListener(v -> showEditTextDialog("name", "Edit Name", binding.tvProfileNameDetail.getText().toString()));
         binding.tvProfileBirthday.setOnClickListener(v -> showBirthdayPickerDialog());
         binding.tvProfilePhone.setOnClickListener(v -> showEditTextDialog("contactNumber", "Edit Contact Number", binding.tvProfilePhone.getText().toString()));
@@ -140,7 +144,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         builder.setPositiveButton("Save", (dialog, which) -> {
             String newValue = input.getText().toString().trim();
-            updateFirebaseField(fieldKey, newValue); // Allow saving empty strings
+            updateFirebaseField(fieldKey, newValue);
         });
         builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
         builder.show();
@@ -218,6 +222,7 @@ public class ProfileActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
+                    // This toast will now only show if there's a real issue while the screen is active
                     Toast.makeText(ProfileActivity.this, "Failed to load profile details.", Toast.LENGTH_SHORT).show();
                     Log.e(TAG, "Failed to load profile data.", databaseError.toException());
                 }
