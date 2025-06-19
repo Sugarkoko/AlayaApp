@@ -253,17 +253,28 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         tripEndCalendar.set(Calendar.MINUTE, endMinute);
     }
 
+    // In ItinerariesActivity.java
+
     public void showLocationChoiceDialog() {
         final CharSequence[] options = {"Use My Current GPS Location", "Set Location Manually", "Cancel"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose Start Location");
         builder.setItems(options, (dialog, item) -> {
             if (options[item].equals("Use My Current GPS Location")) {
-                saveLocationPreference("auto", null, 0, 0);
-                currentGeoPoint = null;
-                itineraryViewModel.updateLocationStatus("Fetching GPS location...", "Mode: GPS");
-                checkIfReadyToGenerate();
-                checkAndRequestLocationPermissions();
+                // NEW: Show confirmation dialog first
+                new AlertDialog.Builder(this)
+                        .setTitle("Confirm Location Choice")
+                        .setMessage("This will use your device's GPS to find your current location for the itinerary. Continue?")
+                        .setPositiveButton("Yes", (confirmDialog, which) -> {
+                            // Original logic is now moved inside the confirmation
+                            saveLocationPreference("auto", null, 0, 0);
+                            currentGeoPoint = null;
+                            itineraryViewModel.updateLocationStatus("Fetching GPS location...", "Mode: GPS");
+                            checkIfReadyToGenerate();
+                            checkAndRequestLocationPermissions();
+                        })
+                        .setNegativeButton("Cancel", null) // No action needed
+                        .show();
             } else if (options[item].equals("Set Location Manually")) {
                 Intent intent = new Intent(ItinerariesActivity.this, ManualLocationPickerActivity.class);
                 if (currentGeoPoint != null) {

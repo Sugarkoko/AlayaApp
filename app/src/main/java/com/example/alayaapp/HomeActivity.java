@@ -476,17 +476,28 @@ public class HomeActivity extends AppCompatActivity {
         };
     }
 
+
+
     private void showLocationChoiceDialog() {
         final CharSequence[] options = {"Use My Current GPS Location", "Set Location Manually", "Cancel"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose Location Method");
         builder.setItems(options, (dialog, item) -> {
             if (options[item].equals("Use My Current GPS Location")) {
-                saveLocationPreference("auto", null, 0, 0);
-                currentUserGeoPoint = null;
-                binding.tvLocationCity2.setText("Fetching GPS location...");
-                if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Mode: GPS");
-                checkAndRequestLocationPermissions();
+                // NEW: Show confirmation dialog first
+                new AlertDialog.Builder(this)
+                        .setTitle("Confirm Location Choice")
+                        .setMessage("This will use your device's GPS to find your current location. Continue?")
+                        .setPositiveButton("Yes", (confirmDialog, which) -> {
+                            // Original logic is now moved inside the confirmation
+                            saveLocationPreference("auto", null, 0, 0);
+                            currentUserGeoPoint = null;
+                            binding.tvLocationCity2.setText("Fetching GPS location...");
+                            if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Mode: GPS");
+                            checkAndRequestLocationPermissions();
+                        })
+                        .setNegativeButton("Cancel", null) // No action needed
+                        .show();
             } else if (options[item].equals("Set Location Manually")) {
                 Intent intent = new Intent(HomeActivity.this, ManualLocationPickerActivity.class);
                 if (currentUserGeoPoint != null) {
