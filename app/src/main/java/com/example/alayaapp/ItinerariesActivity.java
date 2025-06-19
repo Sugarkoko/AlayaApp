@@ -93,7 +93,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                         itineraryViewModel.updateLocationStatus(locationName, "Manually set: " + locationName);
                         saveLocationPreference("manual", locationName, latitude, longitude);
                         stopLocationUpdates();
-                        checkIfReadyToGenerate(); // Update button state
+                        checkIfReadyToGenerate();
                         itineraryViewModel.clearItinerary();
                         Toast.makeText(this, "Location set. Click 'New Plan' or 'Customize' to generate.", Toast.LENGTH_LONG).show();
                     }
@@ -262,7 +262,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 saveLocationPreference("auto", null, 0, 0);
                 currentGeoPoint = null;
                 itineraryViewModel.updateLocationStatus("Fetching GPS location...", "Mode: GPS");
-                checkIfReadyToGenerate(); // Update button state
+                checkIfReadyToGenerate();
                 checkAndRequestLocationPermissions();
             } else if (options[item].equals("Set Location Manually")) {
                 Intent intent = new Intent(ItinerariesActivity.this, ManualLocationPickerActivity.class);
@@ -289,7 +289,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 currentGeoPoint = new GeoPoint(lat, lon);
                 itineraryViewModel.updateLocationStatus(name, "Manually set: " + name);
                 stopLocationUpdates();
-                checkIfReadyToGenerate(); // Update button state
+                checkIfReadyToGenerate();
             } else {
                 saveLocationPreference("auto", null, 0, 0);
                 checkAndRequestLocationPermissions();
@@ -322,7 +322,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 else addressTextBuilder.append("Unknown Area");
                 currentGeoPoint = new GeoPoint(latitude, longitude);
                 itineraryViewModel.updateLocationStatus(addressTextBuilder.toString(), "GPS: " + addressTextBuilder.toString());
-                checkIfReadyToGenerate(); // Update button state
+                checkIfReadyToGenerate();
                 itineraryViewModel.clearItinerary();
                 Toast.makeText(this, "Location updated. Click 'New Plan' or 'Customize' to generate.", Toast.LENGTH_LONG).show();
             } else {
@@ -513,7 +513,14 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
 
     @Override
     public void onRegenerateClicked() {
-        triggerGeneration(true, Collections.emptyList());
+        new AlertDialog.Builder(this)
+                .setTitle("Generate New Plan?")
+                .setMessage("This will create a new itinerary based on your current location and time settings. Any unsaved changes will be lost.\n\nDo you want to continue?")
+                .setPositiveButton("Generate", (dialog, which) -> {
+                    triggerGeneration(true, Collections.emptyList());
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override
