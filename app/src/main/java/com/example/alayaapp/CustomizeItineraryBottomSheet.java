@@ -10,14 +10,11 @@ import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment;
 import com.google.android.material.slider.Slider;
 import com.google.android.material.textfield.TextInputLayout;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +24,6 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
 
     public static final String TAG = "CustomizeItineraryBottomSheet";
 
-    // Interface to send data back to the activity
     public interface CustomizeListener {
         void onCustomizeApplied(List<String> categoryPreferences);
     }
@@ -38,9 +34,15 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
     private LinearLayout spinnersContainer;
     private Button applyButton;
 
-    // Pre-defined categories for the dropdowns
+    // --- MODIFIED: Updated list of categories ---
     private final List<String> categories = new ArrayList<>(Arrays.asList(
-            "Any", "Tourist Spot", "Food", "Shopping", "Park", "Museum", "Cafe"
+            "Any",
+            "Tourists",
+            "Food",
+            "Shopping",
+            "Farm",
+            "Museum",
+            "Church"
     ));
 
     public static CustomizeItineraryBottomSheet newInstance() {
@@ -61,19 +63,15 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.dialog_customize_itinerary, container, false);
-
         stopsSlider = view.findViewById(R.id.slider_stops);
         stopCountTextView = view.findViewById(R.id.tv_stop_count);
         spinnersContainer = view.findViewById(R.id.container_category_spinners);
         applyButton = view.findViewById(R.id.btn_apply_and_generate);
-
         setupSlider();
         setupApplyButton();
 
-        // Initial setup
         updateStopCountText(Math.round(stopsSlider.getValue()));
         updateSpinners(Math.round(stopsSlider.getValue()));
-
         return view;
     }
 
@@ -90,20 +88,15 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
     }
 
     private void updateSpinners(int count) {
-        spinnersContainer.removeAllViews(); // Clear existing spinners
-
+        spinnersContainer.removeAllViews();
         LayoutInflater inflater = LayoutInflater.from(getContext());
         ArrayAdapter<String> adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_dropdown_item_1line, categories);
-
         for (int i = 1; i <= count; i++) {
-            // Inflate the reusable row layout
             TextInputLayout textInputLayout = (TextInputLayout) inflater.inflate(R.layout.item_customize_spinner_row, spinnersContainer, false);
             AutoCompleteTextView autoCompleteTextView = textInputLayout.findViewById(R.id.actv_category_spinner);
-
             textInputLayout.setHint("Stop " + i);
             autoCompleteTextView.setAdapter(adapter);
-            autoCompleteTextView.setText(categories.get(0), false); // Default to "Any"
-
+            autoCompleteTextView.setText(categories.get(0), false);
             spinnersContainer.addView(textInputLayout);
         }
     }
