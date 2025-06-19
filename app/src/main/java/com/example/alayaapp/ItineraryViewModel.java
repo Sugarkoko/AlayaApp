@@ -5,10 +5,12 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -17,7 +19,9 @@ import com.google.firebase.firestore.Query;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+
 import android.os.Looper;
+
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -67,6 +71,7 @@ public class ItineraryViewModel extends AndroidViewModel {
         }
     }
 
+
     public ItineraryViewModel(@NonNull Application application) {
         super(application);
         sharedPreferences = UserPreferences.get(application);
@@ -83,6 +88,7 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _itineraryState.postValue(savedState);
                 _currentLocationName.postValue(savedState.getLocationName());
                 _currentLocationStatus.postValue("Loaded saved plan for: " + savedState.getLocationName());
+
                 if (savedState.getItineraryItems() != null && !savedState.getItineraryItems().isEmpty()) {
                     Calendar tripStart = savedState.getItineraryItems().get(0).getStartTime();
                     if (tripStart != null) {
@@ -94,6 +100,7 @@ public class ItineraryViewModel extends AndroidViewModel {
                 } else {
                     _isItinerarySaved.postValue(false);
                 }
+
             } else {
                 Log.d(TAG, "ViewModel initialized with no saved state.");
                 _itineraryState.postValue(null);
@@ -116,8 +123,8 @@ public class ItineraryViewModel extends AndroidViewModel {
                 Log.d(TAG, forceRegenerate ? "Forcing regeneration." : "No valid saved itinerary. Generating new one.");
                 ItineraryGenerator.GenerationResult result = itineraryGenerator.generateWithTimeWindows(startLocation, allPlaces, tripStart, tripEnd, categoryPreferences, null);
                 List<ItineraryItem> generatedItems = result.itinerary;
-
                 StringBuilder messageBuilder = new StringBuilder();
+
                 if (generatedItems.isEmpty()) {
                     messageBuilder.append("We couldn't find any open attractions for your selected time and categories, or the schedule was too tight. Try extending your trip time or changing preferences.");
                 } else if (categoryPreferences != null && !categoryPreferences.isEmpty() && generatedItems.size() < categoryPreferences.size()) {
@@ -175,6 +182,7 @@ public class ItineraryViewModel extends AndroidViewModel {
             }
             // --- FIX END ---
 
+
             ItineraryItem itemToLock = currentItems.get(indexToLock);
             ItineraryItem lockedItem = new ItineraryItem(
                     itemToLock.getId(),
@@ -212,7 +220,6 @@ public class ItineraryViewModel extends AndroidViewModel {
             } else {
                 message = "Schedule updated around your new time for '" + lockedItem.getActivity() + "'.";
             }
-
             fetchRecommendationsAndBuildState(
                     result.itinerary,
                     message,
@@ -227,6 +234,7 @@ public class ItineraryViewModel extends AndroidViewModel {
         });
     }
 
+
     public void replaceItineraryItem(int indexToReplace, Place newPlace, List<Place> allPlaces) {
         _isLoading.setValue(true);
         executorService.execute(() -> {
@@ -236,9 +244,9 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _isLoading.postValue(false);
                 return;
             }
-
             List<Place> newSequenceOfPlaces = new ArrayList<>();
             List<ItineraryItem> oldItinerary = currentState.getItineraryItems();
+
             for (int i = 0; i < oldItinerary.size(); i++) {
                 if (i == indexToReplace) {
                     newSequenceOfPlaces.add(newPlace);
@@ -250,7 +258,6 @@ public class ItineraryViewModel extends AndroidViewModel {
                             .ifPresent(newSequenceOfPlaces::add);
                 }
             }
-
             GeoPoint startLocation = new GeoPoint(currentState.getStartLat(), currentState.getStartLon());
             Calendar tripStart = Calendar.getInstance();
             tripStart.setTimeInMillis(currentState.getStartTimeMillis());
@@ -276,7 +283,6 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _isLoading.postValue(false);
                 return;
             }
-
             List<ItineraryItem> oldItinerary = currentState.getItineraryItems();
             List<ItineraryItem> tempItinerary = new ArrayList<>(oldItinerary);
             tempItinerary.remove(indexToDelete);
@@ -343,7 +349,6 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _isLoading.postValue(false);
                 return;
             }
-
             GeoPoint startLocation = new GeoPoint(currentState.getStartLat(), currentState.getStartLon());
             Calendar tripStart = Calendar.getInstance();
             tripStart.setTimeInMillis(currentState.getStartTimeMillis());
@@ -397,7 +402,6 @@ public class ItineraryViewModel extends AndroidViewModel {
                 if (item.getPlaceDocumentId() != null) excludedIds.add(item.getPlaceDocumentId());
             }
         }
-
         Query topRatedQuery = db.collection("places").orderBy("rating", Query.Direction.DESCENDING).limit(10);
         if (!excludedIds.isEmpty() && excludedIds.size() < 10) {
             topRatedQuery = topRatedQuery.whereNotIn(com.google.firebase.firestore.FieldPath.documentId(), excludedIds);
@@ -462,12 +466,12 @@ public class ItineraryViewModel extends AndroidViewModel {
             Toast.makeText(getApplication(), "You must be signed in to save a trip.", Toast.LENGTH_SHORT).show();
             return;
         }
+
         ItineraryState currentState = _itineraryState.getValue();
         if (currentState == null || currentState.getItineraryItems() == null || currentState.getItineraryItems().isEmpty()) {
             Toast.makeText(getApplication(), "No itinerary to save.", Toast.LENGTH_SHORT).show();
             return;
         }
-
         _isItinerarySaved.setValue(true);
         Toast.makeText(getApplication(), "Saving trip...", Toast.LENGTH_SHORT).show();
 
@@ -486,6 +490,7 @@ public class ItineraryViewModel extends AndroidViewModel {
         }
 
         Trip tripToSave = new Trip(tripTitle, tripDate, signature, itineraryForDb);
+
         db.collection("users").document(currentUser.getUid())
                 .collection("tripHistory")
                 .add(tripToSave)

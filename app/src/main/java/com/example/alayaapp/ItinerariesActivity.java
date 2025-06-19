@@ -85,6 +85,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
     private static final double BAGUIO_REGION_MIN_LON = 120.55;
     private static final double BAGUIO_REGION_MAX_LON = 120.65;
+    private static final String PREF_KEY_SEEN_DISCLAIMER = "has_seen_time_disclaimer";
 
     private List<Object> displayItems = new ArrayList<>();
     public ItineraryViewModel itineraryViewModel;
@@ -97,6 +98,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                     String locationName = data.getStringExtra("selected_location_name");
                     double latitude = data.getDoubleExtra("selected_latitude", 0.0);
                     double longitude = data.getDoubleExtra("selected_longitude", 0.0);
+
                     if (locationName != null && !locationName.isEmpty()) {
                         currentGeoPoint = new GeoPoint(latitude, longitude);
                         itineraryViewModel.updateLocationStatus(locationName, "Manually set: " + locationName);
@@ -153,6 +155,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private void setupViewModelObservers() {
         itineraryViewModel.itineraryState.observe(this, state -> {
             displayItems.clear();
+
             String headerMessage;
             if (state == null) {
                 headerMessage = "Your itinerary is empty. Use the buttons below to create a plan!";
@@ -174,12 +177,13 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                     }
                     hasContent = true;
                 }
+
                 if (state.getTopRatedPlaces() != null && !state.getTopRatedPlaces().isEmpty()) {
                     displayItems.add(new ItineraryAdapter.HorizontalListContainer("Top Rated", state.getTopRatedPlaces()));
                     hasContent = true;
                 }
                 if (hasContent) {
-                    displayItems.add("Hours are based on standard schedules. We recommend checking ahead for holidays or special events.");
+                    displayItems.add("Disclaimer: All travel and visit times are estimates and do not account for real-time traffic. We recommend checking a dedicated navigation app for live travel data before you depart. You can also tap any stop's time to customize its duration.");
                 }
             }
             itineraryAdapter.notifyDataSetChanged();
@@ -254,12 +258,15 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             redirectToHomeWithDialog();
             return;
         }
+
         loadTripDateTime();
+
         if (allPlacesList.isEmpty()) {
             Toast.makeText(this, "Place data is not ready. Please try again in a moment.", Toast.LENGTH_SHORT).show();
             fetchAllPlaces();
             return;
         }
+
         String locationName = itineraryViewModel.currentLocationName.getValue() != null ? itineraryViewModel.currentLocationName.getValue() : "Selected Location";
         itineraryViewModel.loadOrGenerateItinerary(currentGeoPoint, locationName, tripStartCalendar, tripEndCalendar, allPlacesList, forceRegenerate, categoryPreferences);
     }
@@ -272,6 +279,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             tripStartCalendar.set(year, month, day);
             tripEndCalendar.set(year, month, day);
         }
+
         int startHour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
         int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
         tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
@@ -286,6 +294,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     // In ItinerariesActivity.java
     public void showLocationChoiceDialog() {
         final CharSequence[] options = {"Use My Current GPS Location", "Set Location Manually", "Cancel"};
+
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose Start Location");
         builder.setItems(options, (dialog, item) -> {
@@ -357,6 +366,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 String city = address.getLocality();
                 String subLocality = address.getSubLocality();
                 String thoroughfare = address.getThoroughfare();
+
                 StringBuilder addressTextBuilder = new StringBuilder();
                 if (city != null && !city.isEmpty()) addressTextBuilder.append(city);
                 else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
@@ -384,13 +394,15 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             Class<?> destinationActivityClass = null;
             if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
             else if (destinationItemId == R.id.navigation_map) destinationActivityClass = MapsActivity.class;
-            else if (destinationItemId == R.id.navigation_profile) destinationActivityClass = ProfileActivity.class;
+            else if (destinationItemId == R.id.navigation_profile)
+                destinationActivityClass = ProfileActivity.class;
 
             if (destinationActivityClass != null) {
                 Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
                 startActivity(intent);
                 boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
-                if (slideRightToLeft) overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                if (slideRightToLeft)
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
                 else overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 finish();
                 return true;
@@ -411,7 +423,9 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
-                if (locationResult == null || !sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
+                if (locationResult == null || !sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto"))
+                    return;
+
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
                         getAddressFromLocation(location.getLatitude(), location.getLongitude());
@@ -471,9 +485,10 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 new AlertDialog.Builder(this)
                         .setTitle("Location Permission Needed")
                         .setMessage("This app needs the Location permission to show your current location for itineraries. Please allow.")
-                        .setPositiveButton("OK", (dialogInterface, i) -> ActivityCompat.requestPermissions(ItinerariesActivity.this,
-                                new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION_ITINERARIES))
-                        .setNegativeButton("Cancel", (dialog, which) -> itineraryViewModel.updateLocationStatus("Permission needed", "Location permission denied."))
+                        .setPositiveButton("OK", (dialogInterface, i) ->
+                                ActivityCompat.requestPermissions(ItinerariesActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION_ITINERARIES))
+                        .setNegativeButton("Cancel", (dialog, which) ->
+                                itineraryViewModel.updateLocationStatus("Permission needed", "Location permission denied."))
                         .create()
                         .show();
             } else {
@@ -538,6 +553,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         if (requestingLocationUpdates) {
             return;
         }
+
         LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
                 .setMinUpdateIntervalMillis(5000)
                 .build();
@@ -560,6 +576,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 .setMessage("This will create a new itinerary based on your current location and time settings. Any unsaved changes will be lost.\n\nDo you want to continue?")
                 .setPositiveButton("Generate", (dialog, which) -> {
                     triggerGeneration(true, Collections.emptyList());
+                    showFirstTimeDisclaimerDialog();
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -592,6 +609,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     @Override
     public void onCustomizeApplied(List<String> categoryPreferences) {
         triggerGeneration(true, categoryPreferences);
+        showFirstTimeDisclaimerDialog();
     }
 
     @Override
@@ -675,7 +693,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             Toast.makeText(this, "Cannot swap, place data is not ready.", Toast.LENGTH_SHORT).show();
             return;
         }
-
         ItineraryState state = itineraryViewModel.itineraryState.getValue();
         if (state == null || state.getItineraryItems() == null || position + 1 >= state.getItineraryItems().size()) {
             Toast.makeText(this, "Cannot swap, invalid itinerary state.", Toast.LENGTH_SHORT).show();
@@ -683,7 +700,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         }
         String item1Name = state.getItineraryItems().get(position).getActivity();
         String item2Name = state.getItineraryItems().get(position + 1).getActivity();
-
         new AlertDialog.Builder(this)
                 .setTitle("Swap Itinerary Order?")
                 .setMessage("This will attempt to swap the order of " + item1Name + " and " + item2Name + ".\n\nThe schedule will be recalculated. The swap will only be applied if the new order fits within each location's opening hours and your trip duration.\n\nDo you want to continue?")
@@ -693,5 +709,27 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
+    }
+
+    private void showFirstTimeDisclaimerDialog() {
+        if (sharedPreferences == null) {
+            return;
+        }
+        boolean hasSeenDisclaimer = sharedPreferences.getBoolean(PREF_KEY_SEEN_DISCLAIMER, false);
+
+        if (!hasSeenDisclaimer) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Just a Heads-Up!")
+                    .setMessage("The itinerary times are suggestions to help you plan. Real-world travel times will vary based on traffic and your pace. Enjoy your trip!")
+                    .setPositiveButton("Got It", (dialog, which) -> {
+                        // User has acknowledged the message, save the preference
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(PREF_KEY_SEEN_DISCLAIMER, true);
+                        editor.apply();
+                        dialog.dismiss();
+                    })
+                    .setCancelable(false) // Prevent dismissing by tapping outside
+                    .show();
+        }
     }
 }
