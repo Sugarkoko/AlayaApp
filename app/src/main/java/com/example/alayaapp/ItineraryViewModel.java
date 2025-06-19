@@ -43,6 +43,9 @@ public class ItineraryViewModel extends AndroidViewModel {
     private final MutableLiveData<Boolean> _isLoading = new MutableLiveData<>(false);
     public final LiveData<Boolean> isLoading = _isLoading;
 
+    private final MutableLiveData<Boolean> _isReadyToGenerate = new MutableLiveData<>(false);
+    public final LiveData<Boolean> isReadyToGenerate = _isReadyToGenerate;
+
     private final MutableLiveData<Boolean> _isItinerarySaved = new MutableLiveData<>(false);
     public final LiveData<Boolean> isItinerarySaved = _isItinerarySaved;
 
@@ -61,6 +64,12 @@ public class ItineraryViewModel extends AndroidViewModel {
     private final ItineraryGenerator itineraryGenerator;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
+    public void updateReadyToGenerateState(boolean isReady) {
+        // Only post value if it has changed to avoid unnecessary updates
+        if (_isReadyToGenerate.getValue() == null || !_isReadyToGenerate.getValue().equals(isReady)) {
+            _isReadyToGenerate.postValue(isReady);
+        }
+    }
     public ItineraryViewModel(@NonNull Application application) {
         super(application);
         sharedPreferences = UserPreferences.get(application);

@@ -176,6 +176,12 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             btnClear.setEnabled(hasItems);
             btnClear.setAlpha(hasItems ? 1.0f : 0.5f);
 
+            activity.itineraryViewModel.isReadyToGenerate.observe(activity, isReady -> {
+                btnRegenerate.setEnabled(isReady);
+                btnCustomize.setEnabled(isReady);
+                btnRegenerate.setAlpha(isReady ? 1.0f : 0.5f);
+                btnCustomize.setAlpha(isReady ? 1.0f : 0.5f);
+            });
             String message = data.getHeaderMessage();
             if (message != null && !message.isEmpty()) {
                 tvHeaderMessage.setText(message);
