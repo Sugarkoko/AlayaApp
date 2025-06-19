@@ -624,7 +624,7 @@ public class ItinerariesActivity extends AppCompatActivity implements
         ItineraryItem itemToDelete = state.getItineraryItems().get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Delete Stop")
-                .setMessage("Are you sure you want to remove '" + itemToDelete.getActivity() + "' from your itinerary?")
+                .setMessage("Are you sure you want to remove " + itemToDelete.getActivity() + " from your itinerary? This process cannot be undone.")
                 .setPositiveButton("Delete", (dialog, which) -> {
                     itineraryViewModel.deleteItineraryItem(position, allPlacesList);
                 })

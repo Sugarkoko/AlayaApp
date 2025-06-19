@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class ItineraryAlternativesBottomSheet extends BottomSheetDialogFragment implements ItineraryAlternativesAdapter.OnAlternativeClickListener {
-
     public static final String TAG = "ItineraryAlternativesBottomSheet";
     private static final String ARG_ITEM_TO_REPLACE_INDEX = "item_to_replace_index";
 
@@ -38,10 +37,10 @@ public class ItineraryAlternativesBottomSheet extends BottomSheetDialogFragment 
     private LinearLayout llChoiceContainer;
     private Button btnShowBest, btnShowAll;
 
-
     public interface AlternativesListener {
         void onPlaceSelectedForReplacement(int indexToReplace, Place newPlace);
     }
+
     private AlternativesListener listener;
 
     public static ItineraryAlternativesBottomSheet newInstance(int indexToReplace) {
@@ -86,11 +85,12 @@ public class ItineraryAlternativesBottomSheet extends BottomSheetDialogFragment 
             dismiss();
             return view;
         }
+
         currentItinerary = currentState.getItineraryItems();
         itemToReplace = currentItinerary.get(itemIndexToReplace);
         allPlaces = ((ItinerariesActivity) requireActivity()).allPlacesList;
 
-        tvTitle.setText("Replace '" + itemToReplace.getActivity() + "'");
+        tvTitle.setText("Replace " + itemToReplace.getActivity());
 
         // MODIFIED: Set click listeners for the embedded buttons
         btnShowBest.setOnClickListener(v -> {
@@ -98,7 +98,6 @@ public class ItineraryAlternativesBottomSheet extends BottomSheetDialogFragment 
             tvSubtitle.setVisibility(View.VISIBLE);
             displayAlternatives(true);
         });
-
         btnShowAll.setOnClickListener(v -> {
             llChoiceContainer.setVisibility(View.GONE);
             tvSubtitle.setVisibility(View.VISIBLE);
@@ -127,12 +126,10 @@ public class ItineraryAlternativesBottomSheet extends BottomSheetDialogFragment 
                 .collect(Collectors.toList());
 
         List<Place> finalDisplayList;
-
         if (findBest) {
             finalDisplayList = potentialReplacements.stream()
                     .filter(p -> itemToReplace.getCategory().equalsIgnoreCase(p.getCategory()))
                     .collect(Collectors.toList());
-
             GeoPoint originalLocation = itemToReplace.getCoordinates();
             for (Place p : finalDisplayList) {
                 p.setDistance(calculateDistance(originalLocation, p.getCoordinates()));

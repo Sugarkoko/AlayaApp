@@ -109,6 +109,7 @@ public class ItineraryGenerator {
         }
 
         double perStopSlackMinutes = sequence.isEmpty() ? 0 : (double) slackMinutes / sequence.size();
+
         Calendar currentTime = (Calendar) tripStartCalendar.clone();
         GeoPoint currentGeoLocation = userStartLocation;
         long itineraryItemIdCounter = 1;
@@ -322,7 +323,6 @@ public class ItineraryGenerator {
         GeoPoint currentLocation = startLocation;
         totalDistance += calculateDistance(currentLocation, route.get(0).getCoordinates());
         currentLocation = route.get(0).getCoordinates();
-
         for (int i = 0; i < route.size() - 1; i++) {
             GeoPoint nextLocation = route.get(i + 1).getCoordinates();
             totalDistance += calculateDistance(currentLocation, nextLocation);
@@ -378,8 +378,9 @@ public class ItineraryGenerator {
         // Step 1: Select one place for each category preference.
         for (int i = 0; i < categoryPreferences.size(); i++) {
             String preferredCategory = categoryPreferences.get(i);
+
             if (pool.isEmpty()) {
-                unmetPreferences.add("'" + preferredCategory + "' for Stop " + (i + 1));
+                unmetPreferences.add(preferredCategory + " for Stop " + (i + 1));
                 continue;
             }
 
@@ -396,12 +397,13 @@ public class ItineraryGenerator {
 
             if (candidatesForStop.isEmpty()) {
                 Log.w(TAG, "No available places in pool for category: " + preferredCategory);
-                unmetPreferences.add("'" + preferredCategory + "' for Stop " + (i + 1));
+                unmetPreferences.add(preferredCategory + " for Stop " + (i + 1));
                 continue;
             }
 
             Place bestNextPlace = null;
             double bestScore = Double.MAX_VALUE;
+
             for (Place candidate : candidatesForStop) {
                 // We still use distance to pick the *best* place for a given category.
                 double distance = calculateDistance(currentLocation, candidate.getCoordinates());
@@ -451,7 +453,6 @@ public class ItineraryGenerator {
             Date parsedTime = sdf.parse(hours.get(type));
             Calendar parsedCal = Calendar.getInstance();
             parsedCal.setTime(Objects.requireNonNull(parsedTime));
-
             timeCal.set(Calendar.HOUR_OF_DAY, parsedCal.get(Calendar.HOUR_OF_DAY));
             timeCal.set(Calendar.MINUTE, parsedCal.get(Calendar.MINUTE));
             timeCal.set(Calendar.SECOND, 0);
