@@ -1,13 +1,9 @@
-// In: app/src/main/java/com/example/alayaapp/ItineraryState.java
 package com.example.alayaapp;
 
 import java.util.List;
 import java.util.Objects;
 
-/**
- * A data class representing the complete state of a generated itinerary.
- * This object is serialized to JSON and stored in SharedPreferences.
- */
+
 public class ItineraryState {
     // --- Generation Parameters ---
     private final double startLat;
@@ -15,9 +11,9 @@ public class ItineraryState {
     private final long startTimeMillis;
     private final long endTimeMillis;
     private final List<String> categoryPreferences;
-    private final int lockedItemIndex; // NEW: To remember which item is locked (-1 if none)
+    private final int lockedItemIndex;
 
-    // --- Generated Data ---
+
     private final List<ItineraryItem> itineraryItems;
     private final List<Place> topRatedPlaces;
     private final String headerMessage;
@@ -50,13 +46,7 @@ public class ItineraryState {
     public List<String> getCategoryPreferences() { return categoryPreferences; }
     public int getLockedItemIndex() { return lockedItemIndex; } // NEW
 
-    /**
-     * Checks if the parameters used to generate this itinerary state
-     * are still valid compared to the current user preferences.
-     * A small tolerance is used for location comparison.
-     * MODIFIED: If the state was user-modified, it's always considered valid
-     * to prevent overwriting the user's changes.
-     */
+
     public boolean isStillValid(double currentLat, double currentLon, long currentStartMillis, long currentEndMillis, List<String> currentPreferences) {
         // If user made changes, don't auto-regenerate. Keep their version.
         if (this.isUserModified) {

@@ -114,7 +114,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                         }
                     });
         } else {
-            // This shouldn't happen if the user reached this screen while logged in
+
             Toast.makeText(this, "No user signed in. Please sign in again.", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Cannot change password: No user is currently signed in.");
 

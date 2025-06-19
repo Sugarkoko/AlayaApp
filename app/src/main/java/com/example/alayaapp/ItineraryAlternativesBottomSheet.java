@@ -33,7 +33,7 @@ public class ItineraryAlternativesBottomSheet extends BottomSheetDialogFragment 
     private List<Place> allPlaces;
     private List<ItineraryItem> currentItinerary;
 
-    // ADDED: Views for the new choice buttons
+    // Views for the new choice buttons
     private LinearLayout llChoiceContainer;
     private Button btnShowBest, btnShowAll;
 
@@ -92,7 +92,7 @@ public class ItineraryAlternativesBottomSheet extends BottomSheetDialogFragment 
 
         tvTitle.setText("Replace " + itemToReplace.getActivity());
 
-        // MODIFIED: Set click listeners for the embedded buttons
+        // Set click listeners for the embedded buttons
         btnShowBest.setOnClickListener(v -> {
             llChoiceContainer.setVisibility(View.GONE);
             tvSubtitle.setVisibility(View.VISIBLE);
@@ -107,7 +107,7 @@ public class ItineraryAlternativesBottomSheet extends BottomSheetDialogFragment 
         return view;
     }
 
-    // REMOVED: The showChoiceDialog() method is no longer needed.
+
 
     private void displayAlternatives(boolean findBest) {
         // MODIFIED: Set the subtitle text here

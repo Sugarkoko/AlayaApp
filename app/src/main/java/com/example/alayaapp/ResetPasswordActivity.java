@@ -22,7 +22,7 @@ import com.google.firebase.auth.SignInMethodQueryResult;
 public class ResetPasswordActivity extends AppCompatActivity {
     private ActivityResetPasswordBinding binding;
     private AlertDialog successDialog;
-    private FirebaseAuth mAuth; // Firebase Auth instance
+    private FirebaseAuth mAuth;
     private static final String TAG = "ResetPasswordActivity";
 
     @Override
@@ -42,7 +42,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         });
     }
 
-    // --- UPDATED METHOD ---
+
     private void handlePasswordReset() {
         String email = binding.emailEditText.getText().toString().trim();
 
@@ -57,7 +57,7 @@ public class ResetPasswordActivity extends AppCompatActivity {
         binding.resetButton.setEnabled(false);
         Toast.makeText(this, "Checking email...", Toast.LENGTH_SHORT).show();
 
-        // Step 1: Check if the email exists in Firebase Auth
+        // Check if the email exists in Firebase Auth
         mAuth.fetchSignInMethodsForEmail(email)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {

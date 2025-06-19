@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/alayaapp/ItineraryGenerator.java
 package com.example.alayaapp;
 
 import android.util.Log;
@@ -25,18 +24,10 @@ public class ItineraryGenerator {
     private static final int MAX_STOPS = 5;
     private static final int MIN_STOPS = 1;
 
-    // --- NEW CONSTANTS FOR SMARTER SCORING ---
-    /**
-     * A weight to make higher-rated places more attractive. A higher value means
-     * the algorithm will prefer a 5-star place even if it's further away.
-     * A value of 2.0 means a 1-point difference in rating is "worth" 2km of travel.
-     */
+
     private static final double RATING_WEIGHT = 2.0;
 
-    /**
-     * A penalty (in "kilometers") added to a place's score if its category is the
-     * same as the previously selected place. This strongly encourages variety.
-     */
+
     private static final double CATEGORY_REPETITION_PENALTY_KM = 50.0;
 
 
@@ -199,11 +190,7 @@ public class ItineraryGenerator {
         return new GenerationResult(new ArrayList<>(), unmetPreferences);
     }
 
-    /**
-     * NEW METHOD: Calculates a score for a place to determine its suitability.
-     * A lower score is better.
-     * The score balances distance, rating, and category variety.
-     */
+
     private double calculateScore(Place place, GeoPoint referencePoint, @Nullable String lastCategory) {
         double distance = calculateDistance(referencePoint, place.getCoordinates());
         // A bonus for higher-rated places (subtracts from the score).
@@ -217,10 +204,7 @@ public class ItineraryGenerator {
         return distance - ratingBonus + categoryPenalty;
     }
 
-    /**
-     * REVISED LOGIC: This method now uses the new scoring system to select a much
-     * better and more balanced cluster of places, especially for the "Any" preference.
-     */
+
     private List<Place> selectPlaceSequence(GeoPoint startLocation, List<Place> allAvailablePlaces, List<String> categoryPreferences, List<String> unmetPreferences, int numStops) {
         List<Place> finalSequence = new ArrayList<>();
         List<Place> remainingPlacesPool = new ArrayList<>(allAvailablePlaces);
@@ -252,8 +236,7 @@ public class ItineraryGenerator {
             double bestScore = Double.MAX_VALUE;
 
             for (Place candidate : candidatesForThisStop) {
-                // THE FIX: Use the new, smarter scoring system instead of just distance.
-                // This applies to both "Any" and specific category selections to ensure quality.
+
                 double score = calculateScore(candidate, startLocation, lastCategory);
 
                 if (score < bestScore) {
@@ -303,7 +286,7 @@ public class ItineraryGenerator {
         return bestRoute;
     }
 
-    // --- The rest of the helper methods remain the same ---
+
     private GenerationResult generateAroundLockedItem(GeoPoint userStartLocation, List<Place> originalSequence, Calendar tripStartCalendar, Calendar tripEndCalendar, ItineraryItem lockedItem) {
         List<ItineraryItem> finalItinerary = new ArrayList<>();
         finalItinerary.add(lockedItem);

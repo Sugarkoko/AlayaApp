@@ -183,7 +183,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                     hasContent = true;
                 }
 
-                // MODIFICATION: Add the persistent disclaimer footer if there's content
+                //  Add the persistent disclaimer footer if there's content
                 if (hasContent) {
                     displayItems.add("Disclaimer: All travel and visit times are estimates and do not account for real-time traffic. We recommend checking a dedicated navigation app for live travel data before you depart. You can also tap any stop's time to customize its duration.");
                 }
@@ -203,9 +203,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         });
     }
 
-    // ==================================================================
-    // ===== THIS IS THE MODIFIED METHOD WITH THE CONFIRMATION DIALOG =====
-    // ==================================================================
+
     private void setupActionListeners() {
         bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
         fabSaveTrip.setOnClickListener(v -> {
@@ -291,7 +289,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         tripEndCalendar.set(Calendar.MINUTE, endMinute);
     }
 
-    // In ItinerariesActivity.java
+
     public void showLocationChoiceDialog() {
         final CharSequence[] options = {"Use My Current GPS Location", "Set Location Manually", "Cancel"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -582,7 +580,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 .setMessage("This will create a new itinerary based on your current location and time settings. Any unsaved changes will be lost.\n\nDo you want to continue?")
                 .setPositiveButton("Generate", (dialog, which) -> {
                     triggerGeneration(true, Collections.emptyList());
-                    showFirstTimeDisclaimerDialog(); // MODIFICATION: Call the disclaimer dialog
+                    showFirstTimeDisclaimerDialog(); // Call the disclaimer dialog
                 })
                 .setNegativeButton("Cancel", null)
                 .show();
@@ -615,7 +613,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     @Override
     public void onCustomizeApplied(List<String> categoryPreferences) {
         triggerGeneration(true, categoryPreferences);
-        showFirstTimeDisclaimerDialog(); // MODIFICATION: Call the disclaimer dialog
+        showFirstTimeDisclaimerDialog(); // Call the disclaimer dialog
     }
 
     @Override
@@ -720,7 +718,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 .show();
     }
 
-    // NEW METHOD: Shows a one-time disclaimer after generating a plan.
+    //  Shows a one-time disclaimer after generating a plan.
     private void showFirstTimeDisclaimerDialog() {
         if (sharedPreferences == null) {
             return;

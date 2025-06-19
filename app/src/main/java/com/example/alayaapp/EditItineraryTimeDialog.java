@@ -120,18 +120,17 @@ public class EditItineraryTimeDialog extends DialogFragment {
     }
 
     private void calculateValidTimeWindow() {
-        // 1. Absolute min/max from trip schedule
+        // Absolute min/max from trip schedule
         minValidTime = (Calendar) tripStartCal.clone();
         maxValidTime = (Calendar) tripEndCal.clone();
 
-        // 2. Factor in place opening hours
+        // Factor in place opening hours
         if (placeDetails != null && placeDetails.getOpeningHours() != null) {
             String dayOfWeek = tripStartCal.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
             Map<String, String> hours = placeDetails.getOpeningHours().get(dayOfWeek);
             if (hours != null) {
                 try {
-                    // --- FIX START ---
-                    // This logic correctly applies the parsed time to the trip's date.
+
                     SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.US);
                     Calendar parsedCal = Calendar.getInstance();
 
@@ -158,14 +157,14 @@ public class EditItineraryTimeDialog extends DialogFragment {
                             maxValidTime = placeClose;
                         }
                     }
-                    // --- FIX END ---
+
                 } catch (ParseException | NullPointerException e) {
                     Log.e("EditTimeDialog", "Error parsing place opening/closing hours", e);
                 }
             }
         }
 
-        // 3. Factor in adjacent stops (this is a simplified constraint for the dialog)
+        // Factor in adjacent stops
         if (itemIndex > 0) {
             Calendar prevItemEnd = allItems.get(itemIndex - 1).getEndTime();
             if (prevItemEnd.after(minValidTime)) {

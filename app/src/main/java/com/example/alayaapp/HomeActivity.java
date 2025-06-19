@@ -23,7 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout; // Import SwipeRefreshLayout
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.alayaapp.databinding.ActivityHomeBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -137,7 +137,7 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
 
-        // ================== NEW CODE BLOCK START ==================
+
         // This listener prevents the refresh gesture unless the user is at the top of the screen.
         binding.scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
             @Override
@@ -146,7 +146,7 @@ public class HomeActivity extends AppCompatActivity {
                 swipeRefreshLayout.setEnabled(scrollY == 0);
             }
         });
-        // =================== NEW CODE BLOCK END ===================
+
 
         db = FirebaseFirestore.getInstance();
         placesList = new ArrayList<>();
@@ -194,11 +194,11 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         loadLocationPreferenceAndInitialize();
-        // NEW: Show the one-time disclaimer dialog if needed.
+        // Show the one-time disclaimer dialog if needed.
         showRegionDisclaimerIfFirstTime();
     }
 
-    // NEW: Method to show a one-time disclaimer about region support.
+    // Method to show a one-time disclaimer about region support.
     private void showRegionDisclaimerIfFirstTime() {
         if (!sharedPreferences.getBoolean(PREF_KEY_SEEN_REGION_DISCLAIMER, false)) {
             new AlertDialog.Builder(this)

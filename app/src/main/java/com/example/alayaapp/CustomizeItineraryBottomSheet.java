@@ -64,7 +64,7 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
         spinnersContainer = view.findViewById(R.id.container_category_spinners);
         applyButton = view.findViewById(R.id.btn_apply_and_generate);
         setupSlider();
-        setupApplyButton(); // This method is being updated
+        setupApplyButton();
 
         updateStopCountText(Math.round(stopsSlider.getValue()));
         updateSpinners(Math.round(stopsSlider.getValue()));
@@ -97,10 +97,10 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
         }
     }
 
-    // --- MODIFIED METHOD ---
+
     private void setupApplyButton() {
         applyButton.setOnClickListener(v -> {
-            // Step 1: Gather the preferences from the spinners
+
             List<String> preferences = new ArrayList<>();
             for (int i = 0; i < spinnersContainer.getChildCount(); i++) {
                 View child = spinnersContainer.getChildAt(i);
@@ -110,8 +110,7 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
                 }
             }
 
-            // Step 2: Format the preferences for display in the dialog
-            // We use a stream to add bullet points for better readability
+
             String selectedStops = preferences.stream()
                     .map(pref -> "• " + pref)
                     .collect(Collectors.joining("\n"));
@@ -120,14 +119,14 @@ public class CustomizeItineraryBottomSheet extends BottomSheetDialogFragment {
                     selectedStops +
                     "\n\nAny unsaved changes will be lost. Continue?";
 
-            // Step 3: Show the confirmation dialog
+
             new AlertDialog.Builder(getContext())
                     .setTitle("Generate Customized Plan?")
                     .setMessage(message)
                     .setPositiveButton("Generate", (dialog, which) -> {
-                        // Original action moved inside the confirmation
+
                         listener.onCustomizeApplied(preferences);
-                        dismiss(); // Dismiss the bottom sheet
+                        dismiss();
                     })
                     .setNegativeButton("Cancel", null)
                     .show();

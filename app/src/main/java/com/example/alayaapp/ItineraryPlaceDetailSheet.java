@@ -40,7 +40,7 @@ public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
     private Button btnGetDirections, btnViewOnMap;
     private ImageButton btnCloseSheet;
 
-    // NEW: Member variable to track the expanded/collapsed state of the description
+    // Member variable to track the expanded/collapsed state of the description
     private boolean isDescriptionExpanded = false;
 
     public static ItineraryPlaceDetailSheet newInstance(String placeDocumentId, long tripDateMillis) {
@@ -193,7 +193,7 @@ public class ItineraryPlaceDetailSheet extends BottomSheetDialogFragment {
             }
         });
 
-        // --- NEWLY ADDED CLICK LISTENER FOR THE DESCRIPTION ---
+
         tvPlaceAbout.setOnClickListener(v -> {
             // Toggle the boolean flag
             isDescriptionExpanded = !isDescriptionExpanded;

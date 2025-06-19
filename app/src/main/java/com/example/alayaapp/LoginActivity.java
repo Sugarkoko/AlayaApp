@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseUser; // Firebase Import
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginBinding binding;
-    private FirebaseAuth mAuth; // Firebase Auth instance
+    private FirebaseAuth mAuth;
     private static final String TAG = "LoginActivity";
 
     @Override
@@ -64,7 +64,6 @@ public class LoginActivity extends AppCompatActivity {
                             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
 
-                            // --- ADD THIS LINE for the login animation ---
                             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
 
                             finish();

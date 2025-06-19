@@ -37,8 +37,6 @@ public class RecommendedItineraryAdapter extends RecyclerView.Adapter<Recommende
 
         holder.tvPlaceName.setText(place.getName());
 
-        // This logic handles cases where data might be missing in Firestore.
-        // It works together with the layout fix to create a robust UI.
         if (place.getRating() > 0) {
             holder.llRatingContainer.setVisibility(View.VISIBLE);
             holder.tvRating.setText(String.format(Locale.getDefault(), "%.1f", place.getRating()));

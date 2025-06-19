@@ -1,4 +1,3 @@
-// app/src/main/java/com/example/alayaapp/Place.java
 package com.example.alayaapp;
 
 import com.google.firebase.firestore.Exclude;
@@ -8,14 +7,14 @@ import java.util.Map;
 
 @IgnoreExtraProperties
 public class Place {
-    // --- Existing Fields ---
+
     private String about;
     private String best_time;
-    private String category; // This field already existed, which is correct.
+    private String category;
     private String city;
-    private transient GeoPoint coordinates; // Marked as transient
-    private Double latitude; // New field for serialization
-    private Double longitude; // New field for serialization
+    private transient GeoPoint coordinates;
+    private Double latitude;
+    private Double longitude;
     private long id;
     private String image_url;
     private String name;
@@ -25,21 +24,21 @@ public class Place {
     private String review_count_text;
     private String distance_text;
 
-    // --- New Fields from Task ---
+
     private int averageVisitDuration; // Use int for minutes
     private Map<String, Map<String, String>> openingHours; // Map of day to {open, close}
 
     @Exclude
     private String documentId; // To store the Firestore document ID
 
-    // --- NEW: Field for sorting by distance ---
+    //  Field for sorting by distance
     @Exclude
     private double distance;
 
     // Public no-arg constructor required for Firestore
     public Place() {}
 
-    // --- Existing Getters and Setters ---
+
     public String getAbout() { return about; }
     public void setAbout(String about) { this.about = about; }
     public String getBest_time() { return best_time; }
@@ -83,13 +82,13 @@ public class Place {
     public Map<String, Map<String, String>> getOpeningHours() { return openingHours; }
     public void setOpeningHours(Map<String, Map<String, String>> openingHours) { this.openingHours = openingHours; }
 
-    // --- NEW: Getter and Setter for distance ---
+
     @Exclude
     public double getDistance() { return distance; }
     @Exclude
     public void setDistance(double distance) { this.distance = distance; }
 
-    // --- Excluded Helper Methods ---
+
     @Exclude
     public Double getLatitude() {
         // Now returns the primitive field

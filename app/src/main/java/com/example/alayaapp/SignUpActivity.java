@@ -63,7 +63,7 @@ public class SignUpActivity extends AppCompatActivity {
         showSignUpForm();
     }
 
-    // --- (showSignUpForm, showWelcomeScreen, showEnterNameDialog, showEnterBirthdayDialog, showEnterPhoneDialog remain the same) ---
+
     private void showSignUpForm() {
         signUpFormBinding = ActivitySignUpBinding.inflate(getLayoutInflater());
         setContentView(signUpFormBinding.getRoot());
@@ -73,7 +73,7 @@ public class SignUpActivity extends AppCompatActivity {
             String password = signUpFormBinding.passwordEditText.getText().toString().trim();
             String confirmPassword = signUpFormBinding.confirmPasswordEditText.getText().toString().trim();
 
-            // --- Your existing validation logic ---
+
             boolean valid = true;
             if (email.isEmpty()) {
                 signUpFormBinding.emailLayout.setError("Email required");
@@ -101,7 +101,7 @@ public class SignUpActivity extends AppCompatActivity {
             } else {
                 signUpFormBinding.confirmPasswordLayout.setError(null);
             }
-            // --- End of validation logic ---
+
 
             signUpFormBinding.signupButton.setEnabled(false);
             Toast.makeText(SignUpActivity.this, "Creating account...", Toast.LENGTH_SHORT).show();

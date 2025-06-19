@@ -30,7 +30,7 @@ public class TransportationModeActivity extends AppCompatActivity  {
         setupBottomNavListener();
 
 
-        binding.bottomNavigationTransportPage.setSelectedItemId(R.id.navigation_home); // Or relevant default
+        binding.bottomNavigationTransportPage.setSelectedItemId(R.id.navigation_home);
     }
 
     private void setupTransportationOptions() {

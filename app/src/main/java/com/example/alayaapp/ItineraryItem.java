@@ -19,7 +19,7 @@ public class ItineraryItem {
     private double latitude;
     private double longitude;
     private String placeDocumentId;
-    private boolean isTimeLocked = false; // NEW: To mark this item as fixed
+    private boolean isTimeLocked = false;
 
     public ItineraryItem() {}
 
@@ -41,7 +41,7 @@ public class ItineraryItem {
         }
     }
 
-    // --- Getters and Setters ---
+
     public long getId() { return id; }
     public Calendar getStartTime() {
         if (startTime == null && startTimeMillis > 0) {
@@ -70,7 +70,7 @@ public class ItineraryItem {
     }
     public Calendar getTime() { return getStartTime(); }
 
-    // NEW: Getter and Setter for isTimeLocked
+    // Getter and Setter for isTimeLocked
     public boolean isTimeLocked() {
         return isTimeLocked;
     }

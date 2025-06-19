@@ -157,7 +157,7 @@ public class ItineraryViewModel extends AndroidViewModel {
                 return;
             }
 
-            // --- FIX START ---
+
             // Create the list of places IN THE CORRECT ORDER from the current itinerary.
             List<Place> currentSequenceOfPlaces = new ArrayList<>();
             for (ItineraryItem item : currentItems) {
@@ -173,7 +173,7 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _isLoading.postValue(false);
                 return;
             }
-            // --- FIX END ---
+
 
             ItineraryItem itemToLock = currentItems.get(indexToLock);
             ItineraryItem lockedItem = new ItineraryItem(
