@@ -534,7 +534,8 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
 
     @Override
     public void onCustomizeApplied(List<String> categoryPreferences) {
-        Toast.makeText(this, "Applying customization and generating new plan...", Toast.LENGTH_SHORT).show();
+
+
         triggerGeneration(true, categoryPreferences);
     }
 

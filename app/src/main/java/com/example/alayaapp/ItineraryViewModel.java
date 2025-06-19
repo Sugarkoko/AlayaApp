@@ -356,12 +356,8 @@ public class ItineraryViewModel extends AndroidViewModel {
         sharedPreferences.edit().remove(KEY_ACTIVE_ITINERARY_STATE).apply();
         _itineraryState.postValue(null);
         _isItinerarySaved.postValue(false);
-        if (Looper.myLooper() != Looper.getMainLooper()) {
-            new android.os.Handler(Looper.getMainLooper()).post(() ->
-                    Toast.makeText(getApplication(), "Itinerary cleared.", Toast.LENGTH_SHORT).show());
-        } else {
-            Toast.makeText(getApplication(), "Itinerary cleared.", Toast.LENGTH_SHORT).show();
-        }
+
+
     }
 
     private void fetchRecommendationsAndBuildState(List<ItineraryItem> mainItinerary, String message, GeoPoint startLocation, String locationName, Calendar tripStart, Calendar tripEnd, List<String> categoryPreferences, boolean isUserModified, int lockedItemIndex) {
