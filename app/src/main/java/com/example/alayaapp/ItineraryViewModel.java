@@ -126,7 +126,7 @@ public class ItineraryViewModel extends AndroidViewModel {
                 StringBuilder messageBuilder = new StringBuilder();
 
                 if (generatedItems.isEmpty()) {
-                    messageBuilder.append("We couldn't find any open attractions for your selected time and categories, or the schedule was too tight. Try extending your trip time or changing preferences.");
+                    messageBuilder.append("We couldn't create a plan. Your selected time window from the Home screen is likely too short to fit our minimum of 3 stops, or no places matching your preferences are open. Please try extending your trip's start/end time or changing your customization options and generate again.");
                 } else if (categoryPreferences != null && !categoryPreferences.isEmpty() && generatedItems.size() < categoryPreferences.size()) {
                     messageBuilder.append("We couldn't find matches for all your preferences, but here's what we found!");
                 } else {
