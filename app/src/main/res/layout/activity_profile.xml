@@ -7,7 +7,6 @@
     android:background="@color/white"
     tools:context=".ProfileActivity">
 
-    <!-- The main ScrollView that wraps everything -->
     <ScrollView
         android:id="@+id/scrollViewProfile"
         android:layout_width="0dp"
@@ -19,13 +18,11 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <!-- A ConstraintLayout to hold all the scrolling content -->
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingBottom="16dp">
 
-            <!-- Header Section -->
             <View
                 android:id="@+id/viewHeaderBackground"
                 android:layout_width="0dp"
@@ -40,15 +37,16 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="32dp"
+                android:text=""
                 android:textColor="@android:color/white"
                 android:textSize="28sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.498"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="@id/viewHeaderBackground"
                 tools:text="Alice Go" />
 
-            <!-- Profile Image Container -->
             <FrameLayout
                 android:id="@+id/flProfileImageContainer"
                 android:layout_width="200dp"
@@ -79,9 +77,9 @@
                     android:contentDescription="Profile Picture"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_profile_placeholder" />
+
             </FrameLayout>
 
-            <!-- THE FIX: This LinearLayout now correctly starts BELOW the profile image -->
             <LinearLayout
                 android:id="@+id/details_container"
                 android:layout_width="0dp"
@@ -94,7 +92,6 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/flProfileImageContainer">
 
-                <!-- The "Complete Profile" prompt card will now appear correctly -->
                 <androidx.cardview.widget.CardView
                     android:id="@+id/card_complete_profile_prompt"
                     android:layout_width="match_parent"
@@ -130,7 +127,6 @@
                     </LinearLayout>
                 </androidx.cardview.widget.CardView>
 
-                <!-- Name Row -->
                 <RelativeLayout
                     android:id="@+id/layoutName"
                     android:layout_width="match_parent"
@@ -156,9 +152,10 @@
                         android:layout_toEndOf="@id/iconName"
                         android:background="?attr/selectableItemBackground"
                         android:padding="4dp"
-                        android:text="Alice Go"
+                        android:text=""
                         android:textColor="@color/black"
-                        android:textSize="16sp" />
+                        android:textSize="16sp"
+                        tools:text="Alice Go" />
 
                     <ImageView
                         android:id="@+id/ivLogout"
@@ -179,7 +176,6 @@
                     android:layout_height="1dp"
                     android:background="@color/colorPrimaryDarker" />
 
-                <!-- Birthday Row -->
                 <RelativeLayout
                     android:id="@+id/layoutBirthday"
                     android:layout_width="match_parent"
@@ -214,7 +210,6 @@
                     android:layout_height="1dp"
                     android:background="@color/colorPrimaryDarker" />
 
-                <!-- Email Row -->
                 <RelativeLayout
                     android:id="@+id/layoutEmail"
                     android:layout_width="match_parent"
@@ -264,7 +259,6 @@
                     android:layout_height="1dp"
                     android:background="@color/colorPrimaryDarker" />
 
-                <!-- Phone Row -->
                 <RelativeLayout
                     android:id="@+id/layoutPhone"
                     android:layout_width="match_parent"
@@ -315,7 +309,6 @@
                     android:layout_height="1dp"
                     android:background="@color/colorPrimaryDarker" />
 
-                <!-- Password Row -->
                 <RelativeLayout
                     android:id="@+id/layoutPassword"
                     android:layout_width="match_parent"
@@ -378,7 +371,6 @@
                     android:layout_height="1dp"
                     android:background="@color/colorPrimaryDarker" />
 
-                <!-- History Row -->
                 <RelativeLayout
                     android:id="@+id/layoutHistory"
                     android:layout_width="match_parent"
@@ -421,7 +413,6 @@
 
     </ScrollView>
 
-    <!-- Bottom Navigation -->
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/bottom_navigation_profile_page"
         android:layout_width="0dp"
