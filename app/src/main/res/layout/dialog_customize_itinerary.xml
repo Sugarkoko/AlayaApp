@@ -47,8 +47,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:stepSize="1.0"
-        android:value="4.0"
-        android:valueFrom="3.0"
+        android:value="3.0"
+        android:valueFrom="1.0"
         android:valueTo="5.0"
         app:labelBehavior="gone" />
 

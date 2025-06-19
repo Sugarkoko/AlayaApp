@@ -71,7 +71,6 @@ public class ItineraryViewModel extends AndroidViewModel {
         }
     }
 
-
     public ItineraryViewModel(@NonNull Application application) {
         super(application);
         sharedPreferences = UserPreferences.get(application);
@@ -88,7 +87,6 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _itineraryState.postValue(savedState);
                 _currentLocationName.postValue(savedState.getLocationName());
                 _currentLocationStatus.postValue("Loaded saved plan for: " + savedState.getLocationName());
-
                 if (savedState.getItineraryItems() != null && !savedState.getItineraryItems().isEmpty()) {
                     Calendar tripStart = savedState.getItineraryItems().get(0).getStartTime();
                     if (tripStart != null) {
@@ -100,7 +98,6 @@ public class ItineraryViewModel extends AndroidViewModel {
                 } else {
                     _isItinerarySaved.postValue(false);
                 }
-
             } else {
                 Log.d(TAG, "ViewModel initialized with no saved state.");
                 _itineraryState.postValue(null);
@@ -124,9 +121,8 @@ public class ItineraryViewModel extends AndroidViewModel {
                 ItineraryGenerator.GenerationResult result = itineraryGenerator.generateWithTimeWindows(startLocation, allPlaces, tripStart, tripEnd, categoryPreferences, null);
                 List<ItineraryItem> generatedItems = result.itinerary;
                 StringBuilder messageBuilder = new StringBuilder();
-
                 if (generatedItems.isEmpty()) {
-                    messageBuilder.append("We couldn't create a plan. Your selected time window from the Home screen is likely too short to fit our minimum of 3 stops, or no places matching your preferences are open. Please try extending your trip's start/end time or changing your customization options and generate again.");
+                    messageBuilder.append("We couldn't create a plan. Your selected time window from the Home screen is likely too short to fit our minimum of 1 stop, or no places matching your preferences are open. Please try extending your trip's start/end time or changing your customization options and generate again.");
                 } else if (categoryPreferences != null && !categoryPreferences.isEmpty() && generatedItems.size() < categoryPreferences.size()) {
                     messageBuilder.append("We couldn't find matches for all your preferences, but here's what we found!");
                 } else {
@@ -176,12 +172,12 @@ public class ItineraryViewModel extends AndroidViewModel {
 
             if (currentSequenceOfPlaces.size() != currentItems.size()) {
                 Log.e(TAG, "Mismatch between itinerary items and found places. Aborting recalculation.");
-                new android.os.Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplication(), "Error: Could not find all places for recalculation.", Toast.LENGTH_LONG).show());
+                new android.os.Handler(Looper.getMainLooper()).post(() ->
+                        Toast.makeText(getApplication(), "Error: Could not find all places for recalculation.", Toast.LENGTH_LONG).show());
                 _isLoading.postValue(false);
                 return;
             }
             // --- FIX END ---
-
 
             ItineraryItem itemToLock = currentItems.get(indexToLock);
             ItineraryItem lockedItem = new ItineraryItem(
@@ -216,10 +212,12 @@ public class ItineraryViewModel extends AndroidViewModel {
             String message;
             if (result.itinerary.isEmpty() || result.itinerary.size() < currentItems.size()) {
                 message = "Could not fit all stops with the new time for '" + lockedItem.getActivity() + "'. Some stops were removed.";
-                new android.os.Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplication(), "Conflict: Could not fit all stops.", Toast.LENGTH_LONG).show());
+                new android.os.Handler(Looper.getMainLooper()).post(() ->
+                        Toast.makeText(getApplication(), "Conflict: Could not fit all stops.", Toast.LENGTH_LONG).show());
             } else {
                 message = "Schedule updated around your new time for '" + lockedItem.getActivity() + "'.";
             }
+
             fetchRecommendationsAndBuildState(
                     result.itinerary,
                     message,
@@ -234,7 +232,6 @@ public class ItineraryViewModel extends AndroidViewModel {
         });
     }
 
-
     public void replaceItineraryItem(int indexToReplace, Place newPlace, List<Place> allPlaces) {
         _isLoading.setValue(true);
         executorService.execute(() -> {
@@ -244,9 +241,9 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _isLoading.postValue(false);
                 return;
             }
+
             List<Place> newSequenceOfPlaces = new ArrayList<>();
             List<ItineraryItem> oldItinerary = currentState.getItineraryItems();
-
             for (int i = 0; i < oldItinerary.size(); i++) {
                 if (i == indexToReplace) {
                     newSequenceOfPlaces.add(newPlace);
@@ -258,6 +255,7 @@ public class ItineraryViewModel extends AndroidViewModel {
                             .ifPresent(newSequenceOfPlaces::add);
                 }
             }
+
             GeoPoint startLocation = new GeoPoint(currentState.getStartLat(), currentState.getStartLon());
             Calendar tripStart = Calendar.getInstance();
             tripStart.setTimeInMillis(currentState.getStartTimeMillis());
@@ -283,6 +281,7 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _isLoading.postValue(false);
                 return;
             }
+
             List<ItineraryItem> oldItinerary = currentState.getItineraryItems();
             List<ItineraryItem> tempItinerary = new ArrayList<>(oldItinerary);
             tempItinerary.remove(indexToDelete);
@@ -327,6 +326,7 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _isLoading.postValue(false);
                 return;
             }
+
             List<ItineraryItem> currentItems = new ArrayList<>(currentState.getItineraryItems());
             if (positionOfTopItem < 0 || positionOfTopItem + 1 >= currentItems.size()) {
                 postToast("Cannot swap, invalid item position.");
@@ -349,6 +349,7 @@ public class ItineraryViewModel extends AndroidViewModel {
                 _isLoading.postValue(false);
                 return;
             }
+
             GeoPoint startLocation = new GeoPoint(currentState.getStartLat(), currentState.getStartLon());
             Calendar tripStart = Calendar.getInstance();
             tripStart.setTimeInMillis(currentState.getStartTimeMillis());
@@ -402,6 +403,7 @@ public class ItineraryViewModel extends AndroidViewModel {
                 if (item.getPlaceDocumentId() != null) excludedIds.add(item.getPlaceDocumentId());
             }
         }
+
         Query topRatedQuery = db.collection("places").orderBy("rating", Query.Direction.DESCENDING).limit(10);
         if (!excludedIds.isEmpty() && excludedIds.size() < 10) {
             topRatedQuery = topRatedQuery.whereNotIn(com.google.firebase.firestore.FieldPath.documentId(), excludedIds);
@@ -466,12 +468,12 @@ public class ItineraryViewModel extends AndroidViewModel {
             Toast.makeText(getApplication(), "You must be signed in to save a trip.", Toast.LENGTH_SHORT).show();
             return;
         }
-
         ItineraryState currentState = _itineraryState.getValue();
         if (currentState == null || currentState.getItineraryItems() == null || currentState.getItineraryItems().isEmpty()) {
             Toast.makeText(getApplication(), "No itinerary to save.", Toast.LENGTH_SHORT).show();
             return;
         }
+
         _isItinerarySaved.setValue(true);
         Toast.makeText(getApplication(), "Saving trip...", Toast.LENGTH_SHORT).show();
 
@@ -533,6 +535,7 @@ public class ItineraryViewModel extends AndroidViewModel {
     }
 
     private void postToast(String message) {
-        new android.os.Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show());
+        new android.os.Handler(Looper.getMainLooper()).post(() ->
+                Toast.makeText(getApplication(), message, Toast.LENGTH_LONG).show());
     }
 }
