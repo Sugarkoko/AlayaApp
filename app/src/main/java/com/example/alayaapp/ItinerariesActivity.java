@@ -44,12 +44,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 
-public class ItinerariesActivity extends AppCompatActivity implements
-        ItineraryAdapter.ItineraryHeaderListener,
-        ItineraryAdapter.ItineraryCardListener,
-        CustomizeItineraryBottomSheet.CustomizeListener,
-        ItineraryAlternativesBottomSheet.AlternativesListener,
-        EditItineraryTimeDialog.EditTimeDialogListener {
+public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.ItineraryHeaderListener, ItineraryAdapter.ItineraryCardListener, CustomizeItineraryBottomSheet.CustomizeListener, ItineraryAlternativesBottomSheet.AlternativesListener, EditItineraryTimeDialog.EditTimeDialogListener {
 
     BottomNavigationView bottomNavigationView;
     RecyclerView rvMain;
@@ -387,21 +382,16 @@ public class ItinerariesActivity extends AppCompatActivity implements
             if (destinationItemId == CURRENT_ITEM_ID) return true;
 
             Class<?> destinationActivityClass = null;
-            if (destinationItemId == R.id.navigation_home)
-                destinationActivityClass = HomeActivity.class;
-            else if (destinationItemId == R.id.navigation_map)
-                destinationActivityClass = MapsActivity.class;
-            else if (destinationItemId == R.id.navigation_profile)
-                destinationActivityClass = ProfileActivity.class;
+            if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
+            else if (destinationItemId == R.id.navigation_map) destinationActivityClass = MapsActivity.class;
+            else if (destinationItemId == R.id.navigation_profile) destinationActivityClass = ProfileActivity.class;
 
             if (destinationActivityClass != null) {
                 Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
                 startActivity(intent);
                 boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
-                if (slideRightToLeft)
-                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                else
-                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                if (slideRightToLeft) overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                else overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
                 finish();
                 return true;
             }
@@ -421,8 +411,7 @@ public class ItinerariesActivity extends AppCompatActivity implements
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
-                if (locationResult == null || !sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto"))
-                    return;
+                if (locationResult == null || !sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
                         getAddressFromLocation(location.getLatitude(), location.getLongitude());
@@ -624,7 +613,7 @@ public class ItinerariesActivity extends AppCompatActivity implements
         ItineraryItem itemToDelete = state.getItineraryItems().get(position);
         new AlertDialog.Builder(this)
                 .setTitle("Delete Stop")
-                .setMessage("Are you sure you want to remove " + itemToDelete.getActivity() + " from your itinerary? This process cannot be undone.")
+                .setMessage("Are you sure you want to remove '" + itemToDelete.getActivity() + "' from your itinerary?")
                 .setPositiveButton("Delete", (dialog, which) -> {
                     itineraryViewModel.deleteItineraryItem(position, allPlacesList);
                 })
@@ -686,7 +675,23 @@ public class ItinerariesActivity extends AppCompatActivity implements
             Toast.makeText(this, "Cannot swap, place data is not ready.", Toast.LENGTH_SHORT).show();
             return;
         }
-        Toast.makeText(this, "Checking if swap is possible...", Toast.LENGTH_SHORT).show();
-        itineraryViewModel.attemptSwap(position, allPlacesList);
+
+        ItineraryState state = itineraryViewModel.itineraryState.getValue();
+        if (state == null || state.getItineraryItems() == null || position + 1 >= state.getItineraryItems().size()) {
+            Toast.makeText(this, "Cannot swap, invalid itinerary state.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        String item1Name = state.getItineraryItems().get(position).getActivity();
+        String item2Name = state.getItineraryItems().get(position + 1).getActivity();
+
+        new AlertDialog.Builder(this)
+                .setTitle("Swap Itinerary Order?")
+                .setMessage("This will attempt to swap the order of " + item1Name + " and " + item2Name + ".\n\nThe schedule will be recalculated. The swap will only be applied if the new order fits within each location's opening hours and your trip duration.\n\nDo you want to continue?")
+                .setPositiveButton("Swap", (dialog, which) -> {
+                    Toast.makeText(this, "Checking if swap is possible...", Toast.LENGTH_SHORT).show();
+                    itineraryViewModel.attemptSwap(position, allPlacesList);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 }
