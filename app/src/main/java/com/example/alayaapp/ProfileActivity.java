@@ -95,20 +95,24 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupActionListeners() {
         binding.ivLogout.setOnClickListener(v -> {
-            if (userDatabaseReference != null && userProfileListener != null) {
-                userDatabaseReference.removeEventListener(userProfileListener);
-            }
+            new AlertDialog.Builder(this)
+                    .setTitle("Log Out")
+                    .setMessage("Are you sure you want to log out?")
+                    .setPositiveButton("Log Out", (dialog, which) -> {
+                        if (userDatabaseReference != null && userProfileListener != null) {
+                            userDatabaseReference.removeEventListener(userProfileListener);
+                        }
 
-            mAuth.signOut();
-            Toast.makeText(ProfileActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
-            Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            startActivity(intent);
-
-            // --- ADD THIS LINE for the logout animation ---
-            overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-
-            finish();
+                        mAuth.signOut();
+                        Toast.makeText(ProfileActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                        overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                        finish();
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
         });
 
         binding.tvProfileNameDetail.setOnClickListener(v -> showEditTextDialog("name", "Edit Name", binding.tvProfileNameDetail.getText().toString()));
@@ -225,7 +229,6 @@ public class ProfileActivity extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError databaseError) {
-                    // This toast will now only show if there's a real issue while the screen is active
                     Toast.makeText(ProfileActivity.this, "Failed to load profile details.", Toast.LENGTH_SHORT).show();
                     Log.e(TAG, "Failed to load profile data.", databaseError.toException());
                 }
