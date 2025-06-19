@@ -73,15 +73,15 @@ public class ChangePasswordActivity extends AppCompatActivity {
 
         if (!newPassword.equals(confirmPassword)) {
             binding.tilConfirmPassword.setError("Passwords do not match");
-            binding.etConfirmPassword.requestFocus(); // Keep focus here
-            binding.tilNewPassword.setError("Passwords do not match"); // Also show on new password
+            binding.etConfirmPassword.requestFocus();
+            binding.tilNewPassword.setError("Passwords do not match");
             return;
         } else {
             binding.tilConfirmPassword.setError(null);
             binding.tilNewPassword.setError(null); // Clear error on new password if they match
         }
 
-        // --- Firebase Password Change Logic ---
+
         FirebaseUser user = mAuth.getCurrentUser();
 
         if (user != null) {
@@ -102,8 +102,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                                 Log.e(TAG, "Error updating password", task.getException());
                                 String errorMessage = "Failed to update password.";
                                 if (task.getException() != null) {
-                                    // You might want to check for specific Firebase Auth exceptions
-                                    // e.g., FirebaseAuthWeakPasswordException, FirebaseAuthRecentLoginRequiredException
+
                                     errorMessage += " " + task.getException().getMessage();
                                     if (task.getException().getMessage().contains("CREDENTIAL_TOO_OLD_LOGIN_AGAIN")) {
                                         errorMessage = "For security, please sign out and sign back in before changing your password.";
@@ -115,7 +114,7 @@ public class ChangePasswordActivity extends AppCompatActivity {
                         }
                     });
         } else {
-            // This shouldn't happen if the user reached this screen while logged in
+
             Toast.makeText(this, "No user signed in. Please sign in again.", Toast.LENGTH_LONG).show();
             Log.e(TAG, "Cannot change password: No user is currently signed in.");
 

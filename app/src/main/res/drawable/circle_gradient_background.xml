@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval"> <!-- CHANGE to oval to make it a circle -->
+    android:shape="oval">
     <gradient
         android:angle="270"
         android:startColor="#26925C"
         android:endColor="#2E7D32"
         android:type="linear" />
-    <!-- No corners needed for oval, it's inherently round -->
+
 </shape>

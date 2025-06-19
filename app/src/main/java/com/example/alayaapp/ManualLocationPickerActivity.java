@@ -66,10 +66,10 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
 
     private Geocoder geocoder; // Geocoder instance
 
-    // --- NEW: ViewModel instance ---
+
     private LocationPickerViewModel viewModel;
 
-    // --- NEW: Variables to hold initial data from intent ---
+
     private LatLng initialPoint = null;
     private String initialName = "";
 
@@ -77,7 +77,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // --- NEW: Initialize ViewModel ---
+        //  Initialize ViewModel ---
         viewModel = new ViewModelProvider(this).get(LocationPickerViewModel.class);
 
         binding = ActivityManualLocationPickerBinding.inflate(getLayoutInflater());
@@ -91,7 +91,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         }
         toolbar.setNavigationOnClickListener(v -> finish());
 
-        // --- NEW: Read initial location data from intent ---
+        //  Read initial location data from intent
         if (getIntent().hasExtra(EXTRA_INITIAL_LAT)) {
             double lat = getIntent().getDoubleExtra(EXTRA_INITIAL_LAT, 0.0);
             double lon = getIntent().getDoubleExtra(EXTRA_INITIAL_LON, 0.0);
@@ -132,7 +132,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
 
         binding.fabPickerMyLocation.setOnClickListener(v -> goToMyCurrentLocation());
 
-        // --- NEW: Set up observers ---
+
         setupObservers();
     }
 
@@ -178,7 +178,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
             return;
         }
         if (geocoder != null) {
-            // --- REFACTORED: Call ViewModel ---
+            //  Call ViewModel
             viewModel.searchLocationByName(query, geocoder);
         }
     }
@@ -281,7 +281,7 @@ public class ManualLocationPickerActivity extends AppCompatActivity implements O
         mMap.setOnMapClickListener(this);
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
-        // --- MODIFIED LOGIC ---
+
         if (initialPoint != null) {
             // A previous manual location was passed in, so we use it.
             updateSelectedLocation(initialPoint, initialName, false); // false = don't reverse geocode

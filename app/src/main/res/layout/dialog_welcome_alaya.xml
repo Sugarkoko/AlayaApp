@@ -14,7 +14,7 @@
     android:paddingBottom="32dp"
     tools:context=".MainActivity">
 
-    <!-- Title TextView -->
+
     <TextView
         android:id="@+id/tv_dialog_title"
         android:layout_width="wrap_content"
@@ -27,7 +27,7 @@
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <!-- Subtitle TextView (Corrected Version) -->
+
     <TextView
         android:id="@+id/tv_dialog_subtitle"
         android:layout_width="wrap_content"
@@ -36,9 +36,9 @@
         android:text="Click continue to proceed to your destination."
         android:textAlignment="center"
         android:textColor="@color/white"
-        android:textSize="14sp" />  <!-- Clean closing tag -->
+        android:textSize="14sp" />
 
-    <!-- Continue Button -->
+
     <Button
         android:id="@+id/btn_dialog_continue"
         style="@style/Widget.AppCompat.Button.Borderless"

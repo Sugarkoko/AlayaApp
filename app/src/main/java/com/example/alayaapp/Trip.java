@@ -12,7 +12,7 @@ public class Trip {
 
     private String tripTitle;
     private String tripDate;
-    private String tripSignature; // NEW: For checking duplicates
+    private String tripSignature;
     @ServerTimestamp private Date savedAt;
     private List<Map<String, String>> itinerary;
 

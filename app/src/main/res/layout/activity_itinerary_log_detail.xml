@@ -23,7 +23,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:tint="@color/colorPrimary" />
 
-    <!-- The ScrollView now extends to the bottom of the parent screen -->
     <ScrollView
         android:id="@+id/sv_log_detail_content"
         android:layout_width="0dp"
@@ -72,7 +71,7 @@
                 android:textSize="22sp"
                 android:textStyle="bold" />
 
-            <!-- This RecyclerView replaces the old static list -->
+
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/rv_itinerary_log"
                 android:layout_width="match_parent"
@@ -88,6 +87,5 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- The BottomNavigationView has been removed. -->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

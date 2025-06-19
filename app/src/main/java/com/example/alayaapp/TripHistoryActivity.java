@@ -40,9 +40,6 @@ public class TripHistoryActivity extends AppCompatActivity implements TripHistor
 
         binding.ivBackArrowTripHistory.setOnClickListener(v -> finish());
 
-        // The code related to the bottom navigation has been removed.
-        // binding.bottomNavigationTripHistory.setSelectedItemId(...);
-        // binding.bottomNavigationTripHistory.setOnItemSelectedListener(...);
 
         loadTripHistory();
     }

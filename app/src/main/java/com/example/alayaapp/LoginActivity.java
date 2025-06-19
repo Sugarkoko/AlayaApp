@@ -12,7 +12,7 @@ import com.google.firebase.auth.FirebaseUser; // Firebase Import
 public class LoginActivity extends AppCompatActivity {
 
     private ActivityLoginBinding binding;
-    private FirebaseAuth mAuth; // Firebase Auth instance
+    private FirebaseAuth mAuth;
     private static final String TAG = "LoginActivity";
 
     @Override
@@ -51,24 +51,25 @@ public class LoginActivity extends AppCompatActivity {
             binding.loginButton.setEnabled(false);
             Toast.makeText(LoginActivity.this, "Logging in...", Toast.LENGTH_SHORT).show();
 
+            // Inside the binding.loginButton.setOnClickListener in LoginActivity.java
+
             mAuth.signInWithEmailAndPassword(email, password)
                     .addOnCompleteListener(this, task -> {
                         binding.loginButton.setEnabled(true);
                         if (task.isSuccessful()) {
                             Log.d(TAG, "signInWithEmail:success");
-                            // FirebaseUser user = mAuth.getCurrentUser(); // You can get user if needed
                             Toast.makeText(LoginActivity.this, "Login Successful!", Toast.LENGTH_SHORT).show();
 
-                            // Navigate directly to HomeActivity
                             Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // Clear back stack
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                             startActivity(intent);
-                            finish(); // Close LoginActivity
+
+                            overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+
+                            finish();
                         } else {
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(LoginActivity.this, "Authentication failed: " +
-                                            (task.getException() != null ? task.getException().getMessage() : "Unknown error"),
-                                    Toast.LENGTH_LONG).show();
+                            Toast.makeText(LoginActivity.this, "Authentication failed: " + (task.getException() != null ? task.getException().getMessage() : "Unknown error"), Toast.LENGTH_LONG).show();
                             binding.passwordLayout.setError("Incorrect email or password");
                         }
                     });

@@ -15,7 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <!-- Number Indicator -->
         <TextView
             android:id="@+id/tv_item_number"
             android:layout_width="24dp"
@@ -92,7 +91,6 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="16dp"
             android:layout_marginTop="12dp"
-            android:layout_marginBottom="16dp"
             android:background="?attr/selectableItemBackground"
             android:clickable="true"
             android:drawableStart="@drawable/ic_calendar_today"
@@ -103,29 +101,24 @@
             android:textColor="@color/textSecondary"
             android:textSize="14sp"
             app:drawableTint="@color/textSecondary"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/iv_item_image"
-            tools:text="9:00 AM" />
+            tools:text="9:00 AM - 11:00 AM" />
+
 
         <TextView
-            android:id="@+id/tv_item_rating"
+            android:id="@+id/tv_edit_time_prompt"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="16dp"
-            android:drawableStart="@drawable/star"
-            android:drawablePadding="6dp"
-            android:gravity="center_vertical"
+            android:layout_marginBottom="16dp"
+            android:text="Tap time to edit duration"
             android:textColor="@color/textSecondary"
-            android:textSize="14sp"
-            app:drawableTint="@color/starColor"
-            app:layout_constraintBottom_toBottomOf="@id/tv_item_time"
-            app:layout_constraintEnd_toStartOf="@+id/ll_action_buttons"
-            app:layout_constraintTop_toTopOf="@id/tv_item_time"
-            app:layout_constraintHorizontal_bias="1.0"
-            tools:text="4.5" />
+            android:textSize="12sp"
+            android:textStyle="italic"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="@+id/tv_item_time"
+            app:layout_constraintTop_toBottomOf="@+id/tv_item_time" />
 
-        <!-- The swap button has been removed from here -->
         <LinearLayout
             android:id="@+id/ll_action_buttons"
             android:layout_width="wrap_content"
@@ -153,8 +146,26 @@
                 android:contentDescription="Switch this itinerary stop"
                 android:src="@drawable/ic_swap_custom"
                 app:tint="@color/colorPrimary" />
-
         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tv_item_rating"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:drawableStart="@drawable/star"
+            android:drawablePadding="6dp"
+            android:gravity="center_vertical"
+            android:textColor="@color/textSecondary"
+            android:textSize="14sp"
+            app:drawableTint="@color/starColor"
+            app:layout_constraintBottom_toBottomOf="@id/tv_item_time"
+            app:layout_constraintEnd_toStartOf="@+id/ll_action_buttons"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@id/tv_item_time"
+            app:layout_constraintTop_toTopOf="@id/tv_item_time"
+            tools:text="4.5" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>

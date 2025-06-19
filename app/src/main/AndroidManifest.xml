@@ -83,7 +83,7 @@
             android:name=".ProfileActivity"
             android:exported="false" />
 
-        <!-- The declaration for .MainActivity has been removed from here. -->
+
 
     </application>
 

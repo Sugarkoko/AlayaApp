@@ -83,7 +83,7 @@
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Transportation Mode Selector -->
+
     <LinearLayout
         android:id="@+id/transport_mode_selector_container"
         android:layout_width="0dp"
@@ -187,7 +187,7 @@
         </LinearLayout>
     </LinearLayout>
 
-    <!-- Google Map Fragment -->
+
     <androidx.fragment.app.FragmentContainerView
         android:id="@+id/map_fragment_container"
         android:name="com.google.android.gms.maps.SupportMapFragment"
@@ -212,7 +212,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:tint="@color/green_brand_primary" />
 
-    <!-- Route Information Pane -->
+
     <androidx.cardview.widget.CardView
         android:id="@+id/route_info_pane"
         android:layout_width="0dp"
@@ -233,7 +233,7 @@
             android:layout_height="wrap_content"
             android:padding="16dp">
 
-            <!-- Left Column: Text Info -->
+
             <TextView
                 android:id="@+id/tv_route_eta"
                 android:layout_width="wrap_content"

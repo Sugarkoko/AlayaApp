@@ -37,8 +37,7 @@ public class ItineraryLogDetailActivity extends AppCompatActivity {
         setupRecyclerView();
         binding.ivBackArrowLogDetail.setOnClickListener(v -> finish());
 
-        // The line referencing the bottom navigation has been removed.
-        // binding.bottomNavigationLogDetail.setSelectedItemId(R.id.navigation_profile);
+
 
         if (tripId != null && !tripId.isEmpty()) {
             loadTripDetails(tripId);

@@ -17,7 +17,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <!-- The ScrollView's bottom constraint is now tied to the parent, allowing it to fill the screen -->
     <ScrollView
         android:id="@+id/scrollView"
         android:layout_width="0dp"
@@ -239,6 +238,6 @@
         </LinearLayout>
     </ScrollView>
 
-    <!-- The BottomNavigationView has been removed. -->
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

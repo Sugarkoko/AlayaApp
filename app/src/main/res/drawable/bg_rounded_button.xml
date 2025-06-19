@@ -2,10 +2,10 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
 
-    <!-- Background Color -->
+
     <solid android:color="@color/myButtonColor" />
 
-    <!-- Rounded Corners -->
-    <corners android:radius="12dp" /> <!-- Adjust dp value for more/less rounding -->
+
+    <corners android:radius="12dp" />
 
 </shape>

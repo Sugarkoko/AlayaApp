@@ -45,7 +45,7 @@ public class TripHistoryAdapter extends RecyclerView.Adapter<TripHistoryAdapter.
         holder.tvTripTitle.setText(trip.getTripTitle());
         holder.tvTripDate.setText(trip.getTripDate());
 
-        // --- ROBUST LOGIC FOR THE MONTH/YEAR HEADER ---
+
         SimpleDateFormat sdf = new SimpleDateFormat("MMMM yyyy", Locale.getDefault());
         String currentMonthYear = (trip.getSavedAt() != null) ? sdf.format(trip.getSavedAt()) : "Unknown Date";
 
@@ -63,7 +63,7 @@ public class TripHistoryAdapter extends RecyclerView.Adapter<TripHistoryAdapter.
             }
         }
 
-        // --- Itinerary Preview Logic ---
+
         if (trip.getItinerary() != null && !trip.getItinerary().isEmpty()) {
             StringBuilder preview = new StringBuilder("Starts with: ");
             preview.append(trip.getItinerary().get(0).get("activity"));
@@ -79,7 +79,7 @@ public class TripHistoryAdapter extends RecyclerView.Adapter<TripHistoryAdapter.
             holder.tvItineraryPreview.setVisibility(View.GONE);
         }
 
-        // --- Click Listener for Viewing Details ---
+
         holder.tripCard.setOnClickListener(v -> {
             if (trip.getDocumentId() != null && !trip.getDocumentId().isEmpty()) {
                 Intent intent = new Intent(context, ItineraryLogDetailActivity.class);
@@ -90,7 +90,7 @@ public class TripHistoryAdapter extends RecyclerView.Adapter<TripHistoryAdapter.
             }
         });
 
-        // --- NEW: Long-Press Listener for Deleting ---
+
         holder.tripCard.setOnLongClickListener(v -> {
             if (listener != null) {
                 listener.onTripLongPressed(trip, position);

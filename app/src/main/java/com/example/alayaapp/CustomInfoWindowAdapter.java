@@ -35,7 +35,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
         TextView tvCategory = view.findViewById(R.id.info_window_category);
         TextView tvRating = view.findViewById(R.id.info_window_rating);
         TextView tvOpen = view.findViewById(R.id.info_window_open);
-        ImageView ivImage = view.findViewById(R.id.info_window_image); // Optional image
+        ImageView ivImage = view.findViewById(R.id.info_window_image);
 
         if (place != null) {
             tvTitle.setText(place.getName() != null ? place.getName() : "N/A");
@@ -44,7 +44,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
             if (place.getRating() > 0) {
                 tvRating.setText(String.format(Locale.getDefault(), "Rating: %.1f ★", place.getRating()));
                 tvRating.setVisibility(View.VISIBLE);
-            } else if (place.getName() != null && place.getName().equals(marker.getTitle()) && place.getCategory() == null){ // For stub manual home marker
+            } else if (place.getName() != null && place.getName().equals(marker.getTitle()) && place.getCategory() == null){
                 tvRating.setVisibility(View.GONE);
             }
             else {
@@ -63,7 +63,7 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
                         .into(ivImage);
                 ivImage.setVisibility(View.VISIBLE);
             } else {
-                ivImage.setVisibility(View.GONE); // Or set a default placeholder
+                ivImage.setVisibility(View.GONE);
             }
         } else {
             // Fallback if place data is somehow missing for this marker ID
@@ -86,6 +86,6 @@ public class CustomInfoWindowAdapter implements GoogleMap.InfoWindowAdapter {
     @Override
     public View getInfoContents(@NonNull Marker marker) {
         renderWindowText(marker, mWindow);
-        return mWindow; // Using getInfoWindow for full custom layout
+        return mWindow;
     }
 }

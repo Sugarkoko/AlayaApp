@@ -1,5 +1,3 @@
-// In: app/src/main/java/com/example/alayaapp/MapsActivity.java
-
 package com.example.alayaapp;
 
 import android.Manifest;
@@ -445,9 +443,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
-    /**
-     * CORRECTED: This method now correctly loads the itinerary and its true start point from SharedPreferences.
-     */
+
     private void startSegmentedRouteView() {
         String stateJson = sharedPreferences.getString(KEY_ACTIVE_ITINERARY_STATE, null);
         if (stateJson == null) {
@@ -472,12 +468,10 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         // Success! We have a valid, saved itinerary.
         fullItinerary = savedState.getItineraryItems();
 
-        // *** THIS IS THE FIX ***
-        // Get the start location and name from the state object itself. This is the
-        // actual location used to generate the plan, not the first destination.
+
         userStartLocationForItinerary = new LatLng(savedState.getStartLat(), savedState.getStartLon());
         userStartLocationNameForItinerary = savedState.getLocationName();
-        // *** END OF FIX ***
+
 
 
         isShowingSegmentedRoute = true;
@@ -541,9 +535,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void loadHomeLocationPreference() {
-        // The incorrect local declaration has been removed.
-        // This method now uses the class member 'sharedPreferences'
-        // which is correctly initialized in onCreate().
+
         currentLocationMode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
         if ("manual".equals(currentLocationMode)) {
             double lat = Double.longBitsToDouble(sharedPreferences.getLong(KEY_MANUAL_LATITUDE, Double.doubleToRawLongBits(0.0)));

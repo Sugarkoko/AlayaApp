@@ -23,6 +23,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.example.alayaapp.databinding.ActivityHomeBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -53,8 +54,8 @@ public class HomeActivity extends AppCompatActivity {
     private FusedLocationProviderClient fusedLocationClient;
     private LocationCallback locationCallback;
     private boolean requestingLocationUpdates = false;
+    private SwipeRefreshLayout swipeRefreshLayout;
     private SharedPreferences sharedPreferences;
-    private static final String PREFS_NAME = "AlayaAppPrefs";
     private static final String KEY_LOCATION_MODE = "location_mode";
     private static final String KEY_MANUAL_LOCATION_NAME = "manual_location_name";
     private static final String KEY_MANUAL_LATITUDE = "manual_latitude";
@@ -66,24 +67,22 @@ public class HomeActivity extends AppCompatActivity {
     private static final String KEY_TRIP_TIME_MINUTE = "trip_time_minute";
     private static final String KEY_TRIP_END_TIME_HOUR = "trip_end_time_hour";
     private static final String KEY_TRIP_END_TIME_MINUTE = "trip_end_time_minute";
-
     private String currentLocationNameToDisplay = "Tap to get current location";
-    private GeoPoint currentUserGeoPoint = null; // Single source of truth for location
+    private GeoPoint currentUserGeoPoint = null;
     private PlaceAdapter placeAdapter;
     private List<Place> placesList;
     private FirebaseFirestore db;
     private Calendar tripDateCalendar;
     private Calendar tripEndCalendar;
-
     private static final double BAGUIO_REGION_MIN_LAT = 16.35;
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
     private static final double BAGUIO_REGION_MIN_LON = 120.55;
     private static final double BAGUIO_REGION_MAX_LON = 120.65;
-    private static final double NEARBY_RADIUS_KM = 10.0; // Filter radius
-
+    private static final double NEARBY_RADIUS_KM = 10.0;
     private boolean wasRedirectedForDialog = false;
-    // THE FIX: Add a member variable to hold the dialog instance
     private AlertDialog outsideRegionDialog;
+    // NEW: Constant for the one-time region disclaimer
+    private static final String PREF_KEY_SEEN_REGION_DISCLAIMER = "has_seen_region_disclaimer";
 
     private final ActivityResultLauncher<Intent> manualLocationPickerLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
@@ -94,7 +93,6 @@ public class HomeActivity extends AppCompatActivity {
                     double latitude = data.getDoubleExtra("selected_latitude", 0.0);
                     double longitude = data.getDoubleExtra("selected_longitude", 0.0);
 
-                    // THE FIX: If the newly selected location is valid, dismiss any lingering dialog.
                     if (isLocationInAllowedRegion(latitude, longitude)) {
                         dismissOutsideRegionDialog();
                     }
@@ -108,7 +106,7 @@ public class HomeActivity extends AppCompatActivity {
                         }
                         saveLocationPreference("manual", locationName, latitude, longitude);
                         stopLocationUpdates();
-                        fetchAndFilterPlaces(currentUserGeoPoint);
+                        fetchAndFilterPlaces(currentUserGeoPoint, false);
                     }
                 }
             });
@@ -125,7 +123,30 @@ public class HomeActivity extends AppCompatActivity {
 
         sharedPreferences = UserPreferences.get(this);
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
         setupLocationCallback();
+
+        swipeRefreshLayout = binding.swipeRefreshLayout;
+        swipeRefreshLayout.setOnRefreshListener(() -> {
+            Log.d(TAG, "Pull-to-refresh triggered.");
+            if (currentUserGeoPoint != null) {
+                fetchAndFilterPlaces(currentUserGeoPoint, true);
+            } else {
+                Toast.makeText(this, "Location not set. Cannot refresh.", Toast.LENGTH_SHORT).show();
+                swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+
+
+        // This listener prevents the refresh gesture unless the user is at the top of the screen.
+        binding.scrollView.setOnScrollChangeListener(new View.OnScrollChangeListener() {
+            @Override
+            public void onScrollChange(View v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+                // The refresh gesture is enabled only when the scroll view is at the very top.
+                swipeRefreshLayout.setEnabled(scrollY == 0);
+            }
+        });
+
 
         db = FirebaseFirestore.getInstance();
         placesList = new ArrayList<>();
@@ -149,8 +170,6 @@ public class HomeActivity extends AppCompatActivity {
 
             if (itemId == R.id.navigation_itineraries || itemId == R.id.navigation_map) {
                 if (currentUserGeoPoint != null && !isLocationInAllowedRegion(currentUserGeoPoint.getLatitude(), currentUserGeoPoint.getLongitude())) {
-                    // This now correctly shows the dialog if the user tries to navigate
-                    // while in an invalid state, without causing duplication.
                     showOutsideRegionDialog();
                     return false;
                 }
@@ -175,6 +194,26 @@ public class HomeActivity extends AppCompatActivity {
         });
 
         loadLocationPreferenceAndInitialize();
+        // Show the one-time disclaimer dialog if needed.
+        showRegionDisclaimerIfFirstTime();
+    }
+
+    // Method to show a one-time disclaimer about region support.
+    private void showRegionDisclaimerIfFirstTime() {
+        if (!sharedPreferences.getBoolean(PREF_KEY_SEEN_REGION_DISCLAIMER, false)) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Region Support Notice")
+                    .setMessage("Welcome to Alaya! Please note that our app is currently optimized for discovering places and planning itineraries within the Baguio City region. Support for other areas is coming soon!")
+                    .setPositiveButton("Got It", (dialog, which) -> {
+                        // User has acknowledged the message, save the preference
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(PREF_KEY_SEEN_REGION_DISCLAIMER, true);
+                        editor.apply();
+                        dialog.dismiss();
+                    })
+                    .setCancelable(false) // Prevent dismissing by tapping outside
+                    .show();
+        }
     }
 
     @Override
@@ -183,16 +222,13 @@ public class HomeActivity extends AppCompatActivity {
         if (binding.bottomNavigation != null) {
             binding.bottomNavigation.setSelectedItemId(CURRENT_ITEM_ID);
         }
-
         if (wasRedirectedForDialog) {
             showOutsideRegionDialog();
             wasRedirectedForDialog = false;
         }
-
         String mode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
         if (mode.equals("auto")) {
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    == PackageManager.PERMISSION_GRANTED) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 startLocationUpdates();
             }
         } else {
@@ -204,7 +240,6 @@ public class HomeActivity extends AppCompatActivity {
         loadSavedTripDateTime();
     }
 
-    // THE FIX: New method to safely dismiss the dialog
     private void dismissOutsideRegionDialog() {
         if (outsideRegionDialog != null && outsideRegionDialog.isShowing()) {
             outsideRegionDialog.dismiss();
@@ -212,9 +247,7 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    // THE FIX: Modified method to create and show the dialog, preventing duplicates.
     private void showOutsideRegionDialog() {
-        // If a dialog is already showing, don't create another one.
         if (outsideRegionDialog != null && outsideRegionDialog.isShowing()) {
             return;
         }
@@ -226,15 +259,13 @@ public class HomeActivity extends AppCompatActivity {
                     manualLocationPickerLauncher.launch(intent);
                 })
                 .setNegativeButton("Cancel", (dialog, which) -> dialog.dismiss())
-                .setOnDismissListener(dialog -> outsideRegionDialog = null); // Clear reference on dismiss
-
+                .setOnDismissListener(dialog -> outsideRegionDialog = null);
         outsideRegionDialog = builder.create();
         outsideRegionDialog.show();
     }
 
     private void getAddressFromLocation(double latitude, double longitude) {
         currentUserGeoPoint = new GeoPoint(latitude, longitude);
-
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
 
         if (!isLocationInAllowedRegion(latitude, longitude)) {
@@ -242,15 +273,12 @@ public class HomeActivity extends AppCompatActivity {
             binding.tvLocationCity2.setText("Outside supported region");
             binding.tvDirectionText.setText("Please set a location in Baguio.");
             showOutsideRegionDialog();
-            fetchAndFilterPlaces(null);
+            fetchAndFilterPlaces(null, false);
             return;
         }
 
-        // THE FIX: If we reach here, the location is valid. Dismiss any dialog.
         dismissOutsideRegionDialog();
-
-        // Fetch places for the current valid GPS location
-        fetchAndFilterPlaces(new GeoPoint(latitude, longitude));
+        fetchAndFilterPlaces(new GeoPoint(latitude, longitude), false);
 
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
@@ -268,15 +296,7 @@ public class HomeActivity extends AppCompatActivity {
                 else if (thoroughfare != null && !thoroughfare.isEmpty()) addressTextBuilder.append(thoroughfare);
                 else addressTextBuilder.append("Unknown Area");
 
-                if (country != null && !country.isEmpty() && addressTextBuilder.length() > 0 && !addressTextBuilder.toString().equals("Unknown Area")) {
-                    if (!addressTextBuilder.toString().equalsIgnoreCase(country) && (city == null || !city.equalsIgnoreCase(country))) {
-                        addressTextBuilder.append(", ").append(country);
-                    }
-                } else if (country != null && !country.isEmpty() && addressTextBuilder.toString().equals("Unknown Area")) {
-                    addressTextBuilder.replace(0, addressTextBuilder.length(), country);
-                }
-
-                currentLocationNameToDisplay = addressTextBuilder.length() == 0 ? "Location Name Not Found" : addressTextBuilder.toString();
+                currentLocationNameToDisplay = addressTextBuilder.toString();
                 binding.tvLocationCity2.setText(currentLocationNameToDisplay);
                 if (binding.tvDirectionText != null) binding.tvDirectionText.setText("GPS: " + currentLocationNameToDisplay);
             } else {
@@ -292,9 +312,6 @@ public class HomeActivity extends AppCompatActivity {
         }
     }
 
-    // --- All other methods (setupDateTimePickers, calculateDistance, fetchAndFilterPlaces, etc.) remain unchanged ---
-    // --- They are included here for completeness.                                                          ---
-
     private void setupDateTimePickers() {
         binding.rlTripDate.setOnClickListener(v -> {
             DatePickerDialog.OnDateSetListener dateSetListener = (view, year, monthOfYear, dayOfMonth) -> {
@@ -307,11 +324,12 @@ public class HomeActivity extends AppCompatActivity {
                 saveTripDate(year, monthOfYear, dayOfMonth);
                 updateDateTimeUI();
             };
-            new DatePickerDialog(HomeActivity.this, R.style.GreenDatePickerDialog, dateSetListener,
-                    tripDateCalendar.get(Calendar.YEAR), tripDateCalendar.get(Calendar.MONTH),
-                    tripDateCalendar.get(Calendar.DAY_OF_MONTH))
-                    .show();
+            DatePickerDialog datePickerDialog = new DatePickerDialog(HomeActivity.this, R.style.GreenDatePickerDialog, dateSetListener,
+                    tripDateCalendar.get(Calendar.YEAR), tripDateCalendar.get(Calendar.MONTH), tripDateCalendar.get(Calendar.DAY_OF_MONTH));
+            datePickerDialog.getDatePicker().setMinDate(System.currentTimeMillis());
+            datePickerDialog.show();
         });
+
         binding.rlTripTime.setOnClickListener(v -> showStartTimePickerDialog());
     }
 
@@ -323,7 +341,7 @@ public class HomeActivity extends AppCompatActivity {
             updateDateTimeUI();
             showEndTimePickerDialog();
         };
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this,R.style.GreenTimePickerDialog, timeSetListener,
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, R.style.GreenTimePickerDialog, timeSetListener,
                 tripDateCalendar.get(Calendar.HOUR_OF_DAY), tripDateCalendar.get(Calendar.MINUTE), false);
         timePickerDialog.setTitle("Select Start Time");
         timePickerDialog.show();
@@ -344,7 +362,7 @@ public class HomeActivity extends AppCompatActivity {
             saveTripEndTime(hourOfDay, minute);
             updateDateTimeUI();
         };
-        TimePickerDialog timePickerDialog = new TimePickerDialog(this,R.style.GreenTimePickerDialog, timeSetListener,
+        TimePickerDialog timePickerDialog = new TimePickerDialog(this, R.style.GreenTimePickerDialog, timeSetListener,
                 tripEndCalendar.get(Calendar.HOUR_OF_DAY), tripEndCalendar.get(Calendar.MINUTE), false);
         timePickerDialog.setTitle("Select End Time");
         timePickerDialog.show();
@@ -355,15 +373,30 @@ public class HomeActivity extends AppCompatActivity {
             int year = sharedPreferences.getInt(KEY_TRIP_DATE_YEAR, tripDateCalendar.get(Calendar.YEAR));
             int month = sharedPreferences.getInt(KEY_TRIP_DATE_MONTH, tripDateCalendar.get(Calendar.MONTH));
             int day = sharedPreferences.getInt(KEY_TRIP_DATE_DAY, tripDateCalendar.get(Calendar.DAY_OF_MONTH));
-            tripDateCalendar.set(year, month, day);
-            tripEndCalendar.set(year, month, day);
+
+            Calendar savedDate = Calendar.getInstance();
+            savedDate.set(year, month, day);
+
+            if (savedDate.before(Calendar.getInstance())) {
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.remove(KEY_TRIP_DATE_YEAR);
+                editor.remove(KEY_TRIP_DATE_MONTH);
+                editor.remove(KEY_TRIP_DATE_DAY);
+                editor.apply();
+                tripDateCalendar = Calendar.getInstance();
+            } else {
+                tripDateCalendar.set(year, month, day);
+                tripEndCalendar.set(year, month, day);
+            }
         }
+
         if (sharedPreferences.contains(KEY_TRIP_TIME_HOUR)) {
             int hour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
             int minute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
             tripDateCalendar.set(Calendar.HOUR_OF_DAY, hour);
             tripDateCalendar.set(Calendar.MINUTE, minute);
         }
+
         if (sharedPreferences.contains(KEY_TRIP_END_TIME_HOUR)) {
             int hour = sharedPreferences.getInt(KEY_TRIP_END_TIME_HOUR, 18);
             int minute = sharedPreferences.getInt(KEY_TRIP_END_TIME_MINUTE, 0);
@@ -374,7 +407,7 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private void updateDateTimeUI() {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yyyy", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, MMM dd, yy", Locale.getDefault());
         SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
 
         if (sharedPreferences.contains(KEY_TRIP_DATE_YEAR)) {
@@ -417,8 +450,8 @@ public class HomeActivity extends AppCompatActivity {
     }
 
     private boolean isLocationInAllowedRegion(double latitude, double longitude) {
-        return latitude >= BAGUIO_REGION_MIN_LAT && latitude <= BAGUIO_REGION_MAX_LAT
-                && longitude >= BAGUIO_REGION_MIN_LON && longitude <= BAGUIO_REGION_MAX_LON;
+        return latitude >= BAGUIO_REGION_MIN_LAT && latitude <= BAGUIO_REGION_MAX_LAT &&
+                longitude >= BAGUIO_REGION_MIN_LON && longitude <= BAGUIO_REGION_MAX_LON;
     }
 
     private double calculateDistance(GeoPoint start, GeoPoint end) {
@@ -433,26 +466,37 @@ public class HomeActivity extends AppCompatActivity {
         return R * c;
     }
 
-    private void fetchAndFilterPlaces(GeoPoint userLocation) {
+    private void fetchAndFilterPlaces(GeoPoint userLocation, boolean isManualRefresh) {
         if (userLocation == null) {
             placesList.clear();
             placeAdapter.notifyDataSetChanged();
             binding.rvPlacesList.setVisibility(View.GONE);
-            binding.progressBarHome.setVisibility(View.GONE);
             binding.tvEmptyPlaces.setText("Set your location to find nearby spots.");
             binding.tvEmptyPlaces.setVisibility(View.VISIBLE);
+            if (isManualRefresh) {
+                swipeRefreshLayout.setRefreshing(false);
+            } else {
+                binding.progressBarHome.setVisibility(View.GONE);
+            }
             return;
         }
 
         Log.d(TAG, "Fetching and filtering places based on location: " + userLocation.toString());
-        binding.progressBarHome.setVisibility(View.VISIBLE);
+        if (!isManualRefresh) {
+            binding.progressBarHome.setVisibility(View.VISIBLE);
+        }
         binding.rvPlacesList.setVisibility(View.GONE);
         binding.tvEmptyPlaces.setVisibility(View.GONE);
 
         db.collection("places")
                 .get()
                 .addOnCompleteListener(task -> {
-                    binding.progressBarHome.setVisibility(View.GONE);
+                    if (isManualRefresh) {
+                        swipeRefreshLayout.setRefreshing(false);
+                    } else {
+                        binding.progressBarHome.setVisibility(View.GONE);
+                    }
+
                     if (task.isSuccessful() && task.getResult() != null) {
                         List<Place> nearbyPlaces = new ArrayList<>();
                         for (QueryDocumentSnapshot document : task.getResult()) {
@@ -471,9 +515,7 @@ public class HomeActivity extends AppCompatActivity {
                                 Log.e(TAG, "Error converting document: " + document.getId(), e);
                             }
                         }
-
                         Collections.sort(nearbyPlaces, Comparator.comparingDouble(Place::getDistance));
-
                         placesList.clear();
                         placesList.addAll(nearbyPlaces);
 
@@ -486,7 +528,6 @@ public class HomeActivity extends AppCompatActivity {
                             binding.tvEmptyPlaces.setText(String.format(Locale.getDefault(), "No spots found within %.0fkm.", NEARBY_RADIUS_KM));
                             binding.tvEmptyPlaces.setVisibility(View.VISIBLE);
                         }
-
                     } else {
                         Log.w(TAG, "Error getting documents from Firestore.", task.getException());
                         binding.rvPlacesList.setVisibility(View.GONE);
@@ -521,11 +562,18 @@ public class HomeActivity extends AppCompatActivity {
         builder.setTitle("Choose Location Method");
         builder.setItems(options, (dialog, item) -> {
             if (options[item].equals("Use My Current GPS Location")) {
-                saveLocationPreference("auto", null, 0, 0);
-                currentUserGeoPoint = null;
-                binding.tvLocationCity2.setText("Fetching GPS location...");
-                if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Mode: GPS");
-                checkAndRequestLocationPermissions();
+                new AlertDialog.Builder(this)
+                        .setTitle("Confirm Location Choice")
+                        .setMessage("This will use your device's GPS to find your current location. Continue?")
+                        .setPositiveButton("Yes", (confirmDialog, which) -> {
+                            saveLocationPreference("auto", null, 0, 0);
+                            currentUserGeoPoint = null;
+                            binding.tvLocationCity2.setText("Fetching GPS location...");
+                            if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Mode: GPS");
+                            checkAndRequestLocationPermissions();
+                        })
+                        .setNegativeButton("Cancel", null)
+                        .show();
             } else if (options[item].equals("Set Location Manually")) {
                 Intent intent = new Intent(HomeActivity.this, ManualLocationPickerActivity.class);
                 if (currentUserGeoPoint != null) {
@@ -553,7 +601,7 @@ public class HomeActivity extends AppCompatActivity {
                 binding.tvLocationCity2.setText(currentLocationNameToDisplay);
                 if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Manually set: " + currentLocationNameToDisplay);
                 stopLocationUpdates();
-                fetchAndFilterPlaces(currentUserGeoPoint);
+                fetchAndFilterPlaces(currentUserGeoPoint, false);
             } else {
                 saveLocationPreference("auto", null, 0, 0);
                 checkAndRequestLocationPermissions();
@@ -584,31 +632,25 @@ public class HomeActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         stopLocationUpdates();
-        dismissOutsideRegionDialog(); // Dismiss dialog when activity is paused
+        dismissOutsideRegionDialog();
     }
 
     private void checkAndRequestLocationPermissions() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             if (ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
                 new AlertDialog.Builder(this)
                         .setTitle("Location Permission Needed")
                         .setMessage("This app needs the Location permission to show your current location. Please allow.")
-                        .setPositiveButton("OK", (dialogInterface, i) ->
-                                ActivityCompat.requestPermissions(HomeActivity.this,
-                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                                        REQUEST_LOCATION_PERMISSION))
+                        .setPositiveButton("OK", (dialogInterface, i) -> ActivityCompat.requestPermissions(HomeActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION))
                         .setNegativeButton("Cancel", (dialog, which) -> {
                             binding.tvLocationCity2.setText("Permission needed");
                             if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Location permission denied.");
-                            fetchAndFilterPlaces(null);
+                            fetchAndFilterPlaces(null, false);
                         })
                         .create()
                         .show();
             } else {
-                ActivityCompat.requestPermissions(this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},
-                        REQUEST_LOCATION_PERMISSION);
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION);
             }
         } else {
             String mode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
@@ -635,7 +677,7 @@ public class HomeActivity extends AppCompatActivity {
                 binding.tvLocationCity2.setText("Location permission denied");
                 if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Location permission denied.");
                 Toast.makeText(this, "Location permission denied.", Toast.LENGTH_LONG).show();
-                fetchAndFilterPlaces(null);
+                fetchAndFilterPlaces(null, false);
             }
         }
     }
@@ -676,6 +718,7 @@ public class HomeActivity extends AppCompatActivity {
         LocationRequest locationRequest = new LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 10000)
                 .setMinUpdateIntervalMillis(5000)
                 .build();
+
         requestingLocationUpdates = true;
         fusedLocationClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
         if (binding.tvDirectionText != null) binding.tvDirectionText.setText("Updating location (GPS)...");

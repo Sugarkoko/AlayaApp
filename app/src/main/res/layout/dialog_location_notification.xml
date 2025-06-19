@@ -15,7 +15,7 @@
     android:paddingBottom="24dp"
     tools:context=".SignUpActivity">
 
-    <!-- Title TextView -->
+
     <TextView
         android:id="@+id/tv_dialog_title"
         android:layout_width="match_parent"
@@ -27,7 +27,6 @@
         android:textSize="18sp"
         android:textStyle="bold" />
 
-    <!-- Subtitle TextView -->
     <TextView
         android:id="@+id/tv_dialog_subtitle"
         android:layout_width="match_parent"
@@ -38,7 +37,7 @@
         android:textColor="@color/white"
         android:textSize="14sp" />
 
-    <!-- Device Location Item -->
+
     <TextView
         android:id="@+id/tv_device_location"
         android:layout_width="wrap_content"
@@ -51,7 +50,6 @@
         android:textColor="@color/white"
         android:textSize="14sp" />
 
-    <!-- Turn On Button -->
     <Button
         android:id="@+id/btn_turn_on"
         style="@style/Widget.AppCompat.Button.Borderless"
@@ -70,7 +68,6 @@
         android:textSize="14sp"
         app:backgroundTint="@null" />
 
-    <!-- NEW: Skip Button -->
     <Button
         android:id="@+id/btn_skip_location"
         style="@style/Widget.AppCompat.Button.Borderless"

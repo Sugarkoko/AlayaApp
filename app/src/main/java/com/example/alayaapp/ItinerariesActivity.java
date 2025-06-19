@@ -22,7 +22,6 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.Toast;
 
@@ -46,14 +45,13 @@ import java.util.List;
 import java.util.Locale;
 
 public class ItinerariesActivity extends AppCompatActivity implements ItineraryAdapter.ItineraryHeaderListener, ItineraryAdapter.ItineraryCardListener, CustomizeItineraryBottomSheet.CustomizeListener, ItineraryAlternativesBottomSheet.AlternativesListener, EditItineraryTimeDialog.EditTimeDialogListener {
-    // NEW: Implement the dialog listener
     BottomNavigationView bottomNavigationView;
     RecyclerView rvMain;
     ItineraryAdapter itineraryAdapter;
     FloatingActionButton fabSaveTrip;
     ProgressBar pbItineraries;
-
     final int CURRENT_ITEM_ID = R.id.navigation_itineraries;
+
     private static final String TAG_LOCATION = "ItinerariesActivity";
     private static final int REQUEST_LOCATION_PERMISSION_ITINERARIES = 2;
 
@@ -62,13 +60,12 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private boolean requestingLocationUpdates = false;
 
     private SharedPreferences sharedPreferences;
-    private static final String PREFS_NAME = "AlayaAppPrefs";
     private static final String KEY_LOCATION_MODE = "location_mode";
     private static final String KEY_MANUAL_LOCATION_NAME = "manual_location_name";
     private static final String KEY_MANUAL_LATITUDE = "manual_latitude";
     private static final String KEY_MANUAL_LONGITUDE = "manual_longitude";
-
     private GeoPoint currentGeoPoint = null;
+
     private FirebaseFirestore db;
     public List<Place> allPlacesList = new ArrayList<>();
 
@@ -79,7 +76,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private static final String KEY_TRIP_TIME_MINUTE = "trip_time_minute";
     private static final String KEY_TRIP_END_TIME_HOUR = "trip_end_time_hour";
     private static final String KEY_TRIP_END_TIME_MINUTE = "trip_end_time_minute";
-
     private Calendar tripStartCalendar;
     private Calendar tripEndCalendar;
 
@@ -87,6 +83,9 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     private static final double BAGUIO_REGION_MAX_LAT = 16.50;
     private static final double BAGUIO_REGION_MIN_LON = 120.55;
     private static final double BAGUIO_REGION_MAX_LON = 120.65;
+
+    // NEW: Constant key for the disclaimer preference
+    private static final String PREF_KEY_SEEN_DISCLAIMER = "has_seen_time_disclaimer";
 
     private List<Object> displayItems = new ArrayList<>();
     public ItineraryViewModel itineraryViewModel;
@@ -99,16 +98,19 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                     String locationName = data.getStringExtra("selected_location_name");
                     double latitude = data.getDoubleExtra("selected_latitude", 0.0);
                     double longitude = data.getDoubleExtra("selected_longitude", 0.0);
+
                     if (locationName != null && !locationName.isEmpty()) {
                         currentGeoPoint = new GeoPoint(latitude, longitude);
                         itineraryViewModel.updateLocationStatus(locationName, "Manually set: " + locationName);
                         saveLocationPreference("manual", locationName, latitude, longitude);
                         stopLocationUpdates();
+                        checkIfReadyToGenerate();
                         itineraryViewModel.clearItinerary();
                         Toast.makeText(this, "Location set. Click 'New Plan' or 'Customize' to generate.", Toast.LENGTH_LONG).show();
                     }
                 }
             });
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -136,8 +138,13 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         if (savedInstanceState == null) {
             itineraryViewModel.initializeState();
         }
-        loadAndDisplayLocationHeader();
         fetchAllPlaces();
+    }
+
+    private void checkIfReadyToGenerate() {
+        boolean hasDateTime = sharedPreferences.contains(KEY_TRIP_DATE_YEAR) && sharedPreferences.contains(KEY_TRIP_TIME_HOUR);
+        boolean hasLocation = currentGeoPoint != null;
+        itineraryViewModel.updateReadyToGenerateState(hasDateTime && hasLocation);
     }
 
     private void setupRecyclerView() {
@@ -164,19 +171,21 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                     List<ItineraryItem> items = state.getItineraryItems();
                     for (int i = 0; i < items.size(); i++) {
                         displayItems.add(items.get(i));
-                        // If this is not the last item, add a swap button after it
                         if (i < items.size() - 1) {
                             displayItems.add(new ItineraryAdapter.SwapButtonData(i));
                         }
                     }
                     hasContent = true;
                 }
+
                 if (state.getTopRatedPlaces() != null && !state.getTopRatedPlaces().isEmpty()) {
                     displayItems.add(new ItineraryAdapter.HorizontalListContainer("Top Rated", state.getTopRatedPlaces()));
                     hasContent = true;
                 }
+
+                //  Add the persistent disclaimer footer if there's content
                 if (hasContent) {
-                    displayItems.add("Hours are based on standard schedules. We recommend checking ahead for holidays or special events.");
+                    displayItems.add("Disclaimer: All travel and visit times are estimates and do not account for real-time traffic. We recommend checking a dedicated navigation app for live travel data before you depart. You can also tap any stop's time to customize its duration.");
                 }
             }
             itineraryAdapter.notifyDataSetChanged();
@@ -194,11 +203,22 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         });
     }
 
+
     private void setupActionListeners() {
         bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
         fabSaveTrip.setOnClickListener(v -> {
-            loadTripDateTime();
-            itineraryViewModel.saveCurrentTripToHistory(tripStartCalendar);
+            // Show confirmation dialog before saving.
+            new AlertDialog.Builder(this)
+                    .setTitle("Save to Trip History?")
+                    .setMessage("This will save the current plan to your profile. Do you want to continue?")
+                    .setIcon(android.R.drawable.ic_menu_save) // Thematic icon
+                    .setPositiveButton("Save", (dialog, which) -> {
+                        // Original save logic is now here
+                        loadTripDateTime();
+                        itineraryViewModel.saveCurrentTripToHistory(tripStartCalendar);
+                    })
+                    .setNegativeButton("Cancel", null) // Does nothing, just closes the dialog
+                    .show();
         });
     }
 
@@ -226,14 +246,10 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
     }
 
     private void triggerGeneration(boolean forceRegenerate, List<String> categoryPreferences) {
-        // --- FIX: ADDED VALIDATION BLOCK ---
-        // Check if the user has set a date and time before proceeding.
         if (!sharedPreferences.contains(KEY_TRIP_DATE_YEAR) || !sharedPreferences.contains(KEY_TRIP_TIME_HOUR)) {
             Toast.makeText(this, "Please set a trip date and time on the Home screen first.", Toast.LENGTH_LONG).show();
-            return; // Exit the method immediately to prevent a crash.
+            return;
         }
-        // --- END OF FIX ---
-
         if (currentGeoPoint == null) {
             Toast.makeText(this, "Cannot generate itinerary without a start location.", Toast.LENGTH_LONG).show();
             return;
@@ -242,10 +258,11 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             redirectToHomeWithDialog();
             return;
         }
+
         loadTripDateTime();
         if (allPlacesList.isEmpty()) {
             Toast.makeText(this, "Place data is not ready. Please try again in a moment.", Toast.LENGTH_SHORT).show();
-            fetchAllPlaces();
+            fetchAllPlaces(); // Attempt to refetch
             return;
         }
         String locationName = itineraryViewModel.currentLocationName.getValue() != null ? itineraryViewModel.currentLocationName.getValue() : "Selected Location";
@@ -260,6 +277,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             tripStartCalendar.set(year, month, day);
             tripEndCalendar.set(year, month, day);
         }
+
         int startHour = sharedPreferences.getInt(KEY_TRIP_TIME_HOUR, 9);
         int startMinute = sharedPreferences.getInt(KEY_TRIP_TIME_MINUTE, 0);
         tripStartCalendar.set(Calendar.HOUR_OF_DAY, startHour);
@@ -271,16 +289,27 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         tripEndCalendar.set(Calendar.MINUTE, endMinute);
     }
 
+
     public void showLocationChoiceDialog() {
         final CharSequence[] options = {"Use My Current GPS Location", "Set Location Manually", "Cancel"};
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setTitle("Choose Start Location");
         builder.setItems(options, (dialog, item) -> {
             if (options[item].equals("Use My Current GPS Location")) {
-                saveLocationPreference("auto", null, 0, 0);
-                currentGeoPoint = null;
-                itineraryViewModel.updateLocationStatus("Fetching GPS location...", "Mode: GPS");
-                checkAndRequestLocationPermissions();
+                // NEW: Show confirmation dialog first
+                new AlertDialog.Builder(this)
+                        .setTitle("Confirm Location Choice")
+                        .setMessage("This will use your device's GPS to find your current location for the itinerary. Continue?")
+                        .setPositiveButton("Yes", (confirmDialog, which) -> {
+                            // Original logic is now moved inside the confirmation
+                            saveLocationPreference("auto", null, 0, 0);
+                            currentGeoPoint = null; // Clear manual location
+                            itineraryViewModel.updateLocationStatus("Fetching GPS location...", "Mode: GPS");
+                            checkIfReadyToGenerate();
+                            checkAndRequestLocationPermissions();
+                        })
+                        .setNegativeButton("Cancel", null) // No action needed
+                        .show();
             } else if (options[item].equals("Set Location Manually")) {
                 Intent intent = new Intent(ItinerariesActivity.this, ManualLocationPickerActivity.class);
                 if (currentGeoPoint != null) {
@@ -296,6 +325,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         builder.show();
     }
 
+
     private void loadAndDisplayLocationHeader() {
         String mode = sharedPreferences.getString(KEY_LOCATION_MODE, "auto");
         if (mode.equals("manual")) {
@@ -306,15 +336,17 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 currentGeoPoint = new GeoPoint(lat, lon);
                 itineraryViewModel.updateLocationStatus(name, "Manually set: " + name);
                 stopLocationUpdates();
+                checkIfReadyToGenerate();
             } else {
-                saveLocationPreference("auto", null, 0,0);
+                saveLocationPreference("auto", null, 0, 0); // Corrupted manual pref, fallback to auto
                 checkAndRequestLocationPermissions();
             }
-        } else {
+        } else { // "auto"
             itineraryViewModel.updateLocationStatus("Tap to get current location", "Mode: GPS. Waiting for location...");
             checkAndRequestLocationPermissions();
         }
     }
+
 
     private void getAddressFromLocation(double latitude, double longitude) {
         if (!sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
@@ -333,6 +365,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                 String city = address.getLocality();
                 String subLocality = address.getSubLocality();
                 String thoroughfare = address.getThoroughfare();
+
                 StringBuilder addressTextBuilder = new StringBuilder();
                 if (city != null && !city.isEmpty()) addressTextBuilder.append(city);
                 else if (subLocality != null && !subLocality.isEmpty()) addressTextBuilder.append(subLocality);
@@ -341,6 +374,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
 
                 currentGeoPoint = new GeoPoint(latitude, longitude);
                 itineraryViewModel.updateLocationStatus(addressTextBuilder.toString(), "GPS: " + addressTextBuilder.toString());
+                checkIfReadyToGenerate();
                 itineraryViewModel.clearItinerary();
                 Toast.makeText(this, "Location updated. Click 'New Plan' or 'Customize' to generate.", Toast.LENGTH_LONG).show();
             } else {
@@ -351,6 +385,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         }
     }
 
+
     private void setupBottomNavListener() {
         bottomNavigationView.setOnItemSelectedListener(item -> {
             int destinationItemId = item.getItemId();
@@ -359,14 +394,19 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             Class<?> destinationActivityClass = null;
             if (destinationItemId == R.id.navigation_home) destinationActivityClass = HomeActivity.class;
             else if (destinationItemId == R.id.navigation_map) destinationActivityClass = MapsActivity.class;
-            else if (destinationItemId == R.id.navigation_profile) destinationActivityClass = ProfileActivity.class;
+            else if (destinationItemId == R.id.navigation_profile)
+                destinationActivityClass = ProfileActivity.class;
 
             if (destinationActivityClass != null) {
                 Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
                 startActivity(intent);
+
                 boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
-                if (slideRightToLeft) overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
-                else overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                if (slideRightToLeft) {
+                    overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
+                } else {
+                    overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
+                }
                 finish();
                 return true;
             }
@@ -382,15 +422,18 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         return -1;
     }
 
+
     private void setupLocationCallback() {
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
-                if (locationResult == null || !sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto")) return;
+                if (locationResult == null || !sharedPreferences.getString(KEY_LOCATION_MODE, "auto").equals("auto"))
+                    return;
+
                 for (Location location : locationResult.getLocations()) {
                     if (location != null) {
                         getAddressFromLocation(location.getLatitude(), location.getLongitude());
-                        stopLocationUpdates();
+                        stopLocationUpdates(); // We only need one good location update
                         break;
                     }
                 }
@@ -426,11 +469,13 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         finish();
     }
 
+
     @Override
     protected void onResume() {
         super.onResume();
         bottomNavigationView.setSelectedItemId(CURRENT_ITEM_ID);
         loadAndDisplayLocationHeader();
+        checkIfReadyToGenerate();
     }
 
     @Override
@@ -447,7 +492,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
                         .setMessage("This app needs the Location permission to show your current location for itineraries. Please allow.")
                         .setPositiveButton("OK", (dialogInterface, i) -> ActivityCompat.requestPermissions(ItinerariesActivity.this,
                                 new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_LOCATION_PERMISSION_ITINERARIES))
-                        .setNegativeButton("Cancel", (dialog, which) -> itineraryViewModel.updateLocationStatus("Permission needed", "Location permission denied.") )
+                        .setNegativeButton("Cancel", (dialog, which) -> itineraryViewModel.updateLocationStatus("Permission needed", "Location permission denied."))
                         .create()
                         .show();
             } else {
@@ -480,6 +525,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             }
         }
     }
+
 
     private void fetchLastLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -527,15 +573,30 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         }
     }
 
-    // --- Listener Implementations ---
     @Override
     public void onRegenerateClicked() {
-        triggerGeneration(true, Collections.emptyList());
+        new AlertDialog.Builder(this)
+                .setTitle("Generate New Plan?")
+                .setMessage("This will create a new itinerary based on your current location and time settings. Any unsaved changes will be lost.\n\nDo you want to continue?")
+                .setPositiveButton("Generate", (dialog, which) -> {
+                    triggerGeneration(true, Collections.emptyList());
+                    showFirstTimeDisclaimerDialog(); // Call the disclaimer dialog
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
     }
 
     @Override
     public void onClearClicked() {
-        itineraryViewModel.clearItinerary();
+        new AlertDialog.Builder(this)
+                .setTitle("Clear Itinerary")
+                .setMessage("Are you sure you want to remove the current plan?")
+                .setPositiveButton("Clear", (dialog, which) -> {
+                    itineraryViewModel.clearItinerary();
+                })
+                .setNegativeButton("Cancel", null)
+                .setIcon(android.R.drawable.ic_dialog_alert)
+                .show();
     }
 
     @Override
@@ -551,8 +612,8 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
 
     @Override
     public void onCustomizeApplied(List<String> categoryPreferences) {
-        Toast.makeText(this, "Applying customization and generating new plan...", Toast.LENGTH_SHORT).show();
         triggerGeneration(true, categoryPreferences);
+        showFirstTimeDisclaimerDialog(); // Call the disclaimer dialog
     }
 
     @Override
@@ -590,14 +651,14 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             Log.e(TAG_LOCATION, "onItemClicked: Invalid state or position.");
             return;
         }
+
         ItineraryItem clickedItem = state.getItineraryItems().get(position);
         String placeDocId = clickedItem.getPlaceDocumentId();
         if (placeDocId == null || placeDocId.isEmpty()) {
             Toast.makeText(this, "Details for this item are not available.", Toast.LENGTH_SHORT).show();
             return;
         }
-        // MODIFIED: Pass the trip date to the bottom sheet
-        loadTripDateTime(); // Ensure tripStartCalendar is current
+        loadTripDateTime(); // Ensure calendar is current
         long tripDateMillis = tripStartCalendar.getTimeInMillis();
         ItineraryPlaceDetailSheet bottomSheet = ItineraryPlaceDetailSheet.newInstance(placeDocId, tripDateMillis);
         bottomSheet.show(getSupportFragmentManager(), ItineraryPlaceDetailSheet.TAG);
@@ -609,7 +670,6 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
         itineraryViewModel.replaceItineraryItem(indexToReplace, newPlace, allPlacesList);
     }
 
-    // --- NEW LISTENER IMPLEMENTATIONS ---
     @Override
     public void onTimeClicked(int position) {
         ItineraryState state = itineraryViewModel.itineraryState.getValue();
@@ -617,7 +677,7 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             Toast.makeText(this, "Cannot edit time, itinerary data is missing.", Toast.LENGTH_SHORT).show();
             return;
         }
-        loadTripDateTime(); // Ensure trip calendars are up-to-date
+        loadTripDateTime();
         EditItineraryTimeDialog dialog = EditItineraryTimeDialog.newInstance(
                 position,
                 tripStartCalendar.getTimeInMillis(),
@@ -638,7 +698,46 @@ public class ItinerariesActivity extends AppCompatActivity implements ItineraryA
             Toast.makeText(this, "Cannot swap, place data is not ready.", Toast.LENGTH_SHORT).show();
             return;
         }
-        Toast.makeText(this, "Checking if swap is possible...", Toast.LENGTH_SHORT).show();
-        itineraryViewModel.attemptSwap(position, allPlacesList);
+        ItineraryState state = itineraryViewModel.itineraryState.getValue();
+        if (state == null || state.getItineraryItems() == null || position + 1 >= state.getItineraryItems().size()) {
+            Toast.makeText(this, "Cannot swap, invalid itinerary state.", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String item1Name = state.getItineraryItems().get(position).getActivity();
+        String item2Name = state.getItineraryItems().get(position + 1).getActivity();
+
+        new AlertDialog.Builder(this)
+                .setTitle("Swap Itinerary Order?")
+                .setMessage("This will attempt to swap the order of " + item1Name + " and " + item2Name + ".\n\nThe schedule will be recalculated. The swap will only be applied if the new order fits within each location's opening hours and your trip duration.\n\nDo you want to continue?")
+                .setPositiveButton("Swap", (dialog, which) -> {
+                    Toast.makeText(this, "Checking if swap is possible...", Toast.LENGTH_SHORT).show();
+                    itineraryViewModel.attemptSwap(position, allPlacesList);
+                })
+                .setNegativeButton("Cancel", null)
+                .show();
+    }
+
+    //  Shows a one-time disclaimer after generating a plan.
+    private void showFirstTimeDisclaimerDialog() {
+        if (sharedPreferences == null) {
+            return;
+        }
+        boolean hasSeenDisclaimer = sharedPreferences.getBoolean(PREF_KEY_SEEN_DISCLAIMER, false);
+
+        if (!hasSeenDisclaimer) {
+            new AlertDialog.Builder(this)
+                    .setTitle("A Note on Your Plan")
+                    .setMessage("Your Alaya itinerary is a smart starting point, not a fixed schedule. All travel and visit times are estimates and do not account for real-time traffic, road closures, or your personal pace.\n\nFor live navigation, we strongly recommend using a dedicated maps app before you depart for each stop. Enjoy your trip!")
+                    .setPositiveButton("Got It", (dialog, which) -> {
+                        // User has acknowledged the message, save the preference
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean(PREF_KEY_SEEN_DISCLAIMER, true);
+                        editor.apply();
+                        dialog.dismiss();
+                    })
+                    .setCancelable(false) // Prevent dismissing by tapping outside
+                    .show();
+        }
     }
 }
