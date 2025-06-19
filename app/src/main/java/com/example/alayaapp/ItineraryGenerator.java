@@ -24,6 +24,10 @@ public class ItineraryGenerator {
     private static final int MIN_VISIT_DURATION_MINUTES = 30;
     private static final double CATEGORY_REPETITION_PENALTY_KM = 50.0;
 
+    // --- NEW CONSTANTS FOR FLEXIBLE GENERATION ---
+    private static final int MAX_STOPS = 5;
+    private static final int MIN_STOPS = 3;
+
     private Calendar roundToNearestFiveMinutes(Calendar originalCal) {
         if (originalCal == null) {
             return null;
@@ -55,15 +59,17 @@ public class ItineraryGenerator {
     public GenerationResult generateWithTimeWindows(GeoPoint userStartLocation, List<Place> places, Calendar tripStartCalendar, Calendar tripEndCalendar, List<String> categoryPreferences, @Nullable ItineraryItem lockedItem) {
         if (lockedItem != null) {
             Log.d(TAG, "Recalculating itinerary around a locked item: " + lockedItem.getActivity());
-            // The 'places' list is now the ordered sequence from the ViewModel
             return generateAroundLockedItem(userStartLocation, places, tripStartCalendar, tripEndCalendar, lockedItem);
         } else {
             Log.d(TAG, "Generating a fresh itinerary (no locked item).");
-            // The 'places' list is the full pool of available places
             return generateNewItinerary(userStartLocation, places, tripStartCalendar, tripEndCalendar, categoryPreferences);
         }
     }
 
+    /**
+     * MODIFIED: This method now iteratively tries to generate a plan, starting from MAX_STOPS
+     * and reducing the count until a plan fits within the user's time window.
+     */
     private GenerationResult generateNewItinerary(GeoPoint userStartLocation, List<Place> allPlaces, Calendar tripStartCalendar, Calendar tripEndCalendar, List<String> categoryPreferences) {
         List<ItineraryItem> generatedItinerary = new ArrayList<>();
         List<Place> availablePlaces = new ArrayList<>(allPlaces);
@@ -71,129 +77,104 @@ public class ItineraryGenerator {
         List<String> unmetPreferences = new ArrayList<>();
 
         availablePlaces.removeIf(place -> !isPlaceOpenOnDay(place, dayOfWeek));
-
         if (availablePlaces.isEmpty()) {
             Log.w(TAG, "No places are open on " + dayOfWeek);
-            return new GenerationResult(generatedItinerary, unmetPreferences);
+            return new GenerationResult(new ArrayList<>(), unmetPreferences);
         }
 
-        List<Place> sequence = selectPlaceSequence(userStartLocation, availablePlaces, categoryPreferences, unmetPreferences);
+        // --- NEW: Iterative logic to find a plan that fits ---
+        for (int numStops = MAX_STOPS; numStops >= MIN_STOPS; numStops--) {
+            Log.i(TAG, "Attempting to generate an itinerary with " + numStops + " stops.");
 
-        if (sequence.isEmpty()) {
-            Log.w(TAG, "Could not determine a valid sequence of places.");
-            return new GenerationResult(generatedItinerary, unmetPreferences);
-        }
+            List<Place> sequence = selectPlaceSequence(userStartLocation, availablePlaces, categoryPreferences, unmetPreferences, numStops);
 
-        Log.d(TAG, "Determined sequence: " + sequence.stream().map(Place::getName).collect(Collectors.joining(" -> ")));
-
-        long totalMinVisitMinutes = 0;
-        for (Place p : sequence) {
-            // Use the specific duration if available, otherwise use default
-            int visitDuration = p.getAverageVisitDuration();
-            totalMinVisitMinutes += (visitDuration > 0) ? visitDuration : DEFAULT_VISIT_DURATION_MINUTES;
-        }
-
-        long totalTravelMinutes = 0;
-        GeoPoint lastLocation = userStartLocation;
-        for (Place p : sequence) {
-            totalTravelMinutes += calculateTravelTime(lastLocation, p.getCoordinates());
-            lastLocation = p.getCoordinates();
-        }
-
-        long minTotalTimeMinutes = totalMinVisitMinutes + totalTravelMinutes;
-        long userTripDurationMinutes = (tripEndCalendar.getTimeInMillis() - tripStartCalendar.getTimeInMillis()) / (60 * 1000);
-        long slackMinutes = userTripDurationMinutes - minTotalTimeMinutes;
-
-        Log.d(TAG, "User Trip: " + userTripDurationMinutes + " mins. Min Required: " + minTotalTimeMinutes + " mins. Slack: " + slackMinutes + " mins.");
-
-        if (slackMinutes < 0) {
-            Log.w(TAG, "Not enough time for the planned itinerary. Required time exceeds user's trip window.");
-            return new GenerationResult(generatedItinerary, unmetPreferences);
-        }
-
-        double perStopSlackMinutes = sequence.isEmpty() ? 0 : (double) slackMinutes / sequence.size();
-
-        Calendar currentTime = (Calendar) tripStartCalendar.clone();
-        GeoPoint currentGeoLocation = userStartLocation;
-        long itineraryItemIdCounter = 1;
-
-        for (Place place : sequence) {
-            int travelTime = calculateTravelTime(currentGeoLocation, place.getCoordinates());
-            Calendar arrivalTime = (Calendar) currentTime.clone();
-            arrivalTime.add(Calendar.MINUTE, travelTime);
-
-            Calendar placeOpenTime = getPlaceTime(place, dayOfWeek, "open", tripStartCalendar);
-            Calendar placeCloseTime = getPlaceTime(place, dayOfWeek, "close", tripStartCalendar);
-
-            // --- MODIFIED LOGIC WITH ROUNDING ---
-            // 1. Determine the earliest we can possibly start.
-            Calendar earliestPossibleStart = (Calendar) arrivalTime.clone();
-            if (earliestPossibleStart.before(placeOpenTime)) {
-                earliestPossibleStart.setTime(placeOpenTime.getTime());
-            }
-
-            // 2. Round this start time to make it aesthetically pleasing.
-            Calendar effectiveStartTime = roundToNearestFiveMinutes(earliestPossibleStart);
-
-            // 3. Conflict check: If rounding down made the start time too early, push it to the next 5-minute slot.
-            if (effectiveStartTime.before(earliestPossibleStart)) {
-                effectiveStartTime.add(Calendar.MINUTE, 5);
-            }
-
-            // 4. Calculate the visit duration including distributed slack time.
-            int baseVisitDuration = place.getAverageVisitDuration();
-            if (baseVisitDuration <= 0) {
-                // If duration is not specified in Firebase (or is 0), use the default.
-                baseVisitDuration = DEFAULT_VISIT_DURATION_MINUTES;
-            }
-            int flexibleVisitDuration = (int) (baseVisitDuration + perStopSlackMinutes);
-            Calendar tentativeEndTime = (Calendar) effectiveStartTime.clone();
-            tentativeEndTime.add(Calendar.MINUTE, flexibleVisitDuration);
-
-            // 5. Round the end time as well for consistency.
-            Calendar effectiveEndTime = roundToNearestFiveMinutes(tentativeEndTime);
-
-            // 6. Apply hard constraints to the final rounded end time.
-            if (effectiveEndTime.after(placeCloseTime)) {
-                effectiveEndTime.setTime(placeCloseTime.getTime());
-            }
-            if (effectiveEndTime.after(tripEndCalendar)) {
-                effectiveEndTime.setTime(tripEndCalendar.getTime());
-            }
-
-            // 7. Final validation: ensure the visit duration is still valid after all adjustments.
-            long finalVisitMinutes = (effectiveEndTime.getTimeInMillis() - effectiveStartTime.getTimeInMillis()) / (60 * 1000);
-            if (finalVisitMinutes < MIN_VISIT_DURATION_MINUTES || effectiveStartTime.after(effectiveEndTime) || effectiveStartTime.after(tripEndCalendar)) {
-                Log.w(TAG, "Skipping " + place.getName() + " because the available time window after rounding is invalid or too short.");
+            if (sequence.size() < numStops) {
+                Log.w(TAG, "Could not find " + numStops + " suitable places. Trying with " + (numStops - 1) + ".");
                 continue;
             }
-            // --- END OF MODIFIED LOGIC ---
 
-            String rating = String.format(Locale.getDefault(), "%.1f", place.getRating());
-            generatedItinerary.add(new ItineraryItem(
-                    itineraryItemIdCounter++,
-                    effectiveStartTime, // Use the new rounded start time
-                    effectiveEndTime,   // Use the new constrained, rounded end time
-                    place.getName(),
-                    rating,
-                    place.getImage_url(),
-                    place.getCoordinates(),
-                    place.getDocumentId(),
-                    place.getCategory()
-            ));
+            Log.d(TAG, "Determined sequence for " + numStops + " stops: " + sequence.stream().map(Place::getName).collect(Collectors.joining(" -> ")));
 
-            // The next iteration's start point is now the final, rounded end time.
-            currentTime = (Calendar) effectiveEndTime.clone();
-            currentGeoLocation = place.getCoordinates();
+            long totalMinVisitMinutes = 0;
+            for (Place p : sequence) {
+                int visitDuration = p.getAverageVisitDuration();
+                totalMinVisitMinutes += (visitDuration > 0) ? visitDuration : DEFAULT_VISIT_DURATION_MINUTES;
+            }
+
+            long totalTravelMinutes = 0;
+            GeoPoint lastLocation = userStartLocation;
+            for (Place p : sequence) {
+                totalTravelMinutes += calculateTravelTime(lastLocation, p.getCoordinates());
+                lastLocation = p.getCoordinates();
+            }
+
+            long minTotalTimeMinutes = totalMinVisitMinutes + totalTravelMinutes;
+            long userTripDurationMinutes = (tripEndCalendar.getTimeInMillis() - tripStartCalendar.getTimeInMillis()) / (60 * 1000);
+
+            if (minTotalTimeMinutes <= userTripDurationMinutes) {
+                Log.i(TAG, "SUCCESS: A " + numStops + "-stop plan fits! Required: " + minTotalTimeMinutes + " mins, Available: " + userTripDurationMinutes + " mins.");
+
+                long slackMinutes = userTripDurationMinutes - minTotalTimeMinutes;
+                double perStopSlackMinutes = sequence.isEmpty() ? 0 : (double) slackMinutes / sequence.size();
+                Calendar currentTime = (Calendar) tripStartCalendar.clone();
+                GeoPoint currentGeoLocation = userStartLocation;
+                long itineraryItemIdCounter = 1;
+
+                for (Place place : sequence) {
+                    int travelTime = calculateTravelTime(currentGeoLocation, place.getCoordinates());
+                    Calendar arrivalTime = (Calendar) currentTime.clone();
+                    arrivalTime.add(Calendar.MINUTE, travelTime);
+                    Calendar placeOpenTime = getPlaceTime(place, dayOfWeek, "open", tripStartCalendar);
+                    Calendar placeCloseTime = getPlaceTime(place, dayOfWeek, "close", tripStartCalendar);
+                    Calendar earliestPossibleStart = (Calendar) arrivalTime.clone();
+                    if (earliestPossibleStart.before(placeOpenTime)) {
+                        earliestPossibleStart.setTime(placeOpenTime.getTime());
+                    }
+                    Calendar effectiveStartTime = roundToNearestFiveMinutes(earliestPossibleStart);
+                    if (effectiveStartTime.before(earliestPossibleStart)) {
+                        effectiveStartTime.add(Calendar.MINUTE, 5);
+                    }
+                    int baseVisitDuration = place.getAverageVisitDuration();
+                    if (baseVisitDuration <= 0) {
+                        baseVisitDuration = DEFAULT_VISIT_DURATION_MINUTES;
+                    }
+                    int flexibleVisitDuration = (int) (baseVisitDuration + perStopSlackMinutes);
+                    Calendar tentativeEndTime = (Calendar) effectiveStartTime.clone();
+                    tentativeEndTime.add(Calendar.MINUTE, flexibleVisitDuration);
+                    Calendar effectiveEndTime = roundToNearestFiveMinutes(tentativeEndTime);
+                    if (effectiveEndTime.after(placeCloseTime)) {
+                        effectiveEndTime.setTime(placeCloseTime.getTime());
+                    }
+                    if (effectiveEndTime.after(tripEndCalendar)) {
+                        effectiveEndTime.setTime(tripEndCalendar.getTime());
+                    }
+                    long finalVisitMinutes = (effectiveEndTime.getTimeInMillis() - effectiveStartTime.getTimeInMillis()) / (60 * 1000);
+                    if (finalVisitMinutes < MIN_VISIT_DURATION_MINUTES || effectiveStartTime.after(effectiveEndTime) || effectiveStartTime.after(tripEndCalendar)) {
+                        Log.w(TAG, "Skipping " + place.getName() + " because the available time window after rounding is invalid or too short.");
+                        continue;
+                    }
+                    String rating = String.format(Locale.getDefault(), "%.1f", place.getRating());
+                    generatedItinerary.add(new ItineraryItem(
+                            itineraryItemIdCounter++, effectiveStartTime, effectiveEndTime, place.getName(),
+                            rating, place.getImage_url(), place.getCoordinates(), place.getDocumentId(), place.getCategory()
+                    ));
+                    currentTime = (Calendar) effectiveEndTime.clone();
+                    currentGeoLocation = place.getCoordinates();
+                }
+                return new GenerationResult(generatedItinerary, unmetPreferences);
+            } else {
+                Log.w(TAG, "A " + numStops + "-stop plan is too long. Required: " + minTotalTimeMinutes + " mins, Available: " + userTripDurationMinutes + " mins. Trying fewer stops.");
+            }
         }
-        return new GenerationResult(generatedItinerary, unmetPreferences);
+
+        Log.w(TAG, "Even an itinerary with " + MIN_STOPS + " stops could not fit in the given time.");
+        return new GenerationResult(new ArrayList<>(), unmetPreferences);
     }
 
     private GenerationResult generateAroundLockedItem(GeoPoint userStartLocation, List<Place> originalSequence, Calendar tripStartCalendar, Calendar tripEndCalendar, ItineraryItem lockedItem) {
         List<ItineraryItem> finalItinerary = new ArrayList<>();
-        finalItinerary.add(lockedItem); // The locked item is the anchor
+        finalItinerary.add(lockedItem);
         String dayOfWeek = tripStartCalendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.US).toLowerCase();
-
         int lockedPlaceIndex = -1;
         for (int i = 0; i < originalSequence.size(); i++) {
             if (originalSequence.get(i).getDocumentId().equals(lockedItem.getPlaceDocumentId())) {
@@ -201,13 +182,10 @@ public class ItineraryGenerator {
                 break;
             }
         }
-
         if (lockedPlaceIndex == -1) {
             Log.e(TAG, "Could not find locked place in the provided sequence. Aborting recalculation.");
             return new GenerationResult(Collections.singletonList(lockedItem), Collections.emptyList());
         }
-
-        // --- BACKWARD PASS ---
         Calendar latestDepartureTime = (Calendar) lockedItem.getStartTime().clone();
         GeoPoint nextStopLocation = lockedItem.getCoordinates();
         for (int i = lockedPlaceIndex - 1; i >= 0; i--) {
@@ -215,33 +193,26 @@ public class ItineraryGenerator {
             int travelToNext = calculateTravelTime(currentPlace.getCoordinates(), nextStopLocation);
             Calendar mustDepartBy = (Calendar) latestDepartureTime.clone();
             mustDepartBy.add(Calendar.MINUTE, -travelToNext);
-
             Calendar placeCloseTime = getPlaceTime(currentPlace, dayOfWeek, "close", tripStartCalendar);
             if (mustDepartBy.after(placeCloseTime)) {
                 Log.w(TAG, "Conflict (Backward): " + currentPlace.getName() + " would need to be left after it closes. Dropping stop.");
                 continue;
             }
-
             int visitDuration = currentPlace.getAverageVisitDuration();
             if (visitDuration <= 0) {
-                // If duration is not specified in Firebase (or is 0), use the default.
                 visitDuration = DEFAULT_VISIT_DURATION_MINUTES;
             }
             Calendar mustArriveBy = (Calendar) mustDepartBy.clone();
             mustArriveBy.add(Calendar.MINUTE, -visitDuration);
-
             Calendar placeOpenTime = getPlaceTime(currentPlace, dayOfWeek, "open", tripStartCalendar);
             if (mustArriveBy.before(placeOpenTime) || mustArriveBy.before(tripStartCalendar)) {
                 Log.w(TAG, "Conflict (Backward): " + currentPlace.getName() + " cannot be visited in time. Dropping stop.");
                 continue;
             }
-
             finalItinerary.add(new ItineraryItem(currentPlace.getId(), mustArriveBy, mustDepartBy, currentPlace.getName(), String.valueOf(currentPlace.getRating()), currentPlace.getImage_url(), currentPlace.getCoordinates(), currentPlace.getDocumentId(), currentPlace.getCategory()));
             latestDepartureTime = (Calendar) mustArriveBy.clone();
             nextStopLocation = currentPlace.getCoordinates();
         }
-
-        // --- FORWARD PASS ---
         Calendar earliestStartTime = (Calendar) lockedItem.getEndTime().clone();
         GeoPoint prevStopLocation = lockedItem.getCoordinates();
         for (int i = lockedPlaceIndex + 1; i < originalSequence.size(); i++) {
@@ -249,38 +220,35 @@ public class ItineraryGenerator {
             int travelFromPrev = calculateTravelTime(prevStopLocation, currentPlace.getCoordinates());
             Calendar canArriveAt = (Calendar) earliestStartTime.clone();
             canArriveAt.add(Calendar.MINUTE, travelFromPrev);
-
             Calendar placeOpenTime = getPlaceTime(currentPlace, dayOfWeek, "open", tripStartCalendar);
             if (canArriveAt.before(placeOpenTime)) {
                 canArriveAt = (Calendar) placeOpenTime.clone();
             }
-
             int visitDuration = currentPlace.getAverageVisitDuration();
             if (visitDuration <= 0) {
-                // If duration is not specified in Firebase (or is 0), use the default.
                 visitDuration = DEFAULT_VISIT_DURATION_MINUTES;
             }
             Calendar departureTime = (Calendar) canArriveAt.clone();
             departureTime.add(Calendar.MINUTE, visitDuration);
-
             Calendar placeCloseTime = getPlaceTime(currentPlace, dayOfWeek, "close", tripStartCalendar);
             if (departureTime.after(placeCloseTime) || departureTime.after(tripEndCalendar)) {
                 Log.w(TAG, "Conflict (Forward): " + currentPlace.getName() + " cannot be visited in time. Dropping stop.");
                 continue;
             }
-
             finalItinerary.add(new ItineraryItem(currentPlace.getId(), canArriveAt, departureTime, currentPlace.getName(), String.valueOf(currentPlace.getRating()), currentPlace.getImage_url(), currentPlace.getCoordinates(), currentPlace.getDocumentId(), currentPlace.getCategory()));
             earliestStartTime = (Calendar) departureTime.clone();
             prevStopLocation = currentPlace.getCoordinates();
         }
-
         finalItinerary.sort(Comparator.comparing(ItineraryItem::getStartTime));
         return new GenerationResult(finalItinerary, Collections.emptyList());
     }
 
-    private List<Place> selectPlaceSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences, List<String> unmetPreferences) {
+    /**
+     * MODIFIED: Signature changed to accept numStops.
+     */
+    private List<Place> selectPlaceSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences, List<String> unmetPreferences, int numStops) {
         if (categoryPreferences == null || categoryPreferences.isEmpty()) {
-            return selectOptimalSequence(startLocation, availablePlaces);
+            return selectOptimalSequence(startLocation, availablePlaces, numStops);
         } else {
             if (availablePlaces.size() == categoryPreferences.size()) {
                 Log.d(TAG, "Forced sequence detected. Using the provided place list directly.");
@@ -290,12 +258,14 @@ public class ItineraryGenerator {
         }
     }
 
-    private List<Place> selectOptimalSequence(GeoPoint startLocation, List<Place> availablePlaces) {
-        List<Place> bestRoute = selectGreedySequence(startLocation, availablePlaces);
+    /**
+     * MODIFIED: Signature changed to accept numStops.
+     */
+    private List<Place> selectOptimalSequence(GeoPoint startLocation, List<Place> availablePlaces, int numStops) {
+        List<Place> bestRoute = selectGreedySequence(startLocation, availablePlaces, numStops);
         if (bestRoute.size() <= 2) {
             return bestRoute;
         }
-
         boolean improvementFound = true;
         while (improvementFound) {
             improvementFound = false;
@@ -346,17 +316,18 @@ public class ItineraryGenerator {
         return totalDistance;
     }
 
-    private List<Place> selectGreedySequence(GeoPoint startLocation, List<Place> availablePlaces) {
+    /**
+     * MODIFIED: Signature changed to accept numStops.
+     */
+    private List<Place> selectGreedySequence(GeoPoint startLocation, List<Place> availablePlaces, int numStops) {
         List<Place> sequence = new ArrayList<>();
         List<Place> pool = new ArrayList<>(availablePlaces);
         GeoPoint currentLocation = startLocation;
         String lastCategory = null;
-        int maxStops = 5;
 
-        while (sequence.size() < maxStops && !pool.isEmpty()) {
+        while (sequence.size() < numStops && !pool.isEmpty()) {
             Place bestNextPlace = null;
             double bestScore = Double.MAX_VALUE;
-
             for (Place candidate : pool) {
                 double distance = calculateDistance(currentLocation, candidate.getCoordinates());
                 double score = distance;
@@ -368,7 +339,6 @@ public class ItineraryGenerator {
                     bestNextPlace = candidate;
                 }
             }
-
             if (bestNextPlace != null) {
                 sequence.add(bestNextPlace);
                 pool.remove(bestNextPlace);
@@ -381,24 +351,16 @@ public class ItineraryGenerator {
         return sequence;
     }
 
-    // ==================================================================
-    // ===== THIS IS THE MODIFIED METHOD FOR THE CUSTOMIZED PLAN ======
-    // ==================================================================
     private List<Place> selectCustomSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences, List<String> unmetPreferences) {
-        // This list will hold the places chosen based on category, but not yet ordered.
         List<Place> selectedPlacesForRoute = new ArrayList<>();
         List<Place> pool = new ArrayList<>(availablePlaces);
         GeoPoint currentLocation = startLocation;
-
-        // Step 1: Select one place for each category preference.
         for (int i = 0; i < categoryPreferences.size(); i++) {
             String preferredCategory = categoryPreferences.get(i);
-
             if (pool.isEmpty()) {
                 unmetPreferences.add(preferredCategory + " for Stop " + (i + 1));
                 continue;
             }
-
             List<Place> candidatesForStop = new ArrayList<>();
             if ("Any".equalsIgnoreCase(preferredCategory)) {
                 candidatesForStop.addAll(pool);
@@ -409,41 +371,31 @@ public class ItineraryGenerator {
                     }
                 }
             }
-
             if (candidatesForStop.isEmpty()) {
                 Log.w(TAG, "No available places in pool for category: " + preferredCategory);
                 unmetPreferences.add(preferredCategory + " for Stop " + (i + 1));
                 continue;
             }
-
             Place bestNextPlace = null;
             double bestScore = Double.MAX_VALUE;
-
             for (Place candidate : candidatesForStop) {
-                // We still use distance to pick the *best* place for a given category.
                 double distance = calculateDistance(currentLocation, candidate.getCoordinates());
                 if (distance < bestScore) {
                     bestScore = distance;
                     bestNextPlace = candidate;
                 }
             }
-
             if (bestNextPlace != null) {
-                // Add the chosen place to our list for routing.
                 selectedPlacesForRoute.add(bestNextPlace);
-                // IMPORTANT: Remove it from the pool so it can't be chosen again.
                 pool.remove(bestNextPlace);
-                // Note: We do NOT update currentLocation here, as the order is not yet determined.
             }
         }
-
         if (selectedPlacesForRoute.isEmpty()) {
-            return selectedPlacesForRoute; // Return empty list if no places were found
+            return selectedPlacesForRoute;
         }
-
-        // Step 2: Take the selected places and find the optimal route between them.
         Log.d(TAG, "Optimizing the route for the " + selectedPlacesForRoute.size() + " custom-selected places.");
-        return selectOptimalSequence(startLocation, selectedPlacesForRoute);
+        // For custom sequences, we don't limit by numStops, we use all selected places.
+        return selectOptimalSequence(startLocation, selectedPlacesForRoute, selectedPlacesForRoute.size());
     }
 
     private boolean isPlaceOpenOnDay(Place place, String dayOfWeek) {
@@ -490,9 +442,7 @@ public class ItineraryGenerator {
         final int R = 6371; // Radius of the earth in km
         double latDistance = Math.toRadians(end.getLatitude() - start.getLatitude());
         double lonDistance = Math.toRadians(end.getLongitude() - start.getLongitude());
-        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2)
-                + Math.cos(Math.toRadians(start.getLatitude())) * Math.cos(Math.toRadians(end.getLatitude()))
-                * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
+        double a = Math.sin(latDistance / 2) * Math.sin(latDistance / 2) + Math.cos(Math.toRadians(start.getLatitude())) * Math.cos(Math.toRadians(end.getLatitude())) * Math.sin(lonDistance / 2) * Math.sin(lonDistance / 2);
         double c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         return R * c;
     }
