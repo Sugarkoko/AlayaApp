@@ -24,9 +24,8 @@ public class ItineraryGenerator {
     private static final int MIN_VISIT_DURATION_MINUTES = 30;
     private static final double CATEGORY_REPETITION_PENALTY_KM = 50.0;
 
-    // --- CONSTANTS FOR FLEXIBLE GENERATION ---
     private static final int MAX_STOPS = 5;
-    private static final int MIN_STOPS = 1; // Minimum is now 1 stop
+    private static final int MIN_STOPS = 1;
 
     private Calendar roundToNearestFiveMinutes(Calendar originalCal) {
         if (originalCal == null) {
@@ -78,22 +77,13 @@ public class ItineraryGenerator {
             return new GenerationResult(new ArrayList<>(), unmetPreferences);
         }
 
-        // --- MODIFIED: Determine the starting number of stops for the loop ---
         final boolean isCustomPlan = categoryPreferences != null && !categoryPreferences.isEmpty();
         int startNumStops = isCustomPlan ? categoryPreferences.size() : MAX_STOPS;
 
         for (int numStops = startNumStops; numStops >= MIN_STOPS; numStops--) {
             Log.i(TAG, "Attempting to generate an itinerary with " + numStops + " stops.");
 
-            // --- MODIFIED: Create the list of preferences for this specific attempt ---
-            List<String> prefsForThisAttempt;
-            if (isCustomPlan) {
-                // For custom plans, take a sublist of the user's top preferences
-                prefsForThisAttempt = categoryPreferences.subList(0, numStops);
-            } else {
-                // For standard plans, it's always an empty list
-                prefsForThisAttempt = Collections.emptyList();
-            }
+            List<String> prefsForThisAttempt = isCustomPlan ? categoryPreferences.subList(0, numStops) : Collections.emptyList();
 
             List<Place> sequence = selectPlaceSequence(userStartLocation, availablePlaces, prefsForThisAttempt, unmetPreferences, numStops);
 
@@ -180,6 +170,102 @@ public class ItineraryGenerator {
         return new GenerationResult(new ArrayList<>(), unmetPreferences);
     }
 
+    /**
+     * NEW UNIFIED LOGIC: This is the single, authoritative method for creating a sequence of places.
+     * It builds the route stop-by-stop, applying category preferences at each step, and then
+     * optimizes the final route.
+     */
+    private List<Place> selectPlaceSequence(GeoPoint startLocation, List<Place> allAvailablePlaces, List<String> categoryPreferences, List<String> unmetPreferences, int numStops) {
+        List<Place> finalSequence = new ArrayList<>();
+        List<Place> remainingPlacesPool = new ArrayList<>(allAvailablePlaces);
+        GeoPoint currentLocation = startLocation;
+        String lastCategory = null;
+
+        for (int i = 0; i < numStops; i++) {
+            // Step 1: Determine the pool of valid candidates for THIS specific stop
+            List<Place> candidatesForThisStop = new ArrayList<>();
+            String preferredCategory = (categoryPreferences != null && !categoryPreferences.isEmpty()) ? categoryPreferences.get(i) : "Any";
+
+            if ("Any".equalsIgnoreCase(preferredCategory)) {
+                candidatesForThisStop.addAll(remainingPlacesPool);
+            } else {
+                for (Place p : remainingPlacesPool) {
+                    if (preferredCategory.equalsIgnoreCase(p.getCategory())) {
+                        candidatesForThisStop.add(p);
+                    }
+                }
+            }
+
+            if (candidatesForThisStop.isEmpty()) {
+                Log.w(TAG, "No available places in pool for stop " + (i + 1) + " with category: " + preferredCategory);
+                if (!"Any".equalsIgnoreCase(preferredCategory)) {
+                    unmetPreferences.add(preferredCategory + " for Stop " + (i + 1));
+                }
+                break; // Cannot find a place for this stop, so we can't continue building the sequence
+            }
+
+            // Step 2: Find the best place from the candidate pool based on distance from the *last* stop
+            Place bestNextPlace = null;
+            double bestScore = Double.MAX_VALUE;
+
+            for (Place candidate : candidatesForThisStop) {
+                double distance = calculateDistance(currentLocation, candidate.getCoordinates());
+                double score = distance;
+                if (candidate.getCategory() != null && candidate.getCategory().equals(lastCategory)) {
+                    score += CATEGORY_REPETITION_PENALTY_KM;
+                }
+                if (score < bestScore) {
+                    bestScore = score;
+                    bestNextPlace = candidate;
+                }
+            }
+
+            // Step 3: Add the best place to our sequence and update state for the next iteration
+            if (bestNextPlace != null) {
+                finalSequence.add(bestNextPlace);
+                remainingPlacesPool.remove(bestNextPlace); // Don't pick the same place twice
+                currentLocation = bestNextPlace.getCoordinates(); // The next stop is relative to this one
+                lastCategory = bestNextPlace.getCategory();
+            } else {
+                break; // No suitable place found, end the sequence building
+            }
+        }
+
+        // Step 4: Optimize the generated sequence for the best travel path
+        if (finalSequence.size() > 2) {
+            return optimizeSequenceWith2Opt(finalSequence, startLocation);
+        } else {
+            return finalSequence;
+        }
+    }
+
+    /**
+     * Helper method to run the 2-Opt optimization on a given sequence.
+     */
+    private List<Place> optimizeSequenceWith2Opt(List<Place> route, GeoPoint startLocation) {
+        List<Place> bestRoute = new ArrayList<>(route);
+        boolean improvementFound = true;
+        while (improvementFound) {
+            improvementFound = false;
+            double bestDistance = calculateTotalDistance(bestRoute, startLocation);
+            for (int i = 0; i < bestRoute.size() - 1; i++) {
+                for (int k = i + 1; k < bestRoute.size(); k++) {
+                    List<Place> newRoute = perform2OptSwap(bestRoute, i, k);
+                    double newDistance = calculateTotalDistance(newRoute, startLocation);
+                    if (newDistance < bestDistance) {
+                        bestRoute = newRoute;
+                        bestDistance = newDistance;
+                        improvementFound = true;
+                    }
+                }
+            }
+        }
+        Log.d(TAG, "2-Opt optimization complete.");
+        return bestRoute;
+    }
+
+    // --- The rest of the helper methods remain the same ---
+
     private GenerationResult generateAroundLockedItem(GeoPoint userStartLocation, List<Place> originalSequence, Calendar tripStartCalendar, Calendar tripEndCalendar, ItineraryItem lockedItem) {
         List<ItineraryItem> finalItinerary = new ArrayList<>();
         finalItinerary.add(lockedItem);
@@ -252,43 +338,6 @@ public class ItineraryGenerator {
         return new GenerationResult(finalItinerary, Collections.emptyList());
     }
 
-    private List<Place> selectPlaceSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences, List<String> unmetPreferences, int numStops) {
-        if (categoryPreferences == null || categoryPreferences.isEmpty()) {
-            return selectOptimalSequence(startLocation, availablePlaces, numStops);
-        } else {
-            if (availablePlaces.size() == categoryPreferences.size()) {
-                Log.d(TAG, "Forced sequence detected. Using the provided place list directly.");
-                return availablePlaces;
-            }
-            return selectCustomSequence(startLocation, availablePlaces, categoryPreferences, unmetPreferences);
-        }
-    }
-
-    private List<Place> selectOptimalSequence(GeoPoint startLocation, List<Place> availablePlaces, int numStops) {
-        List<Place> bestRoute = selectGreedySequence(startLocation, availablePlaces, numStops);
-        if (bestRoute.size() <= 2) {
-            return bestRoute;
-        }
-        boolean improvementFound = true;
-        while (improvementFound) {
-            improvementFound = false;
-            double bestDistance = calculateTotalDistance(bestRoute, startLocation);
-            for (int i = 0; i < bestRoute.size() - 1; i++) {
-                for (int k = i + 1; k < bestRoute.size(); k++) {
-                    List<Place> newRoute = perform2OptSwap(bestRoute, i, k);
-                    double newDistance = calculateTotalDistance(newRoute, startLocation);
-                    if (newDistance < bestDistance) {
-                        bestRoute = newRoute;
-                        bestDistance = newDistance;
-                        improvementFound = true;
-                    }
-                }
-            }
-        }
-        Log.d(TAG, "2-Opt optimization complete.");
-        return bestRoute;
-    }
-
     private List<Place> perform2OptSwap(List<Place> route, int i, int k) {
         List<Place> newRoute = new ArrayList<>();
         for (int c = 0; c <= i; c++) {
@@ -309,92 +358,11 @@ public class ItineraryGenerator {
         }
         double totalDistance = 0.0;
         GeoPoint currentLocation = startLocation;
-        totalDistance += calculateDistance(currentLocation, route.get(0).getCoordinates());
-        currentLocation = route.get(0).getCoordinates();
-        for (int i = 0; i < route.size() - 1; i++) {
-            GeoPoint nextLocation = route.get(i + 1).getCoordinates();
-            totalDistance += calculateDistance(currentLocation, nextLocation);
-            currentLocation = nextLocation;
+        for (Place place : route) {
+            totalDistance += calculateDistance(currentLocation, place.getCoordinates());
+            currentLocation = place.getCoordinates();
         }
         return totalDistance;
-    }
-
-    private List<Place> selectGreedySequence(GeoPoint startLocation, List<Place> availablePlaces, int numStops) {
-        List<Place> sequence = new ArrayList<>();
-        List<Place> pool = new ArrayList<>(availablePlaces);
-        GeoPoint currentLocation = startLocation;
-        String lastCategory = null;
-
-        while (sequence.size() < numStops && !pool.isEmpty()) {
-            Place bestNextPlace = null;
-            double bestScore = Double.MAX_VALUE;
-            for (Place candidate : pool) {
-                double distance = calculateDistance(currentLocation, candidate.getCoordinates());
-                double score = distance;
-                if (candidate.getCategory() != null && candidate.getCategory().equals(lastCategory)) {
-                    score += CATEGORY_REPETITION_PENALTY_KM;
-                }
-                if (score < bestScore) {
-                    bestScore = score;
-                    bestNextPlace = candidate;
-                }
-            }
-            if (bestNextPlace != null) {
-                sequence.add(bestNextPlace);
-                pool.remove(bestNextPlace);
-                currentLocation = bestNextPlace.getCoordinates();
-                lastCategory = bestNextPlace.getCategory();
-            } else {
-                break;
-            }
-        }
-        return sequence;
-    }
-
-    private List<Place> selectCustomSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences, List<String> unmetPreferences) {
-        List<Place> selectedPlacesForRoute = new ArrayList<>();
-        List<Place> pool = new ArrayList<>(availablePlaces);
-        GeoPoint currentLocation = startLocation;
-        for (int i = 0; i < categoryPreferences.size(); i++) {
-            String preferredCategory = categoryPreferences.get(i);
-            if (pool.isEmpty()) {
-                unmetPreferences.add(preferredCategory + " for Stop " + (i + 1));
-                continue;
-            }
-            List<Place> candidatesForStop = new ArrayList<>();
-            if ("Any".equalsIgnoreCase(preferredCategory)) {
-                candidatesForStop.addAll(pool);
-            } else {
-                for (Place p : pool) {
-                    if (preferredCategory.equalsIgnoreCase(p.getCategory())) {
-                        candidatesForStop.add(p);
-                    }
-                }
-            }
-            if (candidatesForStop.isEmpty()) {
-                Log.w(TAG, "No available places in pool for category: " + preferredCategory);
-                unmetPreferences.add(preferredCategory + " for Stop " + (i + 1));
-                continue;
-            }
-            Place bestNextPlace = null;
-            double bestScore = Double.MAX_VALUE;
-            for (Place candidate : candidatesForStop) {
-                double distance = calculateDistance(currentLocation, candidate.getCoordinates());
-                if (distance < bestScore) {
-                    bestScore = distance;
-                    bestNextPlace = candidate;
-                }
-            }
-            if (bestNextPlace != null) {
-                selectedPlacesForRoute.add(bestNextPlace);
-                pool.remove(bestNextPlace);
-            }
-        }
-        if (selectedPlacesForRoute.isEmpty()) {
-            return selectedPlacesForRoute;
-        }
-        Log.d(TAG, "Optimizing the route for the " + selectedPlacesForRoute.size() + " custom-selected places.");
-        return selectOptimalSequence(startLocation, selectedPlacesForRoute, selectedPlacesForRoute.size());
     }
 
     private boolean isPlaceOpenOnDay(Place place, String dayOfWeek) {
