@@ -173,6 +173,9 @@ public class ItineraryAdapter extends RecyclerView.Adapter<RecyclerView.ViewHold
             boolean hasItems = displayItems.stream().anyMatch(item -> item instanceof ItineraryItem);
             tvItinerariesTitle.setVisibility(hasItems ? View.VISIBLE : View.GONE);
 
+            btnClear.setEnabled(hasItems);
+            btnClear.setAlpha(hasItems ? 1.0f : 0.5f);
+
             String message = data.getHeaderMessage();
             if (message != null && !message.isEmpty()) {
                 tvHeaderMessage.setText(message);
