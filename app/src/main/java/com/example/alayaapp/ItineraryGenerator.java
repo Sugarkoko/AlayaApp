@@ -1,3 +1,4 @@
+// app/src/main/java/com/example/alayaapp/ItineraryGenerator.java
 package com.example.alayaapp;
 
 import android.util.Log;
@@ -19,7 +20,7 @@ import java.util.Date;
 public class ItineraryGenerator {
     private static final String TAG = "ItineraryGenerator";
     private static final double AVERAGE_SPEED_KMH = 15.0;
-    private static final int DEFAULT_VISIT_DURATION_MINUTES = 90;
+    private static final int DEFAULT_VISIT_DURATION_MINUTES = 60;
     private static final int MIN_VISIT_DURATION_MINUTES = 30;
     private static final double CATEGORY_REPETITION_PENALTY_KM = 50.0;
 
@@ -87,7 +88,9 @@ public class ItineraryGenerator {
 
         long totalMinVisitMinutes = 0;
         for (Place p : sequence) {
-            totalMinVisitMinutes += p.getAverageVisitDuration() > 0 ? p.getAverageVisitDuration() : DEFAULT_VISIT_DURATION_MINUTES;
+            // Use the specific duration if available, otherwise use default
+            int visitDuration = p.getAverageVisitDuration();
+            totalMinVisitMinutes += (visitDuration > 0) ? visitDuration : DEFAULT_VISIT_DURATION_MINUTES;
         }
 
         long totalTravelMinutes = 0;
@@ -138,7 +141,11 @@ public class ItineraryGenerator {
             }
 
             // 4. Calculate the visit duration including distributed slack time.
-            int baseVisitDuration = place.getAverageVisitDuration() > 0 ? place.getAverageVisitDuration() : DEFAULT_VISIT_DURATION_MINUTES;
+            int baseVisitDuration = place.getAverageVisitDuration();
+            if (baseVisitDuration <= 0) {
+                // If duration is not specified in Firebase (or is 0), use the default.
+                baseVisitDuration = DEFAULT_VISIT_DURATION_MINUTES;
+            }
             int flexibleVisitDuration = (int) (baseVisitDuration + perStopSlackMinutes);
             Calendar tentativeEndTime = (Calendar) effectiveStartTime.clone();
             tentativeEndTime.add(Calendar.MINUTE, flexibleVisitDuration);
@@ -215,7 +222,11 @@ public class ItineraryGenerator {
                 continue;
             }
 
-            int visitDuration = currentPlace.getAverageVisitDuration() > 0 ? currentPlace.getAverageVisitDuration() : DEFAULT_VISIT_DURATION_MINUTES;
+            int visitDuration = currentPlace.getAverageVisitDuration();
+            if (visitDuration <= 0) {
+                // If duration is not specified in Firebase (or is 0), use the default.
+                visitDuration = DEFAULT_VISIT_DURATION_MINUTES;
+            }
             Calendar mustArriveBy = (Calendar) mustDepartBy.clone();
             mustArriveBy.add(Calendar.MINUTE, -visitDuration);
 
@@ -244,7 +255,11 @@ public class ItineraryGenerator {
                 canArriveAt = (Calendar) placeOpenTime.clone();
             }
 
-            int visitDuration = currentPlace.getAverageVisitDuration() > 0 ? currentPlace.getAverageVisitDuration() : DEFAULT_VISIT_DURATION_MINUTES;
+            int visitDuration = currentPlace.getAverageVisitDuration();
+            if (visitDuration <= 0) {
+                // If duration is not specified in Firebase (or is 0), use the default.
+                visitDuration = DEFAULT_VISIT_DURATION_MINUTES;
+            }
             Calendar departureTime = (Calendar) canArriveAt.clone();
             departureTime.add(Calendar.MINUTE, visitDuration);
 
