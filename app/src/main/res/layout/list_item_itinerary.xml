@@ -71,7 +71,6 @@
                 android:visibility="gone"
                 tools:text="FOOD"
                 tools:visibility="visible" />
-
         </LinearLayout>
 
         <ImageView
