@@ -27,7 +27,6 @@ android {
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
-
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         manifestPlaceholders["mapsApiKey"] = mapsApiKey
     }
@@ -53,10 +52,14 @@ android {
 }
 
 dependencies {
+
     // --- NEW DEPENDENCIES FOR VIEWMODEL AND LIVEDATA ---
     implementation("com.google.code.gson:gson:2.10.1") // For state serialization
     implementation("androidx.lifecycle:lifecycle-viewmodel:2.8.4")
     implementation("androidx.lifecycle:lifecycle-livedata:2.8.4")
+
+    // NEW: Add the SwipeRefreshLayout dependency here
+    implementation(libs.swiperefreshlayout)
 
     implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
     implementation("com.google.firebase:firebase-analytics")
@@ -71,6 +74,7 @@ dependencies {
     implementation(libs.maps.utils)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
+
     implementation("com.google.firebase:firebase-auth-ktx")
     implementation("com.google.firebase:firebase-database")
     implementation("de.hdodenhof:circleimageview:3.1.0")
