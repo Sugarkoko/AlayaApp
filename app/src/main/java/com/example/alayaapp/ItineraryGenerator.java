@@ -70,12 +70,14 @@ public class ItineraryGenerator {
         List<String> unmetPreferences = new ArrayList<>();
 
         availablePlaces.removeIf(place -> !isPlaceOpenOnDay(place, dayOfWeek));
+
         if (availablePlaces.isEmpty()) {
             Log.w(TAG, "No places are open on " + dayOfWeek);
             return new GenerationResult(generatedItinerary, unmetPreferences);
         }
 
         List<Place> sequence = selectPlaceSequence(userStartLocation, availablePlaces, categoryPreferences, unmetPreferences);
+
         if (sequence.isEmpty()) {
             Log.w(TAG, "Could not determine a valid sequence of places.");
             return new GenerationResult(generatedItinerary, unmetPreferences);
@@ -203,7 +205,6 @@ public class ItineraryGenerator {
         for (int i = lockedPlaceIndex - 1; i >= 0; i--) {
             Place currentPlace = originalSequence.get(i);
             int travelToNext = calculateTravelTime(currentPlace.getCoordinates(), nextStopLocation);
-
             Calendar mustDepartBy = (Calendar) latestDepartureTime.clone();
             mustDepartBy.add(Calendar.MINUTE, -travelToNext);
 
@@ -234,7 +235,6 @@ public class ItineraryGenerator {
         for (int i = lockedPlaceIndex + 1; i < originalSequence.size(); i++) {
             Place currentPlace = originalSequence.get(i);
             int travelFromPrev = calculateTravelTime(prevStopLocation, currentPlace.getCoordinates());
-
             Calendar canArriveAt = (Calendar) earliestStartTime.clone();
             canArriveAt.add(Calendar.MINUTE, travelFromPrev);
 
@@ -279,6 +279,7 @@ public class ItineraryGenerator {
         if (bestRoute.size() <= 2) {
             return bestRoute;
         }
+
         boolean improvementFound = true;
         while (improvementFound) {
             improvementFound = false;
@@ -321,6 +322,7 @@ public class ItineraryGenerator {
         GeoPoint currentLocation = startLocation;
         totalDistance += calculateDistance(currentLocation, route.get(0).getCoordinates());
         currentLocation = route.get(0).getCoordinates();
+
         for (int i = 0; i < route.size() - 1; i++) {
             GeoPoint nextLocation = route.get(i + 1).getCoordinates();
             totalDistance += calculateDistance(currentLocation, nextLocation);
@@ -335,9 +337,11 @@ public class ItineraryGenerator {
         GeoPoint currentLocation = startLocation;
         String lastCategory = null;
         int maxStops = 5;
+
         while (sequence.size() < maxStops && !pool.isEmpty()) {
             Place bestNextPlace = null;
             double bestScore = Double.MAX_VALUE;
+
             for (Place candidate : pool) {
                 double distance = calculateDistance(currentLocation, candidate.getCoordinates());
                 double score = distance;
@@ -349,6 +353,7 @@ public class ItineraryGenerator {
                     bestNextPlace = candidate;
                 }
             }
+
             if (bestNextPlace != null) {
                 sequence.add(bestNextPlace);
                 pool.remove(bestNextPlace);
@@ -361,16 +366,23 @@ public class ItineraryGenerator {
         return sequence;
     }
 
+    // ==================================================================
+    // ===== THIS IS THE MODIFIED METHOD FOR THE CUSTOMIZED PLAN ======
+    // ==================================================================
     private List<Place> selectCustomSequence(GeoPoint startLocation, List<Place> availablePlaces, List<String> categoryPreferences, List<String> unmetPreferences) {
-        List<Place> sequence = new ArrayList<>();
+        // This list will hold the places chosen based on category, but not yet ordered.
+        List<Place> selectedPlacesForRoute = new ArrayList<>();
         List<Place> pool = new ArrayList<>(availablePlaces);
         GeoPoint currentLocation = startLocation;
+
+        // Step 1: Select one place for each category preference.
         for (int i = 0; i < categoryPreferences.size(); i++) {
             String preferredCategory = categoryPreferences.get(i);
             if (pool.isEmpty()) {
                 unmetPreferences.add("'" + preferredCategory + "' for Stop " + (i + 1));
                 continue;
             }
+
             List<Place> candidatesForStop = new ArrayList<>();
             if ("Any".equalsIgnoreCase(preferredCategory)) {
                 candidatesForStop.addAll(pool);
@@ -381,27 +393,40 @@ public class ItineraryGenerator {
                     }
                 }
             }
+
             if (candidatesForStop.isEmpty()) {
                 Log.w(TAG, "No available places in pool for category: " + preferredCategory);
                 unmetPreferences.add("'" + preferredCategory + "' for Stop " + (i + 1));
                 continue;
             }
+
             Place bestNextPlace = null;
             double bestScore = Double.MAX_VALUE;
             for (Place candidate : candidatesForStop) {
+                // We still use distance to pick the *best* place for a given category.
                 double distance = calculateDistance(currentLocation, candidate.getCoordinates());
                 if (distance < bestScore) {
                     bestScore = distance;
                     bestNextPlace = candidate;
                 }
             }
+
             if (bestNextPlace != null) {
-                sequence.add(bestNextPlace);
+                // Add the chosen place to our list for routing.
+                selectedPlacesForRoute.add(bestNextPlace);
+                // IMPORTANT: Remove it from the pool so it can't be chosen again.
                 pool.remove(bestNextPlace);
-                currentLocation = bestNextPlace.getCoordinates();
+                // Note: We do NOT update currentLocation here, as the order is not yet determined.
             }
         }
-        return sequence;
+
+        if (selectedPlacesForRoute.isEmpty()) {
+            return selectedPlacesForRoute; // Return empty list if no places were found
+        }
+
+        // Step 2: Take the selected places and find the optimal route between them.
+        Log.d(TAG, "Optimizing the route for the " + selectedPlacesForRoute.size() + " custom-selected places.");
+        return selectOptimalSequence(startLocation, selectedPlacesForRoute);
     }
 
     private boolean isPlaceOpenOnDay(Place place, String dayOfWeek) {
@@ -426,6 +451,7 @@ public class ItineraryGenerator {
             Date parsedTime = sdf.parse(hours.get(type));
             Calendar parsedCal = Calendar.getInstance();
             parsedCal.setTime(Objects.requireNonNull(parsedTime));
+
             timeCal.set(Calendar.HOUR_OF_DAY, parsedCal.get(Calendar.HOUR_OF_DAY));
             timeCal.set(Calendar.MINUTE, parsedCal.get(Calendar.MINUTE));
             timeCal.set(Calendar.SECOND, 0);
