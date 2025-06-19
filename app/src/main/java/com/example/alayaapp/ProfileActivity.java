@@ -10,8 +10,11 @@ import android.os.Bundle;
 import android.text.InputType;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView; // <-- FIX: Added this import
 import android.widget.Toast;
 
 import com.example.alayaapp.databinding.ActivityProfileBinding;
@@ -28,7 +31,6 @@ import java.util.Calendar;
 import java.util.Locale;
 
 public class ProfileActivity extends AppCompatActivity {
-
     private ActivityProfileBinding binding;
     final int CURRENT_ITEM_ID = R.id.navigation_profile;
     private static final String TAG = "ProfileActivity";
@@ -36,7 +38,6 @@ public class ProfileActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference userDatabaseReference;
     private ValueEventListener userProfileListener;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,7 +103,6 @@ public class ProfileActivity extends AppCompatActivity {
                         if (userDatabaseReference != null && userProfileListener != null) {
                             userDatabaseReference.removeEventListener(userProfileListener);
                         }
-
                         mAuth.signOut();
                         Toast.makeText(ProfileActivity.this, "Logged out successfully", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(ProfileActivity.this, LoginActivity.class);
@@ -118,11 +118,13 @@ public class ProfileActivity extends AppCompatActivity {
         binding.tvProfileNameDetail.setOnClickListener(v -> showEditTextDialog("name", "Edit Name", binding.tvProfileNameDetail.getText().toString()));
         binding.tvProfileBirthday.setOnClickListener(v -> showBirthdayPickerDialog());
         binding.tvProfilePhone.setOnClickListener(v -> showEditTextDialog("contactNumber", "Edit Contact Number", binding.tvProfilePhone.getText().toString()));
+
         binding.layoutChangePassword.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, ChangePasswordActivity.class);
             startActivity(intent);
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         });
+
         binding.layoutHistory.setOnClickListener(v -> {
             Intent intent = new Intent(ProfileActivity.this, TripHistoryActivity.class);
             startActivity(intent);
@@ -130,31 +132,46 @@ public class ProfileActivity extends AppCompatActivity {
     }
 
     private void showEditTextDialog(final String fieldKey, String title, String currentValue) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(title);
-        final EditText input = new EditText(this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this, R.style.TransparentDialog);
+        LayoutInflater inflater = this.getLayoutInflater();
+        View dialogView = inflater.inflate(R.layout.dialog_edit_text, null);
+        builder.setView(dialogView);
+
+        final TextView tvDialogTitle = dialogView.findViewById(R.id.tv_dialog_title);
+        final EditText etDialogInput = dialogView.findViewById(R.id.et_dialog_input);
+        Button btnSave = dialogView.findViewById(R.id.btn_dialog_save);
+        Button btnCancel = dialogView.findViewById(R.id.btn_dialog_cancel);
+
+        tvDialogTitle.setText(title);
 
         if (fieldKey.equals("contactNumber")) {
-            input.setInputType(InputType.TYPE_CLASS_PHONE);
+            etDialogInput.setInputType(InputType.TYPE_CLASS_PHONE);
+            etDialogInput.setHint("Enter contact no.");
         } else {
-            input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+            etDialogInput.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_FLAG_CAP_WORDS);
+            etDialogInput.setHint("Enter name");
         }
 
         if (!currentValue.startsWith("Set ") && !currentValue.equals("N/A") && !currentValue.equals("Not Set") && !currentValue.equals("User")) {
-            input.setText(currentValue);
-            input.setSelection(currentValue.length());
-        } else {
-            input.setHint("Enter " + fieldKey.toLowerCase().replace("number", " no."));
+            etDialogInput.setText(currentValue);
+            etDialogInput.setSelection(currentValue.length());
         }
 
-        builder.setView(input);
+        final AlertDialog dialog = builder.create();
 
-        builder.setPositiveButton("Save", (dialog, which) -> {
-            String newValue = input.getText().toString().trim();
+        btnSave.setOnClickListener(v -> {
+            String newValue = etDialogInput.getText().toString().trim();
+            if (fieldKey.equals("name") && TextUtils.isEmpty(newValue)) {
+                etDialogInput.setError("Name cannot be empty");
+                return;
+            }
             updateFirebaseField(fieldKey, newValue);
+            dialog.dismiss();
         });
-        builder.setNegativeButton("Cancel", (dialog, which) -> dialog.cancel());
-        builder.show();
+
+        btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialog.show();
     }
 
     private void showBirthdayPickerDialog() {
@@ -168,9 +185,11 @@ public class ProfileActivity extends AppCompatActivity {
                 Log.w(TAG, "Could not parse existing birthday: " + currentBirthdayText, e);
             }
         }
+
         int year = calendar.get(Calendar.YEAR);
         int month = calendar.get(Calendar.MONTH);
         int day = calendar.get(Calendar.DAY_OF_MONTH);
+
         DatePickerDialog datePickerDialog = new DatePickerDialog(this, R.style.GreenDatePickerDialog,(view, yearSelected, monthOfYear, dayOfMonth) -> {
             Calendar selectedDate = Calendar.getInstance();
             selectedDate.set(yearSelected, monthOfYear, dayOfMonth);
@@ -204,7 +223,6 @@ public class ProfileActivity extends AppCompatActivity {
             if (userProfileListener != null) {
                 userDatabaseReference.removeEventListener(userProfileListener);
             }
-
             userProfileListener = new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -242,7 +260,6 @@ public class ProfileActivity extends AppCompatActivity {
                 finish();
             }
         }
-
         if (binding.tvProfilePassword != null) {
             binding.tvProfilePassword.setText("************");
         }
@@ -252,13 +269,11 @@ public class ProfileActivity extends AppCompatActivity {
         Intent intent = new Intent(getApplicationContext(), destinationActivityClass);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         startActivity(intent);
-
         boolean slideRightToLeft = getItemIndex(destinationItemId) > getItemIndex(CURRENT_ITEM_ID);
         if (slideRightToLeft)
             overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);
         else
             overridePendingTransition(R.anim.slide_in_left, R.anim.slide_out_right);
-
         if (finishCurrent) finish();
     }
 

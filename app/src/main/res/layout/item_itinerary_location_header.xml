@@ -128,9 +128,9 @@
             android:layout_weight="1"
             android:text="Customize"
             android:textColor="@android:color/white"
-            android:textSize="12sp"
+            android:textSize="11sp"
             android:backgroundTint="@color/colorPrimary"
-            app:cornerRadius="12dp" />
+            app:cornerRadius="11dp" />
 
         <Button
             android:id="@+id/btn_clear_itinerary"
